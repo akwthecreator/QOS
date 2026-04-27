@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QoimaGroupIS — Операционный дашборд</title>
+<style>
+:root[data-theme="dark"] {
+  --bg: #0a0a0a;
+  --bg2: #1a1a1a;
+  --bg3: #2a2a2a;
+  --border: #333;
+  --text: #ffffff;
+  --text2: #b0b0b0;
+  --text3: #666;
+  --accent: #0066ff;
+  --green: #00cc66;
+  --yellow: #ffaa00;
+  --orange: #ff6600;
+  --red: #ff3333;
+}
+:root[data-theme="light"] {
+  --bg: #f8f8f8;
+  --bg2: #ffffff;
+  --bg3: #f0f0f0;
+  --border: #e0e0e0;
+  --text: #1a1a1a;
+  --text2: #666666;
+  --text3: #aaaaaa;
+  --accent: #0066ff;
+  --green: #00cc66;
+  --yellow: #ffaa00;
+  --orange: #ff6600;
+  --red: #ff3333;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; transition: background 0.3s; }
+
+.container { display: flex; min-height: 100vh; }
+
+.sidebar { width: 60px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; position: fixed; height: 100vh; }
+.logo { width: 40px; height: 40px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 14px; }
+.nav-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: transparent; color: var(--text3); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.nav-btn:hover { background: var(--bg3); color: var(--text); }
+.nav-btn.active { background: var(--accent); color: white; }
+.nav-btn svg { width: 20px; height: 20px; }
+
+.main { margin-left: 60px; width: calc(100% - 60px); padding: 40px; overflow-y: auto; }
+.page { display: none; }
+.page.active { display: block; }
+
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+.header h1 { font-size: 32px; font-weight: 400; letter-spacing: -0.5px; }
+.header-right { display: flex; gap: 16px; align-items: center; }
+.theme-toggle { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; font-size: 18px; }
+.status-indicator { width: 10px; height: 10px; border-radius: 50%; background: var(--red); animation: pulse 2s infinite; }
+.status-indicator.ok { background: var(--green); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+.message { padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+.message.error { background: rgba(255, 51, 51, 0.1); border: 1px solid var(--red); color: var(--red); }
+.message.success { background: rgba(0, 204, 102, 0.1); border: 1px solid var(--green); color: var(--green); }
+.message.info { background: rgba(0, 102, 255, 0.1); border: 1px solid var(--accent); color: var(--accent); }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px; }
+.kpi-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
+.kpi-label { font-size: 13px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+.kpi-value { font-size: 36px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.kpi-delta { font-size: 13px; color: var(--green); }
+.kpi-progress { height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 16px; overflow: hidden; }
+.kpi-progress-fill { height: 100%; border-radius: 2px; transition: all 0.3s; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
+.card-title { font-size: 14px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; }
+.card-title strong { color: var(--text); }
+
+.chart { height: 180px; display: flex; align-items: flex-end; gap: 6px; margin-bottom: 16px; }
+.bar { flex: 1; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 20px; transition: all 0.2s; cursor: pointer; }
+.bar:hover { opacity: 0.7; }
+
+.table { width: 100%; border-collapse: collapse; }
+.table th { text-align: left; padding: 12px 16px; font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); font-weight: 500; }
+.table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.table tr:hover { background: var(--bg3); }
+
+.stat-box { display: flex; flex-direction: column; gap: 8px; padding: 16px; background: var(--bg3); border-radius: 8px; }
+.stat-label { font-size: 12px; color: var(--text3); text-transform: uppercase; }
+.stat-value { font-size: 28px; font-weight: 600; color: var(--text); }
+
+.store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+.store-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+.store-name { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+.store-metric { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.store-metric:last-child { border-bottom: none; }
+.store-metric-label { font-size: 13px; color: var(--text2); }
+.store-metric-value { font-size: 18px; font-weight: 600; color: var(--text); }
+
+.status-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+.status-excellent { background: rgba(0, 204, 102, 0.2); color: var(--green); }
+.status-good { background: rgba(255, 170, 0, 0.2); color: var(--yellow); }
+.status-warning { background: rgba(255, 102, 0, 0.2); color: var(--orange); }
+.status-critical { background: rgba(255, 51, 51, 0.2); color: var(--red); }
+
+.sync-btn { padding: 10px 16px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
+.sync-btn:hover { opacity: 0.9; }
+.sync-btn.loading { opacity: 0.5; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="sidebar">
+    <div class="logo">QGI</div>
+    <button class="nav-btn active" onclick="showPage('home')" id="nav-home" title="Главная">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </button>
+    <button class="nav-btn" onclick="showPage('kpi')" id="nav-kpi" title="KPI">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    </button>
+    <button class="nav-btn" onclick="showPage('heatmap')" id="nav-heatmap" title="Карта">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+    </button>
+    <button class="nav-btn" onclick="showPage('stores')" id="nav-stores" title="Магазины">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    </button>
+    <button class="nav-btn" onclick="showPage('analysis')" id="nav-analysis" title="А-Анализ">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/><circle cx="18" cy="5" r="2"/><circle cx="6" cy="19" r="2"/></svg>
+    </button>
+    <div style="flex:1"></div>
+    <button class="nav-btn" onclick="toggleTheme()" id="themeBtn" title="Тема">🌙</button>
+  </div>
+
+  <div class="main">
+    <div class="page active" id="page-home">
+      <div class="header">
+        <div>
+          <h1>QoimaGroupIS</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Операционный дашборд</p>
+        </div>
+        <div class="header-right">
+          <div style="font-size:13px;color:var(--text2)">
+            <span id="currentDate">Загрузка...</span> | 
+            <span id="lastSync" style="font-size:11px">не синхронизирован</span>
+          </div>
+          <div id="statusDot" class="status-indicator"></div>
+          <button class="sync-btn" id="syncBtn" onclick="syncData()">Синхронизировать</button>
+          <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        </div>
+      </div>
+
+      <div id="statusMessage"></div>
+
+      <div id="dashboardContent" style="display:none">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Выручка</div>
+            <div class="kpi-value" id="kpi-revenue">—</div>
+            <div id="kpi-revenue-full" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Средний чек</div>
+            <div class="kpi-value" id="kpi-avg">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Конверсия</div>
+            <div class="kpi-value" id="kpi-conv">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Выполнение плана</div>
+            <div class="kpi-value" id="kpi-plan">—</div>
+            <div id="plan-status" style="margin-top:16px"></div>
+            <div class="kpi-progress" style="margin-top:12px">
+              <div class="kpi-progress-fill" id="plan-progress-fill" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="kpi-card" id="kpi-chance-card" style="border-color:var(--border)">
+            <div class="kpi-label">Шанс выполнения плана</div>
+            <div class="kpi-value" id="kpi-chance">—</div>
+            <div id="kpi-chance-label" style="font-size:13px;margin-top:6px;color:var(--text3)"></div>
+            <div class="kpi-progress" style="margin-top:16px">
+              <div class="kpi-progress-fill" id="chance-progress-fill" style="width:0%"></div>
+            </div>
+            <div id="kpi-chance-detail" style="font-size:12px;color:var(--text3);margin-top:12px;line-height:1.6"></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><strong>Выручка по дням</strong></div>
+            <div class="chart" id="home-chart"></div>
+          </div>
+          <div class="card">
+            <div class="card-title"><strong>Статистика</strong></div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="stat-box">
+                <div class="stat-label">Всего магазинов</div>
+                <div class="stat-value" id="stat-stores">—</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Дней данных</div>
+                <div class="stat-value" id="stat-days">—</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Всего посещений</div>
+                <div class="stat-value" id="stat-visitors">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-kpi">
+      <div class="header">
+        <h1>KPI анализ</h1>
+      </div>
+      <div class="card">
+        <div class="card-title"><strong>Метрики по магазинам</strong></div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Магазин</th>
+              <th>Выручка</th>
+              <th>План</th>
+              <th>Выполнение</th>
+              <th>Чеков</th>
+              <th>Ср. чек</th>
+              <th>Конверсия</th>
+              <th>Посещений</th>
+            </tr>
+          </thead>
+          <tbody id="kpi-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page" id="page-heatmap">
+      <div class="header">
+        <div>
+          <h1>Тепловая карта операций</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px" id="heatmap-month-label"></p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px" id="heatmap-stats">
+        <div class="stat-box">
+          <div class="stat-label">Топ день</div>
+          <div class="stat-value" id="hm-top-day">—</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px" id="hm-top-day-val"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Ср. посещений/день</div>
+          <div class="stat-value" id="hm-avg-day">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Всего за период</div>
+          <div class="stat-value" id="hm-total">—</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><strong>Посещаемость по магазинам</strong></div>
+        <div id="heatmap-container"></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-stores">
+      <div class="header">
+        <h1>Магазины</h1>
+      </div>
+      <div class="store-grid" id="stores-grid"></div>
+    </div>
+    <div class="page" id="page-analysis">
+      <div class="header">
+        <div>
+          <h1>А-Анализ</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px" id="analysis-subtitle">Динамика продаж по магазинам</p>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+          <div>
+            <div style="font-size:18px;font-weight:600;color:var(--text)">Выручка по дням</div>
+            <div style="font-size:13px;color:var(--text3);margin-top:4px">Все магазины · с 1-го числа</div>
+          </div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center" id="analysis-legend"></div>
+        </div>
+        <div id="analysis-tooltip" style="position:fixed;background:rgba(20,20,20,0.95);border:1px solid #333;border-radius:10px;padding:10px 14px;font-size:13px;pointer-events:none;display:none;z-index:999;min-width:160px;backdrop-filter:blur(8px)"></div>
+        <div style="position:relative;overflow:hidden;border-radius:8px" id="lineChartWrap">
+          <svg id="lineChartSVG" style="width:100%;display:block" preserveAspectRatio="none"></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEET_ID = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
+const SHEET_NAME = 'АПРЕЛЬ KPI';
+const API_KEY = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
+
+const STORES = [
+  { id: 'qoima', name: 'QOIMA', color: '#b19cd9', core: true },
+  { id: 'abo',   name: 'ABO',   color: '#6ba3d4', core: true },
+  { id: 'look',  name: 'LOOK',  color: '#a8c96f', core: true },
+  { id: 'aport', name: 'APORT', color: '#d4a56b', core: true },
+  { id: 'mart',  name: 'MART VILLAGE', color: '#d46b6b', core: false }, // franchise
+  { id: 'kaspi', name: 'KASPI', color: '#9b7cd4', core: false }         // online
+];
+// Core stores only (for summary KPIs, heatmap)
+const CORE_STORES = STORES.filter(s => s.core);
+
+let globalData = null;
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme') || 'dark';
+  html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+  document.getElementById('themeBtn').textContent = current === 'dark' ? '☀️' : '🌙';
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+}
+
+function setDate() {
+  const d = new Date();
+  const months = ['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'];
+  document.getElementById('currentDate').textContent = `${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+function parseNum(val) {
+  if (val === null || val === undefined || val === '') return 0;
+  let s = String(val)
+    .replace(/\u00a0/g, '')
+    .replace(/\s/g, '')
+    .replace(/[\u20b8\u20B8₸]/g, '')
+    .replace(/[%]/g, '')
+    .replace(/,/g, '.');
+  const num = parseFloat(s);
+  return isNaN(num) ? 0 : num;
+}
+
+function parseSheetData(values) {
+  const SECTION_MAP = {
+    'ABO': 'abo',
+    'QOIMA': 'qoima',
+    'LOOK': 'look',
+    'APORT': 'aport',
+    'KASPI': 'kaspi',
+    'MART VILLAGE': 'mart',
+    'MART': 'mart'
+  };
+
+  const data = {
+    stores: {},
+    totalRevenue: 0,
+    totalPlan: 0,
+    totalChecks: 0,
+    totalVisitors: 0,
+    dailyData: []
+  };
+
+  STORES.forEach(s => {
+    data.stores[s.id] = {
+      name: s.name,
+      plan: 0, revenue: 0, checks: 0,
+      avgCheck: 0, conversion: 0, visitors: 0,
+      dailyRevenue: [], dailyVisitors: []
+    };
+  });
+
+  let currentStore = null;
+
+  for (let i = 0; i < values.length; i++) {
+    const row = values[i] || [];
+    const c0 = (row[0] || '').toString().trim();
+    const c2 = (row[2] || '').toString().trim();
+    const c0up = c0.toUpperCase();
+    const c2low = c2.toLowerCase();
+
+    // Detect section header: col2 contains plan keyword
+    const isPlanHeader = c2low.includes('\u043f\u043b\u0430\u043d \u043d\u0430 \u043c\u0430\u0433\u0430\u0437\u0438\u043d') || c2low.includes('\u043e\u0431\u0449\u0438\u0439 \u043f\u043b\u0430\u043d');
+    if (isPlanHeader) {
+      currentStore = SECTION_MAP[c0up] || null;
+      if (currentStore && data.stores[currentStore] && data.stores[currentStore].plan === 0) {
+        const nextRow = values[i + 1] || [];
+        const planVal = parseNum(nextRow[2]);
+        if (planVal > 0) {
+          data.stores[currentStore].plan = planVal;
+          data.totalPlan += planVal;
+        }
+      }
+      continue;
+    }
+
+    if (!currentStore || !data.stores[currentStore]) continue;
+    const store = data.stores[currentStore];
+
+    if (c0 === '\u0412\u044b\u0440\u0443\u0447\u043a\u0430' && store.revenue === 0) {
+      store.revenue = parseNum(c2);
+      data.totalRevenue += store.revenue;
+      for (let j = 3; j < row.length; j++) {
+        store.dailyRevenue.push(parseNum(row[j]));
+      }
+    }
+
+    if (c0 === '\u0427\u0435\u043a\u043e\u0432' && store.checks === 0) {
+      store.checks = parseNum(c2);
+      data.totalChecks += store.checks;
+    }
+
+    if (c0 === '\u0421\u0440 \u0441\u0443\u043c\u043c\u0430 \u0447\u0435\u043a' && store.avgCheck === 0) {
+      store.avgCheck = parseNum(c2);
+    }
+
+    if (c0 === '\u041a\u043e\u043d\u0432\u0435\u0440\u0441\u0438\u044f' && store.conversion === 0) {
+      store.conversion = parseNum(c2);
+    }
+
+    if (c0 === '\u0421\u0447\u0435\u0442\u0447\u0438\u043a' && store.visitors === 0) {
+      store.visitors = parseNum(c2);
+      data.totalVisitors += store.visitors;
+      for (let j = 3; j < row.length; j++) {
+        store.dailyVisitors.push(parseNum(row[j]));
+      }
+    }
+  }
+
+  const maxDays = Math.max(...Object.values(data.stores).map(s => s.dailyRevenue.length), 0);
+  for (let d = 0; d < maxDays; d++) {
+    let sum = 0;
+    Object.values(data.stores).forEach(s => { sum += (s.dailyRevenue[d] || 0); });
+    data.dailyData.push(sum);
+  }
+
+  console.log('Parsed data:', JSON.stringify(data));
+  return data;
+}
+
+function showMessage(text, type) {
+  const el = document.getElementById('statusMessage');
+  if (!el) return;
+  if (!text) {
+    el.innerHTML = '';
+    return;
+  }
+  el.innerHTML = `<div class="message ${type}">${text}</div>`;
+  // Автоматически убрать через 4 секунды (кроме ошибок)
+  if (type !== 'error') {
+    setTimeout(() => { el.innerHTML = ''; }, 4000);
+  }
+}
+
+async function syncData() {
+  const btn = document.getElementById('syncBtn');
+  btn.classList.add('loading');
+  showMessage('Синхронизация...', 'info');
+
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}?key=${API_KEY}`;
+    const res = await fetch(url);
+    
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    
+    if (!json.values || !Array.isArray(json.values)) {
+      throw new Error('Неверный формат данных');
+    }
+
+    const parsed = parseSheetData(json.values);
+    globalData = parsed;
+
+    updateUI(parsed);
+    
+    showMessage('✓ Данные загружены', 'success');
+    document.getElementById('dashboardContent').style.display = 'block';
+    document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('ru-RU');
+    document.getElementById('statusDot').classList.add('ok');
+
+  } catch (err) {
+    console.error(err);
+    showMessage('Ошибка: ' + err.message, 'error');
+    document.getElementById('statusDot').classList.remove('ok');
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+function updateUI(data) {
+  const now = new Date();
+  const todayNum = now.getDate();
+  const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  const dayShortRu = ['вс','пн','вт','ср','чт','пт','сб'];
+  const monthYear = monthNames[now.getMonth()] + ' ' + now.getFullYear();
+
+  const year = now.getFullYear(), month = now.getMonth();
+  const dateLabelsFull = [];
+  for (let d = 1; d <= todayNum; d++) {
+    const dt = new Date(year, month, d);
+    dateLabelsFull.push({ day: d, dayName: dayShortRu[dt.getDay()] });
+  }
+  const numDays = dateLabelsFull.length;
+
+  const coreIds = CORE_STORES.map(s => s.id);
+  const coreStores = Object.fromEntries(Object.entries(data.stores).filter(([id]) => coreIds.includes(id)));
+  const coreRevenue  = Object.values(coreStores).reduce((s, st) => s + st.revenue, 0);
+  const corePlan     = Object.values(coreStores).reduce((s, st) => s + st.plan, 0);
+  const coreChecks   = Object.values(coreStores).reduce((s, st) => s + st.checks, 0);
+  const coreVisitors = Object.values(coreStores).reduce((s, st) => s + st.visitors, 0);
+
+  // --- KPI cards ---
+  document.getElementById('kpi-revenue').textContent = (coreRevenue / 1e6).toFixed(1) + ' М₸';
+  document.getElementById('kpi-revenue-full').textContent = coreRevenue.toLocaleString('ru-RU') + ' ₸';
+  document.getElementById('kpi-avg').textContent = Math.round(coreRevenue / (coreChecks || 1)).toLocaleString('ru-RU') + ' ₸';
+  const avgConv = Object.values(coreStores).reduce((s, st) => s + (st.conversion || 0), 0) / (Object.keys(coreStores).length || 1);
+  document.getElementById('kpi-conv').textContent = avgConv.toFixed(1) + '%';
+  const planComp = corePlan > 0 ? (coreRevenue / corePlan) * 100 : 0;
+  document.getElementById('kpi-plan').textContent = Math.min(100, planComp).toFixed(0) + '%';
+  const planFill = document.getElementById('plan-progress-fill');
+  planFill.style.width = Math.min(100, planComp) + '%';
+  planFill.style.background = planComp >= 80 ? '#00cc66' : planComp >= 60 ? '#ffaa00' : planComp >= 40 ? '#ff6600' : '#ff3333';
+
+  // --- Статистика ---
+  const activeStores = Object.values(data.stores).filter(s => s.revenue > 0).length;
+  document.getElementById('stat-stores').textContent = activeStores;
+  document.getElementById('stat-days').textContent = numDays;
+  document.getElementById('stat-visitors').textContent = coreVisitors.toLocaleString('ru-RU');
+
+  // --- Шанс выполнения плана ---
+  {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysLeft = daysInMonth - todayNum;
+    const dailyTotals = [];
+    for (let d = 0; d < numDays; d++) {
+      let sum = 0;
+      Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d] || 0); });
+      dailyTotals.push(sum);
+    }
+    const avgDailyRevenue = dailyTotals.reduce((a, b) => a + b, 0) / (dailyTotals.length || 1);
+    const needed = corePlan - coreRevenue;
+    const neededPerDay = daysLeft > 0 ? needed / daysLeft : 0;
+
+    // Шанс = насколько текущий темп покрывает нужный темп
+    // coverageRatio: 1.0 = точно справляются, 0.5 = делают половину нужного
+    let chanceDisplay = 0;
+    if (daysLeft <= 0) {
+      // Месяц закончился — шанс = факт выполнения
+      chanceDisplay = Math.min(100, corePlan > 0 ? (coreRevenue / corePlan) * 100 : 0);
+    } else if (neededPerDay <= 0) {
+      // План уже выполнен
+      chanceDisplay = 100;
+    } else {
+      const coverageRatio = avgDailyRevenue / neededPerDay;
+      // Нелинейная шкала: при покрытии 100% → шанс 95%, при 50% → ~35%, при 30% → ~15%
+      if (coverageRatio >= 1.0) {
+        chanceDisplay = 90 + Math.min(10, (coverageRatio - 1) * 20);
+      } else {
+        // Степенная функция: chance = coverageRatio^1.5 * 90
+        chanceDisplay = Math.pow(coverageRatio, 1.5) * 90;
+      }
+      chanceDisplay = Math.min(100, Math.max(1, chanceDisplay));
+    }
+    const chanceRaw = chanceDisplay; // для пороговых цветов
+
+    // Color & label
+    let chanceColor, chanceLabel, cardBorder;
+    if (chanceRaw >= 95) {
+      chanceColor = '#00cc66'; chanceLabel = '✅ Высокий — план реализуем'; cardBorder = 'rgba(0,204,102,0.4)';
+    } else if (chanceRaw >= 75) {
+      chanceColor = '#ffaa00'; chanceLabel = '⚡ Средний — нужно ускориться'; cardBorder = 'rgba(255,170,0,0.4)';
+    } else if (chanceRaw >= 50) {
+      chanceColor = '#ff6600'; chanceLabel = '⚠️ Низкий — критичное отставание'; cardBorder = 'rgba(255,102,0,0.4)';
+    } else {
+      chanceColor = '#ff3333'; chanceLabel = '🔴 Критично — план недостижим'; cardBorder = 'rgba(255,51,51,0.4)';
+    }
+
+    const card = document.getElementById('kpi-chance-card');
+    card.style.borderColor = cardBorder;
+    document.getElementById('kpi-chance').style.color = chanceColor;
+    document.getElementById('kpi-chance').textContent = chanceDisplay.toFixed(0) + '%';
+    document.getElementById('kpi-chance-label').textContent = chanceLabel;
+    document.getElementById('chance-progress-fill').style.width = chanceDisplay + '%';
+    document.getElementById('chance-progress-fill').style.background = chanceColor;
+    const coverageRatio = neededPerDay > 0 ? avgDailyRevenue / neededPerDay : 1;
+    document.getElementById('kpi-chance-detail').innerHTML =
+      `Нужно ещё: <b style="color:var(--text)">${(needed/1e6).toFixed(1)} М₸</b><br>` +
+      `Осталось дней: <b style="color:var(--text)">${daysLeft}</b><br>` +
+      `Нужно/день: <b style="color:var(--text)">${(neededPerDay/1e6).toFixed(2)} М₸</b><br>` +
+      `Сейчас/день: <b style="color:${chanceColor}">${(avgDailyRevenue/1e6).toFixed(2)} М₸</b> (${Math.round(coverageRatio*100)}% нужного)`;
+  }
+
+  // --- Home bar chart ---
+  const chartEl = document.getElementById('home-chart');
+  chartEl.innerHTML = '';
+  const coreDailyTotals = [];
+  for (let d = 0; d < numDays; d++) {
+    let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d] || 0); });
+    coreDailyTotals.push(sum);
+  }
+  const maxBar = Math.max(...coreDailyTotals, 1);
+  coreDailyTotals.forEach(val => {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.height = ((val / maxBar) * 150) + 'px';
+    chartEl.appendChild(bar);
+  });
+
+  // --- KPI table (all stores) ---
+  const tbody = document.getElementById('kpi-tbody');
+  tbody.innerHTML = '';
+  STORES.forEach(({ id }) => {
+    const store = data.stores[id];
+    if (!store || !store.revenue) return;
+    const comp = store.plan > 0 ? (store.revenue / store.plan) * 100 : 0;
+    const badge = comp >= 80 ? 'status-excellent' : comp >= 60 ? 'status-good' : comp >= 40 ? 'status-warning' : 'status-critical';
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${store.name}</td>
+      <td>${(store.revenue/1e6).toFixed(2)} М₸</td>
+      <td>${(store.plan/1e6).toFixed(2)} М₸</td>
+      <td><span class="status-badge ${badge}">${Math.min(100,comp).toFixed(0)}%</span></td>
+      <td>${store.checks}</td>
+      <td>${Math.round(store.avgCheck).toLocaleString('ru-RU')} ₸</td>
+      <td>${store.conversion.toFixed(1)}%</td>
+      <td>${store.visitors.toLocaleString('ru-RU')}</td>`;
+    tbody.appendChild(row);
+  });
+
+  // --- Heatmap ---
+  document.getElementById('heatmap-month-label').textContent = monthYear;
+  const hmEl = document.getElementById('heatmap-container');
+  hmEl.innerHTML = '';
+  const hmColors = ['#111','#1a2e1a','#2d5030','#4a8050','#00cc66'];
+
+  // Compute daily totals for core stores (for top day)
+  const hmDailyTotals = [];
+  for (let d = 0; d < numDays; d++) {
+    let sum = 0;
+    CORE_STORES.forEach(({ id }) => { sum += (data.stores[id]?.dailyVisitors[d] || 0); });
+    hmDailyTotals.push(sum);
+  }
+  const topDayIdx = hmDailyTotals.indexOf(Math.max(...hmDailyTotals));
+  const topDayLabel = dateLabelsFull[topDayIdx];
+  const hmTotal = hmDailyTotals.reduce((a, b) => a + b, 0);
+
+  document.getElementById('hm-top-day').textContent = topDayLabel ? `${topDayLabel.dayName} ${topDayLabel.day}` : '—';
+  document.getElementById('hm-top-day-val').textContent = topDayLabel ? `${hmDailyTotals[topDayIdx].toLocaleString('ru-RU')} чел.` : '';
+  document.getElementById('hm-avg-day').textContent = numDays > 0 ? Math.round(hmTotal / numDays).toLocaleString('ru-RU') : '—';
+  document.getElementById('hm-total').textContent = hmTotal.toLocaleString('ru-RU');
+
+  // Date header
+  const headerRow = document.createElement('div');
+  headerRow.style.cssText = 'display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:center;margin-bottom:8px';
+  const datesRow = document.createElement('div');
+  datesRow.style.cssText = 'display:flex;gap:3px';
+  dateLabelsFull.forEach(({ day, dayName }) => {
+    const lbl = document.createElement('div');
+    lbl.style.cssText = 'flex:1;text-align:center;font-size:9px;color:var(--text3);line-height:1.3';
+    lbl.innerHTML = `<div>${dayName}</div><div>${day}</div>`;
+    datesRow.appendChild(lbl);
+  });
+  headerRow.appendChild(document.createElement('div'));
+  headerRow.appendChild(datesRow);
+  hmEl.appendChild(headerRow);
+
+  CORE_STORES.forEach(({ id, name }) => {
+    const store = data.stores[id];
+    if (!store) return;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:center;margin-bottom:8px';
+    const nameEl = document.createElement('div');
+    nameEl.textContent = name;
+    nameEl.style.cssText = 'font-size:13px;font-weight:500';
+    const barsEl = document.createElement('div');
+    barsEl.style.cssText = 'display:flex;gap:3px';
+    const sliced = store.dailyVisitors.slice(0, numDays);
+    const maxV = Math.max(...sliced, 1);
+    sliced.forEach((v, idx) => {
+      const cellInt = Math.min(4, Math.floor((v / maxV) * 4.99));
+      const cell = document.createElement('div');
+      const { day, dayName } = dateLabelsFull[idx] || {};
+      const isTop = idx === topDayIdx;
+      cell.style.cssText = `flex:1;height:32px;border-radius:4px;background:${hmColors[cellInt]};cursor:default;${isTop ? 'outline:2px solid #00cc66;outline-offset:1px' : ''}`;
+      cell.title = `${dayName} ${day}: ${v} чел.`;
+      barsEl.appendChild(cell);
+    });
+    row.appendChild(nameEl);
+    row.appendChild(barsEl);
+    hmEl.appendChild(row);
+  });
+
+  // --- А-Анализ SVG line chart ---
+  document.getElementById('analysis-subtitle').textContent = 'Динамика продаж · ' + monthYear;
+  buildSmoothChart(data, dateLabelsFull, numDays);
+}
+
+function buildSmoothChart(data, dateLabelsFull, numDays) {
+  const wrap = document.getElementById('lineChartWrap');
+  const W = 1000, H = 340;
+  const padL = 64, padR = 24, padT = 24, padB = 44;
+  const cW = W - padL - padR, cH = H - padT - padB;
+
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const gridClr   = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const axisClr   = isDark ? '#2a2a2a' : '#e8e8e8';
+  const labelClr  = isDark ? '#555' : '#aaa';
+  const bgClr     = isDark ? '#0f0f0f' : '#fafafa';
+
+  // Collect all store daily values trimmed to numDays
+  let globalMax = 0;
+  STORES.forEach(({ id }) => {
+    data.stores[id]?.dailyRevenue.slice(0, numDays).forEach(v => { if (v > globalMax) globalMax = v; });
+  });
+  if (!globalMax) return;
+
+  // Helper: x/y pixel positions
+  const xOf = i => padL + (numDays <= 1 ? cW/2 : (i / (numDays - 1)) * cW);
+  const yOf = v => padT + (1 - v / globalMax) * cH;
+
+  // Helper: smooth bezier path from points
+  function smoothPath(pts) {
+    if (pts.length < 2) return '';
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+      const cp1x = (pts[i-1][0] + pts[i][0]) / 2;
+      d += ` C ${cp1x} ${pts[i-1][1]}, ${cp1x} ${pts[i][1]}, ${pts[i][0]} ${pts[i][1]}`;
+    }
+    return d;
+  }
+
+  // Build SVG string
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;font-family:-apple-system,BlinkMacSystemFont,sans-serif">`;
+  svg += `<rect width="${W}" height="${H}" fill="${bgClr}" rx="8"/>`;
+
+  // Grid lines + Y labels
+  const gridSteps = 5;
+  for (let i = 0; i <= gridSteps; i++) {
+    const gy = padT + (cH / gridSteps) * i;
+    const val = globalMax * (1 - i / gridSteps);
+    const lbl = val >= 1e6 ? (val/1e6).toFixed(1)+'М' : val >= 1e3 ? Math.round(val/1e3)+'К' : Math.round(val);
+    svg += `<line x1="${padL}" y1="${gy}" x2="${W-padR}" y2="${gy}" stroke="${gridClr}" stroke-width="1"/>`;
+    svg += `<text x="${padL-8}" y="${gy+4}" text-anchor="end" fill="${labelClr}" font-size="11">${lbl}</text>`;
+  }
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="${axisClr}" stroke-width="1"/>`;
+  svg += `<line x1="${padL}" y1="${padT+cH}" x2="${W-padR}" y2="${padT+cH}" stroke="${axisClr}" stroke-width="1"/>`;
+
+  // X labels
+  const step = numDays <= 10 ? 1 : numDays <= 20 ? 2 : numDays <= 27 ? 3 : 4;
+  dateLabelsFull.forEach(({ day, dayName }, i) => {
+    if (i % step !== 0 && i !== numDays - 1) return;
+    const x = xOf(i);
+    svg += `<text x="${x}" y="${padT+cH+16}" text-anchor="middle" fill="${labelClr}" font-size="10">${dayName}</text>`;
+    svg += `<text x="${x}" y="${padT+cH+28}" text-anchor="middle" fill="${labelClr}" font-size="10" font-weight="500">${day}</text>`;
+  });
+
+  // Gradient defs + lines per store
+  svg += '<defs>';
+  STORES.forEach(({ id, color }) => {
+    const vals = data.stores[id]?.dailyRevenue.slice(0, numDays) || [];
+    if (vals.every(v => v === 0)) return;
+    const hex = color.replace('#','');
+    svg += `<linearGradient id="grad_${id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient>`;
+  });
+  svg += '</defs>';
+
+  // Draw area + line for each store
+  STORES.forEach(({ id, color }) => {
+    const vals = data.stores[id]?.dailyRevenue.slice(0, numDays) || [];
+    if (vals.every(v => v === 0)) return;
+    const pts = vals.map((v, i) => [xOf(i), yOf(v)]);
+    const linePath = smoothPath(pts);
+    // Area path = line path + bottom close
+    const areaPath = linePath + ` L ${pts[pts.length-1][0]} ${padT+cH} L ${pts[0][0]} ${padT+cH} Z`;
+    svg += `<path d="${areaPath}" fill="url(#grad_${id})" opacity="0.7"/>`;
+    svg += `<path d="${linePath}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    // Last point dot
+    const lx = pts[pts.length-1][0], ly = pts[pts.length-1][1];
+    svg += `<circle cx="${lx}" cy="${ly}" r="5" fill="${color}" stroke="${bgClr}" stroke-width="2"/>`;
+  });
+
+  svg += '</svg>';
+  wrap.innerHTML = svg;
+
+  // Legend
+  const legendEl = document.getElementById('analysis-legend');
+  legendEl.innerHTML = '';
+  STORES.forEach(({ id, name, color }) => {
+    const vals = data.stores[id]?.dailyRevenue.slice(0, numDays) || [];
+    if (vals.every(v => v === 0)) return;
+    const item = document.createElement('div');
+    item.style.cssText = 'display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)';
+    item.innerHTML = `<div style="width:24px;height:3px;background:${color};border-radius:2px"></div>${name}`;
+    legendEl.appendChild(item);
+  });
+
+  // Hover interaction: vertical crosshair + tooltip
+  const svgEl = wrap.querySelector('svg');
+  const tooltip = document.getElementById('analysis-tooltip');
+
+  svgEl.addEventListener('mousemove', (e) => {
+    const rect = svgEl.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const mx = (e.clientX - rect.left) * scaleX;
+    if (mx < padL || mx > W - padR) { tooltip.style.display='none'; return; }
+    const frac = (mx - padL) / cW;
+    const idx = Math.round(frac * (numDays - 1));
+    if (idx < 0 || idx >= numDays) { tooltip.style.display='none'; return; }
+    const { day, dayName } = dateLabelsFull[idx];
+    let html = `<div style="font-weight:600;color:#fff;margin-bottom:8px;font-size:13px">${dayName} ${day}</div>`;
+    STORES.forEach(({ id, name, color }) => {
+      const v = data.stores[id]?.dailyRevenue[idx] || 0;
+      if (!v) return;
+      html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
+        <span style="color:#aaa;font-size:12px">${name}</span>
+        <span style="color:#fff;font-size:12px;margin-left:auto;padding-left:12px">${(v/1e3).toFixed(0)}К₸</span>
+      </div>`;
+    });
+    tooltip.innerHTML = html;
+    tooltip.style.display = 'block';
+    // Position near cursor
+    const tx = e.clientX + 16;
+    const ty = e.clientY - 30;
+    tooltip.style.left = Math.min(tx, window.innerWidth - 200) + 'px';
+    tooltip.style.top = ty + 'px';
+  });
+  svgEl.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+}
+
+window.addEventListener('load', () => {
+  setDate();
+  syncData();
+  setInterval(syncData, 60000);
+});
+</script>
+</body>
+</html>

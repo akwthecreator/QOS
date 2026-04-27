@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QoimaOperationDashboard — Операционный дашборд</title>
+<title>QoimaGroupIS — Операционный дашборд</title>
 <style>
 :root[data-theme="dark"] {
   --bg: #0a0a0a;
@@ -77,9 +77,12 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .card-title { font-size: 14px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; }
 .card-title strong { color: var(--text); }
 
-.chart { height: 180px; display: flex; align-items: flex-end; gap: 6px; margin-bottom: 16px; }
-.bar { flex: 1; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 20px; transition: all 0.2s; cursor: pointer; }
-.bar:hover { opacity: 0.7; }
+.chart { height: 150px; display: flex; align-items: flex-end; gap: 4px; }
+.chart-wrap { margin-bottom: 16px; }
+.chart-labels { display: flex; gap: 4px; margin-top: 6px; }
+.chart-label { flex: 1; text-align: center; font-size: 9px; color: var(--text3); line-height: 1.3; overflow: hidden; }
+.bar { flex: 1; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 4px; transition: all 0.2s; cursor: pointer; }
+.bar:hover { background: #3388ff; }
 
 .table { width: 100%; border-collapse: collapse; }
 .table th { text-align: left; padding: 12px 16px; font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); font-weight: 500; }
@@ -113,7 +116,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
 <div class="container">
   <div class="sidebar">
-    <div class="logo">QGI</div>
+    <div class="logo">QOS</div>
     <button class="nav-btn active" onclick="showPage('home')" id="nav-home" title="Главная">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </button>
@@ -137,7 +140,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     <div class="page active" id="page-home">
       <div class="header">
         <div>
-          <h1>QoimaOperationDashboard</h1>
+          <h1>QoimaOperstionSystem</h1>
           <p style="color:var(--text2);margin-top:4px;font-size:14px">Операционный дашборд</p>
         </div>
         <div class="header-right">
@@ -190,7 +193,10 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
         <div class="grid-2">
           <div class="card">
             <div class="card-title"><strong>Выручка по дням</strong></div>
-            <div class="chart" id="home-chart"></div>
+            <div class="chart-wrap">
+              <div class="chart" id="home-chart"></div>
+              <div class="chart-labels" id="home-chart-labels"></div>
+            </div>
           </div>
           <div class="card">
             <div class="card-title"><strong>Статистика</strong></div>
@@ -343,6 +349,13 @@ function parseNum(val) {
     .replace(/,/g, '.');
   const num = parseFloat(s);
   return isNaN(num) ? 0 : num;
+}
+
+// Smart money formatter: >=1M → "1.2М₸", <1M → "903К₸"
+function fmtMoney(val) {
+  if (val >= 1e6) return (val / 1e6).toFixed(1) + 'М₸';
+  if (val >= 1e3) return Math.round(val / 1e3) + 'К₸';
+  return Math.round(val) + '₸';
 }
 
 function parseSheetData(values) {
@@ -545,27 +558,18 @@ function updateUI(data) {
     const needed = corePlan - coreRevenue;
     const neededPerDay = daysLeft > 0 ? needed / daysLeft : 0;
 
-    // Шанс = насколько текущий темп покрывает нужный темп
-    // coverageRatio: 1.0 = точно справляются, 0.5 = делают половину нужного
     let chanceDisplay = 0;
     if (daysLeft <= 0) {
-      // Месяц закончился — шанс = факт выполнения
       chanceDisplay = Math.min(100, corePlan > 0 ? (coreRevenue / corePlan) * 100 : 0);
     } else if (neededPerDay <= 0) {
-      // План уже выполнен
       chanceDisplay = 100;
     } else {
       const coverageRatio = avgDailyRevenue / neededPerDay;
-      // Нелинейная шкала: при покрытии 100% → шанс 95%, при 50% → ~35%, при 30% → ~15%
-      if (coverageRatio >= 1.0) {
-        chanceDisplay = 90 + Math.min(10, (coverageRatio - 1) * 20);
-      } else {
-        // Степенная функция: chance = coverageRatio^1.5 * 90
-        chanceDisplay = Math.pow(coverageRatio, 1.5) * 90;
-      }
-      chanceDisplay = Math.min(100, Math.max(1, chanceDisplay));
+      chanceDisplay = coverageRatio >= 1.0
+        ? Math.min(100, 90 + (coverageRatio - 1) * 20)
+        : Math.max(1, Math.pow(coverageRatio, 1.5) * 90);
     }
-    const chanceRaw = chanceDisplay; // для пороговых цветов
+    const chanceRaw = chanceDisplay;
 
     // Color & label
     let chanceColor, chanceLabel, cardBorder;
@@ -586,28 +590,64 @@ function updateUI(data) {
     document.getElementById('kpi-chance-label').textContent = chanceLabel;
     document.getElementById('chance-progress-fill').style.width = chanceDisplay + '%';
     document.getElementById('chance-progress-fill').style.background = chanceColor;
-    const coverageRatio = neededPerDay > 0 ? avgDailyRevenue / neededPerDay : 1;
+    const coveragePct = neededPerDay > 0 ? Math.round((avgDailyRevenue / neededPerDay) * 100) : 100;
     document.getElementById('kpi-chance-detail').innerHTML =
       `Нужно ещё: <b style="color:var(--text)">${(needed/1e6).toFixed(1)} М₸</b><br>` +
       `Осталось дней: <b style="color:var(--text)">${daysLeft}</b><br>` +
-      `Нужно/день: <b style="color:var(--text)">${(neededPerDay/1e6).toFixed(2)} М₸</b><br>` +
-      `Сейчас/день: <b style="color:${chanceColor}">${(avgDailyRevenue/1e6).toFixed(2)} М₸</b> (${Math.round(coverageRatio*100)}% нужного)`;
+      `Нужно/день: <b style="color:var(--text)">${fmtMoney(neededPerDay)}</b><br>` +
+      `Сейчас/день: <b style="color:${chanceColor}">${fmtMoney(avgDailyRevenue)}</b> (${coveragePct}% нужного)`;
   }
 
   // --- Home bar chart ---
   const chartEl = document.getElementById('home-chart');
+  const chartLabelsEl = document.getElementById('home-chart-labels');
   chartEl.innerHTML = '';
+  chartLabelsEl.innerHTML = '';
+
   const coreDailyTotals = [];
   for (let d = 0; d < numDays; d++) {
     let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d] || 0); });
     coreDailyTotals.push(sum);
   }
   const maxBar = Math.max(...coreDailyTotals, 1);
-  coreDailyTotals.forEach(val => {
+
+  // Tooltip element
+  let barTip = document.getElementById('home-bar-tip');
+  if (!barTip) {
+    barTip = document.createElement('div');
+    barTip.id = 'home-bar-tip';
+    barTip.style.cssText = 'position:fixed;background:rgba(15,15,15,0.95);border:1px solid #333;border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;display:none;z-index:999;color:#fff;white-space:nowrap;backdrop-filter:blur(8px);line-height:1.6';
+    document.body.appendChild(barTip);
+  }
+
+  // Show every Nth label to avoid crowding
+  const labelStep = numDays <= 10 ? 1 : numDays <= 20 ? 2 : 3;
+
+  coreDailyTotals.forEach((val, idx) => {
+    const { day, dayName } = dateLabelsFull[idx] || {};
+
+    // Bar
     const bar = document.createElement('div');
     bar.className = 'bar';
     bar.style.height = ((val / maxBar) * 150) + 'px';
+    bar.addEventListener('mouseenter', () => {
+      barTip.innerHTML = `<span style="color:#888;font-size:11px">${dayName} ${day}</span><br><b style="font-size:14px">${fmtMoney(val)}</b>`;
+      barTip.style.display = 'block';
+    });
+    bar.addEventListener('mousemove', (e) => {
+      barTip.style.left = Math.min(e.clientX + 14, window.innerWidth - 160) + 'px';
+      barTip.style.top = (e.clientY - 58) + 'px';
+    });
+    bar.addEventListener('mouseleave', () => { barTip.style.display = 'none'; });
     chartEl.appendChild(bar);
+
+    // Label
+    const lbl = document.createElement('div');
+    lbl.className = 'chart-label';
+    if (idx % labelStep === 0 || idx === numDays - 1) {
+      lbl.innerHTML = `<div>${dayName}</div><div style="font-weight:600">${day}</div>`;
+    }
+    chartLabelsEl.appendChild(lbl);
   });
 
   // --- KPI table (all stores) ---
@@ -821,7 +861,7 @@ function buildSmoothChart(data, dateLabelsFull, numDays) {
       html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
         <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
         <span style="color:#aaa;font-size:12px">${name}</span>
-        <span style="color:#fff;font-size:12px;margin-left:auto;padding-left:12px">${(v/1e3).toFixed(0)}К₸</span>
+        <span style="color:#fff;font-size:12px;margin-left:auto;padding-left:12px">${fmtMoney(v)}</span>
       </div>`;
     });
     tooltip.innerHTML = html;

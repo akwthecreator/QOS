@@ -316,6 +316,8 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
         </div>
       </div>
     </div>
+  </div>
+</div>
 
     <div class="page" id="page-sellers">
       <div class="header">
@@ -339,8 +341,6 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div id="sellers-summary" style="margin-top:20px"></div>
       <div id="sellers-calendar" style="margin-top:20px"></div>
     </div>
-  </div>
-</div>
 
 <script>
 const SHEET_ID = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
@@ -927,66 +927,109 @@ let sellersView = 'all';
 let sellersMetric = 'revenue';
 
 function parseSellersData(rows) {
+  // === Структура листа ЗП ===
+  // Блок 1 — GRAND PARK выручка:
+  //   Строка A: col2 содержит 'Выручка'
+  //   Строка B: col1='Grand Park'  ← маркер секции
+  //   Строка C: col0='№', col1='ФИО', col2..col32 = даты, col33=ОКЛАД, col34=КАССА, col37=НАЧИСЛЕНО
+  //   Строки D: продавцы (col0=цифра, col1=имя, col2..=дневная выручка, col34=итоговая касса)
+  //   Строка E: 'Итого продавцы' — конец секции
+  // Блок 2 — GRAND PARK смены:
+  //   Строка A: col2 содержит 'Смена'
+  //   Строка C: col0='№', col1='ФИО'
+  //   Строки D: продавцы (col0=цифра, col1=имя, col2..=0/1)
+  // Блок 3 — APORT выручка (строка col1='Aport')
+  // Блок 4 — APORT смены
+  //
+  // ВАЖНО: Google Sheets API обрезает пустые ячейки справа, поэтому col34
+  // может оказаться на другом индексе. Ищем КАССА как наибольшее значение >100К после col31.
+
   const sellers = [];
-  let section = null;
-  let mode = null;
+  let section = null; // 'grandpark' | 'aport'
+  let mode = null;    // 'revenue' | 'shifts'
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i] || [];
     const c0 = (row[0] || '').toString().trim();
     const c1 = (row[1] || '').toString().trim();
+    const c2str = (row[2] || '').toString();
 
-    // Section headers
+    // --- Определяем секцию по col1 ---
     if (c1 === 'Grand Park') { section = 'grandpark'; mode = null; continue; }
     if (c1 === 'Aport')      { section = 'aport';     mode = null; continue; }
     if (!section) continue;
 
-    // Detect mode: revenue or shifts header row
-    if (c0 === '№' || (c1.toLowerCase() === 'фио')) {
-      const prevRow = rows[i - 1] || [];
-      const prevStr = (prevRow[2] || '').toString().toLowerCase();
-      mode = prevStr.includes('смен') ? 'shifts' : 'revenue';
-      continue;
-    }
+    // --- Определяем режим по заголовку в c2 предыдущих строк ---
+    // col2 заголовочной строки содержит длинную строку с 'Выручка' или 'Смена'
+    if (c2str.includes('Выручка') || c2str.includes('выручка')) { mode = 'revenue'; continue; }
+    if (c2str.includes('Смена')   || c2str.includes('смена'))   { mode = 'shifts';  continue; }
 
-    // Skip totals and empty
-    if (c1.toLowerCase().includes('итого') || c0.toLowerCase().includes('итого')) continue;
+    // --- Пропускаем строку-заголовок дат (col0='№' или col1='ФИО') ---
+    if (c0 === '№' || c1.toLowerCase() === 'фио') continue;
+
+    // --- Пропускаем итоги и пустые ---
+    if (c0.toLowerCase().includes('итого') || c1.toLowerCase().includes('итого')) continue;
     if (!c1 || !/[а-яА-ЯёЁa-zA-Z]/.test(c1)) continue;
+
+    // Строка продавца: col0 = порядковый номер (цифра)
     if (!/^\d+$/.test(c0)) continue;
+    if (!mode) continue;
 
     const name = c1.trim();
     const plan = section === 'grandpark' ? PLAN_GRANDPARK : PLAN_APORT;
 
     let seller = sellers.find(s => s.name === name && s.team === section);
     if (!seller) {
-      seller = { name, team: section, plan, revenue: 0, shifts: 0, plannedShifts: 21,
-                 bonus: 0, totalPay: 0, dailyRevenue: Array(31).fill(0), dailyShifts: Array(31).fill(0) };
+      seller = {
+        name, team: section, plan,
+        revenue: 0, shifts: 0, plannedShifts: 21,
+        bonus: 0, totalPay: 0,
+        dailyRevenue: Array(31).fill(0),
+        dailyShifts: Array(31).fill(0)
+      };
       sellers.push(seller);
     }
 
     if (mode === 'revenue') {
+      // Дневные значения: col2..col32 (31 день)
       const daily = [];
-      for (let j = 2; j < 33 && j < row.length; j++) daily.push(parseNum(row[j]));
-      seller.dailyRevenue = daily;
-      const kassaIdx = row.findIndex((v, idx) => idx > 30 && parseNum(v) > 100000);
-      seller.revenue = kassaIdx > 0 ? parseNum(row[kassaIdx]) : daily.reduce((a,b)=>a+b,0);
-      // Bonus ~ col 35-37 area
-      for (let j = 33; j < Math.min(40, row.length); j++) {
-        const v = parseNum(row[j]);
-        if (v > 50000 && v < seller.revenue * 0.3) { seller.bonus = v; break; }
+      for (let j = 2; j <= 32 && j < row.length; j++) {
+        daily.push(parseNum(row[j]));
       }
-      seller.totalPay = parseNum(row[37] || row[38] || 0);
+      seller.dailyRevenue = daily;
+
+      // КАССА = col34 (индекс 34). Но API может обрезать ряд.
+      // Ищем: первое значение > 500000 после col32 (это и есть итоговая касса)
+      let kassa = 0;
+      for (let j = 33; j < row.length; j++) {
+        const v = parseNum(row[j]);
+        if (v > 500000) { kassa = v; break; }
+      }
+      // Если касса не найдена — суммируем дневные
+      seller.revenue = kassa > 0 ? kassa : daily.reduce((a, b) => a + b, 0);
+
+      // НАЧИСЛЕНО = col37 (первое значение от 50К до 600К после col34)
+      let nach = 0;
+      for (let j = 35; j < row.length; j++) {
+        const v = parseNum(row[j]);
+        if (v >= 50000 && v <= 600000) { nach = v; break; }
+      }
+      seller.totalPay = nach;
     }
+
     if (mode === 'shifts') {
       const daily = [];
-      for (let j = 2; j < 33 && j < row.length; j++) daily.push(parseNum(row[j]) > 0 ? 1 : 0);
+      for (let j = 2; j <= 32 && j < row.length; j++) {
+        daily.push(parseNum(row[j]) > 0 ? 1 : 0);
+      }
       seller.dailyShifts = daily;
-      seller.shifts = daily.reduce((a,b)=>a+b,0);
-      const ps = parseNum(row[33] || row[34] || 0);
-      seller.plannedShifts = ps > 0 ? ps : 21;
+      seller.shifts = daily.reduce((a, b) => a + b, 0);
     }
   }
-  return sellers.filter(s => s.revenue > 0 || s.shifts > 0);
+
+  const result = sellers.filter(s => s.revenue > 0 || s.shifts > 0);
+  console.log('Parsed sellers:', result.map(s => ({name:s.name, team:s.team, revenue:s.revenue, shifts:s.shifts})));
+  return result;
 }
 
 function getMetricVal(s) {

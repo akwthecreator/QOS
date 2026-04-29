@@ -2,7 +2,7 @@
 <html lang="ru" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>QoimaGroupIS — Операционный дашборд</title>
 <style>
 :root[data-theme="dark"] {
@@ -125,6 +125,70 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .seller-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
 .seller-val { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; width: 88px; text-align: right; flex-shrink: 0; }
 .seller-badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; flex-shrink: 0; }
+
+/* ====== SETTINGS PAGE ====== */
+.settings-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.settings-title { font-size: 13px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; font-weight: 600; }
+.settings-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.settings-label { font-size: 14px; color: var(--text2); min-width: 160px; }
+.settings-input { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; width: 280px; max-width: 100%; transition: border 0.2s; }
+.settings-input:focus { outline: none; border-color: var(--accent); }
+.settings-btn { padding: 10px 18px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: opacity 0.2s; }
+.settings-btn:hover { opacity: 0.85; }
+.settings-btn.danger { background: var(--red); }
+.settings-tag { display: inline-block; padding: 4px 10px; background: rgba(0,102,255,0.15); color: var(--accent); border-radius: 6px; font-size: 12px; font-weight: 600; }
+
+/* ====== PIN OVERLAY ====== */
+.pin-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+.pin-overlay.hidden { display: none; }
+.pin-title { font-size: 20px; font-weight: 600; color: var(--text); }
+.pin-sub { font-size: 13px; color: var(--text3); }
+.pin-dots { display: flex; gap: 10px; margin: 8px 0; }
+.pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); background: transparent; transition: all 0.2s; }
+.pin-dot.filled { background: var(--accent); border-color: var(--accent); }
+.pin-keypad { display: grid; grid-template-columns: repeat(3, 64px); gap: 10px; }
+.pin-key { width: 64px; height: 64px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg2); color: var(--text); font-size: 22px; font-weight: 500; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+.pin-key:hover { background: var(--bg3); border-color: var(--accent); }
+.pin-key.del { font-size: 16px; color: var(--text3); }
+.pin-error { color: var(--red); font-size: 13px; min-height: 18px; }
+
+/* ====== MOBILE ====== */
+@media (max-width: 768px) {
+  .sidebar { width: 100%; height: 56px; flex-direction: row; padding: 0 12px; border-right: none; border-top: 1px solid var(--border); position: fixed; bottom: 0; top: auto; z-index: 200; justify-content: space-around; }
+  .logo { display: none; }
+  .sidebar > [style="flex:1"] { display: none; }
+  .nav-btn { width: 44px; height: 44px; }
+  .main { margin-left: 0; margin-bottom: 56px; width: 100%; padding: 16px 12px; }
+  .header { margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+  .header h1 { font-size: 22px; }
+  .header-right { flex-wrap: wrap; gap: 8px; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .kpi-card { padding: 16px; }
+  .kpi-value { font-size: 24px; }
+  .grid-2 { grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px; }
+  .store-grid { grid-template-columns: 1fr; }
+  .card { padding: 16px; }
+  .table { font-size: 12px; }
+  .table th, .table td { padding: 8px 8px; }
+  .seller-card { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+  .seller-bar-wrap { display: none; }
+  .seller-val { width: auto; font-size: 13px; }
+  .seller-info { flex: 1; min-width: 120px; }
+  #page-heatmap .card { overflow-x: auto; }
+  #heatmap-stats { grid-template-columns: 1fr; gap: 10px; }
+  .settings-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .settings-label { min-width: unset; }
+  .settings-input { width: 100%; }
+  .pin-keypad { grid-template-columns: repeat(3, 72px); }
+  .pin-key { width: 72px; height: 72px; }
+}
+@media (max-width: 400px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} 80%{transform:translateX(-4px)}
+}
+.pin-dots.shake { animation: shake 0.4s ease; }
 </style>
 </head>
 <body>
@@ -149,6 +213,9 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     </button>
     <button class="nav-btn" onclick="showPage('sellers')" id="nav-sellers" title="Продавцы">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </button>
+    <button class="nav-btn" onclick="openSettings()" id="nav-settings" title="Настройки">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
     <div style="flex:1"></div>
     <button class="nav-btn" onclick="toggleTheme()" id="themeBtn" title="Тема">🌙</button>
@@ -339,14 +406,285 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div id="sellers-summary" style="margin-top:20px"></div>
       <div id="sellers-calendar" style="margin-top:20px"></div>
     </div>
+
+    <!-- ===== SETTINGS PAGE ===== -->
+    <div class="page" id="page-settings">
+      <div class="header">
+        <div>
+          <h1>⚙️ Настройки</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Конфигурация дашборда</p>
+        </div>
+        <div class="header-right">
+          <button class="settings-btn" onclick="saveSettings()">💾 Сохранить</button>
+        </div>
+      </div>
+
+      <div id="settings-save-msg"></div>
+
+      <div class="settings-section">
+        <div class="settings-title">📋 Названия листов Google Sheets</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:16px">Когда начинается новый месяц — просто измените названия листов здесь. Не нужно лезть в код.</div>
+        <div class="settings-row">
+          <div class="settings-label">Лист KPI (магазины)</div>
+          <input type="text" class="settings-input" id="cfg-sheet-kpi" placeholder="Например: МАЙ KPI">
+          <div style="font-size:12px;color:var(--text3)">Текущий: <span class="settings-tag" id="cfg-kpi-current"></span></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Лист ЗП (продавцы)</div>
+          <input type="text" class="settings-input" id="cfg-sheet-sellers" placeholder="Например: ЗП Май">
+          <div style="font-size:12px;color:var(--text3)">Текущий: <span class="settings-tag" id="cfg-sellers-current"></span></div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">🏢 Планы команд (₸)</div>
+        <div class="settings-row">
+          <div class="settings-label">Grand Park — план</div>
+          <input type="number" class="settings-input" id="cfg-plan-gp" placeholder="6000000">
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Aport — план</div>
+          <input type="number" class="settings-input" id="cfg-plan-aport" placeholder="5000000">
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">🔄 Синхронизация</div>
+        <div class="settings-row">
+          <div class="settings-label">Интервал обновления</div>
+          <select class="settings-input" id="cfg-sync-interval">
+            <option value="60">Каждую минуту</option>
+            <option value="120" selected>Каждые 2 минуты</option>
+            <option value="300">Каждые 5 минут</option>
+            <option value="600">Каждые 10 минут</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <button class="settings-btn" onclick="syncData();syncSellers()">🔄 Синхронизировать сейчас</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">ℹ️ Информация</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+          <div class="stat-box"><div class="stat-label">Версия</div><div style="font-size:16px;font-weight:600;color:var(--text)">v2.0</div></div>
+          <div class="stat-box"><div class="stat-label">Sheet ID</div><div style="font-size:11px;color:var(--text2);word-break:break-all;margin-top:4px" id="info-sheet-id"></div></div>
+          <div class="stat-box"><div class="stat-label">Последний сеанс</div><div style="font-size:13px;color:var(--text2);margin-top:4px" id="info-last-session"></div></div>
+        </div>
+      </div>
+
+      <div class="settings-section" style="border-color:rgba(255,51,51,0.3)">
+        <div class="settings-title" style="color:var(--red)">⚠️ Сброс</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:12px">Сбросить все настройки до стандартных значений.</div>
+        <button class="settings-btn danger" onclick="resetSettings()">Сбросить настройки</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== PIN OVERLAY ===== -->
+<div class="pin-overlay hidden" id="pinOverlay">
+  <div style="font-size:40px">🔐</div>
+  <div class="pin-title">Настройки защищены</div>
+  <div class="pin-sub">Введите PIN-код для доступа</div>
+  <div class="pin-dots" id="pinDots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+    <div class="pin-dot" id="pd4"></div>
+  </div>
+  <div class="pin-error" id="pinError"></div>
+  <div class="pin-keypad">
+    <button class="pin-key" onclick="pinKey(1)">1</button>
+    <button class="pin-key" onclick="pinKey(2)">2</button>
+    <button class="pin-key" onclick="pinKey(3)">3</button>
+    <button class="pin-key" onclick="pinKey(4)">4</button>
+    <button class="pin-key" onclick="pinKey(5)">5</button>
+    <button class="pin-key" onclick="pinKey(6)">6</button>
+    <button class="pin-key" onclick="pinKey(7)">7</button>
+    <button class="pin-key" onclick="pinKey(8)">8</button>
+    <button class="pin-key" onclick="pinKey(9)">9</button>
+    <button class="pin-key" onclick="pinClose()" style="font-size:13px;color:var(--text3)">✕</button>
+    <button class="pin-key" onclick="pinKey(0)">0</button>
+    <button class="pin-key del" onclick="pinDel()">⌫</button>
   </div>
 </div>
 
 
 <script>
+// ===================== CONFIG SYSTEM =====================
+const DEFAULT_CONFIG = {
+  SHEET_NAME:        'АПРЕЛЬ KPI',
+  SELLERS_SHEET_NAME:'ЗП Апрель',
+  PLAN_GRANDPARK:    6000000,
+  PLAN_APORT:        5000000,
+  SYNC_INTERVAL:     120
+};
+
+function loadConfig() {
+  try {
+    const saved = localStorage.getItem('qgi_config');
+    if (saved) return Object.assign({}, DEFAULT_CONFIG, JSON.parse(saved));
+  } catch(e) {}
+  return Object.assign({}, DEFAULT_CONFIG);
+}
+
+function saveConfig(cfg) {
+  try { localStorage.setItem('qgi_config', JSON.stringify(cfg)); } catch(e) {}
+}
+
+let CFG = loadConfig();
+
 const SHEET_ID = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
-const SHEET_NAME = 'АПРЕЛЬ KPI';
-const API_KEY = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
+const API_KEY  = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
+
+// Getters — always read from CFG so they stay live
+function SHEET_NAME()         { return CFG.SHEET_NAME; }
+function SELLERS_SHEET_NAME() { return CFG.SELLERS_SHEET_NAME; }
+function PLAN_GRANDPARK()     { return CFG.PLAN_GRANDPARK; }
+function PLAN_APORT()         { return CFG.PLAN_APORT; }
+
+// ===================== PIN SYSTEM =====================
+const PIN_CODE     = '57725';
+const PIN_SESSION  = 'qgi_pin_ok';
+let   pinBuffer    = '';
+let   pinGranted   = false;
+
+function openSettings() {
+  // Check session
+  if (sessionStorage.getItem(PIN_SESSION) === '1') {
+    showSettingsPage();
+    return;
+  }
+  pinBuffer = '';
+  pinGranted = false;
+  document.getElementById('pinError').textContent = '';
+  renderPinDots();
+  document.getElementById('pinOverlay').classList.remove('hidden');
+}
+
+function pinKey(n) {
+  if (pinBuffer.length >= PIN_CODE.length) return;
+  pinBuffer += n;
+  renderPinDots();
+  if (pinBuffer.length === PIN_CODE.length) {
+    setTimeout(checkPin, 120);
+  }
+}
+
+function pinDel() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  document.getElementById('pinError').textContent = '';
+  renderPinDots();
+}
+
+function pinClose() {
+  document.getElementById('pinOverlay').classList.add('hidden');
+  pinBuffer = '';
+  renderPinDots();
+}
+
+function renderPinDots() {
+  for (let i = 0; i < PIN_CODE.length; i++) {
+    const dot = document.getElementById('pd' + i);
+    if (dot) dot.classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function checkPin() {
+  if (pinBuffer === PIN_CODE) {
+    sessionStorage.setItem(PIN_SESSION, '1');
+    document.getElementById('pinOverlay').classList.add('hidden');
+    pinBuffer = '';
+    renderPinDots();
+    showSettingsPage();
+  } else {
+    document.getElementById('pinError').textContent = '❌ Неверный PIN';
+    // Shake dots
+    const dots = document.getElementById('pinDots');
+    dots.classList.remove('shake');
+    void dots.offsetWidth; // reflow
+    dots.classList.add('shake');
+    setTimeout(() => dots.classList.remove('shake'), 500);
+    pinBuffer = '';
+    renderPinDots();
+  }
+}
+
+function showSettingsPage() {
+  // Populate fields from current config
+  document.getElementById('cfg-sheet-kpi').value    = CFG.SHEET_NAME;
+  document.getElementById('cfg-sheet-sellers').value = CFG.SELLERS_SHEET_NAME;
+  document.getElementById('cfg-plan-gp').value       = CFG.PLAN_GRANDPARK;
+  document.getElementById('cfg-plan-aport').value    = CFG.PLAN_APORT;
+  document.getElementById('cfg-kpi-current').textContent     = CFG.SHEET_NAME;
+  document.getElementById('cfg-sellers-current').textContent = CFG.SELLERS_SHEET_NAME;
+  document.getElementById('cfg-sync-interval').value = CFG.SYNC_INTERVAL;
+  document.getElementById('info-sheet-id').textContent = SHEET_ID;
+  const ls = localStorage.getItem('qgi_last_session');
+  document.getElementById('info-last-session').textContent = ls || 'Первый запуск';
+  // Show page
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-settings').classList.add('active');
+  document.getElementById('nav-settings').classList.add('active');
+}
+
+function saveSettings() {
+  const kpi     = document.getElementById('cfg-sheet-kpi').value.trim();
+  const sellers = document.getElementById('cfg-sheet-sellers').value.trim();
+  const gp      = parseInt(document.getElementById('cfg-plan-gp').value) || DEFAULT_CONFIG.PLAN_GRANDPARK;
+  const ap      = parseInt(document.getElementById('cfg-plan-aport').value) || DEFAULT_CONFIG.PLAN_APORT;
+  const si      = parseInt(document.getElementById('cfg-sync-interval').value) || 120;
+
+  if (!kpi || !sellers) {
+    showSettingsMsg('⚠️ Названия листов не могут быть пустыми', 'error'); return;
+  }
+
+  CFG.SHEET_NAME         = kpi;
+  CFG.SELLERS_SHEET_NAME = sellers;
+  CFG.PLAN_GRANDPARK     = gp;
+  CFG.PLAN_APORT         = ap;
+  CFG.SYNC_INTERVAL      = si;
+  saveConfig(CFG);
+
+  // Update displayed labels
+  document.getElementById('cfg-kpi-current').textContent     = kpi;
+  document.getElementById('cfg-sellers-current').textContent = sellers;
+
+  // Restart sync intervals
+  startSyncIntervals();
+
+  showSettingsMsg('✅ Настройки сохранены! Выполняем синхронизацию...', 'success');
+  setTimeout(() => { syncData(); syncSellers(); }, 600);
+}
+
+function resetSettings() {
+  if (!confirm('Сбросить все настройки до стандартных?')) return;
+  CFG = Object.assign({}, DEFAULT_CONFIG);
+  saveConfig(CFG);
+  showSettingsPage();
+  showSettingsMsg('↩️ Настройки сброшены', 'success');
+}
+
+function showSettingsMsg(text, type) {
+  const el = document.getElementById('settings-save-msg');
+  el.innerHTML = `<div class="message ${type}" style="margin-bottom:16px">${text}</div>`;
+  setTimeout(() => { el.innerHTML = ''; }, 4000);
+}
+
+// ===================== SYNC INTERVAL MANAGER =====================
+let syncIntervals = [];
+function startSyncIntervals() {
+  syncIntervals.forEach(id => clearInterval(id));
+  syncIntervals = [
+    setInterval(syncData,    CFG.SYNC_INTERVAL * 1000),
+    setInterval(syncSellers, CFG.SYNC_INTERVAL * 2000)
+  ];
+}
+
 
 const STORES = [
   { id: 'qoima', name: 'QOIMA', color: '#b19cd9', core: true },
@@ -517,7 +855,7 @@ async function syncData() {
   showMessage('Синхронизация...', 'info');
 
   try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}?key=${API_KEY}`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME())}?key=${API_KEY}`;
     const res = await fetch(url);
     
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -919,9 +1257,6 @@ function buildSmoothChart(data, dateLabelsFull, numDays) {
 
 
 // ===================== SELLERS MODULE =====================
-const SELLERS_SHEET_NAME = 'ЗП Апрель'; // поменяй на точное название листа
-const PLAN_GRANDPARK = 6000000;
-const PLAN_APORT = 5000000;
 
 let sellersData = null;
 let sellersView = 'all';
@@ -976,7 +1311,7 @@ function parseSellersData(rows) {
     if (!mode) continue;
 
     const name = c1.trim();
-    const plan = section === 'grandpark' ? PLAN_GRANDPARK : PLAN_APORT;
+    const plan = section === 'grandpark' ? PLAN_GRANDPARK() : PLAN_APORT();
 
     let seller = sellers.find(s => s.name === name && s.team === section);
     if (!seller) {
@@ -1200,7 +1535,7 @@ function openSellerPanel(name, team) {
 
 async function syncSellers() {
   try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SELLERS_SHEET_NAME)}?key=${API_KEY}`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SELLERS_SHEET_NAME())}?key=${API_KEY}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
@@ -1212,7 +1547,7 @@ async function syncSellers() {
     document.getElementById('sellers-leaderboard').innerHTML =
       `<div style="color:var(--text3);padding:16px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)">
         ⚠️ Не удалось загрузить лист продавцов.<br>
-        <span style="font-size:12px">Проверь название листа: <code style="color:var(--accent)">${SELLERS_SHEET_NAME}</code></span>
+        <span style="font-size:12px">Проверь название листа: <code style="color:var(--accent)">${SELLERS_SHEET_NAME()}</code></span>
       </div>`;
   }
 }
@@ -1222,8 +1557,8 @@ window.addEventListener('load', () => {
   setDate();
   syncData();
   syncSellers();
-  setInterval(syncData, 60000);
-  setInterval(syncSellers, 120000);
+  startSyncIntervals();
+  localStorage.setItem('qgi_last_session', new Date().toLocaleString('ru-RU'));
 });
 </script>
 </body>

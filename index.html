@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>QoimaGroupIS — Операционный дашборд</title>
+<title>QGOD — Операционный дашборд</title>
 <style>
 :root[data-theme="dark"] {
   --bg: #0a0a0a;
@@ -189,6 +189,57 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
   0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} 80%{transform:translateX(-4px)}
 }
 .pin-dots.shake { animation: shake 0.4s ease; }
+
+/* ====== ALERTS ====== */
+.alert-card { border-radius: 10px; padding: 16px 20px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px; border: 1px solid; }
+.alert-card.critical { background: rgba(255,51,51,0.08); border-color: rgba(255,51,51,0.35); }
+.alert-card.warning  { background: rgba(255,170,0,0.08); border-color: rgba(255,170,0,0.35); }
+.alert-card.good     { background: rgba(0,204,102,0.08); border-color: rgba(0,204,102,0.35); }
+.alert-card.info     { background: rgba(0,102,255,0.06); border-color: rgba(0,102,255,0.25); }
+.alert-icon  { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.alert-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.alert-body  { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.alert-time  { font-size: 11px; color: var(--text3); margin-top: 4px; }
+.alert-section-title { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600; }
+
+/* ====== INSIGHT PILLS ====== */
+.insight-pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; font-size: 13px; border: 1px solid; cursor: default; }
+.insight-pill.green  { background: rgba(0,204,102,0.1);  border-color: rgba(0,204,102,0.3);  color: var(--green); }
+.insight-pill.yellow { background: rgba(255,170,0,0.1);  border-color: rgba(255,170,0,0.3);  color: var(--yellow); }
+.insight-pill.red    { background: rgba(255,51,51,0.1);  border-color: rgba(255,51,51,0.3);  color: var(--red); }
+.insight-pill.blue   { background: rgba(0,102,255,0.1);  border-color: rgba(0,102,255,0.3);  color: var(--accent); }
+
+/* ====== FORECAST CARDS ====== */
+.forecast-card { background: var(--bg3); border-radius: 10px; padding: 16px; }
+.forecast-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+.forecast-bar-wrap { position: relative; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+.forecast-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s; }
+.forecast-bar-proj { position: absolute; top: 0; height: 100%; border-radius: 4px; opacity: 0.3; }
+.forecast-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); }
+
+/* ====== WEEK COMPARE ====== */
+.week-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.week-title { font-size: 13px; color: var(--text3); text-transform: uppercase; font-weight: 600; margin-bottom: 12px; }
+.week-val   { font-size: 28px; font-weight: 700; color: var(--text); }
+.week-delta { font-size: 13px; margin-top: 4px; font-weight: 600; }
+.week-delta.up   { color: var(--green); }
+.week-delta.down { color: var(--red); }
+.week-delta.flat { color: var(--text3); }
+
+/* ====== SPARKLINE ====== */
+.sparkline { display: inline-block; vertical-align: middle; }
+
+/* ====== WEEKDAY CHART ====== */
+.wday-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.wday-label { width: 28px; font-size: 12px; color: var(--text3); text-align: right; flex-shrink: 0; }
+.wday-bar-bg { flex: 1; height: 24px; background: var(--bg3); border-radius: 6px; overflow: hidden; position: relative; }
+.wday-bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 12px; font-weight: 600; color: white; transition: width 0.5s; }
+.wday-count { font-size: 11px; color: var(--text3); width: 40px; text-align: right; flex-shrink: 0; }
+
+@media (max-width: 768px) {
+  #nav-trends, #nav-alerts { display: flex; }
+  .week-val { font-size: 22px; }
+}
 </style>
 </head>
 <body>
@@ -214,6 +265,13 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     <button class="nav-btn" onclick="showPage('sellers')" id="nav-sellers" title="Продавцы">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </button>
+    <button class="nav-btn" onclick="showPage('trends')" id="nav-trends" title="Тренды">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    </button>
+    <button class="nav-btn" id="nav-alerts" onclick="showPage('alerts')" title="Алерты" style="position:relative">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span id="alert-badge" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--red);"></span>
+    </button>
     <button class="nav-btn" onclick="openSettings()" id="nav-settings" title="Настройки">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
@@ -225,7 +283,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     <div class="page active" id="page-home">
       <div class="header">
         <div>
-          <h1>QoimaGroupIS</h1>
+          <h1>QoimaGroupOperationalDashboard</h1>
           <p style="color:var(--text2);margin-top:4px;font-size:14px">Операционный дашборд</p>
         </div>
         <div class="header-right">
@@ -244,13 +302,20 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div id="dashboardContent" style="display:none">
         <div class="kpi-grid">
           <div class="kpi-card">
-            <div class="kpi-label">Выручка</div>
+            <div class="kpi-label">Выручка месяца</div>
             <div class="kpi-value" id="kpi-revenue">—</div>
             <div id="kpi-revenue-full" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
+          </div>
+          <div class="kpi-card" style="border-color:rgba(0,204,102,0.3);background:rgba(0,204,102,0.04)">
+            <div class="kpi-label">⚡ Выручка сегодня</div>
+            <div class="kpi-value" id="kpi-today" style="color:var(--green)">—</div>
+            <div id="kpi-today-proj" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
+            <div class="kpi-progress" style="margin-top:12px"><div class="kpi-progress-fill" id="today-progress-fill" style="width:0%;background:var(--green)"></div></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">Средний чек</div>
             <div class="kpi-value" id="kpi-avg">—</div>
+            <div id="kpi-avg-trend" style="font-size:12px;margin-top:6px"></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">Конверсия</div>
@@ -274,6 +339,9 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
             <div id="kpi-chance-detail" style="font-size:12px;color:var(--text3);margin-top:12px;line-height:1.6"></div>
           </div>
         </div>
+
+        <!-- Insights strip -->
+        <div id="insights-strip" style="margin-bottom:24px;display:flex;gap:10px;flex-wrap:wrap"></div>
 
         <div class="grid-2">
           <div class="card">
@@ -405,6 +473,45 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div id="sellers-leaderboard"></div>
       <div id="sellers-summary" style="margin-top:20px"></div>
       <div id="sellers-calendar" style="margin-top:20px"></div>
+    </div>
+
+    <!-- ===== TRENDS PAGE ===== -->
+    <div class="page" id="page-trends">
+      <div class="header">
+        <div>
+          <h1>📈 Тренды</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Прогнозы и динамика по магазинам</p>
+        </div>
+      </div>
+      <!-- Week comparison -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px" id="trends-week-grid"></div>
+      <!-- Store forecast cards -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title" style="margin-bottom:16px"><strong>📅 Прогноз выполнения плана к концу месяца</strong></div>
+        <div id="trends-forecast-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px"></div>
+      </div>
+      <!-- Daily average by day of week -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px"><strong>📆 Средняя выручка по дням недели</strong></div>
+        <div id="trends-weekday-chart"></div>
+      </div>
+    </div>
+
+    <!-- ===== ALERTS PAGE ===== -->
+    <div class="page" id="page-alerts">
+      <div class="header">
+        <div>
+          <h1>🚨 Алерты</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Важные события и отклонения</p>
+        </div>
+        <div class="header-right">
+          <button class="sync-btn" onclick="computeAlerts()">🔄 Обновить</button>
+        </div>
+      </div>
+      <div id="alerts-critical" style="margin-bottom:20px"></div>
+      <div id="alerts-warning" style="margin-bottom:20px"></div>
+      <div id="alerts-good" style="margin-bottom:20px"></div>
+      <div id="alerts-info"></div>
     </div>
 
     <!-- ===== SETTINGS PAGE ===== -->
@@ -1033,14 +1140,20 @@ function updateUI(data) {
   // --- KPI table (all stores) ---
   const tbody = document.getElementById('kpi-tbody');
   tbody.innerHTML = '';
-  STORES.forEach(({ id }) => {
+  STORES.forEach(({ id, color }) => {
     const store = data.stores[id];
     if (!store || !store.revenue) return;
     const comp = store.plan > 0 ? (store.revenue / store.plan) * 100 : 0;
     const badge = comp >= 80 ? 'status-excellent' : comp >= 60 ? 'status-good' : comp >= 40 ? 'status-warning' : 'status-critical';
+    // Trend: last 3 days vs 3 days before that
+    const d = store.dailyRevenue;
+    const last3 = d.slice(-3).reduce((a,b)=>a+b,0);
+    const prev3 = d.slice(-6,-3).reduce((a,b)=>a+b,0);
+    const trendArrow = prev3 > 0 ? (last3 > prev3*1.05 ? '<span style="color:var(--green)">↑</span>' : last3 < prev3*0.95 ? '<span style="color:var(--red)">↓</span>' : '<span style="color:var(--text3)">→</span>') : '';
     const row = document.createElement('tr');
+    row.setAttribute('data-id', id);
     row.innerHTML = `
-      <td>${store.name}</td>
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:6px"></span>${store.name} ${trendArrow}</td>
       <td>${(store.revenue/1e6).toFixed(2)} М₸</td>
       <td>${(store.plan/1e6).toFixed(2)} М₸</td>
       <td><span class="status-badge ${badge}">${Math.min(100,comp).toFixed(0)}%</span></td>
@@ -1552,6 +1665,383 @@ async function syncSellers() {
   }
 }
 // ===================== END SELLERS MODULE =====================
+
+// ===================== TODAY'S PULSE =====================
+function computeTodayPulse(data) {
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  const coreIds = CORE_STORES.map(s => s.id);
+  const coreStores = Object.fromEntries(Object.entries(data.stores).filter(([id]) => coreIds.includes(id)));
+
+  // Today's total
+  let todayRev = 0;
+  Object.values(coreStores).forEach(s => { todayRev += (s.dailyRevenue[todayIdx] || 0); });
+
+  // Yesterday
+  let yestRev = 0;
+  if (todayIdx > 0) Object.values(coreStores).forEach(s => { yestRev += (s.dailyRevenue[todayIdx-1] || 0); });
+
+  // Avg of all past days
+  const pastDays = [];
+  for (let d = 0; d < todayIdx; d++) {
+    let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d] || 0); });
+    pastDays.push(sum);
+  }
+  const avgDay = pastDays.length ? pastDays.reduce((a,b)=>a+b,0)/pastDays.length : todayRev;
+
+  // Projection: linear extrapolation based on time of day
+  // Assume store works 10:00-22:00 (12 hours = 720 min)
+  const workStart = 10*60, workEnd = 22*60;
+  const nowMin = hour*60+minute;
+  const elapsed = Math.max(0, Math.min(nowMin - workStart, workEnd - workStart));
+  const workDay = workEnd - workStart;
+  const fractionDone = workDay > 0 ? elapsed / workDay : 1;
+  const projected = fractionDone > 0.05 ? Math.round(todayRev / fractionDone) : avgDay;
+
+  // Update UI
+  const todayEl = document.getElementById('kpi-today');
+  const projEl  = document.getElementById('kpi-today-proj');
+  const fillEl  = document.getElementById('today-progress-fill');
+  if (!todayEl) return;
+
+  todayEl.textContent = fmtMoney(todayRev);
+  const vsYest = yestRev > 0 ? ((todayRev - yestRev)/yestRev*100) : 0;
+  const arrow = vsYest > 0 ? '↑' : vsYest < 0 ? '↓' : '→';
+  const clr = vsYest > 0 ? 'var(--green)' : vsYest < 0 ? 'var(--red)' : 'var(--text3)';
+  projEl.innerHTML = `Прогноз дня: <b style="color:var(--text)">${fmtMoney(projected)}</b> &nbsp;·&nbsp; <span style="color:${clr}">${arrow} ${Math.abs(vsYest).toFixed(0)}% к вчера</span>`;
+  const pct = avgDay > 0 ? Math.min(100, (todayRev/avgDay)*100) : 0;
+  fillEl.style.width = pct + '%';
+}
+
+// ===================== INSIGHTS =====================
+function renderInsights(data) {
+  const el = document.getElementById('insights-strip');
+  if (!el) return;
+  const insights = [];
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const coreIds = CORE_STORES.map(s => s.id);
+  const coreStores = Object.fromEntries(Object.entries(data.stores).filter(([id]) => coreIds.includes(id)));
+
+  // Best store today
+  let bestStore = null, bestRev = 0;
+  Object.values(coreStores).forEach(s => {
+    const r = s.dailyRevenue[todayIdx] || 0;
+    if (r > bestRev) { bestRev = r; bestStore = s.name; }
+  });
+  if (bestStore && bestRev > 0) insights.push({ icon:'🏆', text:`${bestStore} лидирует сегодня`, cls:'blue' });
+
+  // Any store above 100% plan
+  Object.values(coreStores).forEach(s => {
+    if (s.plan > 0 && s.revenue >= s.plan) insights.push({ icon:'✅', text:`${s.name} выполнил план!`, cls:'green' });
+  });
+
+  // Store falling behind (< 50% plan by midmonth)
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const monthPct = now.getDate() / daysInMonth;
+  Object.values(coreStores).forEach(s => {
+    if (s.plan > 0) {
+      const pct = s.revenue / s.plan;
+      if (monthPct > 0.5 && pct < 0.4) insights.push({ icon:'⚠️', text:`${s.name} сильно отстаёт`, cls:'red' });
+      else if (monthPct > 0.3 && pct < monthPct - 0.15) insights.push({ icon:'📉', text:`${s.name} ниже темпа`, cls:'yellow' });
+    }
+  });
+
+  // Weekend effect
+  const dow = now.getDay();
+  if (dow === 6 || dow === 0) insights.push({ icon:'🎉', text:'Выходной день — трафик выше', cls:'green' });
+
+  // Days left
+  const daysLeft = daysInMonth - now.getDate();
+  if (daysLeft <= 3) insights.push({ icon:'⏰', text:`Остаётся ${daysLeft} дн. до конца месяца`, cls:'yellow' });
+
+  el.innerHTML = insights.slice(0, 5).map(i =>
+    `<div class="insight-pill ${i.cls}">${i.icon} ${i.text}</div>`
+  ).join('');
+}
+
+// ===================== TRENDS PAGE =====================
+function renderTrends(data) {
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const coreIds = CORE_STORES.map(s => s.id);
+  const coreStores = Object.fromEntries(Object.entries(data.stores).filter(([id]) => coreIds.includes(id)));
+
+  // ── Week comparison ──
+  const thisWeekDays = [], lastWeekDays = [];
+  const weekStart = Math.max(0, todayIdx - 6);
+  const lastWeekStart = Math.max(0, weekStart - 7);
+  for (let d = weekStart; d <= todayIdx; d++) {
+    let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d]||0); });
+    thisWeekDays.push(sum);
+  }
+  for (let d = lastWeekStart; d < weekStart; d++) {
+    let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d]||0); });
+    lastWeekDays.push(sum);
+  }
+  const thisWeekTotal = thisWeekDays.reduce((a,b)=>a+b,0);
+  const lastWeekTotal = lastWeekDays.reduce((a,b)=>a+b,0);
+  const weekDelta = lastWeekTotal > 0 ? (thisWeekTotal - lastWeekTotal)/lastWeekTotal*100 : 0;
+  const weekDeltaCls = weekDelta > 0 ? 'up' : weekDelta < -0.5 ? 'down' : 'flat';
+  const weekDeltaIcon = weekDelta > 0 ? '↑' : weekDelta < -0.5 ? '↓' : '→';
+
+  // Avg per day comparison
+  const thisAvg = thisWeekDays.length ? thisWeekTotal/thisWeekDays.length : 0;
+  const lastAvg = lastWeekDays.length ? lastWeekTotal/lastWeekDays.length : 0;
+  const avgDelta = lastAvg > 0 ? (thisAvg - lastAvg)/lastAvg*100 : 0;
+  const avgDeltaCls = avgDelta > 0 ? 'up' : avgDelta < -0.5 ? 'down' : 'flat';
+
+  // Best day of current month
+  let bestDayVal = 0, bestDayIdx = 0;
+  const monthDailyTotals = [];
+  for (let d = 0; d <= todayIdx; d++) {
+    let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d]||0); });
+    monthDailyTotals.push(sum);
+    if (sum > bestDayVal) { bestDayVal = sum; bestDayIdx = d; }
+  }
+  const dayRu2 = ['вс','пн','вт','ср','чт','пт','сб'];
+  const bestDt = new Date(now.getFullYear(), now.getMonth(), bestDayIdx+1);
+  const bestDayLabel = `${dayRu2[bestDt.getDay()]} ${bestDayIdx+1}`;
+
+  const weekGrid = document.getElementById('trends-week-grid');
+  if (weekGrid) weekGrid.innerHTML = `
+    <div class="week-card">
+      <div class="week-title">📅 Эта неделя (${thisWeekDays.length} дн.)</div>
+      <div class="week-val">${fmtMoney(thisWeekTotal)}</div>
+      <div class="week-delta ${weekDeltaCls}">${weekDeltaIcon} ${Math.abs(weekDelta).toFixed(1)}% к прошлой неделе</div>
+    </div>
+    <div class="week-card">
+      <div class="week-title">⚡ Среднее/день (7 дн.)</div>
+      <div class="week-val">${fmtMoney(Math.round(thisAvg))}</div>
+      <div class="week-delta ${avgDeltaCls}">${avgDelta>0?'↑':'↓'} ${Math.abs(avgDelta).toFixed(1)}% vs предыдущая</div>
+    </div>
+    <div class="week-card">
+      <div class="week-title">🏆 Рекорд месяца</div>
+      <div class="week-val">${fmtMoney(bestDayVal)}</div>
+      <div class="week-delta flat">📆 ${bestDayLabel}</div>
+    </div>
+    <div class="week-card">
+      <div class="week-title">📊 Дней в анализе</div>
+      <div class="week-val">${todayIdx+1}</div>
+      <div class="week-delta flat" style="color:var(--text3)">из ${new Date(now.getFullYear(),now.getMonth()+1,0).getDate()} дней</div>
+    </div>`;
+
+  // ── Forecast cards per store ──
+  const fcGrid = document.getElementById('trends-forecast-grid');
+  if (fcGrid) {
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+    const daysLeft = daysInMonth - now.getDate();
+    const avgRevPerDay = monthDailyTotals.reduce((a,b)=>a+b,0) / Math.max(1, monthDailyTotals.length);
+
+    fcGrid.innerHTML = CORE_STORES.map(({ id, name, color }) => {
+      const s = coreStores[id];
+      if (!s || s.plan === 0) return '';
+      const curr = s.revenue;
+      const plan = s.plan;
+      const storeDailyAvg = s.dailyRevenue.slice(0, todayIdx+1).reduce((a,b)=>a+b,0) / Math.max(1, todayIdx+1);
+      const projected = curr + storeDailyAvg * daysLeft;
+      const currPct = Math.min(100, curr/plan*100);
+      const projPct = Math.min(100, projected/plan*100);
+      const projColor = projPct >= 90 ? 'var(--green)' : projPct >= 70 ? 'var(--yellow)' : 'var(--red)';
+      const willMeet = projected >= plan;
+      const gap = plan - projected;
+      return `<div class="forecast-card">
+        <div class="forecast-name" style="color:${color}">${name}</div>
+        <div class="forecast-bar-wrap">
+          <div class="forecast-bar-fill" style="width:${currPct}%;background:${color}"></div>
+          <div class="forecast-bar-proj" style="left:${currPct}%;width:${Math.max(0,projPct-currPct)}%;background:${projColor}"></div>
+        </div>
+        <div class="forecast-labels">
+          <span>Сейчас: <b style="color:var(--text)">${fmtMoney(curr)}</b> (${currPct.toFixed(0)}%)</span>
+          <span>Прогноз: <b style="color:${projColor}">${fmtMoney(projected)}</b></span>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:${willMeet?'var(--green)':'var(--red)'}">
+          ${willMeet ? `✅ Выполнит план` : `❌ Не хватит ${fmtMoney(gap)}`}
+        </div>
+        <div style="margin-top:4px;font-size:11px;color:var(--text3)">Нужно/день: ${fmtMoney((plan-curr)/Math.max(1,daysLeft))} · Факт/день: ${fmtMoney(storeDailyAvg)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Avg revenue by day of week ──
+  const wdayRu = ['вс','пн','вт','ср','чт','пт','сб'];
+  const wdayTotals = Array(7).fill(0), wdayCounts = Array(7).fill(0);
+  for (let d = 0; d <= todayIdx; d++) {
+    const dt = new Date(now.getFullYear(), now.getMonth(), d+1);
+    const wd = dt.getDay();
+    let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d]||0); });
+    wdayTotals[wd] += sum; wdayCounts[wd]++;
+  }
+  const wdayAvgs = wdayTotals.map((t,i) => wdayCounts[i] > 0 ? t/wdayCounts[i] : 0);
+  const maxWday = Math.max(...wdayAvgs, 1);
+  const wdayOrder = [1,2,3,4,5,6,0]; // пн-вс
+  const wdayColors = ['#4488ff','#4488ff','#4488ff','#4488ff','#4488ff','#00cc66','#00cc66'];
+  const wdayEl = document.getElementById('trends-weekday-chart');
+  if (wdayEl) wdayEl.innerHTML = wdayOrder.map(wd => {
+    const avg = wdayAvgs[wd];
+    const pct = (avg/maxWday*100).toFixed(0);
+    const clr = wdayColors[wd];
+    return `<div class="wday-row">
+      <div class="wday-label">${wdayRu[wd]}</div>
+      <div class="wday-bar-bg">
+        <div class="wday-bar-fill" style="width:${pct}%;background:${clr}">
+          ${avg > maxWday*0.2 ? fmtMoney(Math.round(avg)) : ''}
+        </div>
+      </div>
+      <div class="wday-count">${wdayCounts[wd]}д.</div>
+    </div>`;
+  }).join('');
+}
+
+// ===================== ALERTS ENGINE =====================
+let alertsData = [];
+
+function computeAlerts() {
+  if (!globalData) return;
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const monthPct = now.getDate() / daysInMonth;
+  const daysLeft = daysInMonth - now.getDate();
+  const coreIds = CORE_STORES.map(s => s.id);
+  const coreStores = Object.fromEntries(Object.entries(globalData.stores).filter(([id]) => coreIds.includes(id)));
+
+  const alerts = [];
+  const ts = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+
+  // ── Critical ──
+  Object.values(coreStores).forEach(s => {
+    if (s.plan === 0) return;
+    const pct = s.revenue / s.plan;
+    const storeDailyAvg = s.dailyRevenue.slice(0, todayIdx+1).reduce((a,b)=>a+b,0) / Math.max(1,todayIdx+1);
+    const projected = s.revenue + storeDailyAvg * daysLeft;
+
+    if (monthPct > 0.6 && pct < 0.35) {
+      alerts.push({ level:'critical', icon:'🔴', title:`${s.name} — Критическое отставание`, body:`Выполнено ${(pct*100).toFixed(0)}% плана при ${(monthPct*100).toFixed(0)}% месяца. Прогноз: ${(projected/s.plan*100).toFixed(0)}%`, ts });
+    }
+    if (daysLeft <= 5 && projected < s.plan * 0.85) {
+      const gap = s.plan - s.revenue;
+      alerts.push({ level:'critical', icon:'⏰', title:`${s.name} — ${daysLeft} дн. до конца месяца`, body:`Не хватает ${fmtMoney(gap)}. Нужно ${fmtMoney(gap/Math.max(1,daysLeft))}/день — это в ${(gap/Math.max(1,daysLeft)/Math.max(1,storeDailyAvg)).toFixed(1)}x больше текущего темпа.`, ts });
+    }
+  });
+
+  // ── Warnings ──
+  Object.values(coreStores).forEach(s => {
+    if (s.plan === 0) return;
+    const pct = s.revenue / s.plan;
+    if (monthPct > 0.4 && pct < monthPct - 0.2) {
+      alerts.push({ level:'warning', icon:'⚠️', title:`${s.name} — Отстаёт от графика`, body:`Факт ${(pct*100).toFixed(0)}% vs ожидаемые ${(monthPct*100).toFixed(0)}% на этот период. Дефицит темпа: ${((monthPct - pct)*100).toFixed(0)} п.п.`, ts });
+    }
+    if (s.conversion > 0 && s.conversion < 10) {
+      alerts.push({ level:'warning', icon:'📉', title:`${s.name} — Низкая конверсия`, body:`Конверсия ${s.conversion.toFixed(1)}% ниже нормы. Нужно проверить работу консультантов.`, ts });
+    }
+  });
+
+  // ── Good news ──
+  Object.values(coreStores).forEach(s => {
+    if (s.plan > 0 && s.revenue >= s.plan) {
+      alerts.push({ level:'good', icon:'✅', title:`${s.name} — ПЛАН ВЫПОЛНЕН!`, body:`Выручка ${fmtMoney(s.revenue)} при плане ${fmtMoney(s.plan)} (${(s.revenue/s.plan*100).toFixed(1)}%). Отличная работа!`, ts });
+    }
+    const pct = s.plan > 0 ? s.revenue/s.plan : 0;
+    if (pct >= 0.85 && pct < 1.0) {
+      alerts.push({ level:'good', icon:'🎯', title:`${s.name} — Почти у цели`, body:`${(pct*100).toFixed(0)}% плана. Осталось ${fmtMoney(s.plan - s.revenue)}`, ts });
+    }
+  });
+
+  // Sellers alerts
+  if (sellersData && sellersData.length > 0) {
+    const topSeller = [...sellersData].sort((a,b) => b.revenue - a.revenue)[0];
+    if (topSeller) alerts.push({ level:'good', icon:'🥇', title:`Лидер месяца: ${topSeller.name}`, body:`Выручка ${fmtMoney(topSeller.revenue)} · ${topSeller.shifts} смен · ${(topSeller.revenue/Math.max(1,topSeller.plan)*100).toFixed(0)}% плана`, ts });
+
+    const lowSellers = sellersData.filter(s => s.plan > 0 && s.revenue/s.plan < 0.3 && monthPct > 0.4);
+    if (lowSellers.length > 0) alerts.push({ level:'warning', icon:'👤', title:`${lowSellers.length} продавцов отстают от плана`, body:lowSellers.map(s=>`${s.name}: ${(s.revenue/s.plan*100).toFixed(0)}%`).join(', '), ts });
+  }
+
+  // ── Info ──
+  alerts.push({ level:'info', icon:'ℹ️', title:'Данные обновляются автоматически', body:`Интервал: каждые ${CFG.SYNC_INTERVAL} сек. KPI лист: "${SHEET_NAME()}" · ЗП лист: "${SELLERS_SHEET_NAME()}"`, ts });
+
+  alertsData = alerts;
+  renderAlerts(alerts);
+
+  // Update badge
+  const critCount = alerts.filter(a=>a.level==='critical'||a.level==='warning').length;
+  const badge = document.getElementById('alert-badge');
+  if (badge) badge.style.display = critCount > 0 ? 'block' : 'none';
+}
+
+function renderAlerts(alerts) {
+  const groups = { critical:[], warning:[], good:[], info:[] };
+  alerts.forEach(a => groups[a.level].push(a));
+
+  const renderGroup = (id, list, title) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (list.length === 0) { el.innerHTML = ''; return; }
+    el.innerHTML = `<div class="alert-section-title">${title}</div>` +
+      list.map(a => `<div class="alert-card ${a.level}">
+        <div class="alert-icon">${a.icon}</div>
+        <div>
+          <div class="alert-title">${a.title}</div>
+          <div class="alert-body">${a.body}</div>
+          <div class="alert-time">Обновлено в ${a.ts}</div>
+        </div>
+      </div>`).join('');
+  };
+
+  renderGroup('alerts-critical', groups.critical, '🔴 Критично');
+  renderGroup('alerts-warning',  groups.warning,  '⚠️ Внимание');
+  renderGroup('alerts-good',     groups.good,     '✅ Хорошие новости');
+  renderGroup('alerts-info',     groups.info,     'ℹ️ Информация');
+}
+
+// ===================== KPI TABLE SPARKLINES =====================
+function buildSparkline(values, color, w=60, h=22) {
+  if (!values || values.length < 2) return '';
+  const max = Math.max(...values, 1);
+  const pts = values.map((v,i) => `${Math.round((i/(values.length-1))*w)},${Math.round(h - (v/max)*(h-2))}`).join(' ');
+  return `<svg class="sparkline" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+}
+
+// ===================== HOOK INTO EXISTING updateUI =====================
+const _origUpdateUI = updateUI;
+updateUI = function(data) {
+  _origUpdateUI(data);
+  computeTodayPulse(data);
+  renderInsights(data);
+  renderTrends(data);
+  computeAlerts();
+  // Enhance KPI table with sparklines
+  enhanceKpiTable(data);
+};
+
+function enhanceKpiTable(data) {
+  const now = new Date();
+  const todayIdx = now.getDate();
+  // Add data-id to each row and sparkline column
+  const thead = document.querySelector('#kpi-tbody')?.closest('table')?.querySelector('thead tr');
+  if (thead && !thead.querySelector('.spark-th')) {
+    const th = document.createElement('th');
+    th.className = 'spark-th';
+    th.textContent = 'Динамика';
+    thead.appendChild(th);
+  }
+  STORES.forEach(({ id, color }) => {
+    const store = data.stores[id];
+    if (!store || !store.revenue) return;
+    const tr = document.querySelector(`#kpi-tbody tr[data-id="${id}"]`);
+    if (!tr) return;
+    const daily = store.dailyRevenue.slice(0, todayIdx);
+    const sparkSvg = buildSparkline(daily, color);
+    if (!tr.querySelector('.sparkline-td')) {
+      const td = document.createElement('td');
+      td.className = 'sparkline-td';
+      td.innerHTML = sparkSvg;
+      tr.appendChild(td);
+    }
+  });
+}
 
 window.addEventListener('load', () => {
   setDate();

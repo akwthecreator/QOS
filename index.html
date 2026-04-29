@@ -77,9 +77,12 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .card-title { font-size: 14px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; }
 .card-title strong { color: var(--text); }
 
-.chart { height: 180px; display: flex; align-items: flex-end; gap: 6px; margin-bottom: 16px; }
-.bar { flex: 1; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 20px; transition: all 0.2s; cursor: pointer; }
-.bar:hover { opacity: 0.7; }
+.chart { height: 150px; display: flex; align-items: flex-end; gap: 4px; }
+.chart-wrap { margin-bottom: 16px; }
+.chart-labels { display: flex; gap: 4px; margin-top: 6px; }
+.chart-label { flex: 1; text-align: center; font-size: 9px; color: var(--text3); line-height: 1.3; overflow: hidden; }
+.bar { flex: 1; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 4px; transition: all 0.2s; cursor: pointer; }
+.bar:hover { background: #3388ff; }
 
 .table { width: 100%; border-collapse: collapse; }
 .table th { text-align: left; padding: 12px 16px; font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); font-weight: 500; }
@@ -105,22 +108,23 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .status-critical { background: rgba(255, 51, 51, 0.2); color: var(--red); }
 
 .sync-btn { padding: 10px 16px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
+.sync-btn:hover { opacity: 0.9; }
+.sync-btn.loading { opacity: 0.5; pointer-events: none; }
+
 .stab { padding: 8px 16px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; color: var(--text2); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; }
 .stab:hover { border-color: var(--accent); color: var(--text); }
 .stab-active { background: var(--accent) !important; border-color: var(--accent) !important; color: white !important; }
-.seller-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: all 0.2s; }
+.seller-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; }
 .seller-card:hover { border-color: var(--accent); background: var(--bg3); }
-.seller-rank { font-size: 22px; width: 36px; text-align: center; flex-shrink: 0; }
+.seller-rank { font-size: 20px; width: 34px; text-align: center; flex-shrink: 0; }
 .seller-info { flex: 1; min-width: 0; }
-.seller-name { font-size: 15px; font-weight: 600; color: var(--text); }
-.seller-meta { font-size: 12px; color: var(--text3); margin-top: 2px; }
-.seller-bar-wrap { flex: 2; display: flex; align-items: center; gap: 10px; min-width: 0; }
-.seller-bar-bg { flex: 1; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.seller-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.seller-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.seller-bar-wrap { flex: 2; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.seller-bar-bg { flex: 1; height: 7px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
 .seller-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
-.seller-val { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; width: 90px; text-align: right; flex-shrink: 0; }
-.seller-team-badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; flex-shrink: 0; }
-.sync-btn:hover { opacity: 0.9; }
-.sync-btn.loading { opacity: 0.5; pointer-events: none; }
+.seller-val { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; width: 88px; text-align: right; flex-shrink: 0; }
+.seller-badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -207,7 +211,10 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
         <div class="grid-2">
           <div class="card">
             <div class="card-title"><strong>Выручка по дням</strong></div>
-            <div class="chart" id="home-chart"></div>
+            <div class="chart-wrap">
+              <div class="chart" id="home-chart"></div>
+              <div class="chart-labels" id="home-chart-labels"></div>
+            </div>
           </div>
           <div class="card">
             <div class="card-title"><strong>Статистика</strong></div>
@@ -309,6 +316,8 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
         </div>
       </div>
     </div>
+  </div>
+</div>
 
     <div class="page" id="page-sellers">
       <div class="header">
@@ -317,33 +326,26 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           <p style="color:var(--text2);margin-top:4px;font-size:14px">Эффективность и рейтинг за месяц</p>
         </div>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
         <button onclick="setSellersView('all')" id="stab-all" class="stab stab-active">🏆 Общий рейтинг</button>
         <button onclick="setSellersView('grandpark')" id="stab-grandpark" class="stab">Grand Park</button>
         <button onclick="setSellersView('aport')" id="stab-aport" class="stab">Aport</button>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap">
+      <div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
         <button onclick="setSellersMetric('revenue')" id="smet-revenue" class="stab stab-active">💰 Выручка</button>
         <button onclick="setSellersMetric('perShift')" id="smet-perShift" class="stab">⚡ Выр./смену</button>
         <button onclick="setSellersMetric('plan')" id="smet-plan" class="stab">🎯 % плана</button>
         <button onclick="setSellersMetric('shifts')" id="smet-shifts" class="stab">📅 Посещаемость</button>
       </div>
-      <div id="sellers-leaderboard" style="margin-bottom:24px"></div>
-      <div id="sellers-detail"></div>
+      <div id="sellers-leaderboard"></div>
+      <div id="sellers-summary" style="margin-top:20px"></div>
+      <div id="sellers-calendar" style="margin-top:20px"></div>
     </div>
-
-  </div>
-</div>
 
 <script>
 const SHEET_ID = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
 const SHEET_NAME = 'АПРЕЛЬ KPI';
-const SELLERS_SHEET_NAME = 'ЗП Апрель'; // <-- поменяй на точное название листа с ЗП
 const API_KEY = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
-
-// ====== ПЛАН ПО ПРОДАВЦУ ======
-const PLAN_GRANDPARK = 6000000;
-const PLAN_APORT = 5000000;
 
 const STORES = [
   { id: 'qoima', name: 'QOIMA', color: '#b19cd9', core: true },
@@ -388,6 +390,13 @@ function parseNum(val) {
     .replace(/,/g, '.');
   const num = parseFloat(s);
   return isNaN(num) ? 0 : num;
+}
+
+// Smart money formatter: >=1M → "1.2М₸", <1M → "903К₸"
+function fmtMoney(val) {
+  if (val >= 1e6) return (val / 1e6).toFixed(1) + 'М₸';
+  if (val >= 1e3) return Math.round(val / 1e3) + 'К₸';
+  return Math.round(val) + '₸';
 }
 
 function parseSheetData(values) {
@@ -587,9 +596,21 @@ function updateUI(data) {
       dailyTotals.push(sum);
     }
     const avgDailyRevenue = dailyTotals.reduce((a, b) => a + b, 0) / (dailyTotals.length || 1);
-    const projectedTotal  = coreRevenue + avgDailyRevenue * daysLeft;
-    const chanceRaw = corePlan > 0 ? Math.min(120, (projectedTotal / corePlan) * 100) : 0;
-    const chanceDisplay = Math.min(100, chanceRaw);
+    const needed = corePlan - coreRevenue;
+    const neededPerDay = daysLeft > 0 ? needed / daysLeft : 0;
+
+    let chanceDisplay = 0;
+    if (daysLeft <= 0) {
+      chanceDisplay = Math.min(100, corePlan > 0 ? (coreRevenue / corePlan) * 100 : 0);
+    } else if (neededPerDay <= 0) {
+      chanceDisplay = 100;
+    } else {
+      const coverageRatio = avgDailyRevenue / neededPerDay;
+      chanceDisplay = coverageRatio >= 1.0
+        ? Math.min(100, 90 + (coverageRatio - 1) * 20)
+        : Math.max(1, Math.pow(coverageRatio, 1.5) * 90);
+    }
+    const chanceRaw = chanceDisplay;
 
     // Color & label
     let chanceColor, chanceLabel, cardBorder;
@@ -610,28 +631,64 @@ function updateUI(data) {
     document.getElementById('kpi-chance-label').textContent = chanceLabel;
     document.getElementById('chance-progress-fill').style.width = chanceDisplay + '%';
     document.getElementById('chance-progress-fill').style.background = chanceColor;
-    const needed = corePlan - coreRevenue;
-    const neededPerDay = daysLeft > 0 ? needed / daysLeft : 0;
+    const coveragePct = neededPerDay > 0 ? Math.round((avgDailyRevenue / neededPerDay) * 100) : 100;
     document.getElementById('kpi-chance-detail').innerHTML =
       `Нужно ещё: <b style="color:var(--text)">${(needed/1e6).toFixed(1)} М₸</b><br>` +
       `Осталось дней: <b style="color:var(--text)">${daysLeft}</b><br>` +
-      `Нужно/день: <b style="color:${chanceColor}">${(neededPerDay/1e3).toFixed(0)}К₸</b> (сейчас: ${(avgDailyRevenue/1e3).toFixed(0)}К₸)`;
+      `Нужно/день: <b style="color:var(--text)">${fmtMoney(neededPerDay)}</b><br>` +
+      `Сейчас/день: <b style="color:${chanceColor}">${fmtMoney(avgDailyRevenue)}</b> (${coveragePct}% нужного)`;
   }
 
   // --- Home bar chart ---
   const chartEl = document.getElementById('home-chart');
+  const chartLabelsEl = document.getElementById('home-chart-labels');
   chartEl.innerHTML = '';
+  chartLabelsEl.innerHTML = '';
+
   const coreDailyTotals = [];
   for (let d = 0; d < numDays; d++) {
     let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d] || 0); });
     coreDailyTotals.push(sum);
   }
   const maxBar = Math.max(...coreDailyTotals, 1);
-  coreDailyTotals.forEach(val => {
+
+  // Tooltip element
+  let barTip = document.getElementById('home-bar-tip');
+  if (!barTip) {
+    barTip = document.createElement('div');
+    barTip.id = 'home-bar-tip';
+    barTip.style.cssText = 'position:fixed;background:rgba(15,15,15,0.95);border:1px solid #333;border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;display:none;z-index:999;color:#fff;white-space:nowrap;backdrop-filter:blur(8px);line-height:1.6';
+    document.body.appendChild(barTip);
+  }
+
+  // Show every Nth label to avoid crowding
+  const labelStep = numDays <= 10 ? 1 : numDays <= 20 ? 2 : 3;
+
+  coreDailyTotals.forEach((val, idx) => {
+    const { day, dayName } = dateLabelsFull[idx] || {};
+
+    // Bar
     const bar = document.createElement('div');
     bar.className = 'bar';
     bar.style.height = ((val / maxBar) * 150) + 'px';
+    bar.addEventListener('mouseenter', () => {
+      barTip.innerHTML = `<span style="color:#888;font-size:11px">${dayName} ${day}</span><br><b style="font-size:14px">${fmtMoney(val)}</b>`;
+      barTip.style.display = 'block';
+    });
+    bar.addEventListener('mousemove', (e) => {
+      barTip.style.left = Math.min(e.clientX + 14, window.innerWidth - 160) + 'px';
+      barTip.style.top = (e.clientY - 58) + 'px';
+    });
+    bar.addEventListener('mouseleave', () => { barTip.style.display = 'none'; });
     chartEl.appendChild(bar);
+
+    // Label
+    const lbl = document.createElement('div');
+    lbl.className = 'chart-label';
+    if (idx % labelStep === 0 || idx === numDays - 1) {
+      lbl.innerHTML = `<div>${dayName}</div><div style="font-weight:600">${day}</div>`;
+    }
+    chartLabelsEl.appendChild(lbl);
   });
 
   // --- KPI table (all stores) ---
@@ -845,7 +902,7 @@ function buildSmoothChart(data, dateLabelsFull, numDays) {
       html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
         <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
         <span style="color:#aaa;font-size:12px">${name}</span>
-        <span style="color:#fff;font-size:12px;margin-left:auto;padding-left:12px">${(v/1e3).toFixed(0)}К₸</span>
+        <span style="color:#fff;font-size:12px;margin-left:auto;padding-left:12px">${fmtMoney(v)}</span>
       </div>`;
     });
     tooltip.innerHTML = html;
@@ -859,324 +916,271 @@ function buildSmoothChart(data, dateLabelsFull, numDays) {
   svgEl.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
 }
 
-// ====== SELLERS STATE ======
+
+// ===================== SELLERS MODULE =====================
+const SELLERS_SHEET_NAME = 'ЗП Апрель'; // поменяй на точное название листа
+const PLAN_GRANDPARK = 6000000;
+const PLAN_APORT = 5000000;
+
 let sellersData = null;
-let sellersView = 'all';      // 'all' | 'grandpark' | 'aport'
-let sellersMetric = 'revenue'; // 'revenue' | 'perShift' | 'plan' | 'shifts'
+let sellersView = 'all';
+let sellersMetric = 'revenue';
 
-// ====== PARSE SELLERS SHEET ======
-function parseSellersData(values) {
+function parseSellersData(rows) {
   const sellers = [];
-  let section = null; // 'grandpark' | 'aport'
-  let mode = null;    // 'revenue' | 'shifts'
-  const dates = [];
+  let section = null;
+  let mode = null;
 
-  for (let i = 0; i < values.length; i++) {
-    const row = values[i] || [];
-    const col0 = (row[0] || '').toString().trim();
-    const col1 = (row[1] || '').toString().trim();
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i] || [];
+    const c0 = (row[0] || '').toString().trim();
+    const c1 = (row[1] || '').toString().trim();
 
-    // Detect section: Grand Park or Aport header
-    if (col1 === 'Grand Park') { section = 'grandpark'; mode = null; continue; }
-    if (col1 === 'Aport') { section = 'aport'; mode = null; continue; }
+    // Section headers
+    if (c1 === 'Grand Park') { section = 'grandpark'; mode = null; continue; }
+    if (c1 === 'Aport')      { section = 'aport';     mode = null; continue; }
     if (!section) continue;
 
-    // Detect revenue header row (has date columns)
-    const hasDate = row.slice(2, 10).some(c => /апр|мая|мар/i.test(String(c || '')));
-    if (hasDate && col1.toLowerCase().includes('фио') || hasDate && col0 === '№') {
-      // Parse date headers
-      if (dates.length === 0) {
-        for (let j = 2; j < row.length; j++) {
-          const d = (row[j] || '').toString().trim();
-          if (d && /апр|мая|мар/i.test(d)) dates.push(d); else if (d === '') dates.push(null);
-        }
-      }
-      // Check previous row for "Выручка" or "Смена"
-      const prevRow = values[i - 1] || [];
-      const prevStr = (prevRow[2] || '').toString();
-      mode = prevStr.toLowerCase().includes('смен') ? 'shifts' : 'revenue';
+    // Detect mode: revenue or shifts header row
+    if (c0 === '№' || (c1.toLowerCase() === 'фио')) {
+      const prevRow = rows[i - 1] || [];
+      const prevStr = (prevRow[2] || '').toString().toLowerCase();
+      mode = prevStr.includes('смен') ? 'shifts' : 'revenue';
       continue;
     }
 
-    // Skip total/итого rows
-    if (col1.toLowerCase().includes('итого') || col0.toLowerCase().includes('итого')) continue;
-    // Skip empty name rows
-    if (!col1 || !/[а-яА-ЯёЁa-zA-Z]/.test(col1)) continue;
-    // Skip rows without numeric id
-    if (!/^\d+$/.test(col0)) continue;
+    // Skip totals and empty
+    if (c1.toLowerCase().includes('итого') || c0.toLowerCase().includes('итого')) continue;
+    if (!c1 || !/[а-яА-ЯёЁa-zA-Z]/.test(c1)) continue;
+    if (!/^\d+$/.test(c0)) continue;
 
-    const name = col1.trim();
+    const name = c1.trim();
     const plan = section === 'grandpark' ? PLAN_GRANDPARK : PLAN_APORT;
 
-    // Find or create seller
     let seller = sellers.find(s => s.name === name && s.team === section);
     if (!seller) {
-      seller = { name, team: section, plan, revenue: 0, shifts: 0, plannedShifts: 21, salary: 0, bonus: 0, totalPay: 0, dailyRevenue: [], dailyShifts: [] };
+      seller = { name, team: section, plan, revenue: 0, shifts: 0, plannedShifts: 21,
+                 bonus: 0, totalPay: 0, dailyRevenue: Array(31).fill(0), dailyShifts: Array(31).fill(0) };
       sellers.push(seller);
     }
 
     if (mode === 'revenue') {
-      // Daily revenue cols starting from col index 2
       const daily = [];
-      for (let j = 2; j < row.length; j++) {
-        const v = parseNum(row[j]);
-        if (j - 2 < 31) daily.push(v);
-      }
+      for (let j = 2; j < 33 && j < row.length; j++) daily.push(parseNum(row[j]));
       seller.dailyRevenue = daily;
-      // Summary cols: find КАССА (total revenue), НАЧИСЛЕНО, БОНУС
-      // They come after the 31 daily cols + col31(extra) → col 33=ОКЛАД, 34=КАССА, 36=БОНУС, 37=НАЧИСЛЕНО
-      // But layout varies, so sum daily as fallback
-      const kassa = parseNum(row[33] || row[34] || 0);
-      seller.revenue = kassa > 0 ? kassa : daily.reduce((a,b)=>a+b,0);
-      seller.salary   = parseNum(row[33] || 0);
-      seller.bonus    = parseNum(row[35] || row[36] || 0);
+      const kassaIdx = row.findIndex((v, idx) => idx > 30 && parseNum(v) > 100000);
+      seller.revenue = kassaIdx > 0 ? parseNum(row[kassaIdx]) : daily.reduce((a,b)=>a+b,0);
+      // Bonus ~ col 35-37 area
+      for (let j = 33; j < Math.min(40, row.length); j++) {
+        const v = parseNum(row[j]);
+        if (v > 50000 && v < seller.revenue * 0.3) { seller.bonus = v; break; }
+      }
       seller.totalPay = parseNum(row[37] || row[38] || 0);
     }
     if (mode === 'shifts') {
       const daily = [];
-      for (let j = 2; j <= 32 && j < row.length; j++) {
-        daily.push(parseNum(row[j]) > 0 ? 1 : 0);
-      }
+      for (let j = 2; j < 33 && j < row.length; j++) daily.push(parseNum(row[j]) > 0 ? 1 : 0);
       seller.dailyShifts = daily;
       seller.shifts = daily.reduce((a,b)=>a+b,0);
-      const planned = parseNum(row[33] || row[34] || 21);
-      seller.plannedShifts = planned > 0 ? planned : 21;
+      const ps = parseNum(row[33] || row[34] || 0);
+      seller.plannedShifts = ps > 0 ? ps : 21;
     }
   }
-
   return sellers.filter(s => s.revenue > 0 || s.shifts > 0);
 }
 
-// ====== SELLERS UI ======
+function getMetricVal(s) {
+  if (sellersMetric === 'revenue')  return s.revenue;
+  if (sellersMetric === 'perShift') return s.shifts > 0 ? Math.round(s.revenue / s.shifts) : 0;
+  if (sellersMetric === 'plan')     return s.plan > 0 ? (s.revenue / s.plan) * 100 : 0;
+  if (sellersMetric === 'shifts')   return s.plannedShifts > 0 ? (s.shifts / s.plannedShifts) * 100 : 0;
+}
+function fmtMetricVal(val, s) {
+  if (sellersMetric === 'revenue' || sellersMetric === 'perShift') return fmtMoney(val);
+  if (sellersMetric === 'plan')   return val.toFixed(1) + '%';
+  if (sellersMetric === 'shifts') return s.shifts + '/' + s.plannedShifts + ' смен';
+}
+function rankEmoji(i) { return ['🥇','🥈','🥉'][i] || (i+1)+'.'; }
+function teamClr(t)   { return t === 'grandpark' ? '#6ba3d4' : '#d4a56b'; }
+
 function setSellersView(v) {
   sellersView = v;
-  ['all','grandpark','aport'].forEach(k => {
-    document.getElementById('stab-' + k).classList.toggle('stab-active', k === v);
-  });
+  ['all','grandpark','aport'].forEach(k =>
+    document.getElementById('stab-'+k).classList.toggle('stab-active', k === v));
   renderSellers();
 }
-
 function setSellersMetric(m) {
   sellersMetric = m;
-  ['revenue','perShift','plan','shifts'].forEach(k => {
-    document.getElementById('smet-' + k).classList.toggle('stab-active', k === m);
-  });
+  ['revenue','perShift','plan','shifts'].forEach(k =>
+    document.getElementById('smet-'+k).classList.toggle('stab-active', k === m));
   renderSellers();
-}
-
-function getMetricValue(s) {
-  switch (sellersMetric) {
-    case 'revenue':  return s.revenue;
-    case 'perShift': return s.shifts > 0 ? Math.round(s.revenue / s.shifts) : 0;
-    case 'plan':     return s.plan > 0 ? (s.revenue / s.plan) * 100 : 0;
-    case 'shifts':   return s.plannedShifts > 0 ? (s.shifts / s.plannedShifts) * 100 : 0;
-  }
-}
-
-function fmtMetric(val, s) {
-  switch (sellersMetric) {
-    case 'revenue':  return fmtMoney(val);
-    case 'perShift': return fmtMoney(val);
-    case 'plan':     return val.toFixed(1) + '%';
-    case 'shifts':   return s.shifts + '/' + s.plannedShifts + ' смен';
-  }
-}
-
-function rankEmoji(i) {
-  return i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-}
-
-function teamColor(team) {
-  return team === 'grandpark' ? '#6ba3d4' : '#d4a56b';
 }
 
 function renderSellers() {
   if (!sellersData) return;
-
   let list = sellersData;
   if (sellersView !== 'all') list = list.filter(s => s.team === sellersView);
+  list = [...list].sort((a,b) => getMetricVal(b) - getMetricVal(a));
+  const maxVal = Math.max(...list.map(s => getMetricVal(s)), 1);
 
-  // Sort by metric descending
-  list = [...list].sort((a,b) => getMetricValue(b) - getMetricValue(a));
-
-  const maxVal = Math.max(...list.map(s => getMetricValue(s)), 1);
-
-  // --- Leaderboard ---
-  const lb = document.getElementById('sellers-leaderboard');
-  lb.innerHTML = list.map((s, i) => {
-    const val = getMetricValue(s);
+  // Leaderboard
+  document.getElementById('sellers-leaderboard').innerHTML = list.map((s, i) => {
+    const val = getMetricVal(s);
     const pct = Math.min(100, (val / maxVal) * 100);
-    const barColor = i === 0 ? '#ffd700' : i === 1 ? '#c0c0c0' : i === 2 ? '#cd7f32' : teamColor(s.team);
+    const barClr = i === 0 ? '#ffd700' : i === 1 ? '#c0c0c0' : i === 2 ? '#cd7f32' : teamClr(s.team);
     const perShift = s.shifts > 0 ? fmtMoney(Math.round(s.revenue / s.shifts)) : '—';
-    const planPct  = s.plan > 0 ? ((s.revenue / s.plan)*100).toFixed(1) + '%' : '—';
-    const teamLabel = s.team === 'grandpark' ? 'Grand Park' : 'Aport';
-    return `
-    <div class="seller-card" onclick="renderSellerDetail('${s.name}')">
+    const planPct  = s.plan > 0 ? ((s.revenue/s.plan)*100).toFixed(1)+'%' : '—';
+    const badge = sellersView === 'all'
+      ? `<div class="seller-badge" style="background:${teamClr(s.team)}22;color:${teamClr(s.team)}">${s.team==='grandpark'?'GP':'Aport'}</div>` : '';
+    return `<div class="seller-card" onclick="openSellerPanel('${s.name}','${s.team}')">
       <div class="seller-rank">${rankEmoji(i)}</div>
       <div class="seller-info">
         <div class="seller-name">${s.name}</div>
         <div class="seller-meta">${perShift}/смену · план ${planPct} · ${s.shifts} смен</div>
       </div>
       <div class="seller-bar-wrap">
-        <div class="seller-bar-bg">
-          <div class="seller-bar-fill" style="width:${pct}%;background:${barColor}"></div>
-        </div>
+        <div class="seller-bar-bg"><div class="seller-bar-fill" style="width:${pct}%;background:${barClr}"></div></div>
       </div>
-      <div class="seller-val">${fmtMetric(val, s)}</div>
-      ${sellersView === 'all' ? `<div class="seller-team-badge" style="background:${teamColor(s.team)}22;color:${teamColor(s.team)}">${teamLabel}</div>` : ''}
+      <div class="seller-val">${fmtMetricVal(val,s)}</div>
+      ${badge}
     </div>`;
   }).join('');
 
-  // --- Summary stats ---
-  const totalRev = list.reduce((a,s)=>a+s.revenue,0);
-  const avgPerShift = list.reduce((a,s)=>a+(s.shifts>0?s.revenue/s.shifts:0),0) / (list.length||1);
-  const avgPlan = list.reduce((a,s)=>a+(s.plan>0?s.revenue/s.plan*100:0),0) / (list.length||1);
-  const topSeller = list[0];
+  // Summary stats
+  const totalRev   = list.reduce((a,s)=>a+s.revenue,0);
+  const avgPerShift= list.length ? list.reduce((a,s)=>a+(s.shifts>0?s.revenue/s.shifts:0),0)/list.length : 0;
+  const avgPlan    = list.length ? list.reduce((a,s)=>a+(s.plan>0?s.revenue/s.plan*100:0),0)/list.length : 0;
+  const top = list[0];
+  document.getElementById('sellers-summary').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px">
+      <div class="stat-box"><div class="stat-label">Выручка команды</div><div class="stat-value" style="font-size:20px">${fmtMoney(totalRev)}</div></div>
+      <div class="stat-box"><div class="stat-label">Среднее выр./смену</div><div class="stat-value" style="font-size:20px">${fmtMoney(Math.round(avgPerShift))}</div></div>
+      <div class="stat-box"><div class="stat-label">Средний % плана</div><div class="stat-value" style="font-size:20px;color:${avgPlan>=80?'var(--green)':avgPlan>=50?'var(--yellow)':'var(--red)'}">${avgPlan.toFixed(1)}%</div></div>
+      ${top?`<div class="stat-box"><div class="stat-label">Лидер месяца</div><div class="stat-value" style="font-size:17px">🥇 ${top.name}</div><div style="font-size:12px;color:var(--text3);margin-top:4px">${fmtMoney(top.revenue)}</div></div>`:''}
+    </div>`;
 
-  const det = document.getElementById('sellers-detail');
-  det.innerHTML = `
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
-    <div class="stat-box">
-      <div class="stat-label">Общая выручка команды</div>
-      <div class="stat-value" style="font-size:22px">${fmtMoney(totalRev)}</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">Среднее выр./смену</div>
-      <div class="stat-value" style="font-size:22px">${fmtMoney(Math.round(avgPerShift))}</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">Средний % плана</div>
-      <div class="stat-value" style="font-size:22px;color:${avgPlan>=80?'var(--green)':avgPlan>=60?'var(--yellow)':'var(--red)'}">${avgPlan.toFixed(1)}%</div>
-    </div>
-    ${topSeller ? `<div class="stat-box">
-      <div class="stat-label">Лидер месяца</div>
-      <div class="stat-value" style="font-size:18px">🥇 ${topSeller.name}</div>
-      <div style="font-size:12px;color:var(--text3);margin-top:4px">${fmtMoney(topSeller.revenue)}</div>
-    </div>` : ''}
-  </div>
-  ${renderAttendanceCalendar(list)}`;
+  // Attendance calendar
+  renderAttendance(list);
 }
 
-function renderAttendanceCalendar(list) {
-  if (!list.length || !list[0].dailyShifts.length) return '';
+function renderAttendance(list) {
   const now = new Date();
-  const todayIdx = now.getDate() - 1;
-  const dayShortRu = ['вс','пн','вт','ср','чт','пт','сб'];
-  const daysCount = Math.min(list[0].dailyShifts.length, now.getDate());
+  const daysCount = now.getDate();
+  const dayRu = ['вс','пн','вт','ср','чт','пт','сб'];
+  if (!list.length) return;
 
-  const headers = [];
-  for (let d = 0; d < daysCount; d++) {
-    const dt = new Date(now.getFullYear(), now.getMonth(), d + 1);
-    headers.push(`<th style="padding:4px;font-size:10px;color:var(--text3);font-weight:500;text-align:center;min-width:28px">${d+1}<br>${dayShortRu[dt.getDay()]}</th>`);
-  }
+  const heads = Array.from({length:daysCount},(_,d)=>{
+    const dt = new Date(now.getFullYear(), now.getMonth(), d+1);
+    return `<th style="padding:3px 2px;font-size:9px;color:var(--text3);font-weight:500;text-align:center;min-width:24px">${d+1}<br>${dayRu[dt.getDay()]}</th>`;
+  }).join('');
 
   const rows = list.map(s => {
-    const cells = s.dailyShifts.slice(0, daysCount).map((worked, d) => {
-      const rev = s.dailyRevenue[d] || 0;
-      const isToday = d === todayIdx;
-      const bg = worked ? (rev > 400000 ? '#00cc6633' : rev > 200000 ? '#0066ff22' : '#ffffff11') : 'transparent';
-      const dot = worked ? (rev > 400000 ? '#00cc66' : rev > 200000 ? '#0066ff' : '#ffffff44') : '#333';
-      const title = worked ? `${s.name}: ${fmtMoney(rev)}` : 'Выходной';
-      return `<td title="${title}" style="text-align:center;padding:3px;border:${isToday?'1px solid #0066ff':'none'}">
-        <div style="width:20px;height:20px;border-radius:4px;background:${bg};display:flex;align-items:center;justify-content:center;margin:auto">
-          ${worked ? `<div style="width:6px;height:6px;border-radius:50%;background:${dot}"></div>` : ''}
-        </div>
-      </td>`;
-    });
-    return `<tr><td style="padding:4px 10px 4px 0;font-size:13px;color:var(--text);white-space:nowrap;font-weight:500">${s.name}</td>${cells.join('')}</tr>`;
+    const cells = Array.from({length:daysCount},(_,d)=>{
+      const worked = s.dailyShifts[d];
+      const rev = s.dailyRevenue[d]||0;
+      const bg = worked ? (rev>=400000?'#00cc6633':rev>=200000?'#0066ff22':'#ffffff11') : 'transparent';
+      const dot = worked ? (rev>=400000?'#00cc66':rev>=200000?'#4488ff':'#555') : '';
+      const tip = worked ? `${s.name}: ${fmtMoney(rev)}` : 'Выходной';
+      return `<td title="${tip}" style="text-align:center;padding:2px">
+        <div style="width:18px;height:18px;border-radius:3px;background:${bg};margin:auto;display:flex;align-items:center;justify-content:center">
+          ${dot?`<div style="width:5px;height:5px;border-radius:50%;background:${dot}"></div>`:''}
+        </div></td>`;
+    }).join('');
+    return `<tr><td style="padding:3px 10px 3px 0;font-size:12px;white-space:nowrap;font-weight:500">${s.name}</td>${cells}</tr>`;
   }).join('');
 
-  return `
-  <div class="card" style="overflow-x:auto">
-    <div class="card-title"><strong>Календарь смен</strong> <span style="font-size:11px;color:var(--text3);font-weight:400">· зелёный >400К · синий >200К · серый вышел · пусто выходной</span></div>
-    <table style="border-collapse:collapse;width:100%">
-      <thead><tr><th style="text-align:left;padding:4px 10px 4px 0;font-size:12px;color:var(--text3)">Продавец</th>${headers.join('')}</tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-  </div>`;
+  document.getElementById('sellers-calendar').innerHTML = `
+    <div class="card" style="overflow-x:auto">
+      <div class="card-title" style="margin-bottom:12px"><strong>Календарь смен</strong>
+        <span style="font-size:11px;color:var(--text3);font-weight:400;margin-left:8px">🟢 >400К · 🔵 >200К · ⚫ вышел · пусто выходной</span></div>
+      <table style="border-collapse:collapse">
+        <thead><tr><th style="text-align:left;padding:3px 10px 3px 0;font-size:11px;color:var(--text3)">Продавец</th>${heads}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
 }
 
-function renderSellerDetail(name) {
-  if (!sellersData) return;
-  const s = sellersData.find(x => x.name === name);
+function openSellerPanel(name, team) {
+  const s = sellersData && sellersData.find(x => x.name===name && x.team===team);
   if (!s) return;
-  const perShift = s.shifts > 0 ? Math.round(s.revenue / s.shifts) : 0;
-  const planPct  = s.plan > 0 ? (s.revenue / s.plan * 100) : 0;
+  const perShift = s.shifts>0 ? Math.round(s.revenue/s.shifts) : 0;
+  const planPct  = s.plan>0 ? (s.revenue/s.plan*100) : 0;
   const now = new Date();
   const daysCount = Math.min(s.dailyRevenue.length, now.getDate());
-  const maxDay = Math.max(...s.dailyRevenue.slice(0, daysCount), 1);
-  const dayShortRu = ['вс','пн','вт','ср','чт','пт','сб'];
+  const maxDay = Math.max(...s.dailyRevenue.slice(0,daysCount), 1);
+  const dayRu = ['вс','пн','вт','ср','чт','пт','сб'];
 
-  const bars = s.dailyRevenue.slice(0, daysCount).map((v, d) => {
-    const dt = new Date(now.getFullYear(), now.getMonth(), d + 1);
-    const h = Math.round((v / maxDay) * 80);
+  const bars = s.dailyRevenue.slice(0,daysCount).map((v,d)=>{
+    const dt = new Date(now.getFullYear(), now.getMonth(), d+1);
+    const h = Math.max(3, Math.round((v/maxDay)*80));
     const worked = s.dailyShifts[d];
-    return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1" title="${dayShortRu[dt.getDay()]} ${d+1}: ${fmtMoney(v)}">
-      <div style="height:${h}px;width:100%;background:${worked&&v>0?'var(--accent)':'var(--bg3)'};border-radius:3px 3px 0 0;min-height:3px"></div>
-      <div style="font-size:8px;color:var(--text3)">${d+1}</div>
+    return `<div title="${dayRu[dt.getDay()]} ${d+1}: ${fmtMoney(v)}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+      <div style="height:${h}px;width:100%;background:${worked&&v>0?'var(--accent)':'var(--bg3)'};border-radius:2px 2px 0 0"></div>
+      <div style="font-size:7px;color:var(--text3)">${d+1}</div>
     </div>`;
   }).join('');
 
+  document.querySelectorAll('.seller-panel').forEach(p=>p.remove());
   const panel = document.createElement('div');
-  panel.style.cssText = 'position:fixed;top:0;right:0;width:420px;height:100vh;background:var(--bg2);border-left:1px solid var(--border);z-index:500;overflow-y:auto;padding:28px;';
+  panel.className = 'seller-panel';
+  panel.style.cssText = 'position:fixed;top:0;right:0;width:400px;height:100vh;background:var(--bg2);border-left:1px solid var(--border);z-index:600;overflow-y:auto;padding:28px;box-shadow:-4px 0 20px rgba(0,0,0,0.3)';
   panel.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
       <div>
         <div style="font-size:20px;font-weight:700">${s.name}</div>
-        <div style="font-size:13px;color:var(--text3);margin-top:4px">${s.team === 'grandpark' ? 'Grand Park' : 'Aport'}</div>
+        <div style="font-size:12px;color:${teamClr(s.team)};margin-top:3px;font-weight:600">${s.team==='grandpark'?'Grand Park':'Aport'}</div>
       </div>
-      <button onclick="this.parentElement.parentElement.remove()" style="background:var(--bg3);border:none;color:var(--text2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px">×</button>
+      <button onclick="document.querySelectorAll('.seller-panel').forEach(p=>p.remove())"
+        style="background:var(--bg3);border:none;color:var(--text2);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">×</button>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
-      <div class="stat-box"><div class="stat-label">Выручка</div><div class="stat-value" style="font-size:20px">${fmtMoney(s.revenue)}</div></div>
-      <div class="stat-box"><div class="stat-label">Выр./смену</div><div class="stat-value" style="font-size:20px">${fmtMoney(perShift)}</div></div>
-      <div class="stat-box"><div class="stat-label">% плана</div><div class="stat-value" style="font-size:20px;color:${planPct>=80?'var(--green)':planPct>=60?'var(--yellow)':'var(--red)'}">${planPct.toFixed(1)}%</div></div>
-      <div class="stat-box"><div class="stat-label">Смен</div><div class="stat-value" style="font-size:20px">${s.shifts}/${s.plannedShifts}</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+      <div class="stat-box"><div class="stat-label">Выручка</div><div class="stat-value" style="font-size:19px">${fmtMoney(s.revenue)}</div></div>
+      <div class="stat-box"><div class="stat-label">Выр./смену</div><div class="stat-value" style="font-size:19px">${fmtMoney(perShift)}</div></div>
+      <div class="stat-box"><div class="stat-label">% плана</div><div class="stat-value" style="font-size:19px;color:${planPct>=80?'var(--green)':planPct>=50?'var(--yellow)':'var(--red)'}">${planPct.toFixed(1)}%</div></div>
+      <div class="stat-box"><div class="stat-label">Смены</div><div class="stat-value" style="font-size:19px">${s.shifts}/${s.plannedShifts}</div></div>
     </div>
     <div style="margin-bottom:20px">
-      <div style="font-size:13px;color:var(--text3);margin-bottom:4px">Выполнение плана</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Выполнение личного плана</div>
       <div style="background:var(--bg3);border-radius:6px;height:8px;overflow:hidden">
-        <div style="height:100%;width:${Math.min(100,planPct)}%;background:${planPct>=80?'var(--green)':planPct>=60?'var(--yellow)':'var(--red)'};border-radius:6px;transition:width 0.5s"></div>
+        <div style="height:100%;width:${Math.min(100,planPct)}%;background:${planPct>=80?'var(--green)':planPct>=50?'var(--yellow)':'var(--red)'};border-radius:6px;transition:width 0.5s"></div>
       </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:4px">Нужно до плана: ${fmtMoney(Math.max(0, s.plan - s.revenue))}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">До плана: ${fmtMoney(Math.max(0, s.plan-s.revenue))}</div>
     </div>
-    <div style="font-size:13px;color:var(--text3);margin-bottom:8px;font-weight:600">Выручка по дням</div>
-    <div style="display:flex;gap:3px;align-items:flex-end;height:100px;margin-bottom:24px">${bars}</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="stat-box"><div class="stat-label">Оклад</div><div class="stat-value" style="font-size:16px">${fmtMoney(s.salary)}</div></div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:600">Выручка по дням</div>
+    <div style="display:flex;gap:2px;align-items:flex-end;height:90px;margin-bottom:20px">${bars}</div>
+    ${s.bonus>0||s.totalPay>0?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="stat-box"><div class="stat-label">Бонус</div><div class="stat-value" style="font-size:16px;color:var(--green)">${fmtMoney(s.bonus)}</div></div>
-      <div class="stat-box" style="grid-column:span 2"><div class="stat-label">К выдаче</div><div class="stat-value" style="font-size:20px">${fmtMoney(s.totalPay)}</div></div>
-    </div>`;
-  // Remove old panels
-  document.querySelectorAll('.seller-detail-panel').forEach(p=>p.remove());
-  panel.classList.add('seller-detail-panel');
+      <div class="stat-box"><div class="stat-label">К выдаче</div><div class="stat-value" style="font-size:16px">${fmtMoney(s.totalPay)}</div></div>
+    </div>`:''}`;
   document.body.appendChild(panel);
 }
 
-// ====== SYNC SELLERS ======
 async function syncSellers() {
   try {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SELLERS_SHEET_NAME)}?key=${API_KEY}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
-    if (!json.values) throw new Error('Нет данных');
+    if (!json.values) throw new Error('no values');
     sellersData = parseSellersData(json.values);
     renderSellers();
   } catch(e) {
-    console.warn('Sellers sheet error:', e.message);
-    // Если лист не найден — покажем заглушку
+    console.warn('Sellers sync error:', e.message);
     document.getElementById('sellers-leaderboard').innerHTML =
-      '<div style="color:var(--text3);padding:20px">Укажи точное название листа в переменной SELLERS_SHEET_NAME (сейчас: "' + SELLERS_SHEET_NAME + '")</div>';
+      `<div style="color:var(--text3);padding:16px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)">
+        ⚠️ Не удалось загрузить лист продавцов.<br>
+        <span style="font-size:12px">Проверь название листа: <code style="color:var(--accent)">${SELLERS_SHEET_NAME}</code></span>
+      </div>`;
   }
 }
+// ===================== END SELLERS MODULE =====================
 
 window.addEventListener('load', () => {
   setDate();
   syncData();
   syncSellers();
   setInterval(syncData, 60000);
-  setInterval(syncSellers, 60000);
+  setInterval(syncSellers, 120000);
 });
 </script>
 </body>

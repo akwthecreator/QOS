@@ -316,8 +316,6 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
         </div>
       </div>
     </div>
-  </div>
-</div>
 
     <div class="page" id="page-sellers">
       <div class="header">
@@ -341,6 +339,9 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div id="sellers-summary" style="margin-top:20px"></div>
       <div id="sellers-calendar" style="margin-top:20px"></div>
     </div>
+  </div>
+</div>
+
 
 <script>
 const SHEET_ID = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
@@ -954,15 +955,14 @@ function parseSellersData(rows) {
     const c1 = (row[1] || '').toString().trim();
     const c2str = (row[2] || '').toString();
 
-    // --- Определяем секцию по col1 ---
-    if (c1 === 'Grand Park') { section = 'grandpark'; mode = null; continue; }
-    if (c1 === 'Aport')      { section = 'aport';     mode = null; continue; }
-    if (!section) continue;
+    // --- Режим определяем ДО секции (на той же строке col2 содержит 'Выручка'/'Смена') ---
+    if (c2str.includes('Выручка') || c2str.includes('выручка')) { mode = 'revenue'; }
+    else if (c2str.includes('Смена') || c2str.includes('смена')) { mode = 'shifts'; }
 
-    // --- Определяем режим по заголовку в c2 предыдущих строк ---
-    // col2 заголовочной строки содержит длинную строку с 'Выручка' или 'Смена'
-    if (c2str.includes('Выручка') || c2str.includes('выручка')) { mode = 'revenue'; continue; }
-    if (c2str.includes('Смена')   || c2str.includes('смена'))   { mode = 'shifts';  continue; }
+    // --- Секция: mode НЕ сбрасываем — он уже установлен на этой же строке ---
+    if (c1 === 'Grand Park') { section = 'grandpark'; continue; }
+    if (c1 === 'Aport')      { section = 'aport';     continue; }
+    if (!section) continue;
 
     // --- Пропускаем строку-заголовок дат (col0='№' или col1='ФИО') ---
     if (c0 === '№' || c1.toLowerCase() === 'фио') continue;

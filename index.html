@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>QGOD — Операционный дашборд</title>
+<title>QoimaGroupIS — Операционный дашборд</title>
 <style>
 :root[data-theme="dark"] {
   --bg: #0a0a0a;
@@ -246,7 +246,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
 <div class="container">
   <div class="sidebar">
-    <div class="logo">QOD</div>
+    <div class="logo">QGI</div>
     <button class="nav-btn active" onclick="showPage('home')" id="nav-home" title="Главная">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </button>
@@ -283,7 +283,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     <div class="page active" id="page-home">
       <div class="header">
         <div>
-          <h1>QoimaGroupOperationalDashboard</h1>
+          <h1>QoimaGroupIS</h1>
           <p style="color:var(--text2);margin-top:4px;font-size:14px">Операционный дашборд</p>
         </div>
         <div class="header-right">
@@ -1033,28 +1033,37 @@ function updateUI(data) {
 
   // --- Шанс выполнения плана ---
   {
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const daysLeft = daysInMonth - todayNum;
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const todayDate = now.getDate();
+    // +1 потому что текущий день ещё не закончился
+    const daysLeft = daysInMonth - todayDate + 1;
+    
+    // Считаем среднюю выручку только по прошедшим дням (без сегодня)
+    const pastDays = Math.max(1, numDays - 1); // исключаем сегодня
     const dailyTotals = [];
-    for (let d = 0; d < numDays; d++) {
+    for (let d = 0; d < pastDays; d++) {
       let sum = 0;
       Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d] || 0); });
       dailyTotals.push(sum);
     }
-    const avgDailyRevenue = dailyTotals.reduce((a, b) => a + b, 0) / (dailyTotals.length || 1);
+    const avgDailyRevenue = dailyTotals.reduce((a, b) => a + b, 0) / (pastDays || 1);
+    
     const needed = corePlan - coreRevenue;
     const neededPerDay = daysLeft > 0 ? needed / daysLeft : 0;
 
     let chanceDisplay = 0;
     if (daysLeft <= 0) {
+      // План закончился
       chanceDisplay = Math.min(100, corePlan > 0 ? (coreRevenue / corePlan) * 100 : 0);
-    } else if (neededPerDay <= 0) {
+    } else if (needed <= 0) {
+      // План уже выполнен
       chanceDisplay = 100;
     } else {
-      const coverageRatio = avgDailyRevenue / neededPerDay;
-      chanceDisplay = coverageRatio >= 1.0
-        ? Math.min(100, 90 + (coverageRatio - 1) * 20)
-        : Math.max(1, Math.pow(coverageRatio, 1.5) * 90);
+      // РЕАЛЬНЫЙ расчёт: сколько денег вероятно выручим в оставшиеся дни
+      const projectedAdditional = avgDailyRevenue * daysLeft;
+      const projectedTotal = coreRevenue + projectedAdditional;
+      chanceDisplay = Math.min(100, Math.max(1, (projectedTotal / corePlan) * 100));
     }
     const chanceRaw = chanceDisplay;
 
@@ -1082,7 +1091,7 @@ function updateUI(data) {
       `Нужно ещё: <b style="color:var(--text)">${(needed/1e6).toFixed(1)} М₸</b><br>` +
       `Осталось дней: <b style="color:var(--text)">${daysLeft}</b><br>` +
       `Нужно/день: <b style="color:var(--text)">${fmtMoney(neededPerDay)}</b><br>` +
-      `Сейчас/день: <b style="color:${chanceColor}">${fmtMoney(avgDailyRevenue)}</b> (${coveragePct}% нужного)`;
+      `Факт/день (средний): <b style="color:${chanceColor}">${fmtMoney(avgDailyRevenue)}</b> (${coveragePct}% нужного)`;
   }
 
   // --- Home bar chart ---

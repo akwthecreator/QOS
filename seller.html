@@ -60,7 +60,12 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 .icon-btn { width: 34px; height: 34px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; }
 .icon-btn:hover { border-color: var(--accent); color: var(--text); }
 
-.content { flex: 1; padding: 20px; max-width: 600px; margin: 0 auto; width: 100%; }
+.sync-status { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 6px; }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
+.sync-dot.ok { background: var(--green); }
+.sync-dot.err { background: var(--red); }
+
+.content { flex: 1; padding: 20px; max-width: 640px; margin: 0 auto; width: 100%; }
 
 /* ── TABS ── */
 .tabs { display: flex; background: var(--bg3); border-radius: 10px; padding: 4px; gap: 2px; margin-bottom: 24px; }
@@ -103,59 +108,70 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 .ai-title { font-size: 14px; font-weight: 600; }
 .ai-subtitle { font-size: 11px; color: var(--text3); margin-top: 1px; }
 .ai-message { font-size: 13px; color: var(--text2); line-height: 1.6; padding: 14px; background: var(--bg3); border-radius: 10px; min-height: 80px; }
-.ai-message.loading { display: flex; align-items: center; gap: 8px; color: var(--text3); }
-.ai-typing { display: flex; gap: 4px; }
-.ai-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: typing 1.2s infinite; }
-.ai-typing span:nth-child(2) { animation-delay: 0.2s; }
-.ai-typing span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes typing { 0%,60%,100% { opacity:0.2; transform:translateY(0); } 30% { opacity:1; transform:translateY(-4px); } }
 .ai-decomp { margin-top: 12px; display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
 .decomp-item { background: var(--bg3); border-radius: 10px; padding: 12px; text-align: center; }
 .decomp-icon { font-size: 20px; margin-bottom: 4px; }
 .decomp-count { font-size: 18px; font-weight: 700; }
 .decomp-label { font-size: 10px; color: var(--text3); margin-top: 2px; }
 .decomp-price { font-size: 10px; color: var(--text3); }
-.ai-ask-btn { width: 100%; margin-top: 12px; padding: 10px; border: 1px solid var(--border2); border-radius: 10px; background: transparent; color: var(--text2); font-family: inherit; font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-.ai-ask-btn:hover { border-color: var(--accent); color: var(--text); }
 
-/* ── FORM ── */
+/* ── SCORE / RESULTS ── */
+.score-section-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.score-section-sub { font-size: 12px; color: var(--text3); margin-bottom: 16px; }
+
 .form-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
 .form-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-.form-field { display: flex; flex-direction: column; gap: 6px; }
-.form-field.full { grid-column: span 2; }
-.form-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
-.form-input { padding: 11px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-family: inherit; font-size: 14px; transition: all 0.2s; -webkit-appearance: none; }
-.form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,102,255,0.1); }
-.form-input::placeholder { color: var(--text3); }
-.submit-btn { width: 100%; padding: 13px; background: var(--accent); border: none; border-radius: 10px; color: white; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 6px; }
-.submit-btn:hover { background: var(--accent2); }
-.submit-btn:disabled { opacity: 0.5; pointer-events: none; }
-.form-success { padding: 12px 16px; background: rgba(0,204,102,0.1); border: 1px solid var(--green); border-radius: 10px; color: var(--green); font-size: 13px; margin-top: 10px; display: none; }
 
-/* ── SCOREBOARD ── */
-.week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.week-badge { padding: 4px 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; font-size: 11px; color: var(--text3); }
-.week-countdown { font-size: 11px; color: var(--text3); }
-.score-locked { text-align: center; padding: 40px 20px; background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 16px; }
-.score-locked-icon { font-size: 48px; margin-bottom: 12px; }
-.score-locked-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-.score-locked-sub { font-size: 13px; color: var(--text3); line-height: 1.5; }
+/* Week cards */
+.week-compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.week-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.week-card-label { font-size: 11px; color: var(--text3); text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+.week-card-val { font-size: 24px; font-weight: 700; }
+.week-card-delta { font-size: 12px; margin-top: 4px; font-weight: 600; }
+.delta-up { color: var(--green); }
+.delta-down { color: var(--red); }
+.delta-flat { color: var(--text3); }
+
+/* Monthly mini-chart */
+.mini-chart { display: flex; align-items: flex-end; gap: 3px; height: 60px; margin-top: 12px; }
+.mini-bar { flex: 1; border-radius: 2px 2px 0 0; min-height: 3px; transition: all 0.3s; cursor: default; }
+.mini-chart-labels { display: flex; gap: 3px; margin-top: 4px; }
+.mini-chart-label { flex: 1; text-align: center; font-size: 8px; color: var(--text3); }
+
+/* Score progress card */
 .score-progress-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 12px; }
 .score-week-label { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
 .score-my { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
 .score-rank { font-size: 13px; color: var(--text3); }
-.score-bar-wrap { margin-top: 12px; }
-.score-bar-track { height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+.score-bar-track { height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; margin: 12px 0 8px; }
 .score-bar-fill { height: 100%; border-radius: 4px; background: var(--accent); transition: width 0.8s ease; }
 
-/* ── HISTORY ── */
-.history-list { display: flex; flex-direction: column; gap: 8px; }
-.history-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
-.history-date { font-size: 12px; color: var(--text3); }
-.history-name { font-size: 13px; font-weight: 500; margin-top: 1px; }
-.history-rev { font-size: 16px; font-weight: 700; color: var(--green); }
-.history-meta { font-size: 11px; color: var(--text3); text-align: right; margin-top: 2px; }
+/* Week history */
+.week-hist-item { margin-bottom: 14px; }
+.week-hist-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.week-hist-label { font-size: 12px; color: var(--text3); }
+.week-hist-val { font-size: 13px; font-weight: 600; }
+.week-hist-bar-bg { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.week-hist-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.5s; }
+
+/* Leaderboard seller row */
+.seller-row { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; margin-bottom: 6px; transition: background 0.2s; }
+.seller-row:hover { background: var(--bg3); }
+.seller-row.me { background: rgba(0,102,255,0.07); border: 1px solid rgba(0,102,255,0.2); }
+.seller-rank { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+.seller-info { flex: 1; min-width: 0; }
+.seller-name-lb { font-size: 13px; font-weight: 600; }
+.seller-meta-lb { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.seller-bar-wrap { flex: 2; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.seller-bar-bg { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.seller-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.seller-val-lb { font-size: 14px; font-weight: 700; white-space: nowrap; width: 80px; text-align: right; flex-shrink: 0; }
+
+/* Week tabs */
+.stabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.stab { padding: 6px 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; color: var(--text2); cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; }
+.stab:hover { border-color: var(--accent); color: var(--text); }
+.stab.active { background: var(--accent); border-color: var(--accent); color: white; }
 
 /* ── AI CHAT ── */
 .ai-chat-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
@@ -175,7 +191,7 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 .qp { padding: 6px 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; font-size: 11px; color: var(--text2); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
 .qp:hover { border-color: var(--accent); color: var(--text); }
 
-/* ── EMPTY STATE ── */
+/* ── EMPTY ── */
 .empty { text-align: center; padding: 40px 20px; color: var(--text3); }
 .empty-icon { font-size: 40px; margin-bottom: 12px; }
 
@@ -183,16 +199,32 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── AI TYPING ── */
+.ai-typing { display: flex; gap: 4px; align-items: center; }
+.ai-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: typing 1.2s infinite; }
+.ai-typing span:nth-child(2) { animation-delay: 0.2s; }
+.ai-typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing { 0%,60%,100% { opacity:0.2; transform:translateY(0); } 30% { opacity:1; transform:translateY(-4px); } }
+
 /* ── TOAST ── */
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; font-size: 13px; z-index: 9999; transition: transform 0.3s; box-shadow: 0 8px 32px rgba(0,0,0,0.3); white-space: nowrap; }
 .toast.show { transform: translateX(-50%) translateY(0); }
 .toast.success { border-color: var(--green); color: var(--green); }
 .toast.error { border-color: var(--red); color: var(--red); }
 
+/* ── STATUS BADGE ── */
+.status-badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+.badge-green  { background: rgba(0,204,102,0.15); color: var(--green); }
+.badge-yellow { background: rgba(255,170,0,0.15); color: var(--yellow); }
+.badge-red    { background: rgba(255,51,51,0.15); color: var(--red); }
+
 @media (max-width: 480px) {
   .content { padding: 14px; }
   .today-hero-val { font-size: 34px; }
   .metric-val { font-size: 18px; }
+  .week-compare-grid { grid-template-columns: 1fr; }
+  .seller-bar-wrap { display: none; }
+  .seller-val-lb { width: auto; }
 }
 </style>
 </head>
@@ -209,6 +241,11 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
       </div>
     </div>
     <div class="topbar-right">
+      <div class="sync-status">
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="syncLabel" style="display:none">обновлено</span>
+      </div>
+      <button class="icon-btn" onclick="syncSheets()" title="Обновить данные" id="syncBtn" style="font-size:14px">↻</button>
       <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Тема">🌙</button>
       <button class="icon-btn" onclick="handleLogout()" title="Выход" style="font-size:14px">⎋</button>
     </div>
@@ -216,10 +253,9 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 
   <!-- CONTENT -->
   <div class="content">
-    <!-- TABS -->
+    <!-- TABS: убрана вкладка "Ввод данных" -->
     <div class="tabs">
       <button class="tab active" onclick="switchTab('today', this)">Сегодня</button>
-      <button class="tab" onclick="switchTab('input', this)">Ввод данных</button>
       <button class="tab" onclick="switchTab('score', this)">Результаты</button>
       <button class="tab" onclick="switchTab('ai', this)">ИИ</button>
     </div>
@@ -227,11 +263,11 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
     <!-- ===== TAB: СЕГОДНЯ ===== -->
     <div class="section active" id="tab-today">
 
-      <!-- Hero today -->
+      <!-- Hero today — данные из Google Sheets -->
       <div class="today-hero">
         <div class="today-hero-label">Моя выручка сегодня</div>
         <div class="today-hero-val" id="hero-today-rev">—</div>
-        <div class="today-hero-sub" id="hero-today-sub">Введи данные чтобы увидеть</div>
+        <div class="today-hero-sub" id="hero-today-sub">Загружаем данные из Google Sheets...</div>
         <div class="today-progress-wrap">
           <div class="today-progress-track">
             <div class="today-progress-fill" id="hero-progress" style="width:0%"></div>
@@ -248,7 +284,7 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
         <div class="metric-card">
           <div class="metric-label">Смен в месяце</div>
           <div class="metric-val" id="m-shifts">—</div>
-          <div class="metric-sub" id="m-shifts-sub">по факту</div>
+          <div class="metric-sub">по факту</div>
         </div>
         <div class="metric-card">
           <div class="metric-label">Выр. / смену</div>
@@ -258,12 +294,12 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
         <div class="metric-card">
           <div class="metric-label">% плана</div>
           <div class="metric-val" id="m-plan-pct" style="color:var(--yellow)">—</div>
-          <div class="metric-sub" id="m-plan-sub">из 6М₸</div>
+          <div class="metric-sub" id="m-plan-sub">из плана</div>
         </div>
         <div class="metric-card">
-          <div class="metric-label">Чеков сегодня</div>
-          <div class="metric-val" id="m-checks">—</div>
-          <div class="metric-sub">Ср. чек: <span id="m-avg-check">—</span></div>
+          <div class="metric-label">Рейтинг команды</div>
+          <div class="metric-val" id="m-rank">—</div>
+          <div class="metric-sub" id="m-rank-sub">место</div>
         </div>
       </div>
 
@@ -273,11 +309,11 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
           <div class="ai-icon">🤖</div>
           <div>
             <div class="ai-title">ИИ-прогноз на сегодня</div>
-            <div class="ai-subtitle">Обновляется при вводе данных</div>
+            <div class="ai-subtitle">Обновляется при синхронизации</div>
           </div>
         </div>
         <div class="ai-message" id="ai-today-msg">
-          <span class="ai-typing"><span></span><span></span><span></span></span>
+          <div class="ai-typing"><span></span><span></span><span></span></div>
           &nbsp;Анализирую данные...
         </div>
         <!-- Декомпозиция -->
@@ -305,103 +341,59 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 
     </div><!-- /tab-today -->
 
-    <!-- ===== TAB: ВВОД ДАННЫХ ===== -->
-    <div class="section" id="tab-input">
-
-      <div class="form-card">
-        <div class="form-title">📋 Дневной отчёт</div>
-        <div id="form-date-label" style="font-size:12px;color:var(--text3);margin-bottom:16px"></div>
-
-        <div class="form-row">
-          <div class="form-field">
-            <div class="form-label">Выручка (₸)</div>
-            <input type="number" class="form-input" id="f-revenue" placeholder="450 000" min="0">
-          </div>
-          <div class="form-field">
-            <div class="form-label">Кол-во чеков</div>
-            <input type="number" class="form-input" id="f-checks" placeholder="18" min="0">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-field">
-            <div class="form-label">Посетителей</div>
-            <input type="number" class="form-input" id="f-visitors" placeholder="120" min="0">
-          </div>
-          <div class="form-field">
-            <div class="form-label">Вернули товар</div>
-            <input type="number" class="form-input" id="f-returns" placeholder="0" min="0">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-field full">
-            <div class="form-label">Комментарий (необязательно)</div>
-            <input type="text" class="form-input" id="f-comment" placeholder="Акция, распродажа, погода...">
-          </div>
-        </div>
-
-        <button class="submit-btn" id="submitBtn" onclick="submitDailyReport()">
-          Сохранить отчёт
-        </button>
-        <div class="form-success" id="form-success">✅ Отчёт сохранён! Данные обновлены.</div>
-      </div>
-
-      <!-- История -->
-      <div class="form-card">
-        <div class="form-title">📅 История отчётов</div>
-        <div class="history-list" id="history-list">
-          <div class="empty"><div class="empty-icon">📭</div>Нет данных</div>
-        </div>
-      </div>
-
-    </div><!-- /tab-input -->
-
-    <!-- ===== TAB: РЕЗУЛЬТАТЫ ===== -->
+    <!-- ===== TAB: РЕЗУЛЬТАТЫ (из Google Sheets) ===== -->
     <div class="section" id="tab-score">
 
-      <div class="week-header">
-        <div>
-          <div style="font-size:16px;font-weight:600">Недельный скорборд</div>
-          <div style="font-size:12px;color:var(--text3);margin-top:2px">Конкурируй сам с собой</div>
+      <!-- Текущая неделя vs прошлая -->
+      <div class="score-section-title">Сравнение недель</div>
+      <div class="score-section-sub">Твои данные из Google Sheets</div>
+
+      <div class="week-compare-grid">
+        <div class="week-card">
+          <div class="week-card-label">Эта неделя</div>
+          <div class="week-card-val" id="wk-this">—</div>
+          <div class="week-card-delta" id="wk-delta">—</div>
         </div>
-        <div class="week-badge" id="week-badge">Неделя 1</div>
+        <div class="week-card">
+          <div class="week-card-label">Прошлая неделя</div>
+          <div class="week-card-val" id="wk-last">—</div>
+          <div class="week-card-delta" id="wk-last-shifts">—</div>
+        </div>
       </div>
 
-      <!-- Мой прогресс этой недели -->
+      <!-- Прогресс этой недели -->
       <div class="score-progress-card">
         <div class="score-week-label">Моя выручка за текущую неделю</div>
         <div class="score-my" id="score-this-week">—</div>
         <div class="score-rank" id="score-vs-last">Сравнение с прошлой неделей: —</div>
-        <div class="score-bar-wrap">
-          <div class="score-bar-track">
-            <div class="score-bar-fill" id="score-week-bar" style="width:0%"></div>
-          </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill" id="score-week-bar" style="width:0%"></div>
         </div>
-        <div style="font-size:11px;color:var(--text3);margin-top:6px" id="score-week-target"></div>
+        <div style="font-size:11px;color:var(--text3)" id="score-week-target">Цель недели: —</div>
       </div>
 
-      <!-- Рейтинг открывается в конце недели -->
-      <div class="score-locked" id="scoreboard-locked">
-        <div class="score-locked-icon">🔒</div>
-        <div class="score-locked-title">Рейтинг откроется в конце недели</div>
-        <div class="score-locked-sub">
-          Сейчас ты соревнуешься сам с собой.<br>
-          Сосредоточься на своих показателях — в воскресенье увидишь общий результат!
-        </div>
-        <div style="margin-top:16px;font-size:12px;color:var(--text3)" id="week-opens-in">Рейтинг откроется через: —</div>
-      </div>
-
-      <!-- Итоговый рейтинг (виден после конца недели) -->
-      <div id="scoreboard-open" style="display:none">
-        <div class="form-card">
-          <div class="form-title">🏆 Итоги недели</div>
-          <div id="scoreboard-list"></div>
-        </div>
+      <!-- Мини-график по дням месяца -->
+      <div class="form-card">
+        <div class="form-title">📈 Динамика выручки в этом месяце</div>
+        <div class="mini-chart" id="my-daily-chart"></div>
+        <div class="mini-chart-labels" id="my-daily-labels"></div>
       </div>
 
       <!-- История недель -->
       <div class="form-card">
-        <div class="form-title">📊 История недель</div>
-        <div id="week-history-list"><div class="empty"><div class="empty-icon">📈</div>Нет данных</div></div>
+        <div class="form-title">📊 История по неделям</div>
+        <div id="week-history-list"><div class="empty"><div class="empty-icon">📈</div>Синхронизируем данные...</div></div>
+      </div>
+
+      <!-- Межнедельный рейтинг команды -->
+      <div class="form-card">
+        <div class="form-title">🏆 Рейтинг команды — эта неделя</div>
+        <div class="stabs" id="week-team-tabs">
+          <button class="stab active" onclick="setRatingTeam('grandpark', this)">Grand Park</button>
+          <button class="stab" onclick="setRatingTeam('aport', this)">Aport</button>
+          <button class="stab" onclick="setRatingTeam('all', this)">Все</button>
+        </div>
+        <div id="sellers-leaderboard"><div class="empty"><div class="empty-icon">⏳</div>Загрузка...</div></div>
       </div>
 
     </div><!-- /tab-score -->
@@ -425,7 +417,7 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
           <div class="qp" onclick="sendQuickPrompt(this)">Что мешает выполнить план?</div>
         </div>
         <div class="ai-chat-messages" id="chat-messages">
-          <div class="msg ai">Привет! Я знаю твои показатели и помогу достичь плана. Спроси меня что угодно 👋</div>
+          <div class="msg ai">Привет! Я знаю твои показатели из Google Sheets и помогу достичь плана. Спроси меня что угодно 👋</div>
         </div>
         <div class="ai-chat-input-wrap">
           <input type="text" class="ai-chat-input" id="chat-input" placeholder="Спроси что угодно..." onkeydown="if(event.key==='Enter') sendChat()">
@@ -459,25 +451,23 @@ const FIREBASE_CONFIG = {
   appId: "1:639485153845:web:61baa7942382ba7444d77c"
 };
 
-// Средние цены товаров для декомпозиции
-const PRICES = {
-  tshirt: 10800,   // (9700+11900)/2
-  hoodie: 26000,   // (24000+28000)/2
-  cap:    5000,
-  socks:  1800
-};
+// Google Sheets — те же что в panel.html
+const SHEET_ID         = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
+const API_KEY          = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
+const SELLERS_SHEET    = 'ЗП Май';    // лист с данными продавцов
+const KPI_SHEET        = 'МАЙ KPI';  // лист с KPI магазинов
 
-// Еженедельный план (выручка / ~4 недели)
-const MONTHLY_PLAN = 6000000; // для GP, для Aport 5000000 — подтянем из профиля
-const DAILY_TARGET_DEFAULT = Math.round(MONTHLY_PLAN / 26); // ~231К/день
+const PRICES = { tshirt: 10800, hoodie: 26000, cap: 5000, socks: 1800 };
+const MONTHLY_PLAN_DEFAULT = 6000000;
 
 // ===================== STATE =====================
 let currentUser = null;
-let userProfile = null;   // { name, store, team, plan }
-let myReports = [];       // массив дневных отчётов из Firestore
-let db = null;
-let auth = null;
+let userProfile = null;   // { name, store, team, plan, role }
+let db = null, auth = null;
 let chatHistory = [];
+let sellersData = [];     // все продавцы из Sheets
+let mySeller = null;      // мои данные из Sheets
+let ratingTeam = 'grandpark';
 
 // ===================== INIT =====================
 firebase.initializeApp(FIREBASE_CONFIG);
@@ -489,325 +479,426 @@ auth.onAuthStateChanged(async user => {
   currentUser = user;
   try {
     await loadUserProfile();
-    await loadMyReports();
-    updateUI();
-    loadAIInsight();
   } catch(e) {
-    console.error('Init error:', e);
-    // Показываем UI даже при ошибке загрузки данных
-    updateUI();
+    console.error('Profile error:', e);
+    userProfile = { name: user.email.split('@')[0], store: '—', team: 'grandpark', plan: MONTHLY_PLAN_DEFAULT, role: 'seller' };
   }
+  // Синхронизируем Sheets сразу
+  await syncSheets();
+  loadAIInsight();
+  // Автообновление каждые 3 минуты
+  setInterval(syncSheets, 180000);
 });
 
-// ===================== LOAD PROFILE =====================
+// ===================== PROFILE =====================
 async function loadUserProfile() {
-  try {
-    const doc = await db.collection('users').doc(currentUser.uid).get();
-    if (doc.exists) {
-      userProfile = doc.data();
-      // Если роль admin/manager — редирект на panel
-      if (userProfile.role && userProfile.role !== 'seller') {
-        window.location.href = 'panel.html'; return;
-      }
-    } else {
-      // Профиль не создан в Firestore — создаём дефолтный
-      userProfile = {
-        name: currentUser.displayName || currentUser.email.split('@')[0],
-        store: '—',
-        team: 'grandpark',
-        plan: MONTHLY_PLAN,
-        role: 'seller'
-      };
-      // Пробуем создать документ автоматически
-      try {
-        await db.collection('users').doc(currentUser.uid).set(userProfile);
-      } catch(e) { console.warn('Could not create profile:', e); }
+  const doc = await db.collection('users').doc(currentUser.uid).get();
+  if (doc.exists) {
+    userProfile = doc.data();
+    if (userProfile.role && userProfile.role !== 'seller') {
+      window.location.href = 'panel.html'; return;
     }
-    const nameEl = document.getElementById('sellerNameTop');
-    const storeEl = document.getElementById('sellerStoreTop');
-    const planSubEl = document.getElementById('m-plan-sub');
-    if (nameEl) nameEl.textContent = userProfile.name || currentUser.email;
-    if (storeEl) storeEl.textContent = userProfile.store || '—';
-    if (planSubEl) planSubEl.textContent = 'из ' + fmtMoney(userProfile.plan || MONTHLY_PLAN);
-  } catch(e) {
-    console.warn('Profile load error:', e);
+  } else {
     userProfile = {
-      name: currentUser.email.split('@')[0],
-      store: '—',
-      team: 'grandpark',
-      plan: MONTHLY_PLAN,
-      role: 'seller'
+      name: currentUser.displayName || currentUser.email.split('@')[0],
+      store: '—', team: 'grandpark', plan: MONTHLY_PLAN_DEFAULT, role: 'seller'
     };
+    try { await db.collection('users').doc(currentUser.uid).set(userProfile); } catch(e) {}
+  }
+  const nameEl = document.getElementById('sellerNameTop');
+  const storeEl = document.getElementById('sellerStoreTop');
+  if (nameEl) nameEl.textContent = userProfile.name || currentUser.email;
+  if (storeEl) storeEl.textContent = userProfile.store || userProfile.team || '—';
+  const planSubEl = document.getElementById('m-plan-sub');
+  if (planSubEl) planSubEl.textContent = 'из ' + fmtMoney(userProfile.plan || MONTHLY_PLAN_DEFAULT);
+}
+
+// ===================== GOOGLE SHEETS SYNC =====================
+async function syncSheets() {
+  setSyncState('loading');
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SELLERS_SHEET)}?key=${API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (!json.values) throw new Error('no values');
+
+    sellersData = parseSellersData(json.values);
+
+    // Найти мои данные по имени из профиля
+    findMySeller();
+    updateUI();
+    setSyncState('ok');
+  } catch(e) {
+    console.warn('Sheets sync error:', e.message);
+    setSyncState('err');
+    showToast('Ошибка загрузки данных', 'error');
   }
 }
 
-// ===================== LOAD REPORTS =====================
-async function loadMyReports() {
-  try {
-    const snap = await db.collection('sellers')
-      .doc(currentUser.uid)
-      .collection('daily')
-      .orderBy('date', 'desc')
-      .limit(60)
-      .get();
-    myReports = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch(e) {
-    console.warn('Reports load error:', e);
-    myReports = [];
+function setSyncState(state) {
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  const btn = document.getElementById('syncBtn');
+  if (state === 'loading') {
+    dot.className = 'sync-dot';
+    if (lbl) lbl.style.display = 'none';
+    btn.style.animation = 'spin 1s linear infinite';
+  } else if (state === 'ok') {
+    dot.className = 'sync-dot ok';
+    if (lbl) { lbl.style.display = ''; lbl.textContent = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'}); }
+    btn.style.animation = '';
+  } else {
+    dot.className = 'sync-dot err';
+    if (lbl) lbl.style.display = 'none';
+    btn.style.animation = '';
   }
+}
+
+// ===================== PARSE SELLERS (same as panel.html) =====================
+function parseNum(val) {
+  if (val === null || val === undefined || val === '') return 0;
+  let s = String(val).replace(/\u00a0/g,'').replace(/\s/g,'').replace(/[\u20b8\u20B8₸]/g,'').replace(/[%]/g,'').replace(/,/g,'.');
+  const num = parseFloat(s);
+  return isNaN(num) ? 0 : num;
+}
+
+function parseSellersData(rows) {
+  const sellers = [];
+  let section = null;
+  let mode = null;
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i] || [];
+    const c0 = (row[0] || '').toString().trim();
+    const c1 = (row[1] || '').toString().trim();
+    const c2str = (row[2] || '').toString();
+
+    if (c2str.includes('Выручка') || c2str.includes('выручка')) { mode = 'revenue'; }
+    else if (c2str.includes('Смена') || c2str.includes('смена')) { mode = 'shifts'; }
+
+    if (c1 === 'Grand Park') { section = 'grandpark'; continue; }
+    if (c1 === 'Aport')      { section = 'aport';     continue; }
+    if (!section) continue;
+
+    if (c0 === '№' || c1.toLowerCase() === 'фио') continue;
+    if (c0.toLowerCase().includes('итого') || c1.toLowerCase().includes('итого')) continue;
+    if (!c1 || !/[а-яА-ЯёЁa-zA-Z]/.test(c1)) continue;
+    if (!/^\d+$/.test(c0)) continue;
+    if (!mode) continue;
+
+    const name = c1.trim();
+    const plan = section === 'grandpark' ? (userProfile?.plan || 6000000) : 5000000;
+
+    let seller = sellers.find(s => s.name === name && s.team === section);
+    if (!seller) {
+      seller = { name, team: section, plan, revenue: 0, shifts: 0, plannedShifts: 21, totalPay: 0, dailyRevenue: Array(31).fill(0), dailyShifts: Array(31).fill(0) };
+      sellers.push(seller);
+    }
+
+    if (mode === 'revenue') {
+      const daily = [];
+      for (let j = 2; j <= 32 && j < row.length; j++) daily.push(parseNum(row[j]));
+      seller.dailyRevenue = daily;
+      let kassa = 0;
+      for (let j = 33; j < row.length; j++) {
+        const v = parseNum(row[j]);
+        if (v > 500000) { kassa = v; break; }
+      }
+      seller.revenue = kassa > 0 ? kassa : daily.reduce((a,b)=>a+b, 0);
+      let nach = 0;
+      for (let j = 35; j < row.length; j++) {
+        const v = parseNum(row[j]);
+        if (v >= 50000 && v <= 600000) { nach = v; break; }
+      }
+      seller.totalPay = nach;
+    }
+    if (mode === 'shifts') {
+      const daily = [];
+      for (let j = 2; j <= 32 && j < row.length; j++) daily.push(parseNum(row[j]) > 0 ? 1 : 0);
+      seller.dailyShifts = daily;
+      seller.shifts = daily.reduce((a,b)=>a+b, 0);
+    }
+  }
+  return sellers.filter(s => s.revenue > 0 || s.shifts > 0);
+}
+
+// ===================== FIND MY SELLER =====================
+function findMySeller() {
+  if (!userProfile?.name || !sellersData.length) { mySeller = null; return; }
+  const myName = userProfile.name.trim().toLowerCase();
+  const myTeam = (userProfile.team || '').toLowerCase();
+
+  // Сначала точное совпадение
+  mySeller = sellersData.find(s =>
+    s.name.trim().toLowerCase() === myName &&
+    (!myTeam || s.team === myTeam)
+  );
+
+  // Fallback: частичное совпадение по первому слову (фамилии)
+  if (!mySeller) {
+    const firstWord = myName.split(' ')[0];
+    mySeller = sellersData.find(s =>
+      s.name.trim().toLowerCase().startsWith(firstWord) &&
+      (!myTeam || s.team === myTeam)
+    );
+  }
+
+  console.log('My seller found:', mySeller?.name || 'NOT FOUND', 'Profile name:', userProfile.name);
 }
 
 // ===================== UPDATE UI =====================
 function updateUI() {
-  const today = todayKey();
-  const todayReport = myReports.find(r => r.date === today);
-  const plan = userProfile?.plan || MONTHLY_PLAN;
+  if (!mySeller && sellersData.length === 0) {
+    // Ещё не загружено
+    return;
+  }
 
-  // --- Hero today ---
-  const todayRev = todayReport?.revenue || 0;
-  const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate();
-  const daysLeft = daysInMonth - new Date().getDate() + 1;
-  const monthRevSoFar = myReports
-    .filter(r => r.date.startsWith(monthPrefix()))
-    .reduce((s, r) => s + (r.revenue || 0), 0);
-  const needed = Math.max(0, plan - monthRevSoFar);
+  const now = new Date();
+  const todayIdx = now.getDate() - 1; // 0-based
+  const plan = mySeller?.plan || userProfile?.plan || MONTHLY_PLAN_DEFAULT;
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const daysLeft = daysInMonth - now.getDate() + 1;
+
+  // --- TODAY ---
+  const todayRev = mySeller?.dailyRevenue[todayIdx] || 0;
+  const monthRev = mySeller ? mySeller.dailyRevenue.slice(0, todayIdx + 1).reduce((a,b)=>a+b, 0) : 0;
+  const needed = Math.max(0, plan - monthRev);
   const dailyTarget = daysLeft > 0 ? Math.round(needed / daysLeft) : 0;
-  const todayPct = dailyTarget > 0 ? Math.min(100, (todayRev / dailyTarget) * 100) : 0;
+  const todayPct = dailyTarget > 0 ? Math.min(100, (todayRev / dailyTarget) * 100) : (todayRev > 0 ? 100 : 0);
 
   document.getElementById('hero-today-rev').textContent = fmtMoney(todayRev);
-  document.getElementById('hero-today-sub').textContent = todayReport
-    ? `Обновлено сегодня · ${new Date(todayReport.ts?.toDate?.() || Date.now()).toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'})}`
-    : 'Ещё нет данных за сегодня';
+  document.getElementById('hero-today-sub').textContent = mySeller
+    ? `${mySeller.name} · ${mySeller.team === 'grandpark' ? 'Grand Park' : 'Aport'} · обновлено ${new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}`
+    : 'Данные не найдены — проверь имя в профиле Firebase';
   document.getElementById('hero-progress').style.width = todayPct + '%';
   document.getElementById('hero-pl-left').textContent = fmtMoney(todayRev);
   document.getElementById('hero-pl-right').textContent = 'цель дня: ' + fmtMoney(dailyTarget);
 
-  // --- Metrics ---
-  const monthReports = myReports.filter(r => r.date.startsWith(monthPrefix()));
-  const shiftsCount = monthReports.length;
-  const totalRevMonth = monthRevSoFar;
-  const perShift = shiftsCount > 0 ? Math.round(totalRevMonth / shiftsCount) : 0;
-  const planPct = plan > 0 ? (totalRevMonth / plan * 100) : 0;
+  // Metrics
+  const shifts = mySeller?.shifts || 0;
+  const perShift = shifts > 0 && monthRev > 0 ? Math.round(monthRev / shifts) : 0;
+  const planPct = plan > 0 ? (monthRev / plan * 100) : 0;
   const planColor = planPct >= 80 ? 'var(--green)' : planPct >= 50 ? 'var(--yellow)' : 'var(--red)';
 
-  document.getElementById('m-shifts').textContent = shiftsCount;
-  document.getElementById('m-shifts-sub').textContent = 'из ~26 рабочих';
-  document.getElementById('m-per-shift').textContent = fmtMoney(perShift);
-  document.getElementById('m-plan-pct').textContent = planPct.toFixed(1) + '%';
+  document.getElementById('m-shifts').textContent = shifts || '—';
+  document.getElementById('m-per-shift').textContent = perShift > 0 ? fmtMoney(perShift) : '—';
+  document.getElementById('m-plan-pct').textContent = mySeller ? planPct.toFixed(1) + '%' : '—';
   document.getElementById('m-plan-pct').style.color = planColor;
-  document.getElementById('m-checks').textContent = todayReport?.checks || '—';
-  const avgCheck = (todayReport?.checks > 0 && todayReport?.revenue > 0)
-    ? Math.round(todayReport.revenue / todayReport.checks) : 0;
-  document.getElementById('m-avg-check').textContent = avgCheck > 0 ? fmtMoney(avgCheck) : '—';
+  document.getElementById('m-plan-sub').textContent = 'из ' + fmtMoney(plan);
 
-  // --- History ---
-  renderHistory();
-
-  // --- Scoreboard ---
-  renderScoreboard();
-
-  // --- Date label in form ---
-  document.getElementById('form-date-label').textContent =
-    'Дата: ' + new Date().toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
-
-  // Prefill if today already submitted
-  if (todayReport) {
-    document.getElementById('f-revenue').value  = todayReport.revenue || '';
-    document.getElementById('f-checks').value   = todayReport.checks || '';
-    document.getElementById('f-visitors').value = todayReport.visitors || '';
-    document.getElementById('f-returns').value  = todayReport.returns || '';
-    document.getElementById('f-comment').value  = todayReport.comment || '';
-    document.getElementById('submitBtn').textContent = 'Обновить отчёт';
+  // Rank in team
+  if (mySeller) {
+    const teamList = sellersData.filter(s => s.team === mySeller.team).sort((a,b) => b.revenue - a.revenue);
+    const myRank = teamList.findIndex(s => s.name === mySeller.name) + 1;
+    document.getElementById('m-rank').textContent = myRank > 0 ? '#' + myRank : '—';
+    document.getElementById('m-rank-sub').textContent = `из ${teamList.length} · ${mySeller.team === 'grandpark' ? 'Grand Park' : 'Aport'}`;
   }
+
+  // Results tab
+  renderWeekCompare();
+  renderDailyChart();
+  renderWeekHistory();
+  renderLeaderboard();
 }
 
-// ===================== HISTORY =====================
-function renderHistory() {
-  const list = document.getElementById('history-list');
-  const month = myReports.filter(r => r.date.startsWith(monthPrefix())).slice(0, 20);
-  if (!month.length) {
-    list.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>Нет данных за этот месяц</div>';
+// ===================== WEEK COMPARE =====================
+function renderWeekCompare() {
+  if (!mySeller) {
+    ['wk-this','wk-last','wk-delta','wk-last-shifts','score-this-week','score-vs-last','score-week-target'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '—';
+    });
+    document.getElementById('score-week-bar').style.width = '0%';
     return;
   }
-  list.innerHTML = month.map(r => {
-    const d = new Date(r.date);
-    const dayName = d.toLocaleDateString('ru-RU', {weekday:'short', day:'numeric', month:'short'});
-    const avgCheck = r.checks > 0 ? fmtMoney(Math.round(r.revenue / r.checks)) : '—';
-    return `<div class="history-item">
-      <div>
-        <div class="history-date">${dayName}</div>
-        <div class="history-name">${r.comment || 'Обычный день'}</div>
-      </div>
-      <div style="text-align:right">
-        <div class="history-rev">${fmtMoney(r.revenue || 0)}</div>
-        <div class="history-meta">${r.checks || 0} чеков · ср. чек ${avgCheck}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
 
-// ===================== SCOREBOARD =====================
-function renderScoreboard() {
   const now = new Date();
-  const dayOfWeek = now.getDay(); // 0=вс, 1=пн ... 6=сб
-  const weekNum = getWeekNumber(now);
-  const isSunday = dayOfWeek === 0;
-  const weekYear = `${now.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
+  const todayIdx = now.getDate() - 1;
+  const dayOfWeek = now.getDay(); // 0=вс
+  // Начало текущей недели (пн)
+  const daysFromMon = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const thisWeekStart = todayIdx - daysFromMon;
+  const lastWeekStart = thisWeekStart - 7;
+  const lastWeekEnd   = thisWeekStart - 1;
 
-  document.getElementById('week-badge').textContent = `Неделя ${weekNum % 4 || 4}`;
+  let thisWeekRev = 0, lastWeekRev = 0;
+  for (let d = Math.max(0, thisWeekStart); d <= todayIdx; d++) {
+    thisWeekRev += mySeller.dailyRevenue[d] || 0;
+  }
+  for (let d = Math.max(0, lastWeekStart); d <= lastWeekEnd && d < mySeller.dailyRevenue.length; d++) {
+    lastWeekRev += mySeller.dailyRevenue[d] || 0;
+  }
 
-  // Моя выручка за текущую неделю
-  const weekStart = getWeekStart(now);
-  const weekReports = myReports.filter(r => new Date(r.date) >= weekStart);
-  const weekRev = weekReports.reduce((s,r) => s + (r.revenue||0), 0);
+  const plan = mySeller.plan || MONTHLY_PLAN_DEFAULT;
+  const weekPlan = Math.round(plan / 4.3);
+  const weekPct  = weekPlan > 0 ? Math.min(100, thisWeekRev / weekPlan * 100) : 0;
+  const diff = thisWeekRev - lastWeekRev;
+  const diffPct = lastWeekRev > 0 ? ((diff/lastWeekRev)*100).toFixed(0) : 0;
+  const diffCls = diff > 0 ? 'delta-up' : diff < 0 ? 'delta-down' : 'delta-flat';
+  const diffStr = diff >= 0 ? `+${fmtMoney(diff)} (${diffPct}%)` : `${fmtMoney(diff)} (${diffPct}%)`;
 
-  // Прошлая неделя
-  const lastWeekStart = new Date(weekStart); lastWeekStart.setDate(lastWeekStart.getDate() - 7);
-  const lastWeekEnd   = new Date(weekStart);
-  const lastWeekReports = myReports.filter(r => {
-    const d = new Date(r.date); return d >= lastWeekStart && d < lastWeekEnd;
-  });
-  const lastWeekRev = lastWeekReports.reduce((s,r) => s + (r.revenue||0), 0);
+  document.getElementById('wk-this').textContent = fmtMoney(thisWeekRev);
+  document.getElementById('wk-last').textContent = fmtMoney(lastWeekRev);
+  document.getElementById('wk-delta').innerHTML = `<span class="${diffCls}">${diffStr} vs прошлая</span>`;
 
-  const weekPlan = Math.round((userProfile?.plan || MONTHLY_PLAN) / 4);
-  const weekPct  = weekPlan > 0 ? Math.min(100, weekRev / weekPlan * 100) : 0;
-  const diff = weekRev - lastWeekRev;
-  const diffStr = diff >= 0 ? `+${fmtMoney(diff)} vs прошлая неделя` : `${fmtMoney(diff)} vs прошлая неделя`;
-  const diffColor = diff >= 0 ? 'var(--green)' : 'var(--red)';
+  // Count shifts this/last week
+  let thisShifts = 0, lastShifts = 0;
+  for (let d = Math.max(0, thisWeekStart); d <= todayIdx; d++) thisShifts += mySeller.dailyShifts[d] || 0;
+  for (let d = Math.max(0, lastWeekStart); d <= lastWeekEnd; d++) lastShifts += mySeller.dailyShifts[d] || 0;
+  document.getElementById('wk-last-shifts').textContent = `${lastShifts} смен`;
 
-  document.getElementById('score-this-week').textContent = fmtMoney(weekRev);
-  document.getElementById('score-vs-last').innerHTML = `<span style="color:${diffColor}">${diffStr}</span>`;
+  // Score card
+  document.getElementById('score-this-week').textContent = fmtMoney(thisWeekRev);
+  document.getElementById('score-vs-last').innerHTML = `<span class="${diffCls}">${diffStr} к прошлой неделе</span>`;
   document.getElementById('score-week-bar').style.width = weekPct + '%';
   document.getElementById('score-week-target').textContent = `Цель недели: ${fmtMoney(weekPlan)} · Выполнено: ${weekPct.toFixed(1)}%`;
-
-  // Открытие рейтинга в воскресенье
-  if (isSunday) {
-    document.getElementById('scoreboard-locked').style.display = 'none';
-    document.getElementById('scoreboard-open').style.display = 'block';
-    loadWeeklyLeaderboard(weekYear);
-  } else {
-    // Показать сколько осталось до воскресенья
-    const daysToSunday = (7 - dayOfWeek) % 7 || 7;
-    document.getElementById('week-opens-in').textContent = `Рейтинг откроется через: ${daysToSunday} дн.`;
-  }
-
-  // История недель
-  renderWeekHistory();
 }
 
-async function loadWeeklyLeaderboard(weekKey) {
-  try {
-    const snap = await db.collection('weeklyScores').doc(weekKey).get();
-    const data = snap.exists ? snap.data() : {};
-    const entries = Object.entries(data).sort((a,b) => b[1].revenue - a[1].revenue);
-    const myIdx = entries.findIndex(([uid]) => uid === currentUser.uid);
-    document.getElementById('scoreboard-list').innerHTML = entries.map(([uid, d], i) => {
-      const isMe = uid === currentUser.uid;
-      const emoji = ['🥇','🥈','🥉'][i] || `${i+1}.`;
-      return `<div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;background:${isMe?'rgba(0,102,255,0.08)':'transparent'};margin-bottom:6px;${isMe?'border:1px solid rgba(0,102,255,0.2)':''}">
-        <div style="font-size:18px;width:28px">${emoji}</div>
-        <div style="flex:1;font-size:13px;font-weight:${isMe?'700':'400'}">${d.name || 'Продавец'} ${isMe?'(я)':''}</div>
-        <div style="font-size:14px;font-weight:700;color:${isMe?'var(--accent)':'var(--text)'}">${fmtMoney(d.revenue||0)}</div>
-      </div>`;
-    }).join('') || '<div class="empty">Нет данных</div>';
-  } catch(e) { console.warn('Leaderboard error:', e); }
+// ===================== DAILY CHART =====================
+function renderDailyChart() {
+  const chartEl = document.getElementById('my-daily-chart');
+  const labelsEl = document.getElementById('my-daily-labels');
+  chartEl.innerHTML = '';
+  labelsEl.innerHTML = '';
+  if (!mySeller) return;
+
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const daily = mySeller.dailyRevenue.slice(0, todayIdx + 1);
+  if (!daily.length) return;
+
+  const maxVal = Math.max(...daily, 1);
+  const dayRu = ['вс','пн','вт','ср','чт','пт','сб'];
+  const step = daily.length > 20 ? 3 : daily.length > 10 ? 2 : 1;
+
+  daily.forEach((val, idx) => {
+    const dt = new Date(now.getFullYear(), now.getMonth(), idx + 1);
+    const pct = Math.max(4, (val / maxVal) * 100);
+    const color = val > 0 ? 'var(--accent)' : 'var(--bg3)';
+    const bar = document.createElement('div');
+    bar.className = 'mini-bar';
+    bar.style.height = pct + '%';
+    bar.style.background = idx === todayIdx ? 'var(--green)' : color;
+    bar.title = `${dayRu[dt.getDay()]} ${idx+1}: ${fmtMoney(val)}`;
+    chartEl.appendChild(bar);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'mini-chart-label';
+    lbl.textContent = idx % step === 0 || idx === todayIdx ? (idx + 1) : '';
+    labelsEl.appendChild(lbl);
+  });
 }
 
+// ===================== WEEK HISTORY =====================
 function renderWeekHistory() {
   const histEl = document.getElementById('week-history-list');
-  // Группируем отчёты по неделям
+  if (!mySeller) {
+    histEl.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div>Нет данных</div>';
+    return;
+  }
+
+  const now = new Date();
+  // Разбиваем дни по неделям (понедельник = начало)
   const weekMap = {};
-  myReports.forEach(r => {
-    const d = new Date(r.date);
-    const wk = `${d.getFullYear()}-W${String(getWeekNumber(d)).padStart(2,'0')}`;
-    if (!weekMap[wk]) weekMap[wk] = 0;
-    weekMap[wk] += r.revenue || 0;
+  mySeller.dailyRevenue.forEach((rev, dayIdx) => {
+    if (dayIdx >= now.getDate()) return; // будущие дни
+    const dt = new Date(now.getFullYear(), now.getMonth(), dayIdx + 1);
+    const dow = dt.getDay();
+    const diffToMon = dow === 0 ? 6 : dow - 1;
+    const monDate = new Date(dt);
+    monDate.setDate(monDate.getDate() - diffToMon);
+    const wk = monDate.toISOString().slice(0,10);
+    if (!weekMap[wk]) weekMap[wk] = { rev: 0, shifts: 0 };
+    weekMap[wk].rev += rev;
+    weekMap[wk].shifts += mySeller.dailyShifts[dayIdx] || 0;
   });
-  const weeks = Object.entries(weekMap).sort((a,b) => b[0].localeCompare(a[0])).slice(0,8);
-  if (!weeks.length) { histEl.innerHTML = '<div class="empty"><div class="empty-icon">📈</div>Нет данных</div>'; return; }
-  const maxW = Math.max(...weeks.map(([,v])=>v), 1);
-  const weekPlan = Math.round((userProfile?.plan || MONTHLY_PLAN) / 4);
-  histEl.innerHTML = weeks.map(([wk, rev]) => {
-    const [y, w] = wk.split('-W');
-    const pct = Math.min(100, rev/maxW*100);
-    const planPct = weekPlan > 0 ? (rev/weekPlan*100).toFixed(0) : '—';
-    return `<div style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-        <span style="font-size:12px;color:var(--text3)">Неделя ${w} · ${y}</span>
-        <span style="font-size:13px;font-weight:600">${fmtMoney(rev)} <span style="font-size:11px;color:var(--text3)">(${planPct}% плана)</span></span>
+
+  const weeks = Object.entries(weekMap).sort((a,b) => b[0].localeCompare(a[0]));
+  if (!weeks.length) {
+    histEl.innerHTML = '<div class="empty"><div class="empty-icon">📈</div>Нет данных</div>';
+    return;
+  }
+
+  const maxRev = Math.max(...weeks.map(([,v])=>v.rev), 1);
+  const weekPlan = Math.round((mySeller.plan || MONTHLY_PLAN_DEFAULT) / 4.3);
+
+  histEl.innerHTML = weeks.map(([wkStart, data]) => {
+    const pct = Math.min(100, data.rev / maxRev * 100);
+    const planPct = weekPlan > 0 ? (data.rev / weekPlan * 100).toFixed(0) : '—';
+    const dt = new Date(wkStart);
+    const endDt = new Date(wkStart); endDt.setDate(endDt.getDate() + 6);
+    const label = `${dt.getDate()} – ${endDt.getDate()} ${dt.toLocaleDateString('ru-RU',{month:'short'})}`;
+    const planColor = +planPct >= 90 ? 'var(--green)' : +planPct >= 60 ? 'var(--yellow)' : 'var(--red)';
+    return `<div class="week-hist-item">
+      <div class="week-hist-header">
+        <span class="week-hist-label">${label} · ${data.shifts} смен</span>
+        <span class="week-hist-val">${fmtMoney(data.rev)} <span style="font-size:11px;color:${planColor}">(${planPct}% плана)</span></span>
       </div>
-      <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden">
-        <div style="height:100%;width:${pct}%;background:var(--accent);border-radius:3px;transition:width 0.5s"></div>
+      <div class="week-hist-bar-bg">
+        <div class="week-hist-bar-fill" style="width:${pct}%"></div>
       </div>
     </div>`;
   }).join('');
 }
 
-// ===================== SUBMIT REPORT =====================
-async function submitDailyReport() {
-  const btn = document.getElementById('submitBtn');
-  const revenue  = parseFloat(document.getElementById('f-revenue').value) || 0;
-  const checks   = parseInt(document.getElementById('f-checks').value)   || 0;
-  const visitors = parseInt(document.getElementById('f-visitors').value) || 0;
-  const returns  = parseFloat(document.getElementById('f-returns').value)|| 0;
-  const comment  = document.getElementById('f-comment').value.trim();
-
-  if (!revenue && !checks) { showToast('Введи хотя бы выручку', 'error'); return; }
-
-  btn.disabled = true;
-  btn.textContent = 'Сохраняю...';
-
-  const today = todayKey();
-  const report = {
-    date: today, revenue, checks, visitors, returns, comment,
-    ts: firebase.firestore.FieldValue.serverTimestamp(),
-    sellerName: userProfile?.name || currentUser.email,
-    store: userProfile?.store || '—'
-  };
-
-  try {
-    await db.collection('sellers').doc(currentUser.uid).collection('daily').doc(today).set(report);
-
-    // Обновить недельный скорборд
-    await updateWeeklyScore(revenue);
-
-    await loadMyReports();
-    updateUI();
-    loadAIInsight();
-
-    document.getElementById('form-success').style.display = 'block';
-    setTimeout(() => { document.getElementById('form-success').style.display = 'none'; }, 3000);
-    showToast('✅ Отчёт сохранён!', 'success');
-    btn.textContent = 'Обновить отчёт';
-  } catch(e) {
-    console.error('Submit error:', e);
-    showToast('Ошибка сохранения. Проверь интернет', 'error');
-    btn.textContent = 'Сохранить отчёт';
-  }
-  btn.disabled = false;
+// ===================== LEADERBOARD (межнедельный) =====================
+function setRatingTeam(team, el) {
+  ratingTeam = team;
+  document.querySelectorAll('#week-team-tabs .stab').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderLeaderboard();
 }
 
-async function updateWeeklyScore(todayRevenue) {
+function renderLeaderboard() {
+  const el = document.getElementById('sellers-leaderboard');
+  if (!sellersData.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div>Загрузка...</div>';
+    return;
+  }
+
   const now = new Date();
-  const weekNum = getWeekNumber(now);
-  const weekKey = `${now.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
-  const today = todayKey();
+  const todayIdx = now.getDate() - 1;
+  const dow = now.getDay();
+  const daysFromMon = dow === 0 ? 6 : dow - 1;
+  const thisWeekStart = todayIdx - daysFromMon;
 
-  // Суммируем всю выручку за текущую неделю (НЕ включая сегодня — он уже сохранён)
-  const weekStart = getWeekStart(now);
-  const weekReports = myReports.filter(r => new Date(r.date) >= weekStart && r.date !== today);
-  const weekTotal = weekReports.reduce((s,r) => s + (r.revenue||0), 0) + todayRevenue;
+  // Считаем выручку за текущую неделю для каждого продавца
+  let list = sellersData.map(s => {
+    let weekRev = 0;
+    for (let d = Math.max(0, thisWeekStart); d <= todayIdx; d++) weekRev += s.dailyRevenue[d] || 0;
+    return { ...s, weekRev };
+  });
 
-  try {
-    await db.collection('weeklyScores').doc(weekKey).set({
-      [currentUser.uid]: {
-        revenue: weekTotal,
-        name: userProfile?.name || currentUser.email.split('@')[0],
-        store: userProfile?.store || '—',
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }
-    }, { merge: true });
-  } catch(e) { console.warn('Weekly score update error:', e); }
+  if (ratingTeam !== 'all') list = list.filter(s => s.team === ratingTeam);
+  list.sort((a,b) => b.weekRev - a.weekRev);
+
+  if (!list.length) {
+    el.innerHTML = '<div class="empty">Нет данных для команды</div>';
+    return;
+  }
+
+  const maxVal = Math.max(...list.map(s=>s.weekRev), 1);
+  const rankEmojis = ['🥇','🥈','🥉'];
+
+  el.innerHTML = list.map((s, i) => {
+    const isMe = mySeller && s.name === mySeller.name && s.team === mySeller.team;
+    const pct = Math.min(100, (s.weekRev / maxVal) * 100);
+    const barClr = i === 0 ? '#ffd700' : i === 1 ? '#c0c0c0' : i === 2 ? '#cd7f32' : (s.team === 'grandpark' ? '#6ba3d4' : '#d4a56b');
+    const teamBadge = ratingTeam === 'all' ? `<span style="font-size:10px;color:${s.team==='grandpark'?'#6ba3d4':'#d4a56b'};font-weight:600">${s.team==='grandpark'?'GP':'Aport'}</span>` : '';
+    const perShift = s.shifts > 0 ? fmtMoney(Math.round(s.revenue / s.shifts)) : '—';
+    return `<div class="seller-row ${isMe?'me':''}">
+      <div class="seller-rank">${rankEmojis[i] || (i+1)+'.'}</div>
+      <div class="seller-info">
+        <div class="seller-name-lb">${s.name} ${isMe?'<span style="font-size:10px;color:var(--accent)">(я)</span>':''}</div>
+        <div class="seller-meta-lb">${perShift}/смену · ${s.shifts} смен ${teamBadge}</div>
+      </div>
+      <div class="seller-bar-wrap">
+        <div class="seller-bar-bg"><div class="seller-bar-fill" style="width:${pct}%;background:${barClr}"></div></div>
+      </div>
+      <div class="seller-val-lb">${fmtMoney(s.weekRev)}</div>
+    </div>`;
+  }).join('');
 }
 
 // ===================== AI INSIGHT =====================
@@ -815,29 +906,28 @@ async function loadAIInsight() {
   const el = document.getElementById('ai-today-msg');
   el.innerHTML = '<div class="ai-typing"><span></span><span></span><span></span></div>&nbsp;Анализирую...';
 
-  const today = todayKey();
-  const todayReport = myReports.find(r => r.date === today);
-  const plan = userProfile?.plan || MONTHLY_PLAN;
-  const monthRevSoFar = myReports
-    .filter(r => r.date.startsWith(monthPrefix()))
-    .reduce((s, r) => s + (r.revenue || 0), 0);
-  const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate();
-  const today_n = new Date().getDate();
-  const daysLeft = daysInMonth - today_n;
-  const needed = Math.max(0, plan - monthRevSoFar);
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const plan = mySeller?.plan || userProfile?.plan || MONTHLY_PLAN_DEFAULT;
+  const monthRev = mySeller ? mySeller.dailyRevenue.slice(0, todayIdx + 1).reduce((a,b)=>a+b,0) : 0;
+  const todayRev = mySeller?.dailyRevenue[todayIdx] || 0;
+  const shifts = mySeller?.shifts || 0;
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const daysLeft = daysInMonth - now.getDate();
+  const needed = Math.max(0, plan - monthRev);
   const dailyTarget = daysLeft > 0 ? Math.round(needed / daysLeft) : 0;
-  const shiftsThisMonth = myReports.filter(r => r.date.startsWith(monthPrefix())).length;
-  const avgPerShift = shiftsThisMonth > 0 ? Math.round(monthRevSoFar / shiftsThisMonth) : 0;
+  const avgPerShift = shifts > 0 ? Math.round(monthRev / shifts) : 0;
 
-  const prompt = `Ты ИИ-ассистент для продавца одежды в Almaty.
-Данные продавца за текущий месяц:
-- Выручка за месяц: ${fmtMoney(monthRevSoFar)}
+  const prompt = `Ты ИИ-ассистент для продавца одежды Qoima в Алматы.
+Данные продавца за текущий месяц из Google Sheets:
+- Имя: ${mySeller?.name || userProfile?.name || '—'}
+- Выручка за месяц: ${fmtMoney(monthRev)}
 - Личный план на месяц: ${fmtMoney(plan)}
-- Дней прошло: ${today_n}, осталось: ${daysLeft}
+- Дней прошло: ${now.getDate()}, осталось: ${daysLeft}
 - Нужно в день: ${fmtMoney(dailyTarget)}
 - Средняя выручка/смену: ${fmtMoney(avgPerShift)}
-- Выручка сегодня: ${todayReport ? fmtMoney(todayReport.revenue) : 'не введена'}
-- Чеков сегодня: ${todayReport?.checks || '—'}
+- Выручка сегодня: ${fmtMoney(todayRev)}
+- Смен отработано: ${shifts}
 
 Напиши краткий (2-3 предложения) мотивирующий и честный анализ: как дела, что нужно сделать сегодня, реален ли план. Говори как тренер, не как бот. На русском.`;
 
@@ -854,15 +944,11 @@ async function loadAIInsight() {
     const data = await res.json();
     const text = data.content?.[0]?.text || 'Не удалось получить анализ';
     el.textContent = text;
-
     // Декомпозиция
     if (dailyTarget > 0) {
-      const hoodie = Math.floor(dailyTarget * 0.6 / PRICES.hoodie);
-      const tshirt = Math.floor(dailyTarget * 0.3 / PRICES.tshirt);
-      const cap    = Math.floor(dailyTarget * 0.1 / PRICES.cap);
-      document.getElementById('dec-hoodie').textContent = hoodie || '~1';
-      document.getElementById('dec-tshirt').textContent = tshirt || '~3';
-      document.getElementById('dec-cap').textContent    = cap || '~2';
+      document.getElementById('dec-hoodie').textContent = Math.floor(dailyTarget * 0.6 / PRICES.hoodie) || '~1';
+      document.getElementById('dec-tshirt').textContent = Math.floor(dailyTarget * 0.3 / PRICES.tshirt) || '~3';
+      document.getElementById('dec-cap').textContent    = Math.floor(dailyTarget * 0.1 / PRICES.cap) || '~2';
       document.getElementById('ai-decomp').style.display = 'grid';
     }
   } catch(e) {
@@ -903,23 +989,22 @@ async function getAIReply(userMsg) {
   const typingEl = addChatMsg('', 'ai');
   typingEl.innerHTML = '<div class="ai-typing"><span></span><span></span><span></span></div>';
 
-  const plan = userProfile?.plan || MONTHLY_PLAN;
-  const monthRevSoFar = myReports
-    .filter(r => r.date.startsWith(monthPrefix()))
-    .reduce((s, r) => s + (r.revenue || 0), 0);
-  const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate();
-  const daysLeft = daysInMonth - new Date().getDate();
-  const dailyTarget = daysLeft > 0 ? Math.round(Math.max(0, plan - monthRevSoFar) / daysLeft) : 0;
-  const shiftsThisMonth = myReports.filter(r => r.date.startsWith(monthPrefix())).length;
-  const avgPerShift = shiftsThisMonth > 0 ? Math.round(monthRevSoFar / shiftsThisMonth) : 0;
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const plan = mySeller?.plan || userProfile?.plan || MONTHLY_PLAN_DEFAULT;
+  const monthRev = mySeller ? mySeller.dailyRevenue.slice(0, todayIdx+1).reduce((a,b)=>a+b,0) : 0;
+  const daysLeft = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate() - now.getDate();
+  const dailyTarget = daysLeft > 0 ? Math.round(Math.max(0, plan-monthRev)/daysLeft) : 0;
+  const shifts = mySeller?.shifts || 0;
+  const avgPerShift = shifts > 0 ? Math.round(monthRev/shifts) : 0;
 
   chatHistory.push({ role: 'user', content: userMsg });
 
   const systemPrompt = `Ты персональный ИИ-тренер для продавца одежды Qoima в Алматы.
-Знаешь данные продавца:
-- Выручка за месяц: ${fmtMoney(monthRevSoFar)} из плана ${fmtMoney(plan)}
+Данные продавца (из Google Sheets):
+- Выручка за месяц: ${fmtMoney(monthRev)} из плана ${fmtMoney(plan)}
 - Осталось дней: ${daysLeft}, нужно/день: ${fmtMoney(dailyTarget)}
-- Средняя выручка/смену: ${fmtMoney(avgPerShift)}
+- Средняя выручка/смену: ${fmtMoney(avgPerShift)} · Смен: ${shifts}
 - Ассортимент: футболки (10800₸), худи (26000₸), кепки (5000₸), носки (1800₸)
 Отвечай кратко (2-4 предложения), по-русски, как тренер. Конкретные цифры.`;
 
@@ -947,33 +1032,13 @@ async function getAIReply(userMsg) {
 }
 
 // ===================== HELPERS =====================
-function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function monthPrefix() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-}
-function getWeekNumber(d) {
-  const date = new Date(d); date.setHours(0,0,0,0);
-  date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-  const week1 = new Date(date.getFullYear(), 0, 4);
-  return 1 + Math.round(((date - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-}
-function getWeekStart(d) {
-  const date = new Date(d); date.setHours(0,0,0,0);
-  const day = date.getDay(); // 0=вс
-  const diff = (day === 0) ? -6 : 1 - day; // пн = начало недели
-  date.setDate(date.getDate() + diff);
-  return date;
-}
 function fmtMoney(val) {
   if (!val || isNaN(val)) return '0₸';
   if (val >= 1e6) return (val/1e6).toFixed(1) + 'М₸';
   if (val >= 1e3) return Math.round(val/1e3) + 'К₸';
   return Math.round(val) + '₸';
 }
+
 function showToast(msg, type = 'info') {
   const t = document.getElementById('toast');
   t.textContent = msg;

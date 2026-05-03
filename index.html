@@ -270,6 +270,7 @@ body {
 <!-- Firebase Compat SDK (v10) — глобальный объект firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 <script>
 // Firebase Configuration (новый API ключ из Firebase Console)
@@ -286,12 +287,26 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db   = firebase.firestore();
 
-// Если пользователь уже залогинен — сразу на панель
-auth.onAuthStateChanged(user => {
-  if (user) {
-    window.location.href = 'panel.html';
+// Роутинг по роли
+async function routeByRole(user) {
+  try {
+    const doc = await db.collection('users').doc(user.uid).get();
+    if (doc.exists) {
+      const role = doc.data().role || 'admin';
+      if (role === 'seller')   { window.location.href = 'seller.html';   return; }
+      if (role === 'observer') { window.location.href = 'observer.html'; return; }
+    }
+    window.location.href = 'panel.html'; // admin + manager
+  } catch(e) {
+    window.location.href = 'panel.html'; // при ошибке — панель
   }
+}
+
+// Если пользователь уже залогинен — роутим
+auth.onAuthStateChanged(user => {
+  if (user) { routeByRole(user); }
 });
 
 // Toggle Theme
@@ -326,8 +341,9 @@ async function handleLogin(e) {
   btnText.innerHTML = '<span class="spinner"></span>Вход...';
   
   try {
-    await auth.signInWithEmailAndPassword(email, password);
-    // Success - will be redirected by onAuthStateChanged
+    const credential = await auth.signInWithEmailAndPassword(email, password);
+    await routeByRole(credential.user);
+    // Fallback - onAuthStateChanged will also fire
   } catch (error) {
     let message = 'Ошибка входа';
     

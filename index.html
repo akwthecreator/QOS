@@ -353,12 +353,16 @@ async function handleLogin(e) {
       message = 'Неверный пароль';
     } else if (error.code === 'auth/invalid-email') {
       message = 'Некорректный email';
+    } else if (error.code === 'auth/invalid-credential') {
+      message = 'Неверный email или пароль. Проверьте данные и попробуйте снова';
     } else if (error.code === 'auth/user-disabled') {
-      message = 'Аккаунт отключен';
+      message = 'Аккаунт отключен. Обратитесь к администратору';
     } else if (error.code === 'auth/too-many-requests') {
-      message = 'Слишком много попыток входа. Попробуйте позже';
+      message = 'Слишком много попыток. Подождите несколько минут';
     } else if (error.code === 'auth/network-request-failed') {
       message = 'Ошибка сети. Проверьте интернет';
+    } else if (error.code === 'auth/operation-not-allowed') {
+      message = 'Вход через email не включён. Обратитесь к администратору';
     } else {
       message = error.message || 'Неизвестная ошибка';
     }

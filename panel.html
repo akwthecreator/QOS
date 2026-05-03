@@ -2067,7 +2067,7 @@ window.addEventListener('load', () => {
   initializeFirebaseAuth();
 });
 
-// ===== FIREBASE AUTH =====
+// ===== FIREBASE AUTH + ROLE GUARD =====
 function initializeFirebaseAuth() {
   const firebaseConfig = {
     apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
@@ -2078,19 +2078,37 @@ function initializeFirebaseAuth() {
     appId: "1:639485153845:web:61baa7942382ba7444d77c"
   };
 
-  // Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
+  const db   = firebase.firestore();
 
-  // Check auth state
-  auth.onAuthStateChanged(user => {
-    if (!user) {
-      // Not logged in - redirect to index.html (login page)
-      window.location.href = 'index.html';
-    } else {
-      // User is logged in - show profile section
-      document.getElementById('userProfileSection').style.display = 'flex';
-      document.getElementById('userEmail').textContent = user.email;
+  auth.onAuthStateChanged(async user => {
+    if (!user) { window.location.href = 'index.html'; return; }
+
+    // Показываем email
+    document.getElementById('userProfileSection').style.display = 'flex';
+    document.getElementById('userEmail').textContent = user.email;
+
+    // Читаем роль из Firestore
+    try {
+      const doc = await db.collection('users').doc(user.uid).get();
+      if (doc.exists) {
+        const profile = doc.data();
+        const role = profile.role || 'admin';
+        // Роль-гард: только admin и manager видят panel.html
+        if (role === 'seller') { window.location.href = 'seller.html'; return; }
+        if (role === 'observer') { window.location.href = 'observer.html'; return; }
+        // Показать имя вместо email если есть
+        if (profile.name) document.getElementById('userEmail').textContent = profile.name + ' (' + role + ')';
+        // Если не admin — скрыть настройки
+        if (role !== 'admin') {
+          const settingsBtn = document.getElementById('nav-settings');
+          if (settingsBtn) settingsBtn.style.display = 'none';
+        }
+      }
+    } catch(e) {
+      console.warn('Role check error:', e);
+      // При ошибке — оставляем на panel.html (безопасно)
     }
   });
 }
@@ -2121,6 +2139,7 @@ function handleLogout() {
 <!-- Firebase Compat SDK (v10) — глобальный объект firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 </body>
 </html>

@@ -218,10 +218,10 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
   <div class="content">
     <!-- TABS -->
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('today')">Сегодня</button>
-      <button class="tab" onclick="switchTab('input')">Ввод данных</button>
-      <button class="tab" onclick="switchTab('score')">Результаты</button>
-      <button class="tab" onclick="switchTab('ai')">ИИ</button>
+      <button class="tab active" onclick="switchTab('today', this)">Сегодня</button>
+      <button class="tab" onclick="switchTab('input', this)">Ввод данных</button>
+      <button class="tab" onclick="switchTab('score', this)">Результаты</button>
+      <button class="tab" onclick="switchTab('ai', this)">ИИ</button>
     </div>
 
     <!-- ===== TAB: СЕГОДНЯ ===== -->
@@ -487,10 +487,16 @@ db   = firebase.firestore();
 auth.onAuthStateChanged(async user => {
   if (!user) { window.location.href = 'index.html'; return; }
   currentUser = user;
-  await loadUserProfile();
-  await loadMyReports();
-  updateUI();
-  loadAIInsight();
+  try {
+    await loadUserProfile();
+    await loadMyReports();
+    updateUI();
+    loadAIInsight();
+  } catch(e) {
+    console.error('Init error:', e);
+    // Показываем UI даже при ошибке загрузки данных
+    updateUI();
+  }
 });
 
 // ===================== LOAD PROFILE =====================
@@ -499,20 +505,39 @@ async function loadUserProfile() {
     const doc = await db.collection('users').doc(currentUser.uid).get();
     if (doc.exists) {
       userProfile = doc.data();
-      // Роль-гард: продавец только
+      // Если роль admin/manager — редирект на panel
       if (userProfile.role && userProfile.role !== 'seller') {
         window.location.href = 'panel.html'; return;
       }
     } else {
-      // Профиль не создан — дефолт
-      userProfile = { name: currentUser.email.split('@')[0], store: '—', team: 'grandpark', plan: MONTHLY_PLAN, role: 'seller' };
+      // Профиль не создан в Firestore — создаём дефолтный
+      userProfile = {
+        name: currentUser.displayName || currentUser.email.split('@')[0],
+        store: '—',
+        team: 'grandpark',
+        plan: MONTHLY_PLAN,
+        role: 'seller'
+      };
+      // Пробуем создать документ автоматически
+      try {
+        await db.collection('users').doc(currentUser.uid).set(userProfile);
+      } catch(e) { console.warn('Could not create profile:', e); }
     }
-    document.getElementById('sellerNameTop').textContent = userProfile.name || currentUser.email;
-    document.getElementById('sellerStoreTop').textContent = userProfile.store || '—';
-    document.getElementById('m-plan-sub').textContent = 'из ' + fmtMoney(userProfile.plan || MONTHLY_PLAN);
+    const nameEl = document.getElementById('sellerNameTop');
+    const storeEl = document.getElementById('sellerStoreTop');
+    const planSubEl = document.getElementById('m-plan-sub');
+    if (nameEl) nameEl.textContent = userProfile.name || currentUser.email;
+    if (storeEl) storeEl.textContent = userProfile.store || '—';
+    if (planSubEl) planSubEl.textContent = 'из ' + fmtMoney(userProfile.plan || MONTHLY_PLAN);
   } catch(e) {
     console.warn('Profile load error:', e);
-    userProfile = { name: currentUser.email, store: '—', team: 'grandpark', plan: MONTHLY_PLAN, role: 'seller' };
+    userProfile = {
+      name: currentUser.email.split('@')[0],
+      store: '—',
+      team: 'grandpark',
+      plan: MONTHLY_PLAN,
+      role: 'seller'
+    };
   }
 }
 
@@ -762,21 +787,22 @@ async function submitDailyReport() {
   btn.disabled = false;
 }
 
-async function updateWeeklyScore(revenue) {
+async function updateWeeklyScore(todayRevenue) {
   const now = new Date();
   const weekNum = getWeekNumber(now);
   const weekKey = `${now.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
+  const today = todayKey();
 
-  // Суммируем всю выручку за текущую неделю
+  // Суммируем всю выручку за текущую неделю (НЕ включая сегодня — он уже сохранён)
   const weekStart = getWeekStart(now);
-  const weekReports = myReports.filter(r => new Date(r.date) >= weekStart);
-  const weekTotal = weekReports.reduce((s,r) => s + (r.revenue||0), 0) + revenue;
+  const weekReports = myReports.filter(r => new Date(r.date) >= weekStart && r.date !== today);
+  const weekTotal = weekReports.reduce((s,r) => s + (r.revenue||0), 0) + todayRevenue;
 
   try {
     await db.collection('weeklyScores').doc(weekKey).set({
       [currentUser.uid]: {
         revenue: weekTotal,
-        name: userProfile?.name || currentUser.email,
+        name: userProfile?.name || currentUser.email.split('@')[0],
         store: userProfile?.store || '—',
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       }
@@ -957,11 +983,12 @@ function showToast(msg, type = 'info') {
 }
 
 // ===================== TABS =====================
-function switchTab(name) {
+function switchTab(name, el) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  event.currentTarget.classList.add('active');
+  const section = document.getElementById('tab-' + name);
+  if (section) section.classList.add('active');
+  if (el) el.classList.add('active');
 }
 
 // ===================== THEME =====================

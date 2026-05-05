@@ -347,6 +347,21 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
   margin-top: 16px; font-size: 12px; color: var(--text3);
 }
 
+
+/* ── SELLER ICON BTNS ── */
+.icon-btn svg { width: 16px; height: 16px; stroke: currentColor; }
+.topbar { backdrop-filter: blur(12px); background: rgba(20,20,20,0.92); }
+:root[data-theme="light"] .topbar { background: rgba(255,255,255,0.92); }
+/* ── TABS v2 ── */
+.tabs { background: var(--bg3); border-radius: 12px; padding: 4px; }
+.tab { border-radius: 9px; font-size: 13px; font-weight: 500; letter-spacing: 0.1px; }
+.tab.active { font-weight: 600; }
+/* ── TODAY HERO ── */
+.today-hero { border-radius: 20px; }
+/* ── METRIC CARDS ── */
+.metric-card { border-radius: 16px; transition: box-shadow 0.18s; }
+.metric-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+
 </style>
 </head>
 <body>
@@ -376,9 +391,9 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
         <div class="sync-dot" id="syncDot"></div>
         <span id="syncLabel" style="display:none">обновлено</span>
       </div>
-      <button class="icon-btn" onclick="syncSheets()" title="Обновить данные" id="syncBtn" style="font-size:14px">↻</button>
-      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Тема">🌙</button>
-      <button class="icon-btn" onclick="handleLogout()" title="Выход" style="font-size:14px">⎋</button>
+      <button class="icon-btn" onclick="syncSheets()" title="Обновить данные" id="syncBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
+      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Тема"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+      <button class="icon-btn" onclick="handleLogout()" title="Выход"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
     </div>
   </div>
 
@@ -388,7 +403,6 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
     <div class="tabs">
       <button class="tab active" onclick="switchTab('today', this)">Сегодня</button>
       <button class="tab" onclick="switchTab('score', this)">Результаты</button>
-      <button class="tab" onclick="switchTab('ai', this)">ИИ</button>
     </div>
 
     <!-- ===== TAB: СЕГОДНЯ ===== -->
@@ -543,36 +557,6 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 
     </div><!-- /tab-score -->
 
-    <!-- ===== TAB: ИИ ===== -->
-    <div class="section" id="tab-ai">
-
-      <div class="ai-chat-wrap">
-        <div class="ai-chat-header">
-          <div class="ai-icon" style="width:32px;height:32px;border-radius:8px;font-size:16px">🤖</div>
-          <div>
-            <div style="font-size:14px;font-weight:600">ИИ-ассистент</div>
-            <div style="font-size:11px;color:var(--text3)">Знает твои показатели и помогает расти</div>
-          </div>
-        </div>
-        <div class="quick-prompts">
-          <div class="qp" onclick="sendQuickPrompt(this)">Сколько нужно продать сегодня?</div>
-          <div class="qp" onclick="sendQuickPrompt(this)">Прогноз на эту неделю</div>
-          <div class="qp" onclick="sendQuickPrompt(this)">Как улучшить средний чек?</div>
-          <div class="qp" onclick="sendQuickPrompt(this)">Декомпозиция цели</div>
-          <div class="qp" onclick="sendQuickPrompt(this)">Что мешает выполнить план?</div>
-        </div>
-        <div class="ai-chat-messages" id="chat-messages">
-          <div class="msg ai">Привет! Я знаю твои показатели из Google Sheets и помогу достичь плана. Спроси меня что угодно 👋</div>
-        </div>
-        <div class="ai-chat-input-wrap">
-          <input type="text" class="ai-chat-input" id="chat-input" placeholder="Спроси что угодно..." onkeydown="if(event.key==='Enter') sendChat()">
-          <button class="ai-send-btn" id="chat-send" onclick="sendChat()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-        </div>
-      </div>
-
-    </div><!-- /tab-ai -->
 
   </div><!-- /content -->
 </div><!-- /app -->
@@ -1214,12 +1198,12 @@ function toggleTheme() {
   const next = cur === 'dark' ? 'light' : 'dark';
   html.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
-  document.getElementById('themeBtn').textContent = next === 'dark' ? '🌙' : '☀️';
+  document.getElementById('themeBtn').innerHTML = next === 'dark' ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
 }
 window.addEventListener('load', () => {
   const saved = localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
-  document.getElementById('themeBtn').textContent = saved === 'dark' ? '🌙' : '☀️';
+  document.getElementById('themeBtn').innerHTML = saved === 'dark' ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
   // loadSellerTasks вызывается из onAuthStateChanged после auth
 });
 

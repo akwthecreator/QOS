@@ -240,6 +240,71 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
   #nav-trends, #nav-alerts { display: flex; }
   .week-val { font-size: 22px; }
 }
+
+/* ====== TASKS SYSTEM ====== */
+.tasks-container { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 40px; }
+.tasks-sidebar { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.tasks-main { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+
+.tasks-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.btn-create-task { padding: 10px 16px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+.btn-create-task:hover { opacity: 0.9; }
+
+.project-list { display: flex; flex-direction: column; gap: 8px; }
+.project-item { padding: 12px; background: var(--bg3); border-radius: 8px; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+.project-item:hover { background: var(--border); }
+.project-item.active { border-left-color: var(--accent); background: var(--bg3); }
+.project-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.project-count { font-size: 11px; color: var(--text3); }
+
+.task-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
+.task-card:hover { border-color: var(--accent); }
+.task-card.completed { opacity: 0.6; }
+.task-card.seen { border-left: 3px solid var(--green); }
+.task-card.unseen { border-left: 3px solid var(--red); }
+
+.task-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
+.task-title { font-weight: 600; font-size: 14px; color: var(--text); flex: 1; }
+.task-priority { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.priority-high { background: rgba(255, 51, 51, 0.2); color: var(--red); }
+.priority-medium { background: rgba(255, 170, 0, 0.2); color: var(--yellow); }
+.priority-low { background: rgba(0, 204, 102, 0.2); color: var(--green); }
+
+.task-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text3); margin-top: 8px; }
+.task-deadline { display: flex; align-items: center; gap: 4px; }
+.task-assignee { display: flex; align-items: center; gap: 4px; }
+
+.task-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center; }
+.task-modal.active { display: flex; }
+.task-modal-content { background: var(--bg2); border-radius: 12px; padding: 28px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+.task-modal-header { font-size: 20px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+.btn-close { background: transparent; border: none; color: var(--text2); cursor: pointer; font-size: 24px; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 12px; color: var(--text3); text-transform: uppercase; margin-bottom: 6px; font-weight: 500; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 10px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: inherit; font-size: 13px; }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
+
+.subtask-list { background: var(--bg3); padding: 12px; border-radius: 6px; margin-top: 12px; }
+.subtask-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.subtask-item:last-child { border-bottom: none; }
+.subtask-checkbox { width: 18px; height: 18px; cursor: pointer; }
+
+.task-actions { display: flex; gap: 8px; margin-top: 20px; }
+.btn-primary { padding: 10px 16px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-secondary { padding: 10px 16px; background: transparent; border: 1px solid var(--border); color: var(--text2); border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+.task-widget { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.task-widget-title { font-size: 14px; color: var(--text3); text-transform: uppercase; margin-bottom: 16px; font-weight: 600; }
+.task-widget-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.task-widget-item { background: var(--bg3); padding: 12px; border-radius: 8px; text-align: center; }
+.task-widget-value { font-size: 24px; font-weight: 700; color: var(--text); }
+.task-widget-label { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
 </style>
 </head>
 <body>
@@ -271,6 +336,10 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     <button class="nav-btn" id="nav-alerts" onclick="showPage('alerts')" title="Алерты" style="position:relative">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <span id="alert-badge" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--red);"></span>
+    </button>
+    <button class="nav-btn" onclick="showPage('tasks')" id="nav-tasks" title="Задачи">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+      <span id="tasks-badge" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--red);"></span>
     </button>
     <button class="nav-btn" onclick="openSettings()" id="nav-settings" title="Настройки">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -516,6 +585,81 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div id="alerts-warning" style="margin-bottom:20px"></div>
       <div id="alerts-good" style="margin-bottom:20px"></div>
       <div id="alerts-info"></div>
+    </div>
+
+    <!-- ===== TASKS PAGE ===== -->
+    <div class="page" id="page-tasks">
+      <div class="header">
+        <div>
+          <h1>📋 Задачи</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Управление проектами и задачами</p>
+        </div>
+        <div class="header-right">
+          <button class="btn-create-task" onclick="openTaskModal()">+ Создать задачу</button>
+          <button class="sync-btn" onclick="loadTasks()">🔄 Обновить</button>
+        </div>
+      </div>
+
+      <!-- Tasks Widget on Main -->
+      <div id="tasks-widget" style="display:none">
+        <div class="task-widget">
+          <div class="task-widget-title">📊 Статистика задач</div>
+          <div class="task-widget-items">
+            <div class="task-widget-item">
+              <div class="task-widget-value" id="stat-total">0</div>
+              <div class="task-widget-label">Всего задач</div>
+            </div>
+            <div class="task-widget-item">
+              <div class="task-widget-value" id="stat-unseen" style="color:var(--red)">0</div>
+              <div class="task-widget-label">Не просмотрены</div>
+            </div>
+            <div class="task-widget-item">
+              <div class="task-widget-value" id="stat-today" style="color:var(--yellow)">0</div>
+              <div class="task-widget-label">На сегодня</div>
+            </div>
+            <div class="task-widget-item">
+              <div class="task-widget-value" id="stat-overdue" style="color:var(--orange)">0</div>
+              <div class="task-widget-label">Просрочены</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tasks-container">
+        <!-- Left sidebar - Projects -->
+        <div class="tasks-sidebar">
+          <div class="tasks-header">
+            <h3 style="margin:0;font-size:13px">Проекты</h3>
+          </div>
+          <div class="project-list" id="projects-list">
+            <div class="project-item active" onclick="filterTasks('all')">
+              <div class="project-name">Все задачи</div>
+              <div class="project-count" id="count-all">0</div>
+            </div>
+            <div class="project-item" onclick="filterTasks('unseen')">
+              <div class="project-name">Не просмотрены</div>
+              <div class="project-count" id="count-unseen">0</div>
+            </div>
+            <div class="project-item" onclick="filterTasks('today')">
+              <div class="project-name">На сегодня</div>
+              <div class="project-count" id="count-today">0</div>
+            </div>
+            <div class="project-item" onclick="filterTasks('overdue')">
+              <div class="project-name">Просрочены</div>
+              <div class="project-count" id="count-overdue">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right side - Tasks list -->
+        <div class="tasks-main">
+          <div id="tasks-list"></div>
+          <div id="no-tasks" style="text-align:center;padding:40px;color:var(--text3)">
+            <p style="font-size:16px;margin-bottom:8px">Нет задач</p>
+            <p style="font-size:13px">Создайте новую задачу, чтобы начать</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ===== SETTINGS PAGE ===== -->
@@ -2065,6 +2209,9 @@ window.addEventListener('load', () => {
   
   // Initialize Firebase Auth
   initializeFirebaseAuth();
+  
+  // Initialize Tasks System
+  initializeTasksSystem();
 });
 
 // ===== FIREBASE AUTH + ROLE GUARD =====
@@ -2113,6 +2260,210 @@ function initializeFirebaseAuth() {
   });
 }
 
+// ===== TASKS SYSTEM =====
+let currentUser = null;
+let allTasks = [];
+let currentFilter = 'all';
+
+// Initialize Firebase for tasks
+async function initializeTasksSystem() {
+  const firebaseConfig = {
+    apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
+    authDomain: "qos-base.firebaseapp.com",
+    projectId: "qos-base",
+    storageBucket: "qos-base.firebasestorage.app",
+    messagingSenderId: "639485153845",
+    appId: "1:639485153845:web:61baa7942382ba7444d77c"
+  };
+
+  try {
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        loadTasks();
+      }
+    });
+  } catch (e) {
+    console.error('Tasks system error:', e);
+  }
+}
+
+async function loadTasks() {
+  const db = firebase.firestore();
+  try {
+    const snapshot = await db.collection('tasks').get();
+    allTasks = [];
+    snapshot.forEach(doc => {
+      allTasks.push({ id: doc.id, ...doc.data() });
+    });
+    updateTasksUI();
+    updateTaskStats();
+  } catch (e) {
+    console.error('Load tasks error:', e);
+  }
+}
+
+function updateTasksUI() {
+  const tasksList = document.getElementById('tasks-list');
+  const noTasks = document.getElementById('no-tasks');
+  
+  let filtered = allTasks;
+  const today = new Date().toISOString().split('T')[0];
+  
+  if (currentFilter === 'unseen') {
+    filtered = allTasks.filter(t => !t.seenBy || !t.seenBy.includes(currentUser.uid));
+  } else if (currentFilter === 'today') {
+    filtered = allTasks.filter(t => t.deadline === today);
+  } else if (currentFilter === 'overdue') {
+    filtered = allTasks.filter(t => t.deadline < today && !t.completed);
+  }
+  
+  tasksList.innerHTML = '';
+  
+  if (filtered.length === 0) {
+    noTasks.style.display = 'block';
+  } else {
+    noTasks.style.display = 'none';
+    filtered.forEach(task => {
+      const isSeen = task.seenBy && task.seenBy.includes(currentUser.uid);
+      const card = document.createElement('div');
+      card.className = `task-card ${task.completed ? 'completed' : ''} ${isSeen ? 'seen' : 'unseen'}`;
+      card.onclick = () => openTaskModal(task.id);
+      
+      const priorityClass = `priority-${task.priority || 'medium'}`;
+      const daysLeft = Math.ceil((new Date(task.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+      
+      card.innerHTML = `
+        <div class="task-header">
+          <div class="task-title">${task.name || 'Без названия'}</div>
+          <span class="task-priority ${priorityClass}">${
+            task.priority === 'high' ? 'Высокий' : task.priority === 'low' ? 'Низкий' : 'Средний'
+          }</span>
+        </div>
+        <p style="font-size:12px;color:var(--text2);margin:8px 0">${task.description || ''}</p>
+        <div class="task-meta">
+          <div class="task-deadline">📅 ${new Date(task.deadline).toLocaleDateString('ru-RU')} ${daysLeft > 0 ? `(${daysLeft} дн)` : '(Просрочено)'}</div>
+          <div class="task-assignee">👤 ${task.assignee || 'Не назначена'}</div>
+        </div>
+      `;
+      tasksList.appendChild(card);
+    });
+  }
+}
+
+function updateTaskStats() {
+  const today = new Date().toISOString().split('T')[0];
+  const unseen = allTasks.filter(t => !t.seenBy || !t.seenBy.includes(currentUser.uid)).length;
+  const todayTasks = allTasks.filter(t => t.deadline === today).length;
+  const overdue = allTasks.filter(t => t.deadline < today && !t.completed).length;
+  
+  document.getElementById('stat-total').textContent = allTasks.length;
+  document.getElementById('stat-unseen').textContent = unseen;
+  document.getElementById('stat-today').textContent = todayTasks;
+  document.getElementById('stat-overdue').textContent = overdue;
+  
+  document.getElementById('count-all').textContent = allTasks.length;
+  document.getElementById('count-unseen').textContent = unseen;
+  document.getElementById('count-today').textContent = todayTasks;
+  document.getElementById('count-overdue').textContent = overdue;
+  
+  if (unseen > 0) {
+    document.getElementById('tasks-badge').style.display = 'block';
+  }
+}
+
+function filterTasks(filter) {
+  currentFilter = filter;
+  document.querySelectorAll('.project-item').forEach(el => el.classList.remove('active'));
+  event.target.closest('.project-item').classList.add('active');
+  updateTasksUI();
+}
+
+function openTaskModal(taskId) {
+  const modal = document.getElementById('taskModal');
+  const form = document.getElementById('taskForm');
+  
+  if (taskId) {
+    const task = allTasks.find(t => t.id === taskId);
+    if (task) {
+      // Mark as seen
+      markTaskAsSeen(taskId);
+      
+      document.getElementById('modalTitle').textContent = 'Редактировать задачу';
+      document.getElementById('taskName').value = task.name || '';
+      document.getElementById('taskProject').value = task.project || '';
+      document.getElementById('taskDescription').value = task.description || '';
+      document.getElementById('taskPriority').value = task.priority || 'medium';
+      document.getElementById('taskDeadline').value = task.deadline || '';
+      document.getElementById('taskAssignee').value = task.assignee || '';
+      form.dataset.taskId = taskId;
+    }
+  } else {
+    document.getElementById('modalTitle').textContent = 'Создать задачу';
+    form.reset();
+    form.dataset.taskId = '';
+  }
+  
+  modal.classList.add('active');
+}
+
+function closeTaskModal() {
+  document.getElementById('taskModal').classList.remove('active');
+}
+
+async function saveTask(e) {
+  e.preventDefault();
+  const db = firebase.firestore();
+  const taskId = document.getElementById('taskForm').dataset.taskId;
+  
+  const taskData = {
+    name: document.getElementById('taskName').value,
+    project: document.getElementById('taskProject').value,
+    description: document.getElementById('taskDescription').value,
+    priority: document.getElementById('taskPriority').value,
+    deadline: document.getElementById('taskDeadline').value,
+    assignee: document.getElementById('taskAssignee').value,
+    createdBy: currentUser.uid,
+    createdAt: new Date().toISOString(),
+    seenBy: taskId ? (allTasks.find(t => t.id === taskId)?.seenBy || []) : [currentUser.uid]
+  };
+  
+  try {
+    if (taskId) {
+      await db.collection('tasks').doc(taskId).update(taskData);
+    } else {
+      await db.collection('tasks').add(taskData);
+    }
+    closeTaskModal();
+    await loadTasks();
+  } catch (e) {
+    console.error('Save task error:', e);
+    alert('Ошибка сохранения задачи');
+  }
+}
+
+async function markTaskAsSeen(taskId) {
+  const db = firebase.firestore();
+  const task = allTasks.find(t => t.id === taskId);
+  
+  if (task) {
+    const seenBy = task.seenBy || [];
+    if (!seenBy.includes(currentUser.uid)) {
+      seenBy.push(currentUser.uid);
+      await db.collection('tasks').doc(taskId).update({ seenBy });
+      await loadTasks();
+    }
+  }
+}
+
+function addSubtask() {
+  // Placeholder for subtask functionality
+  alert('Подзадачи будут добавлены в следующей версии');
+}
+
 function handleLogout() {
   if (confirm('Вы уверены, что хотите выйти?')) {
     const firebaseConfig = {
@@ -2135,6 +2486,70 @@ function handleLogout() {
   }
 }
 </script>
+
+<!-- ===== TASK MODAL ===== -->
+<div class="task-modal" id="taskModal">
+  <div class="task-modal-content">
+    <div class="task-modal-header">
+      <span id="modalTitle">Создать задачу</span>
+      <button class="btn-close" onclick="closeTaskModal()">×</button>
+    </div>
+
+    <form id="taskForm" onsubmit="saveTask(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Название задачи</label>
+          <input type="text" class="form-input" id="taskName" placeholder="Например: Подготовить отчёт" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Проект</label>
+          <input type="text" class="form-input" id="taskProject" placeholder="Например: Q2 Planning" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Описание</label>
+        <textarea class="form-textarea" id="taskDescription" placeholder="Детальное описание задачи..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Приоритет</label>
+          <select class="form-select" id="taskPriority">
+            <option value="low">Низкий</option>
+            <option value="medium" selected>Средний</option>
+            <option value="high">Высокий</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Дедлайн</label>
+          <input type="date" class="form-input" id="taskDeadline" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Назначить сотруднику</label>
+        <select class="form-select" id="taskAssignee">
+          <option value="">Выбрать...</option>
+          <option value="manager">Менеджер</option>
+          <option value="seller">Продавец</option>
+          <option value="admin">Администратор</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="subtasksSection" style="display:none">
+        <label class="form-label">Подзадачи</label>
+        <div class="subtask-list" id="subtasksList"></div>
+        <button type="button" class="btn-secondary" onclick="addSubtask()" style="width:100%;margin-top:8px">+ Добавить подзадачу</button>
+      </div>
+
+      <div class="task-actions">
+        <button type="submit" class="btn-primary">Сохранить задачу</button>
+        <button type="button" class="btn-secondary" onclick="closeTaskModal()">Отменить</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- Firebase Compat SDK (v10) — глобальный объект firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>

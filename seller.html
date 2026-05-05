@@ -226,6 +226,126 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
   .seller-bar-wrap { display: none; }
   .seller-val-lb { width: auto; }
 }
+
+/* ── SELLER TASKS WIDGET ── */
+.seller-tasks-card { 
+  background: var(--bg2); 
+  border: 1px solid var(--border); 
+  border-radius: 12px; 
+  padding: 16px; 
+  margin-bottom: 16px;
+}
+
+.seller-tasks-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.seller-tasks-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.seller-tasks-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--red);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.seller-tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.seller-task-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 3px solid var(--red);
+}
+
+.seller-task-item:hover {
+  border-color: var(--accent);
+  background: var(--bg4);
+}
+
+.seller-task-item.completed {
+  opacity: 0.6;
+  border-left-color: var(--green);
+}
+
+.seller-task-item.seen {
+  border-left-color: var(--green);
+}
+
+.seller-task-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.seller-task-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text3);
+}
+
+.seller-task-priority {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.seller-task-priority.high {
+  background: rgba(255, 51, 51, 0.2);
+  color: var(--red);
+}
+
+.seller-task-priority.medium {
+  background: rgba(255, 170, 0, 0.2);
+  color: var(--yellow);
+}
+
+.seller-task-priority.low {
+  background: rgba(0, 204, 102, 0.2);
+  color: var(--green);
+}
+
+.seller-tasks-empty {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--text3);
+}
+
+.seller-tasks-empty-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.seller-tasks-empty-text {
+  font-size: 12px;
+}
+
 </style>
 </head>
 <body>
@@ -335,6 +455,20 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
             <div class="decomp-count" id="dec-cap">—</div>
             <div class="decomp-label">Кепок</div>
             <div class="decomp-price">5 000₸</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 📋 МОИ ЗАДАЧИ -->
+      <div class="seller-tasks-card">
+        <div class="seller-tasks-header">
+          <div class="seller-tasks-title">📋 Мои задачи</div>
+          <div class="seller-tasks-badge" id="tasksBadge" style="display:none">0</div>
+        </div>
+        <div class="seller-tasks-list" id="sellerTasksList">
+          <div class="seller-tasks-empty">
+            <div class="seller-tasks-empty-icon">✅</div>
+            <div class="seller-tasks-empty-text">Нет новых задач</div>
           </div>
         </div>
       </div>
@@ -1069,7 +1203,116 @@ window.addEventListener('load', () => {
   const saved = localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
   document.getElementById('themeBtn').textContent = saved === 'dark' ? '🌙' : '☀️';
+  
+  // Load seller tasks
+  loadSellerTasks();
 });
+
+// ===================== SELLER TASKS =====================
+async function loadSellerTasks() {
+  try {
+    const currentAuth = firebase.auth();
+    const currentDb = firebase.firestore();
+    
+    currentAuth.onAuthStateChanged(async user => {
+      if (!user) return;
+      
+      // Get seller name from profile or profile metadata
+      const sellerEmail = user.email;
+      const sellerName = sellerEmail.split('@')[0]; // например "ivanov" из "ivanov@qoima.kz"
+      
+      // Fetch tasks assigned to "Seller" role
+      const tasksSnapshot = await currentDb.collection('tasks')
+        .where('assignee', '==', 'seller')
+        .orderBy('deadline', 'asc')
+        .get();
+      
+      const tasks = [];
+      let unseenCount = 0;
+      
+      tasksSnapshot.forEach(doc => {
+        const task = { id: doc.id, ...doc.data() };
+        tasks.push(task);
+        
+        // Count unseen tasks
+        if (!task.seenBy || !task.seenBy.includes(user.uid)) {
+          unseenCount++;
+        }
+      });
+      
+      // Render tasks
+      renderSellerTasks(tasks, user.uid);
+      
+      // Update badge
+      if (unseenCount > 0) {
+        document.getElementById('tasksBadge').textContent = unseenCount;
+        document.getElementById('tasksBadge').style.display = 'flex';
+      }
+    });
+  } catch (e) {
+    console.error('Load seller tasks error:', e);
+  }
+}
+
+function renderSellerTasks(tasks, userId) {
+  const tasksList = document.getElementById('sellerTasksList');
+  
+  if (tasks.length === 0) {
+    tasksList.innerHTML = `
+      <div class="seller-tasks-empty">
+        <div class="seller-tasks-empty-icon">✅</div>
+        <div class="seller-tasks-empty-text">Нет новых задач</div>
+      </div>
+    `;
+    return;
+  }
+  
+  tasksList.innerHTML = '';
+  
+  tasks.forEach(task => {
+    const isSeen = task.seenBy && task.seenBy.includes(userId);
+    const daysLeft = Math.ceil((new Date(task.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+    const isOverdue = new Date(task.deadline) < new Date() && !task.completed;
+    const isToday = task.deadline === new Date().toISOString().split('T')[0];
+    
+    const taskEl = document.createElement('div');
+    taskEl.className = `seller-task-item ${isSeen ? 'seen' : ''} ${task.completed ? 'completed' : ''}`;
+    taskEl.onclick = () => markTaskSeen(task.id, userId);
+    
+    const priorityLabel = task.priority === 'high' ? 'Высокий' : task.priority === 'low' ? 'Низкий' : 'Средний';
+    const deadlineText = isToday ? '📌 Сегодня' : isOverdue ? '⚠️ Просрочено' : `📅 ${new Date(task.deadline).toLocaleDateString('ru-RU')}`;
+    
+    taskEl.innerHTML = `
+      <div class="seller-task-name">${task.name || 'Безымянная задача'}</div>
+      <div class="seller-task-meta">
+        <span class="seller-task-priority ${task.priority || 'medium'}">${priorityLabel}</span>
+        <span>${deadlineText}</span>
+      </div>
+    `;
+    
+    tasksList.appendChild(taskEl);
+  });
+}
+
+async function markTaskSeen(taskId, userId) {
+  try {
+    const currentDb = firebase.firestore();
+    const task = await currentDb.collection('tasks').doc(taskId).get();
+    
+    if (task.exists) {
+      const seenBy = task.data().seenBy || [];
+      if (!seenBy.includes(userId)) {
+        seenBy.push(userId);
+        await currentDb.collection('tasks').doc(taskId).update({ seenBy });
+        
+        // Reload tasks
+        await loadSellerTasks();
+      }
+    }
+  } catch (e) {
+    console.error('Mark task seen error:', e);
+  }
+}
 
 // ===================== LOGOUT =====================
 function handleLogout() {

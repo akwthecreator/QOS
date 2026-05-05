@@ -259,6 +259,2634 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
 .task-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
 .task-card:hover { border-color: var(--accent); }
+/* ── TASK COMPLETE CHECKBOX ── */
+.task-check-wrap { display: flex; align-items: flex-start; gap: 12px; }
+.task-checkbox {
+  width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border);
+  background: transparent; cursor: pointer; flex-shrink: 0; margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; position: relative; appearance: none; -webkit-appearance: none;
+}
+.task-checkbox:checked { background: var(--green); border-color: var(--green); }
+.task-checkbox:checked::after { content: '✓'; color: white; font-size: 13px; font-weight: 700; line-height: 1; }
+.task-checkbox:hover { border-color: var(--green); }
+.task-card.completed .task-title { text-decoration: line-through; color: var(--text3); }
+.task-card.completed { opacity: 0.65; }
+.btn-delete-task {
+  padding: 5px 10px; background: rgba(255,51,51,0.1); border: 1px solid rgba(255,51,51,0.3);
+  border-radius: 6px; color: var(--red); cursor: pointer; font-size: 12px;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.btn-delete-task:hover { background: var(--red); color: white; }
+.task-complete-label { font-size: 11px; color: var(--green); font-weight: 600; margin-top: 4px; display: none; }
+.task-card.completed .task-complete-label { display: block; }
+
+.task-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
+.task-title { font-weight: 600; font-size: 14px; color: var(--text); flex: 1; }
+.task-priority { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.priority-high { background: rgba(255, 51, 51, 0.2); color: var(--red); }
+.priority-medium { background: rgba(255, 170, 0, 0.2); color: var(--yellow); }
+.priority-low { background: rgba(0, 204, 102, 0.2); color: var(--green); }
+
+.task-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text3); margin-top: 8px; }
+.task-deadline { display: flex; align-items: center; gap: 4px; }
+.task-assignee { display: flex; align-items: center; gap: 4px; }
+
+.task-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center; }
+.task-modal.active { display: flex; }
+.task-modal-content { background: var(--bg2); border-radius: 12px; padding: 28px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+.task-modal-header { font-size: 20px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+.btn-close { background: transparent; border: none; color: var(--text2); cursor: pointer; font-size: 24px; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 12px; color: var(--text3); text-transform: uppercase; margin-bottom: 6px; font-weight: 500; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 10px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: inherit; font-size: 13px; }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
+
+.subtask-list { background: var(--bg3); padding: 12px; border-radius: 6px; margin-top: 12px; }
+.subtask-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.subtask-item:last-child { border-bottom: none; }
+.subtask-checkbox { width: 18px; height: 18px; cursor: pointer; }
+
+.task-actions { display: flex; gap: 8px; margin-top: 20px; }
+.btn-primary { padding: 10px 16px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-secondary { padding: 10px 16px; background: transparent; border: 1px solid var(--border); color: var(--text2); border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+.task-widget { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.task-widget-title { font-size: 14px; color: var(--text3); text-transform: uppercase; margin-bottom: 16px; font-weight: 600; }
+.task-widget-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.task-widget-item { background: var(--bg3); padding: 12px; border-radius: 8px; text-align: center; }
+.task-widget-value { font-size: 24px; font-weight: 700; color: var(--text); }
+.task-widget-label { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* ── WELCOME OVERLAY ── */
+.welcome-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  opacity: 1; transition: opacity 0.5s ease;
+}
+.welcome-overlay.fade-out { opacity: 0; pointer-events: none; }
+.welcome-overlay.hidden { display: none; }
+.welcome-logo-big {
+  width: 72px; height: 72px; background: var(--accent); border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 800; color: white; margin-bottom: 28px;
+  box-shadow: 0 12px 40px rgba(0,102,255,0.35);
+}
+.welcome-greeting { font-size: 15px; color: var(--text3); letter-spacing: 0.5px; margin-bottom: 12px; text-transform: uppercase; }
+.welcome-name { font-size: 34px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; margin-bottom: 8px; text-align: center; }
+.welcome-role-lbl { font-size: 14px; color: var(--accent); font-weight: 500; margin-bottom: 40px; }
+.welcome-btn {
+  padding: 14px 40px; background: var(--accent); border: none; border-radius: 12px;
+  color: white; font-size: 15px; font-weight: 600; cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(0,102,255,0.3);
+}
+.welcome-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.welcome-time-lbl { margin-top: 16px; font-size: 12px; color: var(--text3); }
+
+</style>
+</head>
+<body>
+
+<!-- ===== WELCOME OVERLAY ===== -->
+<div class="welcome-overlay hidden" id="welcomeOverlay">
+  <div class="welcome-logo-big">Q</div>
+  <div class="welcome-greeting">Добро пожаловать</div>
+  <div class="welcome-name" id="welcomeName">...</div>
+  <div class="welcome-role-lbl" id="welcomeRoleLbl">Менеджер · Qoima</div>
+  <button class="welcome-btn" onclick="closeWelcome()">Открыть панель →</button>
+  <div class="welcome-time-lbl" id="welcomeTime"></div>
+</div>
+
+<div class="container">
+  <div class="sidebar">
+    <div class="logo">QCP</div>
+    <button class="nav-btn active" onclick="showPage('home')" id="nav-home" title="Главная">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </button>
+    <button class="nav-btn" onclick="showPage('kpi')" id="nav-kpi" title="KPI">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    </button>
+    <button class="nav-btn" onclick="showPage('heatmap')" id="nav-heatmap" title="Карта">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+    </button>
+    <button class="nav-btn" onclick="showPage('stores')" id="nav-stores" title="Магазины">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    </button>
+    <button class="nav-btn" onclick="showPage('analysis')" id="nav-analysis" title="А-Анализ">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/><circle cx="18" cy="5" r="2"/><circle cx="6" cy="19" r="2"/></svg>
+    </button>
+    <button class="nav-btn" onclick="showPage('sellers')" id="nav-sellers" title="Продавцы">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </button>
+    <button class="nav-btn" onclick="showPage('trends')" id="nav-trends" title="Тренды">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    </button>
+    <button class="nav-btn" id="nav-alerts" onclick="showPage('alerts')" title="Алерты" style="position:relative">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span id="alert-badge" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--red);"></span>
+    </button>
+    <button class="nav-btn" onclick="showPage('tasks')" id="nav-tasks" title="Задачи">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+      <span id="tasks-badge" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--red);"></span>
+    </button>
+    <button class="nav-btn" onclick="openSettings()" id="nav-settings" title="Настройки" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+    <div style="flex:1"></div>
+    <button class="nav-btn" onclick="toggleTheme()" id="themeBtn" title="Тема">🌙</button>
+  </div>
+
+  <div class="main">
+    <div class="page active" id="page-home">
+      <div class="header">
+        <div>
+          <h1>QoimaControlPanel</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Операционный дашборд</p>
+        </div>
+        <div class="header-right">
+          <div style="font-size:13px;color:var(--text2)">
+            <span id="currentDate">Загрузка...</span> | 
+            <span id="lastSync" style="font-size:11px">не синхронизирован</span>
+          </div>
+          <div id="statusDot" class="status-indicator"></div>
+          <button class="sync-btn" id="syncBtn" onclick="syncData()">Синхронизировать</button>
+          <div id="userProfileSection" style="display:none;display:flex;gap:12px;align-items:center;font-size:12px">
+            <span id="userEmail" style="color:var(--text2)">—</span>
+            <button onclick="handleLogout()" style="padding:6px 14px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text2);cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">Выход</button>
+          </div>
+          <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        </div>
+      </div>
+
+      <div id="statusMessage"></div>
+
+      <div id="dashboardContent" style="display:none">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Выручка месяца</div>
+            <div class="kpi-value" id="kpi-revenue">—</div>
+            <div id="kpi-revenue-full" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
+          </div>
+          <div class="kpi-card" style="border-color:rgba(0,204,102,0.3);background:rgba(0,204,102,0.04)">
+            <div class="kpi-label">⚡ Выручка сегодня</div>
+            <div class="kpi-value" id="kpi-today" style="color:var(--green)">—</div>
+            <div id="kpi-today-proj" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
+            <div class="kpi-progress" style="margin-top:12px"><div class="kpi-progress-fill" id="today-progress-fill" style="width:0%;background:var(--green)"></div></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Средний чек</div>
+            <div class="kpi-value" id="kpi-avg">—</div>
+            <div id="kpi-avg-trend" style="font-size:12px;margin-top:6px"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Конверсия</div>
+            <div class="kpi-value" id="kpi-conv">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Выполнение плана</div>
+            <div class="kpi-value" id="kpi-plan">—</div>
+            <div id="plan-status" style="margin-top:16px"></div>
+            <div class="kpi-progress" style="margin-top:12px">
+              <div class="kpi-progress-fill" id="plan-progress-fill" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="kpi-card" id="kpi-chance-card" style="border-color:var(--border)">
+            <div class="kpi-label">Шанс выполнения плана</div>
+            <div class="kpi-value" id="kpi-chance">—</div>
+            <div id="kpi-chance-label" style="font-size:13px;margin-top:6px;color:var(--text3)"></div>
+            <div class="kpi-progress" style="margin-top:16px">
+              <div class="kpi-progress-fill" id="chance-progress-fill" style="width:0%"></div>
+            </div>
+            <div id="kpi-chance-detail" style="font-size:12px;color:var(--text3);margin-top:12px;line-height:1.6"></div>
+          </div>
+        </div>
+
+        <!-- Insights strip -->
+        <div id="insights-strip" style="margin-bottom:24px;display:flex;gap:10px;flex-wrap:wrap"></div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><strong>Выручка по дням</strong></div>
+            <div class="chart-wrap">
+              <div class="chart" id="home-chart"></div>
+              <div class="chart-labels" id="home-chart-labels"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title"><strong>Статистика</strong></div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="stat-box">
+                <div class="stat-label">Всего магазинов</div>
+                <div class="stat-value" id="stat-stores">—</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Дней данных</div>
+                <div class="stat-value" id="stat-days">—</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Всего посещений</div>
+                <div class="stat-value" id="stat-visitors">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-kpi">
+      <div class="header">
+        <h1>KPI анализ</h1>
+      </div>
+      <div class="card">
+        <div class="card-title"><strong>Метрики по магазинам</strong></div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Магазин</th>
+              <th>Выручка</th>
+              <th>План</th>
+              <th>Выполнение</th>
+              <th>Чеков</th>
+              <th>Ср. чек</th>
+              <th>Конверсия</th>
+              <th>Посещений</th>
+            </tr>
+          </thead>
+          <tbody id="kpi-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page" id="page-heatmap">
+      <div class="header">
+        <div>
+          <h1>Тепловая карта операций</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px" id="heatmap-month-label"></p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px" id="heatmap-stats">
+        <div class="stat-box">
+          <div class="stat-label">Топ день</div>
+          <div class="stat-value" id="hm-top-day">—</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px" id="hm-top-day-val"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Ср. посещений/день</div>
+          <div class="stat-value" id="hm-avg-day">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Всего за период</div>
+          <div class="stat-value" id="hm-total">—</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><strong>Посещаемость по магазинам</strong></div>
+        <div id="heatmap-container"></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-stores">
+      <div class="header">
+        <h1>Магазины</h1>
+      </div>
+      <div class="store-grid" id="stores-grid"></div>
+    </div>
+    <div class="page" id="page-analysis">
+      <div class="header">
+        <div>
+          <h1>А-Анализ</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px" id="analysis-subtitle">Динамика продаж по магазинам</p>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+          <div>
+            <div style="font-size:18px;font-weight:600;color:var(--text)">Выручка по дням</div>
+            <div style="font-size:13px;color:var(--text3);margin-top:4px">Все магазины · с 1-го числа</div>
+          </div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center" id="analysis-legend"></div>
+        </div>
+        <div id="analysis-tooltip" style="position:fixed;background:rgba(20,20,20,0.95);border:1px solid #333;border-radius:10px;padding:10px 14px;font-size:13px;pointer-events:none;display:none;z-index:999;min-width:160px;backdrop-filter:blur(8px)"></div>
+        <div style="position:relative;overflow:hidden;border-radius:8px" id="lineChartWrap">
+          <svg id="lineChartSVG" style="width:100%;display:block" preserveAspectRatio="none"></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-sellers">
+      <div class="header">
+        <div>
+          <h1>Продавцы</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Эффективность и рейтинг за месяц</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <button onclick="setSellersView('all')" id="stab-all" class="stab stab-active">🏆 Общий рейтинг</button>
+        <button onclick="setSellersView('grandpark')" id="stab-grandpark" class="stab">Grand Park</button>
+        <button onclick="setSellersView('aport')" id="stab-aport" class="stab">Aport</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
+        <button onclick="setSellersMetric('revenue')" id="smet-revenue" class="stab stab-active">💰 Выручка</button>
+        <button onclick="setSellersMetric('perShift')" id="smet-perShift" class="stab">⚡ Выр./смену</button>
+        <button onclick="setSellersMetric('plan')" id="smet-plan" class="stab">🎯 % плана</button>
+        <button onclick="setSellersMetric('shifts')" id="smet-shifts" class="stab">📅 Посещаемость</button>
+      </div>
+      <div id="sellers-leaderboard"></div>
+      <div id="sellers-summary" style="margin-top:20px"></div>
+      <div id="sellers-calendar" style="margin-top:20px"></div>
+    </div>
+
+    <!-- ===== TRENDS PAGE ===== -->
+    <div class="page" id="page-trends">
+      <div class="header">
+        <div>
+          <h1>📈 Тренды</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Прогнозы и динамика по магазинам</p>
+        </div>
+      </div>
+      <!-- Week comparison -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px" id="trends-week-grid"></div>
+      <!-- Store forecast cards -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title" style="margin-bottom:16px"><strong>📅 Прогноз выполнения плана к концу месяца</strong></div>
+        <div id="trends-forecast-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px"></div>
+      </div>
+      <!-- Daily average by day of week -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px"><strong>📆 Средняя выручка по дням недели</strong></div>
+        <div id="trends-weekday-chart"></div>
+      </div>
+    </div>
+
+    <!-- ===== ALERTS PAGE ===== -->
+    <div class="page" id="page-alerts">
+      <div class="header">
+        <div>
+          <h1>🚨 Алерты</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Важные события и отклонения</p>
+        </div>
+        <div class="header-right">
+          <button class="sync-btn" onclick="computeAlerts()">🔄 Обновить</button>
+        </div>
+      </div>
+      <div id="alerts-critical" style="margin-bottom:20px"></div>
+      <div id="alerts-warning" style="margin-bottom:20px"></div>
+      <div id="alerts-good" style="margin-bottom:20px"></div>
+      <div id="alerts-info"></div>
+    </div>
+
+    <!-- ===== TASKS PAGE ===== -->
+    <div class="page" id="page-tasks">
+      <div class="header">
+        <div>
+          <h1>📋 Задачи</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Управление проектами и задачами</p>
+        </div>
+        <div class="header-right">
+          <button class="btn-create-task" onclick="openTaskModal()">+ Создать задачу</button>
+          <button class="sync-btn" onclick="loadTasks()">🔄 Обновить</button>
+        </div>
+      </div>
+
+      <!-- Tasks Widget on Main -->
+      <div id="tasks-widget" style="display:none">
+        <div class="task-widget">
+          <div class="task-widget-title">📊 Статистика задач</div>
+          <div class="task-widget-items">
+            <div class="task-widget-item">
+              <div class="task-widget-value" id="stat-total">0</div>
+              <div class="task-widget-label">Всего задач</div>
+            </div>
+            <div class="task-widget-item">
+              <div class="task-widget-value" id="stat-unseen" style="color:var(--red)">0</div>
+              <div class="task-widget-label">Не просмотрены</div>
+            </div>
+            <div class="task-widget-item">
+              <div class="task-widget-value" id="stat-today" style="color:var(--yellow)">0</div>
+              <div class="task-widget-label">На сегодня</div>
+            </div>
+            <div class="task-widget-item">
+              <div class="task-widget-value" id="stat-overdue" style="color:var(--orange)">0</div>
+              <div class="task-widget-label">Просрочены</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tasks-container">
+        <!-- Left sidebar - Projects -->
+        <div class="tasks-sidebar">
+          <div class="tasks-header">
+            <h3 style="margin:0;font-size:13px">Проекты</h3>
+          </div>
+          <div class="project-list" id="projects-list">
+            <div class="project-item active" onclick="filterTasks('all')">
+              <div class="project-name">Все задачи</div>
+              <div class="project-count" id="count-all">0</div>
+            </div>
+            <div class="project-item" onclick="filterTasks('unseen')">
+              <div class="project-name">Не просмотрены</div>
+              <div class="project-count" id="count-unseen">0</div>
+            </div>
+            <div class="project-item" onclick="filterTasks('today')">
+              <div class="project-name">На сегодня</div>
+              <div class="project-count" id="count-today">0</div>
+            </div>
+            <div class="project-item" onclick="filterTasks('overdue')">
+              <div class="project-name">Просрочены</div>
+              <div class="project-count" id="count-overdue">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right side - Tasks list -->
+        <div class="tasks-main">
+          <div id="tasks-list"></div>
+          <div id="no-tasks" style="text-align:center;padding:40px;color:var(--text3)">
+            <p style="font-size:16px;margin-bottom:8px">Нет задач</p>
+            <p style="font-size:13px">Создайте новую задачу, чтобы начать</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SETTINGS PAGE ===== -->
+    <div class="page" id="page-settings">
+      <div class="header">
+        <div>
+          <h1>⚙️ Настройки</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Конфигурация дашборда</p>
+        </div>
+        <div class="header-right">
+          <button class="settings-btn" onclick="saveSettings()">💾 Сохранить</button>
+        </div>
+      </div>
+
+      <div id="settings-save-msg"></div>
+
+      <div class="settings-section">
+        <div class="settings-title">📋 Названия листов Google Sheets</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:16px">Когда начинается новый месяц — просто измените названия листов здесь. Не нужно лезть в код.</div>
+        <div class="settings-row">
+          <div class="settings-label">Лист KPI (магазины)</div>
+          <input type="text" class="settings-input" id="cfg-sheet-kpi" placeholder="Например: МАЙ KPI">
+          <div style="font-size:12px;color:var(--text3)">Текущий: <span class="settings-tag" id="cfg-kpi-current"></span></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Лист ЗП (продавцы)</div>
+          <input type="text" class="settings-input" id="cfg-sheet-sellers" placeholder="Например: ЗП Май">
+          <div style="font-size:12px;color:var(--text3)">Текущий: <span class="settings-tag" id="cfg-sellers-current"></span></div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">🏢 Планы команд (₸)</div>
+        <div class="settings-row">
+          <div class="settings-label">Grand Park — план</div>
+          <input type="number" class="settings-input" id="cfg-plan-gp" placeholder="6000000">
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Aport — план</div>
+          <input type="number" class="settings-input" id="cfg-plan-aport" placeholder="5000000">
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">🔄 Синхронизация</div>
+        <div class="settings-row">
+          <div class="settings-label">Интервал обновления</div>
+          <select class="settings-input" id="cfg-sync-interval">
+            <option value="60">Каждую минуту</option>
+            <option value="120" selected>Каждые 2 минуты</option>
+            <option value="300">Каждые 5 минут</option>
+            <option value="600">Каждые 10 минут</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <button class="settings-btn" onclick="syncData();syncSellers()">🔄 Синхронизировать сейчас</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">ℹ️ Информация</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+          <div class="stat-box"><div class="stat-label">Версия</div><div style="font-size:16px;font-weight:600;color:var(--text)">v2.0</div></div>
+          <div class="stat-box"><div class="stat-label">Sheet ID</div><div style="font-size:11px;color:var(--text2);word-break:break-all;margin-top:4px" id="info-sheet-id"></div></div>
+          <div class="stat-box"><div class="stat-label">Последний сеанс</div><div style="font-size:13px;color:var(--text2);margin-top:4px" id="info-last-session"></div></div>
+        </div>
+      </div>
+
+      <div class="settings-section" style="border-color:rgba(255,51,51,0.3)">
+        <div class="settings-title" style="color:var(--red)">⚠️ Сброс</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:12px">Сбросить все настройки до стандартных значений.</div>
+        <button class="settings-btn danger" onclick="resetSettings()">Сбросить настройки</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== PIN OVERLAY ===== -->
+<div class="pin-overlay hidden" id="pinOverlay">
+  <div style="font-size:40px">🔐</div>
+  <div class="pin-title">Настройки защищены</div>
+  <div class="pin-sub">Введите PIN-код для доступа</div>
+  <div class="pin-dots" id="pinDots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+    <div class="pin-dot" id="pd4"></div>
+  </div>
+  <div class="pin-error" id="pinError"></div>
+  <div class="pin-keypad">
+    <button class="pin-key" onclick="pinKey(1)">1</button>
+    <button class="pin-key" onclick="pinKey(2)">2</button>
+    <button class="pin-key" onclick="pinKey(3)">3</button>
+    <button class="pin-key" onclick="pinKey(4)">4</button>
+    <button class="pin-key" onclick="pinKey(5)">5</button>
+    <button class="pin-key" onclick="pinKey(6)">6</button>
+    <button class="pin-key" onclick="pinKey(7)">7</button>
+    <button class="pin-key" onclick="pinKey(8)">8</button>
+    <button class="pin-key" onclick="pinKey(9)">9</button>
+    <button class="pin-key" onclick="pinClose()" style="font-size:13px;color:var(--text3)">✕</button>
+    <button class="pin-key" onclick="pinKey(0)">0</button>
+    <button class="pin-key del" onclick="pinDel()">⌫</button>
+  </div>
+</div>
+
+
+<script>
+// ===================== CONFIG SYSTEM =====================
+const DEFAULT_CONFIG = {
+  SHEET_NAME:        'МАЙ KPI',
+  SELLERS_SHEET_NAME:'ЗП Май',
+  PLAN_GRANDPARK:    6000000,
+  PLAN_APORT:        5000000,
+  SYNC_INTERVAL:     120
+};
+
+function loadConfig() {
+  try {
+    const saved = localStorage.getItem('qgi_config');
+    if (saved) return Object.assign({}, DEFAULT_CONFIG, JSON.parse(saved));
+  } catch(e) {}
+  return Object.assign({}, DEFAULT_CONFIG);
+}
+
+function saveConfig(cfg) {
+  try { localStorage.setItem('qgi_config', JSON.stringify(cfg)); } catch(e) {}
+}
+
+let CFG = loadConfig();
+
+const SHEET_ID = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
+const API_KEY  = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
+
+// Getters — always read from CFG so they stay live
+function SHEET_NAME()         { return CFG.SHEET_NAME; }
+function SELLERS_SHEET_NAME() { return CFG.SELLERS_SHEET_NAME; }
+function PLAN_GRANDPARK()     { return CFG.PLAN_GRANDPARK; }
+function PLAN_APORT()         { return CFG.PLAN_APORT; }
+
+// ===================== PIN SYSTEM =====================
+const PIN_CODE     = '57725';
+const PIN_SESSION  = 'qgi_pin_ok';
+let   pinBuffer    = '';
+let   pinGranted   = false;
+
+function openSettings() {
+  // Check session
+  if (sessionStorage.getItem(PIN_SESSION) === '1') {
+    showSettingsPage();
+    return;
+  }
+  pinBuffer = '';
+  pinGranted = false;
+  document.getElementById('pinError').textContent = '';
+  renderPinDots();
+  document.getElementById('pinOverlay').classList.remove('hidden');
+}
+
+function pinKey(n) {
+  if (pinBuffer.length >= PIN_CODE.length) return;
+  pinBuffer += n;
+  renderPinDots();
+  if (pinBuffer.length === PIN_CODE.length) {
+    setTimeout(checkPin, 120);
+  }
+}
+
+function pinDel() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  document.getElementById('pinError').textContent = '';
+  renderPinDots();
+}
+
+function pinClose() {
+  document.getElementById('pinOverlay').classList.add('hidden');
+  pinBuffer = '';
+  renderPinDots();
+}
+
+function renderPinDots() {
+  for (let i = 0; i < PIN_CODE.length; i++) {
+    const dot = document.getElementById('pd' + i);
+    if (dot) dot.classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function checkPin() {
+  if (pinBuffer === PIN_CODE) {
+    sessionStorage.setItem(PIN_SESSION, '1');
+    document.getElementById('pinOverlay').classList.add('hidden');
+    pinBuffer = '';
+    renderPinDots();
+    showSettingsPage();
+  } else {
+    document.getElementById('pinError').textContent = '❌ Неверный PIN';
+    // Shake dots
+    const dots = document.getElementById('pinDots');
+    dots.classList.remove('shake');
+    void dots.offsetWidth; // reflow
+    dots.classList.add('shake');
+    setTimeout(() => dots.classList.remove('shake'), 500);
+    pinBuffer = '';
+    renderPinDots();
+  }
+}
+
+function showSettingsPage() {
+  // Populate fields from current config
+  document.getElementById('cfg-sheet-kpi').value    = CFG.SHEET_NAME;
+  document.getElementById('cfg-sheet-sellers').value = CFG.SELLERS_SHEET_NAME;
+  document.getElementById('cfg-plan-gp').value       = CFG.PLAN_GRANDPARK;
+  document.getElementById('cfg-plan-aport').value    = CFG.PLAN_APORT;
+  document.getElementById('cfg-kpi-current').textContent     = CFG.SHEET_NAME;
+  document.getElementById('cfg-sellers-current').textContent = CFG.SELLERS_SHEET_NAME;
+  document.getElementById('cfg-sync-interval').value = CFG.SYNC_INTERVAL;
+  document.getElementById('info-sheet-id').textContent = SHEET_ID;
+  const ls = localStorage.getItem('qgi_last_session');
+  document.getElementById('info-last-session').textContent = ls || 'Первый запуск';
+  // Show page
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-settings').classList.add('active');
+  document.getElementById('nav-settings').classList.add('active');
+}
+
+function saveSettings() {
+  const kpi     = document.getElementById('cfg-sheet-kpi').value.trim();
+  const sellers = document.getElementById('cfg-sheet-sellers').value.trim();
+  const gp      = parseInt(document.getElementById('cfg-plan-gp').value) || DEFAULT_CONFIG.PLAN_GRANDPARK;
+  const ap      = parseInt(document.getElementById('cfg-plan-aport').value) || DEFAULT_CONFIG.PLAN_APORT;
+  const si      = parseInt(document.getElementById('cfg-sync-interval').value) || 120;
+
+  if (!kpi || !sellers) {
+    showSettingsMsg('⚠️ Названия листов не могут быть пустыми', 'error'); return;
+  }
+
+  CFG.SHEET_NAME         = kpi;
+  CFG.SELLERS_SHEET_NAME = sellers;
+  CFG.PLAN_GRANDPARK     = gp;
+  CFG.PLAN_APORT         = ap;
+  CFG.SYNC_INTERVAL      = si;
+  saveConfig(CFG);
+
+  // Update displayed labels
+  document.getElementById('cfg-kpi-current').textContent     = kpi;
+  document.getElementById('cfg-sellers-current').textContent = sellers;
+
+  // Restart sync intervals
+  startSyncIntervals();
+
+  showSettingsMsg('✅ Настройки сохранены! Выполняем синхронизацию...', 'success');
+  setTimeout(() => { syncData(); syncSellers(); }, 600);
+}
+
+function resetSettings() {
+  if (!confirm('Сбросить все настройки до стандартных?')) return;
+  CFG = Object.assign({}, DEFAULT_CONFIG);
+  saveConfig(CFG);
+  showSettingsPage();
+  showSettingsMsg('↩️ Настройки сброшены', 'success');
+}
+
+function showSettingsMsg(text, type) {
+  const el = document.getElementById('settings-save-msg');
+  el.innerHTML = `<div class="message ${type}" style="margin-bottom:16px">${text}</div>`;
+  setTimeout(() => { el.innerHTML = ''; }, 4000);
+}
+
+// ===================== SYNC INTERVAL MANAGER =====================
+let syncIntervals = [];
+function startSyncIntervals() {
+  syncIntervals.forEach(id => clearInterval(id));
+  syncIntervals = [
+    setInterval(syncData,    CFG.SYNC_INTERVAL * 1000),
+    setInterval(syncSellers, CFG.SYNC_INTERVAL * 2000)
+  ];
+}
+
+
+const STORES = [
+  { id: 'qoima', name: 'QOIMA', color: '#b19cd9', core: true },
+  { id: 'abo',   name: 'ABO',   color: '#6ba3d4', core: true },
+  { id: 'look',  name: 'LOOK',  color: '#a8c96f', core: true },
+  { id: 'aport', name: 'APORT', color: '#d4a56b', core: true },
+  { id: 'mart',  name: 'MART VILLAGE', color: '#d46b6b', core: false }, // franchise
+  { id: 'kaspi', name: 'KASPI', color: '#9b7cd4', core: false }         // online
+];
+// Core stores only (for summary KPIs, heatmap)
+const CORE_STORES = STORES.filter(s => s.core);
+
+let globalData = null;
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme') || 'dark';
+  html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+  document.getElementById('themeBtn').textContent = current === 'dark' ? '☀️' : '🌙';
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+}
+
+function setDate() {
+  const d = new Date();
+  const months = ['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'];
+  document.getElementById('currentDate').textContent = `${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+function parseNum(val) {
+  if (val === null || val === undefined || val === '') return 0;
+  let s = String(val)
+    .replace(/\u00a0/g, '')
+    .replace(/\s/g, '')
+    .replace(/[\u20b8\u20B8₸]/g, '')
+    .replace(/[%]/g, '')
+    .replace(/,/g, '.');
+  const num = parseFloat(s);
+  return isNaN(num) ? 0 : num;
+}
+
+// Smart money formatter: >=1M → "1.2М₸", <1M → "903К₸"
+function fmtMoney(val) {
+  if (val >= 1e6) return (val / 1e6).toFixed(1) + 'М₸';
+  if (val >= 1e3) return Math.round(val / 1e3) + 'К₸';
+  return Math.round(val) + '₸';
+}
+
+function parseSheetData(values) {
+  const SECTION_MAP = {
+    'ABO': 'abo',
+    'QOIMA': 'qoima',
+    'LOOK': 'look',
+    'APORT': 'aport',
+    'KASPI': 'kaspi',
+    'MART VILLAGE': 'mart',
+    'MART': 'mart'
+  };
+
+  const data = {
+    stores: {},
+    totalRevenue: 0,
+    totalPlan: 0,
+    totalChecks: 0,
+    totalVisitors: 0,
+    dailyData: []
+  };
+
+  STORES.forEach(s => {
+    data.stores[s.id] = {
+      name: s.name,
+      plan: 0, revenue: 0, checks: 0,
+      avgCheck: 0, conversion: 0, visitors: 0,
+      dailyRevenue: [], dailyVisitors: []
+    };
+  });
+
+  let currentStore = null;
+
+  for (let i = 0; i < values.length; i++) {
+    const row = values[i] || [];
+    const c0 = (row[0] || '').toString().trim();
+    const c2 = (row[2] || '').toString().trim();
+    const c0up = c0.toUpperCase();
+    const c2low = c2.toLowerCase();
+
+    // Detect section header: col2 contains plan keyword
+    const isPlanHeader = c2low.includes('\u043f\u043b\u0430\u043d \u043d\u0430 \u043c\u0430\u0433\u0430\u0437\u0438\u043d') || c2low.includes('\u043e\u0431\u0449\u0438\u0439 \u043f\u043b\u0430\u043d');
+    if (isPlanHeader) {
+      currentStore = SECTION_MAP[c0up] || null;
+      if (currentStore && data.stores[currentStore] && data.stores[currentStore].plan === 0) {
+        const nextRow = values[i + 1] || [];
+        const planVal = parseNum(nextRow[2]);
+        if (planVal > 0) {
+          data.stores[currentStore].plan = planVal;
+          data.totalPlan += planVal;
+        }
+      }
+      continue;
+    }
+
+    if (!currentStore || !data.stores[currentStore]) continue;
+    const store = data.stores[currentStore];
+
+    if (c0 === '\u0412\u044b\u0440\u0443\u0447\u043a\u0430' && store.revenue === 0) {
+      store.revenue = parseNum(c2);
+      data.totalRevenue += store.revenue;
+      for (let j = 3; j < row.length; j++) {
+        store.dailyRevenue.push(parseNum(row[j]));
+      }
+    }
+
+    if (c0 === '\u0427\u0435\u043a\u043e\u0432' && store.checks === 0) {
+      store.checks = parseNum(c2);
+      data.totalChecks += store.checks;
+    }
+
+    if (c0 === '\u0421\u0440 \u0441\u0443\u043c\u043c\u0430 \u0447\u0435\u043a' && store.avgCheck === 0) {
+      store.avgCheck = parseNum(c2);
+    }
+
+    if (c0 === '\u041a\u043e\u043d\u0432\u0435\u0440\u0441\u0438\u044f' && store.conversion === 0) {
+      store.conversion = parseNum(c2);
+    }
+
+    if (c0 === '\u0421\u0447\u0435\u0442\u0447\u0438\u043a' && store.visitors === 0) {
+      store.visitors = parseNum(c2);
+      data.totalVisitors += store.visitors;
+      for (let j = 3; j < row.length; j++) {
+        store.dailyVisitors.push(parseNum(row[j]));
+      }
+    }
+  }
+
+  const maxDays = Math.max(...Object.values(data.stores).map(s => s.dailyRevenue.length), 0);
+  for (let d = 0; d < maxDays; d++) {
+    let sum = 0;
+    Object.values(data.stores).forEach(s => { sum += (s.dailyRevenue[d] || 0); });
+    data.dailyData.push(sum);
+  }
+
+  console.log('Parsed data:', JSON.stringify(data));
+  return data;
+}
+
+function showMessage(text, type) {
+  const el = document.getElementById('statusMessage');
+  if (!el) return;
+  if (!text) {
+    el.innerHTML = '';
+    return;
+  }
+  el.innerHTML = `<div class="message ${type}">${text}</div>`;
+  // Автоматически убрать через 4 секунды (кроме ошибок)
+  if (type !== 'error') {
+    setTimeout(() => { el.innerHTML = ''; }, 4000);
+  }
+}
+
+async function syncData() {
+  const btn = document.getElementById('syncBtn');
+  btn.classList.add('loading');
+  showMessage('Синхронизация...', 'info');
+
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME())}?key=${API_KEY}`;
+    const res = await fetch(url);
+    
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    
+    if (!json.values || !Array.isArray(json.values)) {
+      throw new Error('Неверный формат данных');
+    }
+
+    const parsed = parseSheetData(json.values);
+    globalData = parsed;
+
+    updateUI(parsed);
+    
+    showMessage('✓ Данные загружены', 'success');
+    document.getElementById('dashboardContent').style.display = 'block';
+    document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('ru-RU');
+    document.getElementById('statusDot').classList.add('ok');
+
+  } catch (err) {
+    console.error(err);
+    showMessage('Ошибка: ' + err.message, 'error');
+    document.getElementById('statusDot').classList.remove('ok');
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+function updateUI(data) {
+  const now = new Date();
+  const todayNum = now.getDate();
+  const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  const dayShortRu = ['вс','пн','вт','ср','чт','пт','сб'];
+  const monthYear = monthNames[now.getMonth()] + ' ' + now.getFullYear();
+
+  const year = now.getFullYear(), month = now.getMonth();
+  const dateLabelsFull = [];
+  for (let d = 1; d <= todayNum; d++) {
+    const dt = new Date(year, month, d);
+    dateLabelsFull.push({ day: d, dayName: dayShortRu[dt.getDay()] });
+  }
+  const numDays = dateLabelsFull.length;
+
+  const coreIds = CORE_STORES.map(s => s.id);
+  const coreStores = Object.fromEntries(Object.entries(data.stores).filter(([id]) => coreIds.includes(id)));
+  const coreRevenue  = Object.values(coreStores).reduce((s, st) => s + st.revenue, 0);
+  const corePlan     = Object.values(coreStores).reduce((s, st) => s + st.plan, 0);
+  const coreChecks   = Object.values(coreStores).reduce((s, st) => s + st.checks, 0);
+  const coreVisitors = Object.values(coreStores).reduce((s, st) => s + st.visitors, 0);
+
+  // --- KPI cards ---
+  document.getElementById('kpi-revenue').textContent = (coreRevenue / 1e6).toFixed(1) + ' М₸';
+  document.getElementById('kpi-revenue-full').textContent = coreRevenue.toLocaleString('ru-RU') + ' ₸';
+  document.getElementById('kpi-avg').textContent = Math.round(coreRevenue / (coreChecks || 1)).toLocaleString('ru-RU') + ' ₸';
+  const avgConv = Object.values(coreStores).reduce((s, st) => s + (st.conversion || 0), 0) / (Object.keys(coreStores).length || 1);
+  document.getElementById('kpi-conv').textContent = avgConv.toFixed(1) + '%';
+  const planComp = corePlan > 0 ? (coreRevenue / corePlan) * 100 : 0;
+  document.getElementById('kpi-plan').textContent = Math.min(100, planComp).toFixed(0) + '%';
+  const planFill = document.getElementById('plan-progress-fill');
+  planFill.style.width = Math.min(100, planComp) + '%';
+  planFill.style.background = planComp >= 80 ? '#00cc66' : planComp >= 60 ? '#ffaa00' : planComp >= 40 ? '#ff6600' : '#ff3333';
+
+  // --- Статистика ---
+  const activeStores = Object.values(data.stores).filter(s => s.revenue > 0).length;
+  document.getElementById('stat-stores').textContent = activeStores;
+  document.getElementById('stat-days').textContent = numDays;
+  document.getElementById('stat-visitors').textContent = coreVisitors.toLocaleString('ru-RU');
+
+  // --- Шанс выполнения плана ---
+  {
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const todayDate = now.getDate();
+    // +1 потому что текущий день ещё не закончился
+    const daysLeft = daysInMonth - todayDate + 1;
+    
+    // Считаем среднюю выручку только по прошедшим дням (без сегодня)
+    const pastDays = Math.max(1, numDays - 1); // исключаем сегодня
+    const dailyTotals = [];
+    for (let d = 0; d < pastDays; d++) {
+      let sum = 0;
+      Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d] || 0); });
+      dailyTotals.push(sum);
+    }
+    const avgDailyRevenue = dailyTotals.reduce((a, b) => a + b, 0) / (pastDays || 1);
+    
+    const needed = corePlan - coreRevenue;
+    const neededPerDay = daysLeft > 0 ? needed / daysLeft : 0;
+
+    let chanceDisplay = 0;
+    if (daysLeft <= 0) {
+      // План закончился
+      chanceDisplay = Math.min(100, corePlan > 0 ? (coreRevenue / corePlan) * 100 : 0);
+    } else if (needed <= 0) {
+      // План уже выполнен
+      chanceDisplay = 100;
+    } else {
+      // РЕАЛЬНЫЙ расчёт: сколько денег вероятно выручим в оставшиеся дни
+      const projectedAdditional = avgDailyRevenue * daysLeft;
+      const projectedTotal = coreRevenue + projectedAdditional;
+      chanceDisplay = Math.min(100, Math.max(1, (projectedTotal / corePlan) * 100));
+    }
+    const chanceRaw = chanceDisplay;
+
+    // Color & label
+    let chanceColor, chanceLabel, cardBorder;
+    if (chanceRaw >= 95) {
+      chanceColor = '#00cc66'; chanceLabel = '✅ Высокий — план реализуем'; cardBorder = 'rgba(0,204,102,0.4)';
+    } else if (chanceRaw >= 75) {
+      chanceColor = '#ffaa00'; chanceLabel = '⚡ Средний — нужно ускориться'; cardBorder = 'rgba(255,170,0,0.4)';
+    } else if (chanceRaw >= 50) {
+      chanceColor = '#ff6600'; chanceLabel = '⚠️ Низкий — критичное отставание'; cardBorder = 'rgba(255,102,0,0.4)';
+    } else {
+      chanceColor = '#ff3333'; chanceLabel = '🔴 Критично — план недостижим'; cardBorder = 'rgba(255,51,51,0.4)';
+    }
+
+    const card = document.getElementById('kpi-chance-card');
+    card.style.borderColor = cardBorder;
+    document.getElementById('kpi-chance').style.color = chanceColor;
+    document.getElementById('kpi-chance').textContent = chanceDisplay.toFixed(0) + '%';
+    document.getElementById('kpi-chance-label').textContent = chanceLabel;
+    document.getElementById('chance-progress-fill').style.width = chanceDisplay + '%';
+    document.getElementById('chance-progress-fill').style.background = chanceColor;
+    const coveragePct = neededPerDay > 0 ? Math.round((avgDailyRevenue / neededPerDay) * 100) : 100;
+    document.getElementById('kpi-chance-detail').innerHTML =
+      `Нужно ещё: <b style="color:var(--text)">${(needed/1e6).toFixed(1)} М₸</b><br>` +
+      `Осталось дней: <b style="color:var(--text)">${daysLeft}</b><br>` +
+      `Нужно/день: <b style="color:var(--text)">${fmtMoney(neededPerDay)}</b><br>` +
+      `Факт/день (средний): <b style="color:${chanceColor}">${fmtMoney(avgDailyRevenue)}</b> (${coveragePct}% нужного)`;
+  }
+
+  // --- Home bar chart ---
+  const chartEl = document.getElementById('home-chart');
+  const chartLabelsEl = document.getElementById('home-chart-labels');
+  chartEl.innerHTML = '';
+  chartLabelsEl.innerHTML = '';
+
+  const coreDailyTotals = [];
+  for (let d = 0; d < numDays; d++) {
+    let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d] || 0); });
+    coreDailyTotals.push(sum);
+  }
+  const maxBar = Math.max(...coreDailyTotals, 1);
+
+  // Tooltip element
+  let barTip = document.getElementById('home-bar-tip');
+  if (!barTip) {
+    barTip = document.createElement('div');
+    barTip.id = 'home-bar-tip';
+    barTip.style.cssText = 'position:fixed;background:rgba(15,15,15,0.95);border:1px solid #333;border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;display:none;z-index:999;color:#fff;white-space:nowrap;backdrop-filter:blur(8px);line-height:1.6';
+    document.body.appendChild(barTip);
+  }
+
+  // Show every Nth label to avoid crowding
+  const labelStep = numDays <= 10 ? 1 : numDays <= 20 ? 2 : 3;
+
+  coreDailyTotals.forEach((val, idx) => {
+    const { day, dayName } = dateLabelsFull[idx] || {};
+
+    // Bar
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.height = ((val / maxBar) * 150) + 'px';
+    bar.addEventListener('mouseenter', () => {
+      barTip.innerHTML = `<span style="color:#888;font-size:11px">${dayName} ${day}</span><br><b style="font-size:14px">${fmtMoney(val)}</b>`;
+      barTip.style.display = 'block';
+    });
+    bar.addEventListener('mousemove', (e) => {
+      barTip.style.left = Math.min(e.clientX + 14, window.innerWidth - 160) + 'px';
+      barTip.style.top = (e.clientY - 58) + 'px';
+    });
+    bar.addEventListener('mouseleave', () => { barTip.style.display = 'none'; });
+    chartEl.appendChild(bar);
+
+    // Label
+    const lbl = document.createElement('div');
+    lbl.className = 'chart-label';
+    if (idx % labelStep === 0 || idx === numDays - 1) {
+      lbl.innerHTML = `<div>${dayName}</div><div style="font-weight:600">${day}</div>`;
+    }
+    chartLabelsEl.appendChild(lbl);
+  });
+
+  // --- KPI table (all stores) ---
+  const tbody = document.getElementById('kpi-tbody');
+  tbody.innerHTML = '';
+  STORES.forEach(({ id, color }) => {
+    const store = data.stores[id];
+    if (!store || !store.revenue) return;
+    const comp = store.plan > 0 ? (store.revenue / store.plan) * 100 : 0;
+    const badge = comp >= 80 ? 'status-excellent' : comp >= 60 ? 'status-good' : comp >= 40 ? 'status-warning' : 'status-critical';
+    // Trend: last 3 days vs 3 days before that
+    const d = store.dailyRevenue;
+    const last3 = d.slice(-3).reduce((a,b)=>a+b,0);
+    const prev3 = d.slice(-6,-3).reduce((a,b)=>a+b,0);
+    const trendArrow = prev3 > 0 ? (last3 > prev3*1.05 ? '<span style="color:var(--green)">↑</span>' : last3 < prev3*0.95 ? '<span style="color:var(--red)">↓</span>' : '<span style="color:var(--text3)">→</span>') : '';
+    const row = document.createElement('tr');
+    row.setAttribute('data-id', id);
+    row.innerHTML = `
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:6px"></span>${store.name} ${trendArrow}</td>
+      <td>${(store.revenue/1e6).toFixed(2)} М₸</td>
+      <td>${(store.plan/1e6).toFixed(2)} М₸</td>
+      <td><span class="status-badge ${badge}">${Math.min(100,comp).toFixed(0)}%</span></td>
+      <td>${store.checks}</td>
+      <td>${Math.round(store.avgCheck).toLocaleString('ru-RU')} ₸</td>
+      <td>${store.conversion.toFixed(1)}%</td>
+      <td>${store.visitors.toLocaleString('ru-RU')}</td>`;
+    tbody.appendChild(row);
+  });
+
+  // --- Heatmap ---
+  document.getElementById('heatmap-month-label').textContent = monthYear;
+  const hmEl = document.getElementById('heatmap-container');
+  hmEl.innerHTML = '';
+  const hmColors = ['#111','#1a2e1a','#2d5030','#4a8050','#00cc66'];
+
+  // Compute daily totals for core stores (for top day)
+  const hmDailyTotals = [];
+  for (let d = 0; d < numDays; d++) {
+    let sum = 0;
+    CORE_STORES.forEach(({ id }) => { sum += (data.stores[id]?.dailyVisitors[d] || 0); });
+    hmDailyTotals.push(sum);
+  }
+  const topDayIdx = hmDailyTotals.indexOf(Math.max(...hmDailyTotals));
+  const topDayLabel = dateLabelsFull[topDayIdx];
+  const hmTotal = hmDailyTotals.reduce((a, b) => a + b, 0);
+
+  document.getElementById('hm-top-day').textContent = topDayLabel ? `${topDayLabel.dayName} ${topDayLabel.day}` : '—';
+  document.getElementById('hm-top-day-val').textContent = topDayLabel ? `${hmDailyTotals[topDayIdx].toLocaleString('ru-RU')} чел.` : '';
+  document.getElementById('hm-avg-day').textContent = numDays > 0 ? Math.round(hmTotal / numDays).toLocaleString('ru-RU') : '—';
+  document.getElementById('hm-total').textContent = hmTotal.toLocaleString('ru-RU');
+
+  // Date header
+  const headerRow = document.createElement('div');
+  headerRow.style.cssText = 'display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:center;margin-bottom:8px';
+  const datesRow = document.createElement('div');
+  datesRow.style.cssText = 'display:flex;gap:3px';
+  dateLabelsFull.forEach(({ day, dayName }) => {
+    const lbl = document.createElement('div');
+    lbl.style.cssText = 'flex:1;text-align:center;font-size:9px;color:var(--text3);line-height:1.3';
+    lbl.innerHTML = `<div>${dayName}</div><div>${day}</div>`;
+    datesRow.appendChild(lbl);
+  });
+  headerRow.appendChild(document.createElement('div'));
+  headerRow.appendChild(datesRow);
+  hmEl.appendChild(headerRow);
+
+  CORE_STORES.forEach(({ id, name }) => {
+    const store = data.stores[id];
+    if (!store) return;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:center;margin-bottom:8px';
+    const nameEl = document.createElement('div');
+    nameEl.textContent = name;
+    nameEl.style.cssText = 'font-size:13px;font-weight:500';
+    const barsEl = document.createElement('div');
+    barsEl.style.cssText = 'display:flex;gap:3px';
+    const sliced = store.dailyVisitors.slice(0, numDays);
+    const maxV = Math.max(...sliced, 1);
+    sliced.forEach((v, idx) => {
+      const cellInt = Math.min(4, Math.floor((v / maxV) * 4.99));
+      const cell = document.createElement('div');
+      const { day, dayName } = dateLabelsFull[idx] || {};
+      const isTop = idx === topDayIdx;
+      cell.style.cssText = `flex:1;height:32px;border-radius:4px;background:${hmColors[cellInt]};cursor:default;${isTop ? 'outline:2px solid #00cc66;outline-offset:1px' : ''}`;
+      cell.title = `${dayName} ${day}: ${v} чел.`;
+      barsEl.appendChild(cell);
+    });
+    row.appendChild(nameEl);
+    row.appendChild(barsEl);
+    hmEl.appendChild(row);
+  });
+
+  // --- А-Анализ SVG line chart ---
+  document.getElementById('analysis-subtitle').textContent = 'Динамика продаж · ' + monthYear;
+  buildSmoothChart(data, dateLabelsFull, numDays);
+}
+
+function buildSmoothChart(data, dateLabelsFull, numDays) {
+  const wrap = document.getElementById('lineChartWrap');
+  const W = 1000, H = 340;
+  const padL = 64, padR = 24, padT = 24, padB = 44;
+  const cW = W - padL - padR, cH = H - padT - padB;
+
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const gridClr   = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const axisClr   = isDark ? '#2a2a2a' : '#e8e8e8';
+  const labelClr  = isDark ? '#555' : '#aaa';
+  const bgClr     = isDark ? '#0f0f0f' : '#fafafa';
+
+  // Collect all store daily values trimmed to numDays
+  let globalMax = 0;
+  STORES.forEach(({ id }) => {
+    data.stores[id]?.dailyRevenue.slice(0, numDays).forEach(v => { if (v > globalMax) globalMax = v; });
+  });
+  if (!globalMax) return;
+
+  // Helper: x/y pixel positions
+  const xOf = i => padL + (numDays <= 1 ? cW/2 : (i / (numDays - 1)) * cW);
+  const yOf = v => padT + (1 - v / globalMax) * cH;
+
+  // Helper: smooth bezier path from points
+  function smoothPath(pts) {
+    if (pts.length < 2) return '';
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+      const cp1x = (pts[i-1][0] + pts[i][0]) / 2;
+      d += ` C ${cp1x} ${pts[i-1][1]}, ${cp1x} ${pts[i][1]}, ${pts[i][0]} ${pts[i][1]}`;
+    }
+    return d;
+  }
+
+  // Build SVG string
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;font-family:-apple-system,BlinkMacSystemFont,sans-serif">`;
+  svg += `<rect width="${W}" height="${H}" fill="${bgClr}" rx="8"/>`;
+
+  // Grid lines + Y labels
+  const gridSteps = 5;
+  for (let i = 0; i <= gridSteps; i++) {
+    const gy = padT + (cH / gridSteps) * i;
+    const val = globalMax * (1 - i / gridSteps);
+    const lbl = val >= 1e6 ? (val/1e6).toFixed(1)+'М' : val >= 1e3 ? Math.round(val/1e3)+'К' : Math.round(val);
+    svg += `<line x1="${padL}" y1="${gy}" x2="${W-padR}" y2="${gy}" stroke="${gridClr}" stroke-width="1"/>`;
+    svg += `<text x="${padL-8}" y="${gy+4}" text-anchor="end" fill="${labelClr}" font-size="11">${lbl}</text>`;
+  }
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="${axisClr}" stroke-width="1"/>`;
+  svg += `<line x1="${padL}" y1="${padT+cH}" x2="${W-padR}" y2="${padT+cH}" stroke="${axisClr}" stroke-width="1"/>`;
+
+  // X labels
+  const step = numDays <= 10 ? 1 : numDays <= 20 ? 2 : numDays <= 27 ? 3 : 4;
+  dateLabelsFull.forEach(({ day, dayName }, i) => {
+    if (i % step !== 0 && i !== numDays - 1) return;
+    const x = xOf(i);
+    svg += `<text x="${x}" y="${padT+cH+16}" text-anchor="middle" fill="${labelClr}" font-size="10">${dayName}</text>`;
+    svg += `<text x="${x}" y="${padT+cH+28}" text-anchor="middle" fill="${labelClr}" font-size="10" font-weight="500">${day}</text>`;
+  });
+
+  // Gradient defs + lines per store
+  svg += '<defs>';
+  STORES.forEach(({ id, color }) => {
+    const vals = data.stores[id]?.dailyRevenue.slice(0, numDays) || [];
+    if (vals.every(v => v === 0)) return;
+    const hex = color.replace('#','');
+    svg += `<linearGradient id="grad_${id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient>`;
+  });
+  svg += '</defs>';
+
+  // Draw area + line for each store
+  STORES.forEach(({ id, color }) => {
+    const vals = data.stores[id]?.dailyRevenue.slice(0, numDays) || [];
+    if (vals.every(v => v === 0)) return;
+    const pts = vals.map((v, i) => [xOf(i), yOf(v)]);
+    const linePath = smoothPath(pts);
+    // Area path = line path + bottom close
+    const areaPath = linePath + ` L ${pts[pts.length-1][0]} ${padT+cH} L ${pts[0][0]} ${padT+cH} Z`;
+    svg += `<path d="${areaPath}" fill="url(#grad_${id})" opacity="0.7"/>`;
+    svg += `<path d="${linePath}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    // Last point dot
+    const lx = pts[pts.length-1][0], ly = pts[pts.length-1][1];
+    svg += `<circle cx="${lx}" cy="${ly}" r="5" fill="${color}" stroke="${bgClr}" stroke-width="2"/>`;
+  });
+
+  svg += '</svg>';
+  wrap.innerHTML = svg;
+
+  // Legend
+  const legendEl = document.getElementById('analysis-legend');
+  legendEl.innerHTML = '';
+  STORES.forEach(({ id, name, color }) => {
+    const vals = data.stores[id]?.dailyRevenue.slice(0, numDays) || [];
+    if (vals.every(v => v === 0)) return;
+    const item = document.createElement('div');
+    item.style.cssText = 'display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)';
+    item.innerHTML = `<div style="width:24px;height:3px;background:${color};border-radius:2px"></div>${name}`;
+    legendEl.appendChild(item);
+  });
+
+  // Hover interaction: vertical crosshair + tooltip
+  const svgEl = wrap.querySelector('svg');
+  const tooltip = document.getElementById('analysis-tooltip');
+
+  svgEl.addEventListener('mousemove', (e) => {
+    const rect = svgEl.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const mx = (e.clientX - rect.left) * scaleX;
+    if (mx < padL || mx > W - padR) { tooltip.style.display='none'; return; }
+    const frac = (mx - padL) / cW;
+    const idx = Math.round(frac * (numDays - 1));
+    if (idx < 0 || idx >= numDays) { tooltip.style.display='none'; return; }
+    const { day, dayName } = dateLabelsFull[idx];
+    let html = `<div style="font-weight:600;color:#fff;margin-bottom:8px;font-size:13px">${dayName} ${day}</div>`;
+    STORES.forEach(({ id, name, color }) => {
+      const v = data.stores[id]?.dailyRevenue[idx] || 0;
+      if (!v) return;
+      html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
+        <span style="color:#aaa;font-size:12px">${name}</span>
+        <span style="color:#fff;font-size:12px;margin-left:auto;padding-left:12px">${fmtMoney(v)}</span>
+      </div>`;
+    });
+    tooltip.innerHTML = html;
+    tooltip.style.display = 'block';
+    // Position near cursor
+    const tx = e.clientX + 16;
+    const ty = e.clientY - 30;
+    tooltip.style.left = Math.min(tx, window.innerWidth - 200) + 'px';
+    tooltip.style.top = ty + 'px';
+  });
+  svgEl.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+}
+
+
+// ===================== SELLERS MODULE =====================
+
+let sellersData = null;
+let sellersView = 'all';
+let sellersMetric = 'revenue';
+
+function parseSellersData(rows) {
+  // === Структура листа ЗП ===
+  // Блок 1 — GRAND PARK выручка:
+  //   Строка A: col2 содержит 'Выручка'
+  //   Строка B: col1='Grand Park'  ← маркер секции
+  //   Строка C: col0='№', col1='ФИО', col2..col32 = даты, col33=ОКЛАД, col34=КАССА, col37=НАЧИСЛЕНО
+  //   Строки D: продавцы (col0=цифра, col1=имя, col2..=дневная выручка, col34=итоговая касса)
+  //   Строка E: 'Итого продавцы' — конец секции
+  // Блок 2 — GRAND PARK смены:
+  //   Строка A: col2 содержит 'Смена'
+  //   Строка C: col0='№', col1='ФИО'
+  //   Строки D: продавцы (col0=цифра, col1=имя, col2..=0/1)
+  // Блок 3 — APORT выручка (строка col1='Aport')
+  // Блок 4 — APORT смены
+  //
+  // ВАЖНО: Google Sheets API обрезает пустые ячейки справа, поэтому col34
+  // может оказаться на другом индексе. Ищем КАССА как наибольшее значение >100К после col31.
+
+  const sellers = [];
+  let section = null; // 'grandpark' | 'aport'
+  let mode = null;    // 'revenue' | 'shifts'
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i] || [];
+    const c0 = (row[0] || '').toString().trim();
+    const c1 = (row[1] || '').toString().trim();
+    const c2str = (row[2] || '').toString();
+
+    // --- Режим определяем ДО секции (на той же строке col2 содержит 'Выручка'/'Смена') ---
+    if (c2str.includes('Выручка') || c2str.includes('выручка')) { mode = 'revenue'; }
+    else if (c2str.includes('Смена') || c2str.includes('смена')) { mode = 'shifts'; }
+
+    // --- Секция: mode НЕ сбрасываем — он уже установлен на этой же строке ---
+    if (c1 === 'Grand Park') { section = 'grandpark'; continue; }
+    if (c1 === 'Aport')      { section = 'aport';     continue; }
+    if (!section) continue;
+
+    // --- Пропускаем строку-заголовок дат (col0='№' или col1='ФИО') ---
+    if (c0 === '№' || c1.toLowerCase() === 'фио') continue;
+
+    // --- Пропускаем итоги и пустые ---
+    if (c0.toLowerCase().includes('итого') || c1.toLowerCase().includes('итого')) continue;
+    if (!c1 || !/[а-яА-ЯёЁa-zA-Z]/.test(c1)) continue;
+
+    // Строка продавца: col0 = порядковый номер (цифра)
+    if (!/^\d+$/.test(c0)) continue;
+    if (!mode) continue;
+
+    const name = c1.trim();
+    const plan = section === 'grandpark' ? PLAN_GRANDPARK() : PLAN_APORT();
+
+    let seller = sellers.find(s => s.name === name && s.team === section);
+    if (!seller) {
+      seller = {
+        name, team: section, plan,
+        revenue: 0, shifts: 0, plannedShifts: 21,
+        bonus: 0, totalPay: 0,
+        dailyRevenue: Array(31).fill(0),
+        dailyShifts: Array(31).fill(0)
+      };
+      sellers.push(seller);
+    }
+
+    if (mode === 'revenue') {
+      // Дневные значения: col2..col32 (31 день)
+      const daily = [];
+      for (let j = 2; j <= 32 && j < row.length; j++) {
+        daily.push(parseNum(row[j]));
+      }
+      seller.dailyRevenue = daily;
+
+      // КАССА = col34 (индекс 34). Но API может обрезать ряд.
+      // Ищем: первое значение > 500000 после col32 (это и есть итоговая касса)
+      let kassa = 0;
+      for (let j = 33; j < row.length; j++) {
+        const v = parseNum(row[j]);
+        if (v > 500000) { kassa = v; break; }
+      }
+      // Если касса не найдена — суммируем дневные
+      seller.revenue = kassa > 0 ? kassa : daily.reduce((a, b) => a + b, 0);
+
+      // НАЧИСЛЕНО = col37 (первое значение от 50К до 600К после col34)
+      let nach = 0;
+      for (let j = 35; j < row.length; j++) {
+        const v = parseNum(row[j]);
+        if (v >= 50000 && v <= 600000) { nach = v; break; }
+      }
+      seller.totalPay = nach;
+    }
+
+    if (mode === 'shifts') {
+      const daily = [];
+      for (let j = 2; j <= 32 && j < row.length; j++) {
+        daily.push(parseNum(row[j]) > 0 ? 1 : 0);
+      }
+      seller.dailyShifts = daily;
+      seller.shifts = daily.reduce((a, b) => a + b, 0);
+    }
+  }
+
+  const result = sellers.filter(s => s.revenue > 0 || s.shifts > 0);
+  console.log('Parsed sellers:', result.map(s => ({name:s.name, team:s.team, revenue:s.revenue, shifts:s.shifts})));
+  return result;
+}
+
+function getMetricVal(s) {
+  if (sellersMetric === 'revenue')  return s.revenue;
+  if (sellersMetric === 'perShift') return s.shifts > 0 ? Math.round(s.revenue / s.shifts) : 0;
+  if (sellersMetric === 'plan')     return s.plan > 0 ? (s.revenue / s.plan) * 100 : 0;
+  if (sellersMetric === 'shifts')   return s.plannedShifts > 0 ? (s.shifts / s.plannedShifts) * 100 : 0;
+}
+function fmtMetricVal(val, s) {
+  if (sellersMetric === 'revenue' || sellersMetric === 'perShift') return fmtMoney(val);
+  if (sellersMetric === 'plan')   return val.toFixed(1) + '%';
+  if (sellersMetric === 'shifts') return s.shifts + '/' + s.plannedShifts + ' смен';
+}
+function rankEmoji(i) { return ['🥇','🥈','🥉'][i] || (i+1)+'.'; }
+function teamClr(t)   { return t === 'grandpark' ? '#6ba3d4' : '#d4a56b'; }
+
+function setSellersView(v) {
+  sellersView = v;
+  ['all','grandpark','aport'].forEach(k =>
+    document.getElementById('stab-'+k).classList.toggle('stab-active', k === v));
+  renderSellers();
+}
+function setSellersMetric(m) {
+  sellersMetric = m;
+  ['revenue','perShift','plan','shifts'].forEach(k =>
+    document.getElementById('smet-'+k).classList.toggle('stab-active', k === m));
+  renderSellers();
+}
+
+function renderSellers() {
+  if (!sellersData) return;
+  let list = sellersData;
+  if (sellersView !== 'all') list = list.filter(s => s.team === sellersView);
+  list = [...list].sort((a,b) => getMetricVal(b) - getMetricVal(a));
+  const maxVal = Math.max(...list.map(s => getMetricVal(s)), 1);
+
+  // Leaderboard
+  document.getElementById('sellers-leaderboard').innerHTML = list.map((s, i) => {
+    const val = getMetricVal(s);
+    const pct = Math.min(100, (val / maxVal) * 100);
+    const barClr = i === 0 ? '#ffd700' : i === 1 ? '#c0c0c0' : i === 2 ? '#cd7f32' : teamClr(s.team);
+    const perShift = s.shifts > 0 ? fmtMoney(Math.round(s.revenue / s.shifts)) : '—';
+    const planPct  = s.plan > 0 ? ((s.revenue/s.plan)*100).toFixed(1)+'%' : '—';
+    const badge = sellersView === 'all'
+      ? `<div class="seller-badge" style="background:${teamClr(s.team)}22;color:${teamClr(s.team)}">${s.team==='grandpark'?'GP':'Aport'}</div>` : '';
+    return `<div class="seller-card" onclick="openSellerPanel('${s.name}','${s.team}')">
+      <div class="seller-rank">${rankEmoji(i)}</div>
+      <div class="seller-info">
+        <div class="seller-name">${s.name}</div>
+        <div class="seller-meta">${perShift}/смену · план ${planPct} · ${s.shifts} смен</div>
+      </div>
+      <div class="seller-bar-wrap">
+        <div class="seller-bar-bg"><div class="seller-bar-fill" style="width:${pct}%;background:${barClr}"></div></div>
+      </div>
+      <div class="seller-val">${fmtMetricVal(val,s)}</div>
+      ${badge}
+    </div>`;
+  }).join('');
+
+  // Summary stats
+  const totalRev   = list.reduce((a,s)=>a+s.revenue,0);
+  const avgPerShift= list.length ? list.reduce((a,s)=>a+(s.shifts>0?s.revenue/s.shifts:0),0)/list.length : 0;
+  const avgPlan    = list.length ? list.reduce((a,s)=>a+(s.plan>0?s.revenue/s.plan*100:0),0)/list.length : 0;
+  const top = list[0];
+  document.getElementById('sellers-summary').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px">
+      <div class="stat-box"><div class="stat-label">Выручка команды</div><div class="stat-value" style="font-size:20px">${fmtMoney(totalRev)}</div></div>
+      <div class="stat-box"><div class="stat-label">Среднее выр./смену</div><div class="stat-value" style="font-size:20px">${fmtMoney(Math.round(avgPerShift))}</div></div>
+      <div class="stat-box"><div class="stat-label">Средний % плана</div><div class="stat-value" style="font-size:20px;color:${avgPlan>=80?'var(--green)':avgPlan>=50?'var(--yellow)':'var(--red)'}">${avgPlan.toFixed(1)}%</div></div>
+      ${top?`<div class="stat-box"><div class="stat-label">Лидер месяца</div><div class="stat-value" style="font-size:17px">🥇 ${top.name}</div><div style="font-size:12px;color:var(--text3);margin-top:4px">${fmtMoney(top.revenue)}</div></div>`:''}
+    </div>`;
+
+  // Attendance calendar
+  renderAttendance(list);
+}
+
+function renderAttendance(list) {
+  const now = new Date();
+  const daysCount = now.getDate();
+  const dayRu = ['вс','пн','вт','ср','чт','пт','сб'];
+  if (!list.length) return;
+
+  const heads = Array.from({length:daysCount},(_,d)=>{
+    const dt = new Date(now.getFullYear(), now.getMonth(), d+1);
+    return `<th style="padding:3px 2px;font-size:9px;color:var(--text3);font-weight:500;text-align:center;min-width:24px">${d+1}<br>${dayRu[dt.getDay()]}</th>`;
+  }).join('');
+
+  const rows = list.map(s => {
+    const cells = Array.from({length:daysCount},(_,d)=>{
+      const worked = s.dailyShifts[d];
+      const rev = s.dailyRevenue[d]||0;
+      const bg = worked ? (rev>=400000?'#00cc6633':rev>=200000?'#0066ff22':'#ffffff11') : 'transparent';
+      const dot = worked ? (rev>=400000?'#00cc66':rev>=200000?'#4488ff':'#555') : '';
+      const tip = worked ? `${s.name}: ${fmtMoney(rev)}` : 'Выходной';
+      return `<td title="${tip}" style="text-align:center;padding:2px">
+        <div style="width:18px;height:18px;border-radius:3px;background:${bg};margin:auto;display:flex;align-items:center;justify-content:center">
+          ${dot?`<div style="width:5px;height:5px;border-radius:50%;background:${dot}"></div>`:''}
+        </div></td>`;
+    }).join('');
+    return `<tr><td style="padding:3px 10px 3px 0;font-size:12px;white-space:nowrap;font-weight:500">${s.name}</td>${cells}</tr>`;
+  }).join('');
+
+  document.getElementById('sellers-calendar').innerHTML = `
+    <div class="card" style="overflow-x:auto">
+      <div class="card-title" style="margin-bottom:12px"><strong>Календарь смен</strong>
+        <span style="font-size:11px;color:var(--text3);font-weight:400;margin-left:8px">🟢 >400К · 🔵 >200К · ⚫ вышел · пусто выходной</span></div>
+      <table style="border-collapse:collapse">
+        <thead><tr><th style="text-align:left;padding:3px 10px 3px 0;font-size:11px;color:var(--text3)">Продавец</th>${heads}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function openSellerPanel(name, team) {
+  const s = sellersData && sellersData.find(x => x.name===name && x.team===team);
+  if (!s) return;
+  const perShift = s.shifts>0 ? Math.round(s.revenue/s.shifts) : 0;
+  const planPct  = s.plan>0 ? (s.revenue/s.plan*100) : 0;
+  const now = new Date();
+  const daysCount = Math.min(s.dailyRevenue.length, now.getDate());
+  const maxDay = Math.max(...s.dailyRevenue.slice(0,daysCount), 1);
+  const dayRu = ['вс','пн','вт','ср','чт','пт','сб'];
+
+  const bars = s.dailyRevenue.slice(0,daysCount).map((v,d)=>{
+    const dt = new Date(now.getFullYear(), now.getMonth(), d+1);
+    const h = Math.max(3, Math.round((v/maxDay)*80));
+    const worked = s.dailyShifts[d];
+    return `<div title="${dayRu[dt.getDay()]} ${d+1}: ${fmtMoney(v)}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+      <div style="height:${h}px;width:100%;background:${worked&&v>0?'var(--accent)':'var(--bg3)'};border-radius:2px 2px 0 0"></div>
+      <div style="font-size:7px;color:var(--text3)">${d+1}</div>
+    </div>`;
+  }).join('');
+
+  document.querySelectorAll('.seller-panel').forEach(p=>p.remove());
+  const panel = document.createElement('div');
+  panel.className = 'seller-panel';
+  panel.style.cssText = 'position:fixed;top:0;right:0;width:400px;height:100vh;background:var(--bg2);border-left:1px solid var(--border);z-index:600;overflow-y:auto;padding:28px;box-shadow:-4px 0 20px rgba(0,0,0,0.3)';
+  panel.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
+      <div>
+        <div style="font-size:20px;font-weight:700">${s.name}</div>
+        <div style="font-size:12px;color:${teamClr(s.team)};margin-top:3px;font-weight:600">${s.team==='grandpark'?'Grand Park':'Aport'}</div>
+      </div>
+      <button onclick="document.querySelectorAll('.seller-panel').forEach(p=>p.remove())"
+        style="background:var(--bg3);border:none;color:var(--text2);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">×</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+      <div class="stat-box"><div class="stat-label">Выручка</div><div class="stat-value" style="font-size:19px">${fmtMoney(s.revenue)}</div></div>
+      <div class="stat-box"><div class="stat-label">Выр./смену</div><div class="stat-value" style="font-size:19px">${fmtMoney(perShift)}</div></div>
+      <div class="stat-box"><div class="stat-label">% плана</div><div class="stat-value" style="font-size:19px;color:${planPct>=80?'var(--green)':planPct>=50?'var(--yellow)':'var(--red)'}">${planPct.toFixed(1)}%</div></div>
+      <div class="stat-box"><div class="stat-label">Смены</div><div class="stat-value" style="font-size:19px">${s.shifts}/${s.plannedShifts}</div></div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Выполнение личного плана</div>
+      <div style="background:var(--bg3);border-radius:6px;height:8px;overflow:hidden">
+        <div style="height:100%;width:${Math.min(100,planPct)}%;background:${planPct>=80?'var(--green)':planPct>=50?'var(--yellow)':'var(--red)'};border-radius:6px;transition:width 0.5s"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">До плана: ${fmtMoney(Math.max(0, s.plan-s.revenue))}</div>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:600">Выручка по дням</div>
+    <div style="display:flex;gap:2px;align-items:flex-end;height:90px;margin-bottom:20px">${bars}</div>
+    ${s.bonus>0||s.totalPay>0?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="stat-box"><div class="stat-label">Бонус</div><div class="stat-value" style="font-size:16px;color:var(--green)">${fmtMoney(s.bonus)}</div></div>
+      <div class="stat-box"><div class="stat-label">К выдаче</div><div class="stat-value" style="font-size:16px">${fmtMoney(s.totalPay)}</div></div>
+    </div>`:''}`;
+  document.body.appendChild(panel);
+}
+
+async function syncSellers() {
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SELLERS_SHEET_NAME())}?key=${API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (!json.values) throw new Error('no values');
+    sellersData = parseSellersData(json.values);
+    renderSellers();
+  } catch(e) {
+    console.warn('Sellers sync error:', e.message);
+    document.getElementById('sellers-leaderboard').innerHTML =
+      `<div style="color:var(--text3);padding:16px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)">
+        ⚠️ Не удалось загрузить лист продавцов.<br>
+        <span style="font-size:12px">Проверь название листа: <code style="color:var(--accent)">${SELLERS_SHEET_NAME()}</code></span>
+      </div>`;
+  }
+}
+// ===================== END SELLERS MODULE =====================
+
+// ===================== TODAY'S PULSE =====================
+function computeTodayPulse(data) {
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  const coreIds = CORE_STORES.map(s => s.id);
+  const coreStores = Object.fromEntries(Object.entries(data.stores).filter(([id]) => coreIds.includes(id)));
+
+  // Today's total
+  let todayRev = 0;
+  Object.values(coreStores).forEach(s => { todayRev += (s.dailyRevenue[todayIdx] || 0); });
+
+  // Yesterday
+  let yestRev = 0;
+  if (todayIdx > 0) Object.values(coreStores).forEach(s => { yestRev += (s.dailyRevenue[todayIdx-1] || 0); });
+
+  // Avg of all past days
+  const pastDays = [];
+  for (let d = 0; d < todayIdx; d++) {
+    let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d] || 0); });
+    pastDays.push(sum);
+  }
+  const avgDay = pastDays.length ? pastDays.reduce((a,b)=>a+b,0)/pastDays.length : todayRev;
+
+  // Projection: linear extrapolation based on time of day
+  // Assume store works 10:00-22:00 (12 hours = 720 min)
+  const workStart = 10*60, workEnd = 22*60;
+  const nowMin = hour*60+minute;
+  const elapsed = Math.max(0, Math.min(nowMin - workStart, workEnd - workStart));
+  const workDay = workEnd - workStart;
+  const fractionDone = workDay > 0 ? elapsed / workDay : 1;
+  const projected = fractionDone > 0.05 ? Math.round(todayRev / fractionDone) : avgDay;
+
+  // Update UI
+  const todayEl = document.getElementById('kpi-today');
+  const projEl  = document.getElementById('kpi-today-proj');
+  const fillEl  = document.getElementById('today-progress-fill');
+  if (!todayEl) return;
+
+  todayEl.textContent = fmtMoney(todayRev);
+  const vsYest = yestRev > 0 ? ((todayRev - yestRev)/yestRev*100) : 0;
+  const arrow = vsYest > 0 ? '↑' : vsYest < 0 ? '↓' : '→';
+  const clr = vsYest > 0 ? 'var(--green)' : vsYest < 0 ? 'var(--red)' : 'var(--text3)';
+  projEl.innerHTML = `Прогноз дня: <b style="color:var(--text)">${fmtMoney(projected)}</b> &nbsp;·&nbsp; <span style="color:${clr}">${arrow} ${Math.abs(vsYest).toFixed(0)}% к вчера</span>`;
+  const pct = avgDay > 0 ? Math.min(100, (todayRev/avgDay)*100) : 0;
+  fillEl.style.width = pct + '%';
+}
+
+// ===================== INSIGHTS =====================
+function renderInsights(data) {
+  const el = document.getElementById('insights-strip');
+  if (!el) return;
+  const insights = [];
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const coreIds = CORE_STORES.map(s => s.id);
+  const coreStores = Object.fromEntries(Object.entries(data.stores).filter(([id]) => coreIds.includes(id)));
+
+  // Best store today
+  let bestStore = null, bestRev = 0;
+  Object.values(coreStores).forEach(s => {
+    const r = s.dailyRevenue[todayIdx] || 0;
+    if (r > bestRev) { bestRev = r; bestStore = s.name; }
+  });
+  if (bestStore && bestRev > 0) insights.push({ icon:'🏆', text:`${bestStore} лидирует сегодня`, cls:'blue' });
+
+  // Any store above 100% plan
+  Object.values(coreStores).forEach(s => {
+    if (s.plan > 0 && s.revenue >= s.plan) insights.push({ icon:'✅', text:`${s.name} выполнил план!`, cls:'green' });
+  });
+
+  // Store falling behind (< 50% plan by midmonth)
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const monthPct = now.getDate() / daysInMonth;
+  Object.values(coreStores).forEach(s => {
+    if (s.plan > 0) {
+      const pct = s.revenue / s.plan;
+      if (monthPct > 0.5 && pct < 0.4) insights.push({ icon:'⚠️', text:`${s.name} сильно отстаёт`, cls:'red' });
+      else if (monthPct > 0.3 && pct < monthPct - 0.15) insights.push({ icon:'📉', text:`${s.name} ниже темпа`, cls:'yellow' });
+    }
+  });
+
+  // Weekend effect
+  const dow = now.getDay();
+  if (dow === 6 || dow === 0) insights.push({ icon:'🎉', text:'Выходной день — трафик выше', cls:'green' });
+
+  // Days left
+  const daysLeft = daysInMonth - now.getDate();
+  if (daysLeft <= 3) insights.push({ icon:'⏰', text:`Остаётся ${daysLeft} дн. до конца месяца`, cls:'yellow' });
+
+  el.innerHTML = insights.slice(0, 5).map(i =>
+    `<div class="insight-pill ${i.cls}">${i.icon} ${i.text}</div>`
+  ).join('');
+}
+
+// ===================== TRENDS PAGE =====================
+function renderTrends(data) {
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const coreIds = CORE_STORES.map(s => s.id);
+  const coreStores = Object.fromEntries(Object.entries(data.stores).filter(([id]) => coreIds.includes(id)));
+
+  // ── Week comparison ──
+  const thisWeekDays = [], lastWeekDays = [];
+  const weekStart = Math.max(0, todayIdx - 6);
+  const lastWeekStart = Math.max(0, weekStart - 7);
+  for (let d = weekStart; d <= todayIdx; d++) {
+    let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d]||0); });
+    thisWeekDays.push(sum);
+  }
+  for (let d = lastWeekStart; d < weekStart; d++) {
+    let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d]||0); });
+    lastWeekDays.push(sum);
+  }
+  const thisWeekTotal = thisWeekDays.reduce((a,b)=>a+b,0);
+  const lastWeekTotal = lastWeekDays.reduce((a,b)=>a+b,0);
+  const weekDelta = lastWeekTotal > 0 ? (thisWeekTotal - lastWeekTotal)/lastWeekTotal*100 : 0;
+  const weekDeltaCls = weekDelta > 0 ? 'up' : weekDelta < -0.5 ? 'down' : 'flat';
+  const weekDeltaIcon = weekDelta > 0 ? '↑' : weekDelta < -0.5 ? '↓' : '→';
+
+  // Avg per day comparison
+  const thisAvg = thisWeekDays.length ? thisWeekTotal/thisWeekDays.length : 0;
+  const lastAvg = lastWeekDays.length ? lastWeekTotal/lastWeekDays.length : 0;
+  const avgDelta = lastAvg > 0 ? (thisAvg - lastAvg)/lastAvg*100 : 0;
+  const avgDeltaCls = avgDelta > 0 ? 'up' : avgDelta < -0.5 ? 'down' : 'flat';
+
+  // Best day of current month
+  let bestDayVal = 0, bestDayIdx = 0;
+  const monthDailyTotals = [];
+  for (let d = 0; d <= todayIdx; d++) {
+    let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d]||0); });
+    monthDailyTotals.push(sum);
+    if (sum > bestDayVal) { bestDayVal = sum; bestDayIdx = d; }
+  }
+  const dayRu2 = ['вс','пн','вт','ср','чт','пт','сб'];
+  const bestDt = new Date(now.getFullYear(), now.getMonth(), bestDayIdx+1);
+  const bestDayLabel = `${dayRu2[bestDt.getDay()]} ${bestDayIdx+1}`;
+
+  const weekGrid = document.getElementById('trends-week-grid');
+  if (weekGrid) weekGrid.innerHTML = `
+    <div class="week-card">
+      <div class="week-title">📅 Эта неделя (${thisWeekDays.length} дн.)</div>
+      <div class="week-val">${fmtMoney(thisWeekTotal)}</div>
+      <div class="week-delta ${weekDeltaCls}">${weekDeltaIcon} ${Math.abs(weekDelta).toFixed(1)}% к прошлой неделе</div>
+    </div>
+    <div class="week-card">
+      <div class="week-title">⚡ Среднее/день (7 дн.)</div>
+      <div class="week-val">${fmtMoney(Math.round(thisAvg))}</div>
+      <div class="week-delta ${avgDeltaCls}">${avgDelta>0?'↑':'↓'} ${Math.abs(avgDelta).toFixed(1)}% vs предыдущая</div>
+    </div>
+    <div class="week-card">
+      <div class="week-title">🏆 Рекорд месяца</div>
+      <div class="week-val">${fmtMoney(bestDayVal)}</div>
+      <div class="week-delta flat">📆 ${bestDayLabel}</div>
+    </div>
+    <div class="week-card">
+      <div class="week-title">📊 Дней в анализе</div>
+      <div class="week-val">${todayIdx+1}</div>
+      <div class="week-delta flat" style="color:var(--text3)">из ${new Date(now.getFullYear(),now.getMonth()+1,0).getDate()} дней</div>
+    </div>`;
+
+  // ── Forecast cards per store ──
+  const fcGrid = document.getElementById('trends-forecast-grid');
+  if (fcGrid) {
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+    const daysLeft = daysInMonth - now.getDate();
+    const avgRevPerDay = monthDailyTotals.reduce((a,b)=>a+b,0) / Math.max(1, monthDailyTotals.length);
+
+    fcGrid.innerHTML = CORE_STORES.map(({ id, name, color }) => {
+      const s = coreStores[id];
+      if (!s || s.plan === 0) return '';
+      const curr = s.revenue;
+      const plan = s.plan;
+      const storeDailyAvg = s.dailyRevenue.slice(0, todayIdx+1).reduce((a,b)=>a+b,0) / Math.max(1, todayIdx+1);
+      const projected = curr + storeDailyAvg * daysLeft;
+      const currPct = Math.min(100, curr/plan*100);
+      const projPct = Math.min(100, projected/plan*100);
+      const projColor = projPct >= 90 ? 'var(--green)' : projPct >= 70 ? 'var(--yellow)' : 'var(--red)';
+      const willMeet = projected >= plan;
+      const gap = plan - projected;
+      return `<div class="forecast-card">
+        <div class="forecast-name" style="color:${color}">${name}</div>
+        <div class="forecast-bar-wrap">
+          <div class="forecast-bar-fill" style="width:${currPct}%;background:${color}"></div>
+          <div class="forecast-bar-proj" style="left:${currPct}%;width:${Math.max(0,projPct-currPct)}%;background:${projColor}"></div>
+        </div>
+        <div class="forecast-labels">
+          <span>Сейчас: <b style="color:var(--text)">${fmtMoney(curr)}</b> (${currPct.toFixed(0)}%)</span>
+          <span>Прогноз: <b style="color:${projColor}">${fmtMoney(projected)}</b></span>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:${willMeet?'var(--green)':'var(--red)'}">
+          ${willMeet ? `✅ Выполнит план` : `❌ Не хватит ${fmtMoney(gap)}`}
+        </div>
+        <div style="margin-top:4px;font-size:11px;color:var(--text3)">Нужно/день: ${fmtMoney((plan-curr)/Math.max(1,daysLeft))} · Факт/день: ${fmtMoney(storeDailyAvg)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Avg revenue by day of week ──
+  const wdayRu = ['вс','пн','вт','ср','чт','пт','сб'];
+  const wdayTotals = Array(7).fill(0), wdayCounts = Array(7).fill(0);
+  for (let d = 0; d <= todayIdx; d++) {
+    const dt = new Date(now.getFullYear(), now.getMonth(), d+1);
+    const wd = dt.getDay();
+    let sum = 0; Object.values(coreStores).forEach(s => { sum += (s.dailyRevenue[d]||0); });
+    wdayTotals[wd] += sum; wdayCounts[wd]++;
+  }
+  const wdayAvgs = wdayTotals.map((t,i) => wdayCounts[i] > 0 ? t/wdayCounts[i] : 0);
+  const maxWday = Math.max(...wdayAvgs, 1);
+  const wdayOrder = [1,2,3,4,5,6,0]; // пн-вс
+  const wdayColors = ['#4488ff','#4488ff','#4488ff','#4488ff','#4488ff','#00cc66','#00cc66'];
+  const wdayEl = document.getElementById('trends-weekday-chart');
+  if (wdayEl) wdayEl.innerHTML = wdayOrder.map(wd => {
+    const avg = wdayAvgs[wd];
+    const pct = (avg/maxWday*100).toFixed(0);
+    const clr = wdayColors[wd];
+    return `<div class="wday-row">
+      <div class="wday-label">${wdayRu[wd]}</div>
+      <div class="wday-bar-bg">
+        <div class="wday-bar-fill" style="width:${pct}%;background:${clr}">
+          ${avg > maxWday*0.2 ? fmtMoney(Math.round(avg)) : ''}
+        </div>
+      </div>
+      <div class="wday-count">${wdayCounts[wd]}д.</div>
+    </div>`;
+  }).join('');
+}
+
+// ===================== ALERTS ENGINE =====================
+let alertsData = [];
+
+function computeAlerts() {
+  if (!globalData) return;
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const monthPct = now.getDate() / daysInMonth;
+  const daysLeft = daysInMonth - now.getDate();
+  const coreIds = CORE_STORES.map(s => s.id);
+  const coreStores = Object.fromEntries(Object.entries(globalData.stores).filter(([id]) => coreIds.includes(id)));
+
+  const alerts = [];
+  const ts = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+
+  // ── Critical ──
+  Object.values(coreStores).forEach(s => {
+    if (s.plan === 0) return;
+    const pct = s.revenue / s.plan;
+    const storeDailyAvg = s.dailyRevenue.slice(0, todayIdx+1).reduce((a,b)=>a+b,0) / Math.max(1,todayIdx+1);
+    const projected = s.revenue + storeDailyAvg * daysLeft;
+
+    if (monthPct > 0.6 && pct < 0.35) {
+      alerts.push({ level:'critical', icon:'🔴', title:`${s.name} — Критическое отставание`, body:`Выполнено ${(pct*100).toFixed(0)}% плана при ${(monthPct*100).toFixed(0)}% месяца. Прогноз: ${(projected/s.plan*100).toFixed(0)}%`, ts });
+    }
+    if (daysLeft <= 5 && projected < s.plan * 0.85) {
+      const gap = s.plan - s.revenue;
+      alerts.push({ level:'critical', icon:'⏰', title:`${s.name} — ${daysLeft} дн. до конца месяца`, body:`Не хватает ${fmtMoney(gap)}. Нужно ${fmtMoney(gap/Math.max(1,daysLeft))}/день — это в ${(gap/Math.max(1,daysLeft)/Math.max(1,storeDailyAvg)).toFixed(1)}x больше текущего темпа.`, ts });
+    }
+  });
+
+  // ── Warnings ──
+  Object.values(coreStores).forEach(s => {
+    if (s.plan === 0) return;
+    const pct = s.revenue / s.plan;
+    if (monthPct > 0.4 && pct < monthPct - 0.2) {
+      alerts.push({ level:'warning', icon:'⚠️', title:`${s.name} — Отстаёт от графика`, body:`Факт ${(pct*100).toFixed(0)}% vs ожидаемые ${(monthPct*100).toFixed(0)}% на этот период. Дефицит темпа: ${((monthPct - pct)*100).toFixed(0)} п.п.`, ts });
+    }
+    if (s.conversion > 0 && s.conversion < 10) {
+      alerts.push({ level:'warning', icon:'📉', title:`${s.name} — Низкая конверсия`, body:`Конверсия ${s.conversion.toFixed(1)}% ниже нормы. Нужно проверить работу консультантов.`, ts });
+    }
+  });
+
+  // ── Good news ──
+  Object.values(coreStores).forEach(s => {
+    if (s.plan > 0 && s.revenue >= s.plan) {
+      alerts.push({ level:'good', icon:'✅', title:`${s.name} — ПЛАН ВЫПОЛНЕН!`, body:`Выручка ${fmtMoney(s.revenue)} при плане ${fmtMoney(s.plan)} (${(s.revenue/s.plan*100).toFixed(1)}%). Отличная работа!`, ts });
+    }
+    const pct = s.plan > 0 ? s.revenue/s.plan : 0;
+    if (pct >= 0.85 && pct < 1.0) {
+      alerts.push({ level:'good', icon:'🎯', title:`${s.name} — Почти у цели`, body:`${(pct*100).toFixed(0)}% плана. Осталось ${fmtMoney(s.plan - s.revenue)}`, ts });
+    }
+  });
+
+  // Sellers alerts
+  if (sellersData && sellersData.length > 0) {
+    const topSeller = [...sellersData].sort((a,b) => b.revenue - a.revenue)[0];
+    if (topSeller) alerts.push({ level:'good', icon:'🥇', title:`Лидер месяца: ${topSeller.name}`, body:`Выручка ${fmtMoney(topSeller.revenue)} · ${topSeller.shifts} смен · ${(topSeller.revenue/Math.max(1,topSeller.plan)*100).toFixed(0)}% плана`, ts });
+
+    const lowSellers = sellersData.filter(s => s.plan > 0 && s.revenue/s.plan < 0.3 && monthPct > 0.4);
+    if (lowSellers.length > 0) alerts.push({ level:'warning', icon:'👤', title:`${lowSellers.length} продавцов отстают от плана`, body:lowSellers.map(s=>`${s.name}: ${(s.revenue/s.plan*100).toFixed(0)}%`).join(', '), ts });
+  }
+
+  // ── Info ──
+  alerts.push({ level:'info', icon:'ℹ️', title:'Данные обновляются автоматически', body:`Интервал: каждые ${CFG.SYNC_INTERVAL} сек. KPI лист: "${SHEET_NAME()}" · ЗП лист: "${SELLERS_SHEET_NAME()}"`, ts });
+
+  alertsData = alerts;
+  renderAlerts(alerts);
+
+  // Update badge
+  const critCount = alerts.filter(a=>a.level==='critical'||a.level==='warning').length;
+  const badge = document.getElementById('alert-badge');
+  if (badge) badge.style.display = critCount > 0 ? 'block' : 'none';
+}
+
+function renderAlerts(alerts) {
+  const groups = { critical:[], warning:[], good:[], info:[] };
+  alerts.forEach(a => groups[a.level].push(a));
+
+  const renderGroup = (id, list, title) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (list.length === 0) { el.innerHTML = ''; return; }
+    el.innerHTML = `<div class="alert-section-title">${title}</div>` +
+      list.map(a => `<div class="alert-card ${a.level}">
+        <div class="alert-icon">${a.icon}</div>
+        <div>
+          <div class="alert-title">${a.title}</div>
+          <div class="alert-body">${a.body}</div>
+          <div class="alert-time">Обновлено в ${a.ts}</div>
+        </div>
+      </div>`).join('');
+  };
+
+  renderGroup('alerts-critical', groups.critical, '🔴 Критично');
+  renderGroup('alerts-warning',  groups.warning,  '⚠️ Внимание');
+  renderGroup('alerts-good',     groups.good,     '✅ Хорошие новости');
+  renderGroup('alerts-info',     groups.info,     'ℹ️ Информация');
+}
+
+// ===================== KPI TABLE SPARKLINES =====================
+function buildSparkline(values, color, w=60, h=22) {
+  if (!values || values.length < 2) return '';
+  const max = Math.max(...values, 1);
+  const pts = values.map((v,i) => `${Math.round((i/(values.length-1))*w)},${Math.round(h - (v/max)*(h-2))}`).join(' ');
+  return `<svg class="sparkline" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+}
+
+// ===================== HOOK INTO EXISTING updateUI =====================
+const _origUpdateUI = updateUI;
+updateUI = function(data) {
+  _origUpdateUI(data);
+  computeTodayPulse(data);
+  renderInsights(data);
+  renderTrends(data);
+  computeAlerts();
+  // Enhance KPI table with sparklines
+  enhanceKpiTable(data);
+};
+
+function enhanceKpiTable(data) {
+  const now = new Date();
+  const todayIdx = now.getDate();
+  // Add data-id to each row and sparkline column
+  const thead = document.querySelector('#kpi-tbody')?.closest('table')?.querySelector('thead tr');
+  if (thead && !thead.querySelector('.spark-th')) {
+    const th = document.createElement('th');
+    th.className = 'spark-th';
+    th.textContent = 'Динамика';
+    thead.appendChild(th);
+  }
+  STORES.forEach(({ id, color }) => {
+    const store = data.stores[id];
+    if (!store || !store.revenue) return;
+    const tr = document.querySelector(`#kpi-tbody tr[data-id="${id}"]`);
+    if (!tr) return;
+    const daily = store.dailyRevenue.slice(0, todayIdx);
+    const sparkSvg = buildSparkline(daily, color);
+    if (!tr.querySelector('.sparkline-td')) {
+      const td = document.createElement('td');
+      td.className = 'sparkline-td';
+      td.innerHTML = sparkSvg;
+      tr.appendChild(td);
+    }
+  });
+}
+
+window.addEventListener('load', () => {
+  setDate();
+  syncData();
+  syncSellers();
+  startSyncIntervals();
+  localStorage.setItem('qgi_last_session', new Date().toLocaleString('ru-RU'));
+  
+  // Initialize Firebase Auth
+  initializeFirebaseAuth();
+  
+  // Initialize Tasks System
+  initializeTasksSystem();
+});
+
+// ===== FIREBASE AUTH + ROLE GUARD =====
+function initializeFirebaseAuth() {
+  const firebaseConfig = {
+    apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
+    authDomain: "qos-base.firebaseapp.com",
+    projectId: "qos-base",
+    storageBucket: "qos-base.firebasestorage.app",
+    messagingSenderId: "639485153845",
+    appId: "1:639485153845:web:61baa7942382ba7444d77c"
+  };
+
+  const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db   = firebase.firestore();
+
+  auth.onAuthStateChanged(async user => {
+    if (!user) { window.location.href = 'index.html'; return; }
+
+    // Показываем email
+    document.getElementById('userProfileSection').style.display = 'flex';
+    document.getElementById('userEmail').textContent = user.email;
+
+    // Читаем роль из Firestore
+    try {
+      const doc = await db.collection('users').doc(user.uid).get();
+      if (doc.exists) {
+        const profile = doc.data();
+        const role = profile.role || 'admin';
+        // Роль-гард
+        if (role === 'seller')  { window.location.href = 'seller.html';  return; }
+        if (role === 'admin')   { window.location.href = 'panel.html';   return; }
+        if (role === 'observer'){ window.location.href = 'observer.html'; return; }
+        // role === 'manager' — остаёмся здесь
+        if (profile.name) document.getElementById('userEmail').textContent = profile.name + ' (менеджер)';
+        // Настройки скрыты для менеджера всегда
+        const settingsBtn = document.getElementById('nav-settings');
+        if (settingsBtn) settingsBtn.style.display = 'none';
+        // Показать приветствие
+        showWelcome(profile.name || user.email, 'manager');
+      }
+    } catch(e) {
+      console.warn('Role check error:', e);
+      // При ошибке — оставляем (безопасно)
+    }
+  });
+}
+
+// ===== TASKS SYSTEM =====
+let currentUser = null;
+let allTasks = [];
+let currentFilter = 'all';
+
+// Initialize Firebase for tasks
+async function initializeTasksSystem() {
+  const firebaseConfig = {
+    apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
+    authDomain: "qos-base.firebaseapp.com",
+    projectId: "qos-base",
+    storageBucket: "qos-base.firebasestorage.app",
+    messagingSenderId: "639485153845",
+    appId: "1:639485153845:web:61baa7942382ba7444d77c"
+  };
+
+  try {
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        loadTasks();
+      }
+    });
+  } catch (e) {
+    console.error('Tasks system error:', e);
+  }
+}
+
+async function loadTasks() {
+  const db = firebase.firestore();
+  try {
+    const snapshot = await db.collection('tasks').get();
+    allTasks = [];
+    snapshot.forEach(doc => {
+      allTasks.push({ id: doc.id, ...doc.data() });
+    });
+    updateTasksUI();
+    updateTaskStats();
+  } catch (e) {
+    console.error('Load tasks error:', e);
+  }
+}
+
+function updateTasksUI() {
+  const tasksList = document.getElementById('tasks-list');
+  const noTasks = document.getElementById('no-tasks');
+  
+  let filtered = allTasks;
+  const today = new Date().toISOString().split('T')[0];
+  
+  if (currentFilter === 'unseen') {
+    filtered = allTasks.filter(t => !t.seenBy || !t.seenBy.includes(currentUser?.uid));
+  } else if (currentFilter === 'today') {
+    filtered = allTasks.filter(t => t.deadline === today);
+  } else if (currentFilter === 'overdue') {
+    filtered = allTasks.filter(t => t.deadline < today && !t.completed);
+  }
+  
+  tasksList.innerHTML = '';
+  
+  if (filtered.length === 0) {
+    if (noTasks) noTasks.style.display = 'block';
+  } else {
+    if (noTasks) noTasks.style.display = 'none';
+    filtered.forEach(task => {
+      const isSeen = task.seenBy && task.seenBy.includes(currentUser?.uid);
+      const card = document.createElement('div');
+      card.className = `task-card ${task.completed ? 'completed' : ''} ${isSeen ? 'seen' : 'unseen'}`;
+      
+      const priorityClass = `priority-${task.priority || 'medium'}`;
+      const daysLeft = Math.ceil((new Date(task.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+      const completedAt = task.completedAt ? new Date(task.completedAt).toLocaleDateString('ru-RU') : '';
+      
+      card.innerHTML = `
+        <div class="task-check-wrap">
+          <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}
+            onclick="event.stopPropagation(); toggleTaskComplete('${task.id}', ${!task.completed})"
+            title="${task.completed ? 'Снять отметку' : 'Отметить выполненным'}">
+          <div style="flex:1;min-width:0">
+            <div class="task-header">
+              <div class="task-title">${task.name || 'Без названия'}</div>
+              <span class="task-priority ${priorityClass}">${
+                task.priority === 'high' ? '🔴 Высокий' : task.priority === 'low' ? '🟢 Низкий' : '🟡 Средний'
+              }</span>
+            </div>
+            ${task.description ? `<p style="font-size:12px;color:var(--text2);margin:8px 0">${task.description}</p>` : ''}
+            <div class="task-meta">
+              <div class="task-deadline">📅 ${new Date(task.deadline).toLocaleDateString('ru-RU')} ${daysLeft > 0 ? `(${daysLeft} дн.)` : daysLeft === 0 ? '(сегодня)' : '<span style="color:var(--red)">(просрочено)</span>'}</div>
+              <div class="task-assignee">👤 ${task.assignee || 'Не назначена'}</div>
+            </div>
+            <div class="task-complete-label">✅ Выполнено ${completedAt}</div>
+          </div>
+        </div>
+      `;
+      card.onclick = (e) => {
+        if (e.target.classList.contains('task-checkbox')) return;
+        openTaskModal(task.id);
+      };
+      tasksList.appendChild(card);
+    });
+  }
+}
+
+function updateTaskStats() {
+  const today = new Date().toISOString().split('T')[0];
+  const unseen = allTasks.filter(t => !t.seenBy || !t.seenBy.includes(currentUser.uid)).length;
+  const todayTasks = allTasks.filter(t => t.deadline === today).length;
+  const overdue = allTasks.filter(t => t.deadline < today && !t.completed).length;
+  
+  document.getElementById('stat-total').textContent = allTasks.length;
+  document.getElementById('stat-unseen').textContent = unseen;
+  document.getElementById('stat-today').textContent = todayTasks;
+  document.getElementById('stat-overdue').textContent = overdue;
+  
+  document.getElementById('count-all').textContent = allTasks.length;
+  document.getElementById('count-unseen').textContent = unseen;
+  document.getElementById('count-today').textContent = todayTasks;
+  document.getElementById('count-overdue').textContent = overdue;
+  
+  if (unseen > 0) {
+    document.getElementById('tasks-badge').style.display = 'block';
+  }
+}
+
+function filterTasks(filter) {
+  currentFilter = filter;
+  document.querySelectorAll('.project-item').forEach(el => el.classList.remove('active'));
+  event.target.closest('.project-item').classList.add('active');
+  updateTasksUI();
+}
+
+function openTaskModal(taskId) {
+  const modal = document.getElementById('taskModal');
+  const form = document.getElementById('taskForm');
+  
+  if (taskId) {
+    const task = allTasks.find(t => t.id === taskId);
+    if (task) {
+      // Mark as seen
+      markTaskAsSeen(taskId);
+      
+      document.getElementById('modalTitle').textContent = 'Редактировать задачу';
+      document.getElementById('taskName').value = task.name || '';
+      document.getElementById('taskProject').value = task.project || '';
+      document.getElementById('taskDescription').value = task.description || '';
+      document.getElementById('taskPriority').value = task.priority || 'medium';
+      document.getElementById('taskDeadline').value = task.deadline || '';
+      document.getElementById('taskAssignee').value = task.assignee || '';
+      form.dataset.taskId = taskId;
+    }
+  } else {
+    document.getElementById('modalTitle').textContent = 'Создать задачу';
+    form.reset();
+    form.dataset.taskId = '';
+  }
+  
+  modal.classList.add('active');
+}
+
+function closeTaskModal() {
+  document.getElementById('taskModal').classList.remove('active');
+}
+
+async function saveTask(e) {
+  e.preventDefault();
+  const db = firebase.firestore();
+  const taskId = document.getElementById('taskForm').dataset.taskId;
+  
+  const taskData = {
+    name: document.getElementById('taskName').value,
+    project: document.getElementById('taskProject').value,
+    description: document.getElementById('taskDescription').value,
+    priority: document.getElementById('taskPriority').value,
+    deadline: document.getElementById('taskDeadline').value,
+    assignee: document.getElementById('taskAssignee').value,
+    createdBy: currentUser.uid,
+    createdAt: new Date().toISOString(),
+    seenBy: taskId ? (allTasks.find(t => t.id === taskId)?.seenBy || []) : [currentUser.uid]
+  };
+  
+  try {
+    if (taskId) {
+      await db.collection('tasks').doc(taskId).update(taskData);
+    } else {
+      await db.collection('tasks').add(taskData);
+    }
+    closeTaskModal();
+    await loadTasks();
+  } catch (e) {
+    console.error('Save task error:', e);
+    alert('Ошибка сохранения задачи');
+  }
+}
+
+async function toggleTaskComplete(taskId, completed) {
+  const db = firebase.firestore();
+  try {
+    const updateData = {
+      completed,
+      completedAt: completed ? new Date().toISOString() : null,
+      completedBy: completed ? (currentUser?.uid || '') : null
+    };
+    await db.collection('tasks').doc(taskId).update(updateData);
+    const task = allTasks.find(t => t.id === taskId);
+    if (task) Object.assign(task, updateData);
+    updateTasksUI();
+    updateTaskStats();
+    showTaskToast(completed ? '✅ Задача выполнена!' : '↩️ Задача возвращена', completed ? 'success' : 'info');
+  } catch(e) {
+    console.error('Toggle complete error:', e);
+    showTaskToast('Ошибка обновления задачи', 'error');
+  }
+}
+
+function showTaskToast(msg, type = 'info') {
+  let toast = document.getElementById('task-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'task-toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;transition:all 0.3s;opacity:0;transform:translateY(8px);background:var(--bg2);border:1px solid var(--border);color:var(--text)';
+    document.body.appendChild(toast);
+  }
+  const colors = { success: 'var(--green)', error: 'var(--red)', info: 'var(--accent)' };
+  toast.textContent = msg;
+  toast.style.borderColor = colors[type] || 'var(--border)';
+  toast.style.color = colors[type] || 'var(--text)';
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateY(0)';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(8px)'; }, 3000);
+}
+
+async function markTaskAsSeen(taskId) {
+  const db = firebase.firestore();
+  const task = allTasks.find(t => t.id === taskId);
+  if (task && currentUser) {
+    const seenBy = task.seenBy || [];
+    if (!seenBy.includes(currentUser.uid)) {
+      seenBy.push(currentUser.uid);
+      await db.collection('tasks').doc(taskId).update({ seenBy });
+      task.seenBy = seenBy;
+      updateTaskStats();
+    }
+  }
+}
+
+function addSubtask() {
+  // Placeholder for subtask functionality
+  alert('Подзадачи будут добавлены в следующей версии');
+}
+
+// ===================== WELCOME OVERLAY =====================
+function showWelcome(name, role) {
+  const overlay = document.getElementById('welcomeOverlay');
+  if (!overlay) return;
+
+  // Только один раз за сессию
+  const sessionKey = 'qcp_welcomed_mgr_' + name;
+  if (sessionStorage.getItem(sessionKey)) return;
+
+  document.getElementById('welcomeName').textContent = name;
+  document.getElementById('welcomeRoleLbl').textContent = 'Менеджер · Qoima Control Panel';
+
+  const hour = new Date().getHours();
+  const timeGreet = hour < 6 ? 'Доброй ночи' : hour < 12 ? 'Доброе утро' : hour < 18 ? 'Добрый день' : 'Добрый вечер';
+  document.getElementById('welcomeTime').textContent = timeGreet + ' · ' + new Date().toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
+
+  overlay.classList.remove('hidden');
+}
+
+function closeWelcome() {
+  const overlay = document.getElementById('welcomeOverlay');
+  if (!overlay) return;
+  overlay.classList.add('fade-out');
+  const name = document.getElementById('welcomeName').textContent;
+  sessionStorage.setItem('qcp_welcomed_mgr_' + name, '1');
+  setTimeout(() => overlay.classList.add('hidden'), 500);
+}
+
+function handleLogout() {
+  if (confirm('Вы уверены, что хотите выйти?')) {
+    const firebaseConfig = {
+      apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
+      authDomain: "qos-base.firebaseapp.com",
+      projectId: "qos-base",
+      storageBucket: "qos-base.firebasestorage.app",
+      messagingSenderId: "639485153845",
+      appId: "1:639485153845:web:61baa7942382ba7444d77c"
+    };
+    
+    try {
+      const auth = firebase.auth();
+      auth.signOut().then(() => {
+        window.location.href = 'index.html';
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  }
+}
+</script>
+
+<!-- ===== TASK MODAL ===== -->
+<div class="task-modal" id="taskModal">
+  <div class="task-modal-content">
+    <div class="task-modal-header">
+      <span id="modalTitle">Создать задачу</span>
+      <button class="btn-close" onclick="closeTaskModal()">×</button>
+    </div>
+
+    <form id="taskForm" onsubmit="saveTask(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Название задачи</label>
+          <input type="text" class="form-input" id="taskName" placeholder="Например: Подготовить отчёт" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Проект</label>
+          <input type="text" class="form-input" id="taskProject" placeholder="Например: Q2 Planning" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Описание</label>
+        <textarea class="form-textarea" id="taskDescription" placeholder="Детальное описание задачи..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Приоритет</label>
+          <select class="form-select" id="taskPriority">
+            <option value="low">Низкий</option>
+            <option value="medium" selected>Средний</option>
+            <option value="high">Высокий</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Дедлайн</label>
+          <input type="date" class="form-input" id="taskDeadline" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Назначить сотруднику</label>
+        <select class="form-select" id="taskAssignee">
+          <option value="">Выбрать...</option>
+          <option value="manager">Менеджер</option>
+          <option value="seller">Продавец</option>
+          <option value="admin">Администратор</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="subtasksSection" style="display:none">
+        <label class="form-label">Подзадачи</label>
+        <div class="subtask-list" id="subtasksList"></div>
+        <button type="button" class="btn-secondary" onclick="addSubtask()" style="width:100%;margin-top:8px">+ Добавить подзадачу</button>
+      </div>
+
+      <div class="task-actions">
+        <button type="submit" class="btn-primary">Сохранить задачу</button>
+        <button type="button" class="btn-secondary" onclick="closeTaskModal()">Отменить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Firebase Compat SDK (v10) — глобальный объект firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+</body>
+</html>
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px; }
+.kpi-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
+.kpi-label { font-size: 13px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+.kpi-value { font-size: 36px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.kpi-delta { font-size: 13px; color: var(--green); }
+.kpi-progress { height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 16px; overflow: hidden; }
+.kpi-progress-fill { height: 100%; border-radius: 2px; transition: all 0.3s; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
+.card-title { font-size: 14px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; }
+.card-title strong { color: var(--text); }
+
+.chart { height: 150px; display: flex; align-items: flex-end; gap: 4px; }
+.chart-wrap { margin-bottom: 16px; }
+.chart-labels { display: flex; gap: 4px; margin-top: 6px; }
+.chart-label { flex: 1; text-align: center; font-size: 9px; color: var(--text3); line-height: 1.3; overflow: hidden; }
+.bar { flex: 1; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 4px; transition: all 0.2s; cursor: pointer; }
+.bar:hover { background: #3388ff; }
+
+.table { width: 100%; border-collapse: collapse; }
+.table th { text-align: left; padding: 12px 16px; font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); font-weight: 500; }
+.table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.table tr:hover { background: var(--bg3); }
+
+.stat-box { display: flex; flex-direction: column; gap: 8px; padding: 16px; background: var(--bg3); border-radius: 8px; }
+.stat-label { font-size: 12px; color: var(--text3); text-transform: uppercase; }
+.stat-value { font-size: 28px; font-weight: 600; color: var(--text); }
+
+.store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+.store-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+.store-name { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+.store-metric { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.store-metric:last-child { border-bottom: none; }
+.store-metric-label { font-size: 13px; color: var(--text2); }
+.store-metric-value { font-size: 18px; font-weight: 600; color: var(--text); }
+
+.status-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+.status-excellent { background: rgba(0, 204, 102, 0.2); color: var(--green); }
+.status-good { background: rgba(255, 170, 0, 0.2); color: var(--yellow); }
+.status-warning { background: rgba(255, 102, 0, 0.2); color: var(--orange); }
+.status-critical { background: rgba(255, 51, 51, 0.2); color: var(--red); }
+
+.sync-btn { padding: 10px 16px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
+.sync-btn:hover { opacity: 0.9; }
+.sync-btn.loading { opacity: 0.5; pointer-events: none; }
+
+.stab { padding: 8px 16px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; color: var(--text2); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+.stab:hover { border-color: var(--accent); color: var(--text); }
+.stab-active { background: var(--accent) !important; border-color: var(--accent) !important; color: white !important; }
+.seller-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; }
+.seller-card:hover { border-color: var(--accent); background: var(--bg3); }
+.seller-rank { font-size: 20px; width: 34px; text-align: center; flex-shrink: 0; }
+.seller-info { flex: 1; min-width: 0; }
+.seller-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.seller-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.seller-bar-wrap { flex: 2; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.seller-bar-bg { flex: 1; height: 7px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.seller-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.seller-val { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; width: 88px; text-align: right; flex-shrink: 0; }
+.seller-badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; flex-shrink: 0; }
+
+/* ====== SETTINGS PAGE ====== */
+.settings-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.settings-title { font-size: 13px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; font-weight: 600; }
+.settings-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.settings-label { font-size: 14px; color: var(--text2); min-width: 160px; }
+.settings-input { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; width: 280px; max-width: 100%; transition: border 0.2s; }
+.settings-input:focus { outline: none; border-color: var(--accent); }
+.settings-btn { padding: 10px 18px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: opacity 0.2s; }
+.settings-btn:hover { opacity: 0.85; }
+.settings-btn.danger { background: var(--red); }
+.settings-tag { display: inline-block; padding: 4px 10px; background: rgba(0,102,255,0.15); color: var(--accent); border-radius: 6px; font-size: 12px; font-weight: 600; }
+
+/* ====== PIN OVERLAY ====== */
+.pin-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+.pin-overlay.hidden { display: none; }
+.pin-title { font-size: 20px; font-weight: 600; color: var(--text); }
+.pin-sub { font-size: 13px; color: var(--text3); }
+.pin-dots { display: flex; gap: 10px; margin: 8px 0; }
+.pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); background: transparent; transition: all 0.2s; }
+.pin-dot.filled { background: var(--accent); border-color: var(--accent); }
+.pin-keypad { display: grid; grid-template-columns: repeat(3, 64px); gap: 10px; }
+.pin-key { width: 64px; height: 64px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg2); color: var(--text); font-size: 22px; font-weight: 500; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+.pin-key:hover { background: var(--bg3); border-color: var(--accent); }
+.pin-key.del { font-size: 16px; color: var(--text3); }
+.pin-error { color: var(--red); font-size: 13px; min-height: 18px; }
+
+/* ====== MOBILE ====== */
+@media (max-width: 768px) {
+  .sidebar { width: 100%; height: 56px; flex-direction: row; padding: 0 12px; border-right: none; border-top: 1px solid var(--border); position: fixed; bottom: 0; top: auto; z-index: 200; justify-content: space-around; }
+  .logo { display: none; }
+  .sidebar > [style="flex:1"] { display: none; }
+  .nav-btn { width: 44px; height: 44px; }
+  .main { margin-left: 0; margin-bottom: 56px; width: 100%; padding: 16px 12px; }
+  .header { margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+  .header h1 { font-size: 22px; }
+  .header-right { flex-wrap: wrap; gap: 8px; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .kpi-card { padding: 16px; }
+  .kpi-value { font-size: 24px; }
+  .grid-2 { grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px; }
+  .store-grid { grid-template-columns: 1fr; }
+  .card { padding: 16px; }
+  .table { font-size: 12px; }
+  .table th, .table td { padding: 8px 8px; }
+  .seller-card { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+  .seller-bar-wrap { display: none; }
+  .seller-val { width: auto; font-size: 13px; }
+  .seller-info { flex: 1; min-width: 120px; }
+  #page-heatmap .card { overflow-x: auto; }
+  #heatmap-stats { grid-template-columns: 1fr; gap: 10px; }
+  .settings-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .settings-label { min-width: unset; }
+  .settings-input { width: 100%; }
+  .pin-keypad { grid-template-columns: repeat(3, 72px); }
+  .pin-key { width: 72px; height: 72px; }
+}
+@media (max-width: 400px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} 80%{transform:translateX(-4px)}
+}
+.pin-dots.shake { animation: shake 0.4s ease; }
+
+/* ====== ALERTS ====== */
+.alert-card { border-radius: 10px; padding: 16px 20px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px; border: 1px solid; }
+.alert-card.critical { background: rgba(255,51,51,0.08); border-color: rgba(255,51,51,0.35); }
+.alert-card.warning  { background: rgba(255,170,0,0.08); border-color: rgba(255,170,0,0.35); }
+.alert-card.good     { background: rgba(0,204,102,0.08); border-color: rgba(0,204,102,0.35); }
+.alert-card.info     { background: rgba(0,102,255,0.06); border-color: rgba(0,102,255,0.25); }
+.alert-icon  { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.alert-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.alert-body  { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.alert-time  { font-size: 11px; color: var(--text3); margin-top: 4px; }
+.alert-section-title { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600; }
+
+/* ====== INSIGHT PILLS ====== */
+.insight-pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; font-size: 13px; border: 1px solid; cursor: default; }
+.insight-pill.green  { background: rgba(0,204,102,0.1);  border-color: rgba(0,204,102,0.3);  color: var(--green); }
+.insight-pill.yellow { background: rgba(255,170,0,0.1);  border-color: rgba(255,170,0,0.3);  color: var(--yellow); }
+.insight-pill.red    { background: rgba(255,51,51,0.1);  border-color: rgba(255,51,51,0.3);  color: var(--red); }
+.insight-pill.blue   { background: rgba(0,102,255,0.1);  border-color: rgba(0,102,255,0.3);  color: var(--accent); }
+
+/* ====== FORECAST CARDS ====== */
+.forecast-card { background: var(--bg3); border-radius: 10px; padding: 16px; }
+.forecast-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+.forecast-bar-wrap { position: relative; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+.forecast-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s; }
+.forecast-bar-proj { position: absolute; top: 0; height: 100%; border-radius: 4px; opacity: 0.3; }
+.forecast-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); }
+
+/* ====== WEEK COMPARE ====== */
+.week-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.week-title { font-size: 13px; color: var(--text3); text-transform: uppercase; font-weight: 600; margin-bottom: 12px; }
+.week-val   { font-size: 28px; font-weight: 700; color: var(--text); }
+.week-delta { font-size: 13px; margin-top: 4px; font-weight: 600; }
+.week-delta.up   { color: var(--green); }
+.week-delta.down { color: var(--red); }
+.week-delta.flat { color: var(--text3); }
+
+/* ====== SPARKLINE ====== */
+.sparkline { display: inline-block; vertical-align: middle; }
+
+/* ====== WEEKDAY CHART ====== */
+.wday-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.wday-label { width: 28px; font-size: 12px; color: var(--text3); text-align: right; flex-shrink: 0; }
+.wday-bar-bg { flex: 1; height: 24px; background: var(--bg3); border-radius: 6px; overflow: hidden; position: relative; }
+.wday-bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 12px; font-weight: 600; color: white; transition: width 0.5s; }
+.wday-count { font-size: 11px; color: var(--text3); width: 40px; text-align: right; flex-shrink: 0; }
+
+@media (max-width: 768px) {
+  #nav-trends, #nav-alerts { display: flex; }
+  .week-val { font-size: 22px; }
+}
+
+/* ====== TASKS SYSTEM ====== */
+.tasks-container { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 40px; }
+.tasks-sidebar { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.tasks-main { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+
+.tasks-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.btn-create-task { padding: 10px 16px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+.btn-create-task:hover { opacity: 0.9; }
+
+.project-list { display: flex; flex-direction: column; gap: 8px; }
+.project-item { padding: 12px; background: var(--bg3); border-radius: 8px; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+.project-item:hover { background: var(--border); }
+.project-item.active { border-left-color: var(--accent); background: var(--bg3); }
+.project-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.project-count { font-size: 11px; color: var(--text3); }
+
+.task-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
+.task-card:hover { border-color: var(--accent); }
 .task-card.completed { opacity: 0.6; }
 .task-card.seen { border-left: 3px solid var(--green); }
 .task-card.unseen { border-left: 3px solid var(--red); }

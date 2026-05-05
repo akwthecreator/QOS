@@ -346,9 +346,58 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
   font-size: 12px;
 }
 
+/* ── WELCOME OVERLAY ── */
+.welcome-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0;
+  opacity: 1; transition: opacity 0.5s ease;
+}
+.welcome-overlay.fade-out { opacity: 0; pointer-events: none; }
+.welcome-overlay.hidden { display: none; }
+
+.welcome-logo {
+  width: 72px; height: 72px; background: var(--accent); border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 800; color: white; margin-bottom: 28px;
+  box-shadow: 0 12px 40px rgba(0,102,255,0.35);
+}
+.welcome-greeting {
+  font-size: 15px; color: var(--text3); letter-spacing: 0.5px; margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.welcome-name {
+  font-size: 34px; font-weight: 700; color: var(--text);
+  letter-spacing: -0.5px; margin-bottom: 8px; text-align: center;
+}
+.welcome-role {
+  font-size: 14px; color: var(--accent); font-weight: 500; margin-bottom: 40px;
+}
+.welcome-btn {
+  padding: 14px 40px; background: var(--accent); border: none; border-radius: 12px;
+  color: white; font-size: 15px; font-weight: 600; cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(0,102,255,0.3);
+}
+.welcome-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.welcome-time {
+  margin-top: 16px; font-size: 12px; color: var(--text3);
+}
+
 </style>
 </head>
 <body>
+
+<!-- ===== WELCOME OVERLAY ===== -->
+<div class="welcome-overlay" id="welcomeOverlay">
+  <div class="welcome-logo">Q</div>
+  <div class="welcome-greeting">Добро пожаловать</div>
+  <div class="welcome-name" id="welcomeName">...</div>
+  <div class="welcome-role" id="welcomeRole">Продавец · Qoima</div>
+  <button class="welcome-btn" onclick="closeWelcome()">Открыть кабинет →</button>
+  <div class="welcome-time" id="welcomeTime"></div>
+</div>
 
 <div class="app">
   <!-- TOPBAR -->
@@ -645,6 +694,9 @@ async function loadUserProfile() {
   if (storeEl) storeEl.textContent = userProfile.store || userProfile.team || '—';
   const planSubEl = document.getElementById('m-plan-sub');
   if (planSubEl) planSubEl.textContent = 'из ' + fmtMoney(userProfile.plan || MONTHLY_PLAN_DEFAULT);
+
+  // Приветственный оверлей
+  showWelcome(userProfile.name || currentUser.email, 'seller');
 }
 
 // ===================== GOOGLE SHEETS SYNC =====================
@@ -1312,6 +1364,38 @@ async function markTaskSeen(taskId, userId) {
   } catch (e) {
     console.error('Mark task seen error:', e);
   }
+}
+
+// ===================== WELCOME OVERLAY =====================
+function showWelcome(name, role) {
+  const overlay = document.getElementById('welcomeOverlay');
+  if (!overlay) return;
+
+  // Показываем только если это первый вход в сессии
+  const sessionKey = 'qcp_welcomed_' + (currentUser?.uid || '');
+  if (sessionStorage.getItem(sessionKey)) {
+    overlay.classList.add('hidden');
+    return;
+  }
+
+  // Имя
+  document.getElementById('welcomeName').textContent = name;
+
+  // Время суток
+  const hour = new Date().getHours();
+  const timeGreet = hour < 6 ? 'Доброй ночи' : hour < 12 ? 'Доброе утро' : hour < 18 ? 'Добрый день' : 'Добрый вечер';
+  document.getElementById('welcomeTime').textContent = timeGreet + ' · ' + new Date().toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
+
+  overlay.classList.remove('hidden');
+}
+
+function closeWelcome() {
+  const overlay = document.getElementById('welcomeOverlay');
+  if (!overlay) return;
+  overlay.classList.add('fade-out');
+  const sessionKey = 'qcp_welcomed_' + (currentUser?.uid || '');
+  sessionStorage.setItem(sessionKey, '1');
+  setTimeout(() => overlay.classList.add('hidden'), 500);
 }
 
 // ===================== LOGOUT =====================

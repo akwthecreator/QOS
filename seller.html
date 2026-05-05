@@ -252,99 +252,61 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 }
 
 .seller-tasks-badge {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--red);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--red); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
 }
 
-.seller-tasks-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.seller-tasks-list { display: flex; flex-direction: column; gap: 8px; }
 
+/* Task item with checkbox */
 .seller-task-item {
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px;
-  cursor: pointer;
   transition: all 0.2s;
   border-left: 3px solid var(--red);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
 }
+.seller-task-item.completed { opacity: 0.6; border-left-color: var(--green); }
+.seller-task-item.seen { border-left-color: var(--green); }
+.seller-task-item:hover { background: var(--bg4); }
 
-.seller-task-item:hover {
-  border-color: var(--accent);
-  background: var(--bg4);
+/* Checkbox */
+.seller-task-checkbox {
+  width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border2);
+  background: transparent; cursor: pointer; flex-shrink: 0; margin-top: 1px;
+  appearance: none; -webkit-appearance: none; transition: all 0.2s;
 }
+.seller-task-checkbox:checked { background: var(--green); border-color: var(--green); }
+.seller-task-checkbox:checked::after { content: '✓'; color: white; font-size: 13px; font-weight: 700; }
+.seller-task-checkbox:hover { border-color: var(--green); }
 
-.seller-task-item.completed {
-  opacity: 0.6;
-  border-left-color: var(--green);
-}
-
-.seller-task-item.seen {
-  border-left-color: var(--green);
-}
-
+.seller-task-content { flex: 1; min-width: 0; }
 .seller-task-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 4px;
+  font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px;
 }
+.seller-task-item.completed .seller-task-name { text-decoration: line-through; color: var(--text3); }
+.seller-task-done-label { font-size: 10px; color: var(--green); margin-top: 4px; display: none; }
+.seller-task-item.completed .seller-task-done-label { display: block; }
 
 .seller-task-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  color: var(--text3);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; color: var(--text3);
 }
 
-.seller-task-priority {
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 10px;
-  font-weight: 600;
-}
+.seller-task-priority { padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; }
+.seller-task-priority.high { background: rgba(255,51,51,0.2); color: var(--red); }
+.seller-task-priority.medium { background: rgba(255,170,0,0.2); color: var(--yellow); }
+.seller-task-priority.low { background: rgba(0,204,102,0.2); color: var(--green); }
 
-.seller-task-priority.high {
-  background: rgba(255, 51, 51, 0.2);
-  color: var(--red);
-}
-
-.seller-task-priority.medium {
-  background: rgba(255, 170, 0, 0.2);
-  color: var(--yellow);
-}
-
-.seller-task-priority.low {
-  background: rgba(0, 204, 102, 0.2);
-  color: var(--green);
-}
-
-.seller-tasks-empty {
-  text-align: center;
-  padding: 24px 12px;
-  color: var(--text3);
-}
-
-.seller-tasks-empty-icon {
-  font-size: 32px;
-  margin-bottom: 8px;
-}
-
-.seller-tasks-empty-text {
-  font-size: 12px;
-}
+.seller-tasks-empty { text-align: center; padding: 24px 12px; color: var(--text3); }
+.seller-tasks-empty-icon { font-size: 32px; margin-bottom: 8px; }
+.seller-tasks-empty-text { font-size: 12px; }
 
 /* ── WELCOME OVERLAY ── */
 .welcome-overlay {
@@ -1321,8 +1283,7 @@ function renderSellerTasks(tasks, userId) {
       <div class="seller-tasks-empty">
         <div class="seller-tasks-empty-icon">✅</div>
         <div class="seller-tasks-empty-text">Нет новых задач</div>
-      </div>
-    `;
+      </div>`;
     return;
   }
   
@@ -1330,44 +1291,72 @@ function renderSellerTasks(tasks, userId) {
   
   tasks.forEach(task => {
     const isSeen = task.seenBy && task.seenBy.includes(userId);
-    const daysLeft = Math.ceil((new Date(task.deadline) - new Date()) / (1000 * 60 * 60 * 24));
-    const isOverdue = new Date(task.deadline) < new Date() && !task.completed;
-    const isToday = task.deadline === new Date().toISOString().split('T')[0];
+    const isCompleted = !!task.completed;
+    const daysLeft = task.deadline ? Math.ceil((new Date(task.deadline) - new Date()) / (1000*60*60*24)) : null;
+    const isOverdue = daysLeft !== null && daysLeft < 0 && !isCompleted;
+    const isToday   = task.deadline === new Date().toISOString().split('T')[0];
+    const completedAt = task.completedAt ? new Date(task.completedAt).toLocaleDateString('ru-RU') : '';
     
-    const taskEl = document.createElement('div');
-    taskEl.className = `seller-task-item ${isSeen ? 'seen' : ''} ${task.completed ? 'completed' : ''}`;
-    taskEl.onclick = () => markTaskSeen(task.id, userId);
+    const deadlineText = !task.deadline ? '' :
+      isToday ? '📌 Сегодня' :
+      isOverdue ? '⚠️ Просрочено' :
+      `📅 ${new Date(task.deadline).toLocaleDateString('ru-RU')}`;
     
     const priorityLabel = task.priority === 'high' ? 'Высокий' : task.priority === 'low' ? 'Низкий' : 'Средний';
-    const deadlineText = isToday ? '📌 Сегодня' : isOverdue ? '⚠️ Просрочено' : `📅 ${new Date(task.deadline).toLocaleDateString('ru-RU')}`;
+    
+    const taskEl = document.createElement('div');
+    taskEl.className = `seller-task-item ${isCompleted ? 'completed' : ''} ${isSeen ? 'seen' : ''}`;
+    taskEl.dataset.taskId = task.id;
     
     taskEl.innerHTML = `
-      <div class="seller-task-name">${task.name || 'Безымянная задача'}</div>
-      <div class="seller-task-meta">
-        <span class="seller-task-priority ${task.priority || 'medium'}">${priorityLabel}</span>
-        <span>${deadlineText}</span>
+      <input type="checkbox" class="seller-task-checkbox" ${isCompleted ? 'checked' : ''}
+        onclick="toggleSellerTaskComplete('${task.id}', ${!isCompleted})"
+        title="${isCompleted ? 'Снять отметку' : 'Отметить как выполненное'}">
+      <div class="seller-task-content">
+        <div class="seller-task-name">${task.name || 'Безымянная задача'}</div>
+        <div class="seller-task-meta">
+          <span class="seller-task-priority ${task.priority || 'medium'}">${priorityLabel}</span>
+          <span style="color:${isOverdue?'var(--red)':isToday?'var(--yellow)':'var(--text3)'}">${deadlineText}</span>
+        </div>
+        ${task.description ? `<div style="font-size:11px;color:var(--text3);margin-top:4px">${task.description}</div>` : ''}
+        <div class="seller-task-done-label">✅ Выполнено ${completedAt}</div>
       </div>
     `;
-    
     tasksList.appendChild(taskEl);
   });
+}
+
+async function toggleSellerTaskComplete(taskId, completed) {
+  if (!currentUser) return;
+  try {
+    const currentDb = firebase.firestore();
+    await currentDb.collection('tasks').doc(taskId).update({
+      completed,
+      completedAt: completed ? new Date().toISOString() : null,
+      completedBy: completed ? currentUser.uid : null
+    });
+    showToast(completed ? '✅ Задача выполнена!' : '↩️ Отметка снята', completed ? 'success' : 'info');
+    // Перезагружаем задачи чтобы обновить состояние
+    await loadSellerTasks(currentUser);
+  } catch(e) {
+    console.error('Toggle task complete error:', e);
+    showToast('Ошибка обновления задачи', 'error');
+  }
 }
 
 async function markTaskSeen(taskId, userId) {
   try {
     const currentDb = firebase.firestore();
     const taskDoc = await currentDb.collection('tasks').doc(taskId).get();
-    
     if (taskDoc.exists) {
       const seenBy = taskDoc.data().seenBy || [];
       if (!seenBy.includes(userId)) {
         seenBy.push(userId);
         await currentDb.collection('tasks').doc(taskId).update({ seenBy });
-        // Reload with current user
         if (currentUser) await loadSellerTasks(currentUser);
       }
     }
-  } catch (e) {
+  } catch(e) {
     console.error('Mark task seen error:', e);
   }
 }

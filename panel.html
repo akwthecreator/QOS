@@ -259,9 +259,31 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
 .task-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
 .task-card:hover { border-color: var(--accent); }
-.task-card.completed { opacity: 0.6; }
-.task-card.seen { border-left: 3px solid var(--green); }
-.task-card.unseen { border-left: 3px solid var(--red); }
+/* ── TASK COMPLETE CHECKBOX ── */
+.task-check-wrap { display: flex; align-items: flex-start; gap: 12px; }
+.task-checkbox {
+  width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border);
+  background: transparent; cursor: pointer; flex-shrink: 0; margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; position: relative; appearance: none; -webkit-appearance: none;
+}
+.task-checkbox:checked {
+  background: var(--green); border-color: var(--green);
+}
+.task-checkbox:checked::after {
+  content: '✓'; color: white; font-size: 13px; font-weight: 700; line-height: 1;
+}
+.task-checkbox:hover { border-color: var(--green); }
+.task-card.completed .task-title { text-decoration: line-through; color: var(--text3); }
+.task-card.completed { opacity: 0.65; }
+.btn-delete-task {
+  padding: 5px 10px; background: rgba(255,51,51,0.1); border: 1px solid rgba(255,51,51,0.3);
+  border-radius: 6px; color: var(--red); cursor: pointer; font-size: 12px;
+  transition: all 0.2s; margin-left: auto; flex-shrink: 0;
+}
+.btn-delete-task:hover { background: var(--red); color: white; }
+.task-complete-label { font-size: 11px; color: var(--green); font-weight: 600; margin-top: 4px; display: none; }
+.task-card.completed .task-complete-label { display: block; }
 
 .task-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
 .task-title { font-weight: 600; font-size: 14px; color: var(--text); flex: 1; }
@@ -2314,7 +2336,7 @@ function updateTasksUI() {
   const today = new Date().toISOString().split('T')[0];
   
   if (currentFilter === 'unseen') {
-    filtered = allTasks.filter(t => !t.seenBy || !t.seenBy.includes(currentUser.uid));
+    filtered = allTasks.filter(t => !t.seenBy || !t.seenBy.includes(currentUser?.uid));
   } else if (currentFilter === 'today') {
     filtered = allTasks.filter(t => t.deadline === today);
   } else if (currentFilter === 'overdue') {
@@ -2324,31 +2346,47 @@ function updateTasksUI() {
   tasksList.innerHTML = '';
   
   if (filtered.length === 0) {
-    noTasks.style.display = 'block';
+    if (noTasks) noTasks.style.display = 'block';
   } else {
-    noTasks.style.display = 'none';
+    if (noTasks) noTasks.style.display = 'none';
     filtered.forEach(task => {
-      const isSeen = task.seenBy && task.seenBy.includes(currentUser.uid);
+      const isSeen = task.seenBy && task.seenBy.includes(currentUser?.uid);
       const card = document.createElement('div');
       card.className = `task-card ${task.completed ? 'completed' : ''} ${isSeen ? 'seen' : 'unseen'}`;
-      card.onclick = () => openTaskModal(task.id);
+      card.dataset.taskId = task.id;
       
       const priorityClass = `priority-${task.priority || 'medium'}`;
       const daysLeft = Math.ceil((new Date(task.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+      const completedAt = task.completedAt ? new Date(task.completedAt).toLocaleDateString('ru-RU') : '';
       
       card.innerHTML = `
-        <div class="task-header">
-          <div class="task-title">${task.name || 'Без названия'}</div>
-          <span class="task-priority ${priorityClass}">${
-            task.priority === 'high' ? 'Высокий' : task.priority === 'low' ? 'Низкий' : 'Средний'
-          }</span>
-        </div>
-        <p style="font-size:12px;color:var(--text2);margin:8px 0">${task.description || ''}</p>
-        <div class="task-meta">
-          <div class="task-deadline">📅 ${new Date(task.deadline).toLocaleDateString('ru-RU')} ${daysLeft > 0 ? `(${daysLeft} дн)` : '(Просрочено)'}</div>
-          <div class="task-assignee">👤 ${task.assignee || 'Не назначена'}</div>
+        <div class="task-check-wrap">
+          <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}
+            onclick="event.stopPropagation(); toggleTaskComplete('${task.id}', ${!task.completed})"
+            title="${task.completed ? 'Отметить как невыполненное' : 'Отметить как выполненное'}">
+          <div style="flex:1;min-width:0">
+            <div class="task-header">
+              <div class="task-title">${task.name || 'Без названия'}</div>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                <span class="task-priority ${priorityClass}">${
+                  task.priority === 'high' ? '🔴 Высокий' : task.priority === 'low' ? '🟢 Низкий' : '🟡 Средний'
+                }</span>
+                <button class="btn-delete-task" onclick="event.stopPropagation(); deleteTask('${task.id}')" title="Удалить задачу">🗑</button>
+              </div>
+            </div>
+            ${task.description ? `<p style="font-size:12px;color:var(--text2);margin:8px 0">${task.description}</p>` : ''}
+            <div class="task-meta">
+              <div class="task-deadline">📅 ${new Date(task.deadline).toLocaleDateString('ru-RU')} ${daysLeft > 0 ? `(${daysLeft} дн.)` : daysLeft === 0 ? '(сегодня)' : '<span style="color:var(--red)">(просрочено)</span>'}</div>
+              <div class="task-assignee">👤 ${task.assignee || 'Не назначена'}</div>
+            </div>
+            <div class="task-complete-label">✅ Выполнено ${completedAt}</div>
+          </div>
         </div>
       `;
+      card.onclick = (e) => {
+        if (e.target.classList.contains('task-checkbox') || e.target.classList.contains('btn-delete-task')) return;
+        openTaskModal(task.id);
+      };
       tasksList.appendChild(card);
     });
   }
@@ -2445,16 +2483,71 @@ async function saveTask(e) {
   }
 }
 
+async function toggleTaskComplete(taskId, completed) {
+  const db = firebase.firestore();
+  try {
+    const updateData = {
+      completed,
+      completedAt: completed ? new Date().toISOString() : null,
+      completedBy: completed ? (currentUser?.uid || '') : null
+    };
+    await db.collection('tasks').doc(taskId).update(updateData);
+    // Обновляем локально без перезагрузки для быстрого отклика
+    const task = allTasks.find(t => t.id === taskId);
+    if (task) Object.assign(task, updateData);
+    updateTasksUI();
+    updateTaskStats();
+    showTaskToast(completed ? '✅ Задача выполнена!' : '↩️ Задача возвращена', completed ? 'success' : 'info');
+  } catch(e) {
+    console.error('Toggle complete error:', e);
+    showTaskToast('Ошибка обновления задачи', 'error');
+  }
+}
+
+async function deleteTask(taskId) {
+  if (!confirm('Удалить задачу? Это действие нельзя отменить.')) return;
+  const db = firebase.firestore();
+  try {
+    await db.collection('tasks').doc(taskId).delete();
+    allTasks = allTasks.filter(t => t.id !== taskId);
+    updateTasksUI();
+    updateTaskStats();
+    showTaskToast('🗑 Задача удалена', 'info');
+  } catch(e) {
+    console.error('Delete task error:', e);
+    showTaskToast('Ошибка удаления задачи', 'error');
+  }
+}
+
+function showTaskToast(msg, type = 'info') {
+  // Reuse any existing toast or create temporary notification
+  let toast = document.getElementById('task-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'task-toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;transition:all 0.3s;opacity:0;transform:translateY(8px);background:var(--bg2);border:1px solid var(--border);color:var(--text)';
+    document.body.appendChild(toast);
+  }
+  const colors = { success: 'var(--green)', error: 'var(--red)', info: 'var(--accent)' };
+  toast.textContent = msg;
+  toast.style.borderColor = colors[type] || 'var(--border)';
+  toast.style.color = colors[type] || 'var(--text)';
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateY(0)';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(8px)'; }, 3000);
+}
+
 async function markTaskAsSeen(taskId) {
   const db = firebase.firestore();
   const task = allTasks.find(t => t.id === taskId);
-  
-  if (task) {
+  if (task && currentUser) {
     const seenBy = task.seenBy || [];
     if (!seenBy.includes(currentUser.uid)) {
       seenBy.push(currentUser.uid);
       await db.collection('tasks').doc(taskId).update({ seenBy });
-      await loadTasks();
+      task.seenBy = seenBy;
+      updateTaskStats();
     }
   }
 }

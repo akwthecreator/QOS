@@ -273,7 +273,6 @@ body {
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase Configuration (новый API ключ из Firebase Console)
 const firebaseConfig = {
   apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
   authDomain: "qos-base.firebaseapp.com",
@@ -284,27 +283,30 @@ const firebaseConfig = {
   measurementId: "G-S64SXSC4SR"
 };
 
-// Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
 
-// Роутинг по роли
+// ===================== РОУТИНГ ПО РОЛИ =====================
+// seller  → seller.html
+// manager → manager.html   ← НОВОЕ
+// admin / остальные → panel.html
 async function routeByRole(user) {
   try {
     const doc = await db.collection('users').doc(user.uid).get();
     if (doc.exists) {
       const role = doc.data().role || 'admin';
-      if (role === 'seller')   { window.location.href = 'seller.html';   return; }
+      if (role === 'seller')   { window.location.href = 'seller.html';  return; }
+      if (role === 'manager')  { window.location.href = 'manager.html'; return; }
       if (role === 'observer') { window.location.href = 'observer.html'; return; }
     }
-    window.location.href = 'panel.html'; // admin + manager
+    window.location.href = 'panel.html'; // admin
   } catch(e) {
-    window.location.href = 'panel.html'; // при ошибке — панель
+    window.location.href = 'panel.html';
   }
 }
 
-// Если пользователь уже залогинен — роутим
+// Если пользователь уже залогинен — роутим сразу
 auth.onAuthStateChanged(user => {
   if (user) { routeByRole(user); }
 });
@@ -319,7 +321,6 @@ function toggleTheme() {
   document.getElementById('themeBtn').textContent = newTheme === 'dark' ? '☀️' : '🌙';
 }
 
-// Restore saved theme
 window.addEventListener('load', () => {
   const savedTheme = localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
@@ -343,39 +344,25 @@ async function handleLogin(e) {
   try {
     const credential = await auth.signInWithEmailAndPassword(email, password);
     await routeByRole(credential.user);
-    // Fallback - onAuthStateChanged will also fire
   } catch (error) {
     let message = 'Ошибка входа';
-    
-    if (error.code === 'auth/user-not-found') {
-      message = 'Пользователь не найден';
-    } else if (error.code === 'auth/wrong-password') {
-      message = 'Неверный пароль';
-    } else if (error.code === 'auth/invalid-email') {
-      message = 'Некорректный email';
-    } else if (error.code === 'auth/invalid-credential') {
-      message = 'Неверный email или пароль. Проверьте данные и попробуйте снова';
-    } else if (error.code === 'auth/user-disabled') {
-      message = 'Аккаунт отключен. Обратитесь к администратору';
-    } else if (error.code === 'auth/too-many-requests') {
-      message = 'Слишком много попыток. Подождите несколько минут';
-    } else if (error.code === 'auth/network-request-failed') {
-      message = 'Ошибка сети. Проверьте интернет';
-    } else if (error.code === 'auth/operation-not-allowed') {
-      message = 'Вход через email не включён. Обратитесь к администратору';
-    } else {
-      message = error.message || 'Неизвестная ошибка';
-    }
+    if (error.code === 'auth/user-not-found')        message = 'Пользователь не найден';
+    else if (error.code === 'auth/wrong-password')   message = 'Неверный пароль';
+    else if (error.code === 'auth/invalid-email')    message = 'Некорректный email';
+    else if (error.code === 'auth/invalid-credential') message = 'Неверный email или пароль. Проверьте данные и попробуйте снова';
+    else if (error.code === 'auth/user-disabled')    message = 'Аккаунт отключен. Обратитесь к администратору';
+    else if (error.code === 'auth/too-many-requests') message = 'Слишком много попыток. Подождите несколько минут';
+    else if (error.code === 'auth/network-request-failed') message = 'Ошибка сети. Проверьте интернет';
+    else if (error.code === 'auth/operation-not-allowed') message = 'Вход через email не включён. Обратитесь к администратору';
+    else message = error.message || 'Неизвестная ошибка';
     
     errorDiv.textContent = message;
     errorDiv.style.display = 'block';
-    
     btn.classList.remove('loading');
     btnText.innerHTML = 'Войти';
   }
 }
 
-// Form submit on Enter
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('loginForm').addEventListener('submit', handleLogin);
 });

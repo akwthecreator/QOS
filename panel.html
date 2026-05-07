@@ -884,6 +884,59 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       </div>
     </div>
 
+    <div class="page" id="page-certificates">
+      <div class="header">
+        <div>
+          <h1>🎫 Сертификаты</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Создание и управление подарочными сертификатами</p>
+        </div>
+        <div class="header-right">
+          <button class="btn-primary" onclick="openCertModal()">+ Новый сертификат</button>
+          <button class="sync-btn" onclick="loadCertificates()">🔄 Обновить</button>
+        </div>
+      </div>
+    
+      <!-- Stats row -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px" id="cert-stats">
+        <div class="kpi-card">
+          <div class="kpi-label">Всего выдано</div>
+          <div class="kpi-value" id="cert-stat-total">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Действующих</div>
+          <div class="kpi-value" id="cert-stat-active" style="color:var(--green)">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Истекших</div>
+          <div class="kpi-value" id="cert-stat-expired" style="color:var(--text3)">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Сумма (активные)</div>
+          <div class="kpi-value" id="cert-stat-sum" style="font-size:20px">—</div>
+        </div>
+      </div>
+    
+      <!-- Search + filter -->
+      <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+        <input type="text" id="cert-search" placeholder="Поиск по имени или коду..." oninput="filterCertificates()"
+          style="flex:1;min-width:200px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+        <select id="cert-filter-status" onchange="filterCertificates()"
+          style="padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+          <option value="all">Все статусы</option>
+          <option value="active">Действующие</option>
+          <option value="expired">Истекшие</option>
+        </select>
+      </div>
+    
+      <!-- Certificates list -->
+      <div id="cert-list" style="display:flex;flex-direction:column;gap:12px">
+        <div style="text-align:center;padding:60px;color:var(--text3)">
+          <div style="font-size:48px;margin-bottom:12px">🎫</div>
+          <div style="font-size:16px">Загрузка сертификатов...</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2770,161 +2823,6 @@ function handleLogout() {
     </form>
   </div>
 </div>
-
-<!-- ===== CERTIFICATES PAGE ===== -->
-<div class="page" id="page-certificates">
-  <div class="header">
-    <div>
-      <h1>🎫 Сертификаты</h1>
-      <p style="color:var(--text2);margin-top:4px;font-size:14px">Создание и управление подарочными сертификатами</p>
-    </div>
-    <div class="header-right">
-      <button class="btn-primary" onclick="openCertModal()">+ Новый сертификат</button>
-      <button class="sync-btn" onclick="loadCertificates()">🔄 Обновить</button>
-    </div>
-  </div>
-
-  <!-- Stats row -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px" id="cert-stats">
-    <div class="kpi-card">
-      <div class="kpi-label">Всего выдано</div>
-      <div class="kpi-value" id="cert-stat-total">—</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Действующих</div>
-      <div class="kpi-value" id="cert-stat-active" style="color:var(--green)">—</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Истекших</div>
-      <div class="kpi-value" id="cert-stat-expired" style="color:var(--text3)">—</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Сумма (активные)</div>
-      <div class="kpi-value" id="cert-stat-sum" style="font-size:20px">—</div>
-    </div>
-  </div>
-
-  <!-- Search + filter -->
-  <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-    <input type="text" id="cert-search" placeholder="Поиск по имени или коду..." oninput="filterCertificates()"
-      style="flex:1;min-width:200px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
-    <select id="cert-filter-status" onchange="filterCertificates()"
-      style="padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
-      <option value="all">Все статусы</option>
-      <option value="active">Действующие</option>
-      <option value="expired">Истекшие</option>
-    </select>
-  </div>
-
-  <!-- Certificates list -->
-  <div id="cert-list" style="display:flex;flex-direction:column;gap:12px">
-    <div style="text-align:center;padding:60px;color:var(--text3)">
-      <div style="font-size:48px;margin-bottom:12px">🎫</div>
-      <div style="font-size:16px">Загрузка сертификатов...</div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== CERTIFICATE MODAL ===== -->
-<div class="modal-overlay" id="certModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto">
-
-    <!-- Preview -->
-    <div id="cert-preview" style="background:#f0ebe3;border-radius:16px 16px 0 0;padding:32px 40px;position:relative;overflow:hidden;min-height:180px">
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0.08;font-size:120px;font-weight:900;color:#c0392b;pointer-events:none;user-select:none">Qoima</div>
-      <!-- Top row -->
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div style="font-size:12px;font-weight:800;letter-spacing:1px;color:#111">QOIMA × abo</div>
-        <div style="text-align:right">
-          <div style="font-size:10px;font-weight:800;color:#c0392b;letter-spacing:1px">ЖАРАМДЫЛЫҚ МЕРЗІМІ:</div>
-          <div style="font-size:13px;font-weight:700;color:#111" id="preview-dates">—</div>
-        </div>
-      </div>
-      <!-- Big title -->
-      <div style="font-size:36px;font-weight:900;color:#c0392b;line-height:1;margin-bottom:12px;letter-spacing:-1px">СЫЙЛЫҚ<br>СЕРТИФИКАТ</div>
-      <!-- Name line -->
-      <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:10px">
-        <div style="font-size:14px;font-weight:700;color:#111">|</div>
-        <div style="font-size:18px;font-style:italic;color:#111;border-bottom:1.5px solid #111;padding-bottom:2px;min-width:200px" id="preview-name">Покупатель</div>
-      </div>
-      <!-- Amount -->
-      <div style="font-size:28px;font-weight:900;color:#c0392b" id="preview-amount">— ₸</div>
-      <div style="font-size:10px;color:#555;margin-top:2px" id="preview-amount-text">—</div>
-    </div>
-
-    <!-- Form -->
-    <div style="padding:28px">
-      <h2 style="font-size:18px;font-weight:700;margin-bottom:24px" id="cert-modal-title">Новый сертификат</h2>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-        <div>
-          <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Имя покупателя *</label>
-          <input type="text" id="cert-buyer-name" placeholder="Например: Aibek Seitkali" oninput="updateCertPreview()"
-            style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
-        </div>
-        <div>
-          <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Сумма (₸) *</label>
-          <input type="number" id="cert-amount" placeholder="12000" oninput="updateCertPreview()"
-            style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
-        </div>
-        <div>
-          <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Дата начала *</label>
-          <input type="date" id="cert-date-from" oninput="updateCertPreview()"
-            style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
-        </div>
-        <div>
-          <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Дата окончания *</label>
-          <input type="date" id="cert-date-to" oninput="updateCertPreview()"
-            style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
-        </div>
-      </div>
-
-      <div style="margin-bottom:14px">
-        <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Магазин / Точка продажи</label>
-        <select id="cert-store"
-          style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
-          <option value="Grand Park">Grand Park</option>
-          <option value="Aport">Aport</option>
-        </select>
-      </div>
-
-      <div style="margin-bottom:14px">
-        <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Примечание</label>
-        <input type="text" id="cert-note" placeholder="Необязательно"
-          style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
-      </div>
-
-      <!-- Generated code display -->
-      <div id="cert-code-display" style="display:none;padding:14px;background:var(--bg3);border-radius:10px;margin-bottom:20px;text-align:center">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:6px">КОД СЕРТИФИКАТА</div>
-        <div style="font-size:22px;font-weight:800;letter-spacing:4px;color:var(--accent)" id="cert-code-value"></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:4px">Сохраните этот код для проверки</div>
-      </div>
-
-      <div style="display:flex;gap:10px">
-        <button onclick="saveCertificate()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:700;cursor:pointer">
-          Выдать сертификат
-        </button>
-        <button onclick="closeCertModal()" style="padding:12px 20px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:14px;cursor:pointer">
-          Отмена
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== CERTIFICATE VIEW MODAL ===== -->
-<div class="modal-overlay" id="certViewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:500px">
-    <div id="certViewContent" style="padding:28px"></div>
-    <div style="padding:0 28px 28px;display:flex;gap:10px">
-      <button onclick="closeCertViewModal()" style="flex:1;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;cursor:pointer">Закрыть</button>
-      <button id="cert-revoke-btn" style="padding:12px 20px;background:rgba(255,51,51,0.1);border:1px solid var(--red);border-radius:10px;color:var(--red);font-size:14px;cursor:pointer">Аннулировать</button>
-    </div>
-  </div>
-</div>
-
-<!-- Firebase Compat SDK (v10) — глобальный объект firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
@@ -3231,5 +3129,102 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+<div class="modal-overlay" id="certModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto">
+
+    <!-- Preview -->
+    <div id="cert-preview" style="background:#f0ebe3;border-radius:16px 16px 0 0;padding:32px 40px;position:relative;overflow:hidden;min-height:180px">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0.08;font-size:120px;font-weight:900;color:#c0392b;pointer-events:none;user-select:none">Qoima</div>
+      <!-- Top row -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="font-size:12px;font-weight:800;letter-spacing:1px;color:#111">QOIMA × abo</div>
+        <div style="text-align:right">
+          <div style="font-size:10px;font-weight:800;color:#c0392b;letter-spacing:1px">ЖАРАМДЫЛЫҚ МЕРЗІМІ:</div>
+          <div style="font-size:13px;font-weight:700;color:#111" id="preview-dates">—</div>
+        </div>
+      </div>
+      <!-- Big title -->
+      <div style="font-size:36px;font-weight:900;color:#c0392b;line-height:1;margin-bottom:12px;letter-spacing:-1px">СЫЙЛЫҚ<br>СЕРТИФИКАТ</div>
+      <!-- Name line -->
+      <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:10px">
+        <div style="font-size:14px;font-weight:700;color:#111">|</div>
+        <div style="font-size:18px;font-style:italic;color:#111;border-bottom:1.5px solid #111;padding-bottom:2px;min-width:200px" id="preview-name">Покупатель</div>
+      </div>
+      <!-- Amount -->
+      <div style="font-size:28px;font-weight:900;color:#c0392b" id="preview-amount">— ₸</div>
+      <div style="font-size:10px;color:#555;margin-top:2px" id="preview-amount-text">—</div>
+    </div>
+
+    <!-- Form -->
+    <div style="padding:28px">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:24px" id="cert-modal-title">Новый сертификат</h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Имя покупателя *</label>
+          <input type="text" id="cert-buyer-name" placeholder="Например: Aibek Seitkali" oninput="updateCertPreview()"
+            style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Сумма (₸) *</label>
+          <input type="number" id="cert-amount" placeholder="12000" oninput="updateCertPreview()"
+            style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Дата начала *</label>
+          <input type="date" id="cert-date-from" oninput="updateCertPreview()"
+            style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Дата окончания *</label>
+          <input type="date" id="cert-date-to" oninput="updateCertPreview()"
+            style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Магазин / Точка продажи</label>
+        <select id="cert-store"
+          style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+          <option value="Grand Park">Grand Park</option>
+          <option value="Aport">Aport</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Примечание</label>
+        <input type="text" id="cert-note" placeholder="Необязательно"
+          style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+      </div>
+
+      <!-- Generated code display -->
+      <div id="cert-code-display" style="display:none;padding:14px;background:var(--bg3);border-radius:10px;margin-bottom:20px;text-align:center">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px">КОД СЕРТИФИКАТА</div>
+        <div style="font-size:22px;font-weight:800;letter-spacing:4px;color:var(--accent)" id="cert-code-value"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">Сохраните этот код для проверки</div>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <button onclick="saveCertificate()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:700;cursor:pointer">
+          Выдать сертификат
+        </button>
+        <button onclick="closeCertModal()" style="padding:12px 20px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:14px;cursor:pointer">
+          Отмена
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CERTIFICATE VIEW MODAL ===== -->
+<div class="modal-overlay" id="certViewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:500px">
+    <div id="certViewContent" style="padding:28px"></div>
+    <div style="padding:0 28px 28px;display:flex;gap:10px">
+      <button onclick="closeCertViewModal()" style="flex:1;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;cursor:pointer">Закрыть</button>
+      <button id="cert-revoke-btn" style="padding:12px 20px;background:rgba(255,51,51,0.1);border:1px solid var(--red);border-radius:10px;color:var(--red);font-size:14px;cursor:pointer">Аннулировать</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

@@ -2854,16 +2854,26 @@ let currentCertId = null;
 
 // Числа прописью (казахский стиль, тысячи)
 function numToWords(n) {
-  const ones = ['','БІР','ЕКІ','ҮШ','ТӨРТ','БЕС','АЛТЫ','ЖЕТІ','СЕГІЗ','ТОҒЫЗ'];
+  const ones  = ['','БІР','ЕКІ','ҮШ','ТӨРТ','БЕС','АЛТЫ','ЖЕТІ','СЕГІЗ','ТОҒЫЗ'];
   const teens = ['ОН','ОН БІР','ОН ЕКІ','ОН ҮШ','ОН ТӨРТ','ОН БЕС','ОН АЛТЫ','ОН ЖЕТІ','ОН СЕГІЗ','ОН ТОҒЫЗ'];
-  const tens = ['','ОН','ЖИЫРМА','ОТЫЗ','ҚЫРЫҚ','ЕЛУ','АЛПЫС','ЖЕТПІС','СЕКСЕН','ТОҚСАН'];
+  const tens  = ['','ОН','ЖИЫРМА','ОТЫЗ','ҚЫРЫҚ','ЕЛУ','АЛПЫС','ЖЕТПІС','СЕКСЕН','ТОҚСАН'];
+
+  function below1000(num) {
+    let r = '';
+    if (num >= 100) { r += ones[Math.floor(num/100)] + ' ЖҮЗ '; num %= 100; }
+    if (num >= 20)  { r += tens[Math.floor(num/10)] + ' '; num %= 10; }
+    else if (num >= 10) { r += teens[num - 10] + ' '; num = 0; }
+    if (num > 0)    { r += ones[num] + ' '; }
+    return r;
+  }
+
   if (n === 0) return 'НӨЛДІК';
   let result = '';
-  if (n >= 1000) { result += ones[Math.floor(n/1000)] + (Math.floor(n/1000)>1?' ':' ') + 'МЫҢ '; n %= 1000; }
-  if (n >= 100) { result += ones[Math.floor(n/100)] + ' ЖҮЗ '; n %= 100; }
-  if (n >= 20) { result += tens[Math.floor(n/10)] + ' '; n %= 10; }
-  else if (n >= 10) { result += teens[n-10] + ' '; n = 0; }
-  if (n > 0) result += ones[n] + ' ';
+  if (n >= 1000) {
+    result += below1000(Math.floor(n / 1000)) + 'МЫҢ ';
+    n %= 1000;
+  }
+  result += below1000(n);
   return result.trim();
 }
 
@@ -3069,29 +3079,32 @@ function viewCertificate(certId) {
   const isRevoked = cert.status === 'revoked';
 
   document.getElementById('certViewContent').innerHTML = `
-    <!-- Сертификат с реальным дизайном -->
-    <div style="position:relative;width:100%;padding-bottom:39.06%;background:#f5ede0;border-radius:12px;overflow:hidden;margin-bottom:20px">
+    <!-- Сертификат — точный дизайн как в certModal -->
+    <div style="position:relative;border-radius:16px 16px 0 0;overflow:hidden;width:100%;padding-bottom:39.06%;background:#f5ede0">
       <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaRakhmetCardddas.png"
            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" alt="">
       <div style="position:absolute;inset:0;padding:4% 5%">
-        <div style="display:flex;justify-content:flex-end">
+
+        <!-- Верхний ряд: дата справа -->
+        <div style="display:flex;justify-content:flex-end;margin-bottom:0">
           <div style="text-align:right">
-            <div style="font-family:'BenzinBold',sans-serif;font-size:clamp(7px,1.1%,10px);color:#c0392b;text-transform:uppercase;line-height:1.3">ЖАРАМДЫЛЫҚ<br>МЕРЗІМІ:</div>
-            <div style="font-family:'Handwriting',sans-serif;font-size:clamp(10px,1.7%,15px);color:#111;margin-top:2px">${fmtDateShort(cert.dateFrom)} – ${fmtDateShort(cert.dateTo)}</div>
+            <div style="font-family:'Handwriting',sans-serif;font-size:clamp(18px,1.8%,16px);color:#111;margin-top:2px">${fmtDateShort(cert.dateFrom)} – ${fmtDateShort(cert.dateTo)}</div>
           </div>
         </div>
+
+        <!-- Нижняя часть: имя + сумма -->
         <div style="position:absolute;bottom:6%;left:5%;right:5%">
           <div style="display:flex;align-items:flex-end;gap:6px;margin-bottom:2%">
-            <div style="font-family:'BenzinExtraBold',sans-serif;font-size:clamp(12px,2%,18px);color:#111;line-height:1">|</div>
-            <div style="font-family:'Thesignature',cursive;font-size:clamp(16px,3.2%,30px);color:#111;border-bottom:1.5px solid #111;padding-bottom:1px;max-width:65%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1">${cert.buyerName || '—'}</div>
+            <div style="font-family:'Thesignature',cursive;font-size:clamp(50px,3.5%,34px);color:#111;padding-left:16px;min-width:30%;max-width:65%;white-space:nowrap;text-overflow:ellipsis;line-height:1.1">${cert.buyerName || '—'}</div>
           </div>
-          <div style="font-family:'BenzinExtraBold',sans-serif;font-size:clamp(18px,3.5%,32px);color:#c0392b;line-height:1">${(cert.amount||0).toLocaleString('ru-RU')} ₸</div>
-          <div style="font-family:'BenzinSemibold',sans-serif;font-size:clamp(5px,0.85%,8px);color:#555;margin-top:2px;text-transform:uppercase;letter-spacing:0.5px">${cert.amount ? numToWords(cert.amount) + ' ТЕҢГЕ КӨЛЕМІНДЕ' : ''}</div>
+          <div style="font-family:'BenzinExtraBold',sans-serif;font-size:clamp(20px,3.8%,36px);color:#e91e24;line-height:1;font-weight:900">${(cert.amount||0).toLocaleString('ru-RU')} ₸</div>
+          <div style="font-family:'BenzinSemibold',sans-serif;font-size:clamp(6px,0.9%,9px);color:#555;margin-top:2px;text-transform:uppercase;letter-spacing:0.5px">${cert.amount ? numToWords(cert.amount) + ' ТЕҢГЕ КӨЛЕМІНДЕ' : ''}</div>
         </div>
+
       </div>
     </div>
     <!-- Инфо -->
-    <div style="padding:0 4px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div style="padding:16px 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div style="background:var(--bg3);border-radius:10px;padding:12px">
         <div style="font-size:10px;color:var(--text3);margin-bottom:3px">КОД</div>
         <div style="font-size:15px;font-weight:800;letter-spacing:2px;color:var(--accent);font-family:monospace">${cert.code || '—'}</div>
@@ -3108,8 +3121,8 @@ function viewCertificate(certId) {
         <div style="font-size:10px;color:var(--text3);margin-bottom:3px">ВЫДАН</div>
         <div style="font-size:12px">${cert.issuedBy || '—'}</div>
       </div>
+      ${cert.note ? `<div style="grid-column:span 2;background:var(--bg3);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">ПРИМЕЧАНИЕ</div><div style="font-size:13px">${cert.note}</div></div>` : ''}
     </div>
-    ${cert.note ? `<div style="margin-top:10px;background:var(--bg3);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">ПРИМЕЧАНИЕ</div><div style="font-size:13px">${cert.note}</div></div>` : ''}
   `;
 
   _viewingCert = cert;
@@ -3321,7 +3334,6 @@ document.addEventListener('DOMContentLoaded', () => {
     <div id="certViewContent" style="padding:24px 24px 0"></div>
     <div style="padding:16px 24px 24px;display:flex;gap:10px;flex-wrap:wrap">
       <button onclick="closeCertViewModal()" style="flex:1;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;cursor:pointer">Закрыть</button>
-      <button onclick="printCurrentCert()" style="padding:12px 20px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer">🖨️ Печать</button>
       <button id="cert-revoke-btn" style="padding:12px 20px;background:rgba(255,51,51,0.1);border:1px solid var(--red);border-radius:10px;color:var(--red);font-size:14px;cursor:pointer">Аннулировать</button>
     </div>
   </div>

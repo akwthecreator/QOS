@@ -2890,13 +2890,13 @@ function genCertCode() {
 }
 
 function updateCertPreview() {
-  const name    = document.getElementById('cert-buyer-name').value || 'Покупатель';
+  const name    = document.getElementById('cert-buyer-name').value || '';
   const amount  = parseInt(document.getElementById('cert-amount').value) || 0;
   const dateFrom = document.getElementById('cert-date-from').value;
   const dateTo   = document.getElementById('cert-date-to').value;
 
   document.getElementById('preview-name').textContent = name;
-  document.getElementById('preview-amount').textContent = amount > 0 ? amount.toLocaleString('ru-RU') + ' ₸' : '— ₸';
+  document.getElementById('preview-amount').textContent = amount > 0 ? amount.toLocaleString('ru-RU') + ' ₸' : ' ₸';
   document.getElementById('preview-amount-text').textContent = amount > 0 ? numToWords(amount) + ' ТЕҢГЕ КӨЛЕМІНДЕ' : '';
   document.getElementById('preview-dates').textContent = (dateFrom && dateTo) ? `${fmtDateShort(dateFrom)} – ${fmtDateShort(dateTo)}` : '—';
 }
@@ -3243,10 +3243,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <div style="position:absolute;bottom:6%;left:5%;right:5%">
           <!-- Имя: шрифт Thesignature -->
           <div style="display:flex;align-items:flex-end;gap:6px;margin-bottom:2%">
-            <div id="preview-name" style="font-family:'Thesignature',cursive;font-size:clamp(50px,3.5%,34px);color:#111;padding-left:16px;min-width:30%;max-width:65%;white-space:nowrap;text-overflow:ellipsis;line-height:1.1"></div>
+            <div id="preview-name" style="font-family:'Thesignature',cursive;font-size:clamp(50px,3.5%,34px);color:#111;padding-left:16px;min-width:30%;max-width:65%;white-space:nowrap;text-overflow:ellipsis;line-height:1.1">Покупатель</div>
           </div>
           <!-- Сумма: шрифт BenzinExtraBold -->
-          <div id="preview-amount" style="font-family:'BenzinExtraBold',sans-serif;font-size:clamp(20px,3.8%,36px);color:#e91e24;line-height:1;font-weight:900">0 ₸</div>
+          <div id="preview-amount" style="font-family:'BenzinExtraBold',sans-serif;font-size:clamp(20px,3.8%,36px);color:##e91e24;line-height:1;font-weight:900">— ₸</div>
           <!-- Сумма прописью: BenzinSemibold -->
           <div id="preview-amount-text" style="font-family:'BenzinSemibold',sans-serif;font-size:clamp(6px,0.9%,9px);color:#555;margin-top:2px;text-transform:uppercase;letter-spacing:0.5px"></div>
         </div>

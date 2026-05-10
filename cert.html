@@ -5,7 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Сертификат Qoima</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+@font-face {
+  font-family: 'TT Octosquares';
+  font-weight: 700;
+  src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/TT%20Octosquares%20Trial%20Bold.ttf') format('truetype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'TT Octosquares';
+  font-weight: 500;
+  src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/TT%20Octosquares%20Trial%20Medium.ttf') format('truetype');
+  font-display: swap;
+}
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -13,7 +24,7 @@ html, body {
   height: 100%; width: 100%;
   overflow: hidden;
   background: #080808;
-  font-family: 'Space Mono', monospace;
+  font-family: 'TT Octosquares', monospace;
   cursor: none;
 }
 
@@ -154,7 +165,7 @@ html, body {
 .cert-brand {
   font-size: clamp(10px, 1.6vw, 14px);
   font-weight: 700; letter-spacing: 1.5px; color: #111;
-  font-family: 'Space Mono', monospace;
+  font-family: 'TT Octosquares', monospace;
 }
 
 /* ─── BACK SIDE DATA LAYOUT — pixel-perfect по Figma ─── */
@@ -173,8 +184,7 @@ html, body {
 }
 /* Имя — по центру вертикали, курсив, подчёркнутое */
 .back-name {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
+  font-family: 'TT Octosquares', monospace;
   font-size: clamp(16px, 2.8vw, 28px);
   color: #111;
   letter-spacing: 2px;
@@ -186,15 +196,15 @@ html, body {
 }
 /* Сумма — крупная красная */
 .back-amount {
-  font-family: 'BenzinExtraBold', 'Space Mono', monospace;
+  font-family: 'TT Octosquares', monospace;
   font-size: clamp(28px, 5.5vw, 54px);
-  color: #c0392b; font-weight: 900; line-height: 1;
+  color: #c0392b; font-weight: 700; line-height: 1;
   margin-bottom: 2%;
   letter-spacing: -1px;
 }
 /* Прописью — мелко */
 .back-amount-sub {
-  font-family: 'Space Mono', monospace;
+  font-family: 'TT Octosquares', monospace;
   font-size: clamp(6px, 0.9vw, 9px);
   color: #666; text-transform: uppercase; letter-spacing: 0.6px;
 }
@@ -208,7 +218,7 @@ html, body {
 }
 /* Лейбл даты */
 .back-date-label {
-  font-family: 'Space Mono', monospace;
+  font-family: 'TT Octosquares', monospace;
   font-size: clamp(7px, 1vw, 9px);
   color: rgba(255,255,255,0.6);
   text-transform: uppercase; letter-spacing: 0.5px;
@@ -216,7 +226,7 @@ html, body {
 }
 /* Дата */
 .back-date {
-  font-family: 'Space Mono', monospace;
+  font-family: 'TT Octosquares', monospace;
   font-size: clamp(12px, 2vw, 18px);
   color: #fff; font-weight: 700; line-height: 1.2;
   border-bottom: 1px solid rgba(255,255,255,0.2);
@@ -225,7 +235,7 @@ html, body {
 }
 /* Код сертификата */
 .back-code {
-  font-family: 'Space Mono', monospace;
+  font-family: 'TT Octosquares', monospace;
   font-size: clamp(9px, 1.4vw, 13px);
   color: #f5ede0; font-weight: 800;
   letter-spacing: 1px;
@@ -264,7 +274,7 @@ html, body {
 .back-status-badge {
   font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
   padding: 4px 10px; border-radius: 20px;
-  font-family: 'Space Mono', monospace;
+  font-family: 'TT Octosquares', monospace;
 }
 .back-status-badge.active  { background: rgba(0,204,102,0.15); color: #00cc66; border: 1px solid rgba(0,204,102,0.3); }
 .back-status-badge.expired { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.1); }
@@ -275,7 +285,7 @@ html, body {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   margin-top: 16px;
   font-size: 11px; color: rgba(255,255,255,0.3);
-  letter-spacing: 1px; font-family: 'Space Mono', monospace;
+  letter-spacing: 1px; font-family: 'TT Octosquares', monospace;
   animation: hintPulse 2.5s ease-in-out infinite;
 }
 .tap-hint-dot {
@@ -292,7 +302,7 @@ html, body {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   gap: 16px; color: rgba(255,255,255,0.3);
-  font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: 1px;
+  font-family: 'TT Octosquares', monospace; font-size: 12px; letter-spacing: 1px;
 }
 .state-spinner {
   width: 28px; height: 28px;
@@ -308,7 +318,7 @@ html, body {
   position: fixed; bottom: 18px; left: 0; right: 0;
   text-align: center;
   font-size: 10px; color: rgba(255,255,255,0.12);
-  font-family: 'Space Mono', monospace; letter-spacing: 1px;
+  font-family: 'TT Octosquares', monospace; letter-spacing: 1px;
   z-index: 20;
   opacity: 0; animation: fadeUp 0.5s ease 1.2s forwards;
 }
@@ -330,8 +340,7 @@ html, body {
 }
 
 /* ─── FONTS ─── */
-@font-face { font-family: 'BenzinExtraBold'; src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/TT Octosquares Trial Bold.ttf'); font-display: swap; }
-@font-face { font-family: 'BenzinSemibold';  src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/TT Octosquares Trial Medium.ttf');  font-display: swap; }
+/* Benzin fonts replaced by TT Octosquares */
 </style>
 </head>
 <body>
@@ -527,7 +536,7 @@ function renderCert(cert) {
 function showError(msg) {
   document.getElementById('certFlipper').innerHTML = `
     <div style="padding:60px 40px;text-align:center;color:rgba(255,255,255,0.4);
-                font-family:'Space Mono',monospace;background:#111;border-radius:22px;
+                font-family:'TT Octosquares', monospace;background:#111;border-radius:22px;
                 border:1px solid rgba(255,255,255,0.06)">
       <div style="font-size:40px;margin-bottom:20px">🎫</div>
       <div style="font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:8px">Сертификат не найден</div>

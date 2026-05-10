@@ -317,7 +317,89 @@ html, body {
   to   { opacity:1; transform:translateY(0); }
 }
 
-/* ─── MOBILE ─── */
+/* ─── FLIP CARD ─── */
+.cert-flipper {
+  width: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.85s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+.cert-flipper.flipped {
+  transform: rotateY(180deg);
+}
+.cert-face {
+  width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.cert-front {
+  position: relative;
+}
+.cert-back {
+  position: absolute;
+  top: 0; left: 0;
+  transform: rotateY(180deg);
+}
+
+/* ─── BACK CARD STYLE ─── */
+.cert-card-back {
+  background: #111;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 30px 80px rgba(0,0,0,0.8),
+    0 0 120px rgba(201,168,130,0.08);
+}
+.cert-back-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px 0;
+}
+.back-status-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-family: 'Space Mono', monospace;
+}
+.back-status-badge.active  { background: rgba(0,204,102,0.15); color: #00cc66; border: 1px solid rgba(0,204,102,0.3); }
+.back-status-badge.expired { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.1); }
+.back-status-badge.revoked { background: rgba(255,51,51,0.15); color: #ff3333; border: 1px solid rgba(255,51,51,0.3); }
+
+/* ─── TAP HINT ─── */
+.tap-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 1px;
+  font-family: 'Space Mono', monospace;
+  animation: hintPulse 2.5s ease-in-out infinite;
+}
+.tap-hint-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  animation: dotPulse 2.5s ease-in-out infinite;
+}
+@keyframes hintPulse {
+  0%,100% { opacity: 0.5; transform: translateY(0); }
+  50%      { opacity: 1;   transform: translateY(-3px); }
+}
+@keyframes dotPulse {
+  0%,100% { background: rgba(255,255,255,0.3); }
+  50%      { background: rgba(255,255,255,0.8); }
+}
+
+/* Скрываем hint после флипа */
+.cert-flipper.flipped .cert-front .tap-hint { opacity: 0; }
+</style>
 @media (max-width: 600px) {
   .sticker-1 { width: 120px; height: 120px; top: 3%;   left: 1%; }
   .sticker-2 { width: 100px; height: 100px; top: 3%;   right: 2%; }
@@ -371,83 +453,91 @@ html, body {
   </div>
 
   <div class="cert-wrap" id="certWrap">
- 
-    <div class="cert-card" id="certCard">
- 
-      <!-- Image zone -->
-      <div class="cert-img-area" id="certImgArea">
- 
-        <!-- Картинка сертификата — полный фон -->
-        <img
-          src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaRakhmetCert.png"
-          alt="Qoima Certificate"
-          onerror="this.style.display='none';document.getElementById('certImgFallback').style.display='flex'"
-        >
- 
-        <!-- Fallback если картинка не загрузилась -->
-        <div class="cert-img-placeholder" id="certImgFallback" style="display:none">
-          <div class="cert-img-placeholder-inner">
-            <span>Qoima</span>
-            <span>Сертификат</span>
-          </div>
-        </div>
 
-        <!-- Overlay: динамические данные поверх картинки -->
-        <div class="cert-overlay">
-          <div class="cert-top-row">
-            <div class="cert-brand">QOIMA × abo</div>
-            <div style="text-align:right">
-              <div class="cert-validity-label">ЖАРАМДЫЛЫҚ<br>МЕРЗІМІ:</div>
-              <div class="cert-validity-val" id="cDates">—</div>
+    <!-- FLIP CONTAINER -->
+    <div class="cert-flipper" id="certFlipper">
+
+      <!-- ЛИЦЕВАЯ СТОРОНА: картинка сертификата -->
+      <div class="cert-face cert-front">
+        <div class="cert-card">
+          <div class="cert-img-area">
+            <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaRakhmetCardddas.png" alt="Qoima Certificate">
+            <div class="cert-overlay">
+              <div class="cert-top-row">
+                <div class="cert-brand">QOIMA × abo</div>
+                <div style="text-align:right">
+                  <div class="cert-validity-label">ЖАРАМДЫЛЫҚ<br>МЕРЗІМІ:</div>
+                  <div class="cert-validity-val" id="cDates">—</div>
+                </div>
+              </div>
+              <div class="cert-bottom-area">
+                <div class="cert-name-row">
+                  <div class="cert-name-bar"></div>
+                  <div class="cert-name" id="cName">—</div>
+                </div>
+                <div class="cert-amount" id="cAmount">— ₸</div>
+                <div class="cert-amount-sub" id="cAmountText"></div>
+              </div>
             </div>
           </div>
-          <div class="cert-bottom-area">
-            <div class="cert-name-row">
-              <div class="cert-name-bar"></div>
-              <div class="cert-name" id="cName">—</div>
+        </div>
+        <div class="tap-hint" id="tapHint">
+          <div class="tap-hint-dot"></div>
+          <span>Нажмите чтобы открыть сертификат</span>
+        </div>
+      </div>
+
+      <!-- ОБРАТНАЯ СТОРОНА: данные -->
+      <div class="cert-face cert-back">
+        <div class="cert-card cert-card-back">
+          <div class="cert-back-header">
+            <div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.35);font-family:'Space Mono',monospace">QOIMA GIFT CERTIFICATE</div>
+            <div id="backStatus" class="back-status-badge active">АКТИВЕН</div>
+          </div>
+          <div class="cert-info-strip">
+            <div class="info-cell full" style="text-align:center;padding:20px 12px">
+              <div class="info-lbl">КОД СЕРТИФИКАТА</div>
+              <div class="info-val code" id="cCode" style="font-size:18px;letter-spacing:3px;margin-top:6px">—</div>
             </div>
-            <div class="cert-amount" id="cAmount">— ₸</div>
-            <div class="cert-amount-sub" id="cAmountText"></div>
+            <div class="info-cell">
+              <div class="info-lbl">ПОКУПАТЕЛЬ</div>
+              <div class="info-val" id="cNameBack">—</div>
+            </div>
+            <div class="info-cell">
+              <div class="info-lbl">СУММА</div>
+              <div class="info-val" id="cAmountBack" style="color:#c0392b">—</div>
+            </div>
+            <div class="info-cell">
+              <div class="info-lbl">МАГАЗИН</div>
+              <div class="info-val" id="cStore">—</div>
+            </div>
+            <div class="info-cell">
+              <div class="info-lbl">ДЕЙСТВИТЕЛЕН ДО</div>
+              <div class="info-val" id="cDateTo">—</div>
+            </div>
+            <div class="info-cell full" id="cNoteWrap" style="display:none">
+              <div class="info-lbl">ПРИМЕЧАНИЕ</div>
+              <div class="info-val" id="cNote"></div>
+            </div>
+          </div>
+          <div style="padding:0 16px 16px">
+            <div class="status-banner ok" id="bannerOk">
+              <div class="status-dot ok"></div>
+              <span>Сертификат действителен · Верифицирован системой Qoima</span>
+            </div>
+            <div class="status-banner bad" id="bannerBad" style="display:none">
+              <div class="status-dot bad"></div>
+              <span id="bannerBadText">Сертификат недействителен</span>
+            </div>
           </div>
         </div>
-
-      </div>
- 
-      <!-- Info strip -->
-      <div class="cert-info-strip">
-        <div class="info-cell">
-          <div class="info-lbl">КОД СЕРТИФИКАТА</div>
-          <div class="info-val code" id="cCode">—</div>
-        </div>
-        <div class="info-cell">
-          <div class="info-lbl">СТАТУС</div>
-          <div class="info-val active" id="cStatus">—</div>
-        </div>
-        <div class="info-cell">
-          <div class="info-lbl">МАГАЗИН</div>
-          <div class="info-val" id="cStore">—</div>
-        </div>
-        <div class="info-cell">
-          <div class="info-lbl">ДЕЙСТВИТЕЛЕН ДО</div>
-          <div class="info-val" id="cDateTo">—</div>
-        </div>
-        <div class="info-cell full" id="cNoteWrap" style="display:none">
-          <div class="info-lbl">ПРИМЕЧАНИЕ</div>
-          <div class="info-val" id="cNote"></div>
+        <div class="tap-hint">
+          <div class="tap-hint-dot"></div>
+          <span>Нажмите снова чтобы перевернуть</span>
         </div>
       </div>
- 
-    </div><!-- /cert-card -->
 
-    <!-- Status banner -->
-    <div class="status-banner ok" id="bannerOk">
-      <div class="status-dot ok"></div>
-      <span>Сертификат действителен · Верифицирован системой Qoima</span>
-    </div>
-    <div class="status-banner bad" id="bannerBad" style="display:none">
-      <div class="status-dot bad"></div>
-      <span id="bannerBadText">Сертификат недействителен</span>
-    </div>
+    </div><!-- /cert-flipper -->
 
   </div><!-- /cert-wrap -->
 
@@ -521,6 +611,7 @@ async function loadCert() {
 
     const cert = { id: snap.docs[0].id, ...snap.docs[0].data() };
     renderCert(cert);
+    certLoaded = true;
     showScene();
   } catch(e) {
     console.error(e);
@@ -534,18 +625,24 @@ function renderCert(cert) {
   const isExpired = cert.dateTo < today;
   const isRevoked = cert.status === 'revoked';
 
+  // Лицевая сторона
   document.getElementById('cDates').textContent      = `${fmtShort(cert.dateFrom)} – ${fmtShort(cert.dateTo)}`;
   document.getElementById('cName').textContent       = cert.buyerName || '—';
   document.getElementById('cAmount').textContent     = (cert.amount||0).toLocaleString('ru-RU') + ' ₸';
   document.getElementById('cAmountText').textContent = cert.amount ? numToWords(cert.amount) + ' ТЕҢГЕ КӨЛЕМІНДЕ' : '';
-  document.getElementById('cCode').textContent       = cert.code || '—';
-  document.getElementById('cStore').textContent      = cert.store || '—';
-  document.getElementById('cDateTo').textContent     = fmtFull(cert.dateTo);
 
-  const statusEl = document.getElementById('cStatus');
-  if (isRevoked)      { statusEl.textContent = 'АННУЛИРОВАН'; statusEl.className = 'info-val revoked'; }
-  else if (isExpired) { statusEl.textContent = 'ИСТЁК';        statusEl.className = 'info-val expired'; }
-  else                { statusEl.textContent = 'АКТИВЕН';      statusEl.className = 'info-val active'; }
+  // Обратная сторона
+  document.getElementById('cCode').textContent      = cert.code || '—';
+  document.getElementById('cNameBack').textContent  = cert.buyerName || '—';
+  document.getElementById('cAmountBack').textContent= (cert.amount||0).toLocaleString('ru-RU') + ' ₸';
+  document.getElementById('cStore').textContent     = cert.store || '—';
+  document.getElementById('cDateTo').textContent    = fmtFull(cert.dateTo);
+
+  // Статус бейдж на обратной стороне
+  const badge = document.getElementById('backStatus');
+  if (isRevoked)      { badge.textContent = 'АННУЛИРОВАН'; badge.className = 'back-status-badge revoked'; }
+  else if (isExpired) { badge.textContent = 'ИСТЁК';        badge.className = 'back-status-badge expired'; }
+  else                { badge.textContent = 'АКТИВЕН';      badge.className = 'back-status-badge active'; }
 
   if (cert.note) {
     document.getElementById('cNote').textContent = cert.note;
@@ -560,6 +657,36 @@ function renderCert(cert) {
       : 'Срок действия сертификата истёк';
   }
 }
+
+// ─────────────────────────────────────────────
+//  FLIP LOGIC
+// ─────────────────────────────────────────────
+let isFlipped = false;
+let certLoaded = false;
+
+function flipCard() {
+  if (!certLoaded) return; // не даём флипать пока не загружен
+  const flipper = document.getElementById('certFlipper');
+  isFlipped = !isFlipped;
+  flipper.classList.toggle('flipped', isFlipped);
+
+  // Звук щелчка (опционально — через AudioContext)
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    osc.start(); osc.stop(ctx.currentTime + 0.08);
+  } catch(e) {}
+}
+
+// Клик/тап в любом месте экрана
+document.addEventListener('click',     flipCard);
+document.addEventListener('touchend',  e => { e.preventDefault(); flipCard(); }, { passive: false });
 
 function showError(msg) {
   document.getElementById('certCard').innerHTML = `
@@ -654,16 +781,15 @@ function tick(t) {
   tx += (mx - tx) * ease;
   ty += (my - ty) * ease;
 
-  // ── Cert card 3D tilt ──
-  const tiltX = ty * -18;   // degrees
-  const tiltY = tx *  18;
-  const liftZ = 40;
+  // ── Cert card 3D tilt (applied to wrap, flip is on inner flipper) ──
+  const tiltX = ty * -14;
+  const tiltY = tx *  14;
   certWrap.style.transform = `
     rotateX(${tiltX}deg)
     rotateY(${tiltY}deg)
-    translateZ(${liftZ}px)
-    translateX(${tx * -12}px)
-    translateY(${ty * -8}px)
+    translateZ(40px)
+    translateX(${tx * -10}px)
+    translateY(${ty * -6}px)
   `;
 
   // ── Stickers levitation + parallax ──

@@ -2,372 +2,470 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Сертификат Qoima</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { min-height: 100%; font-family: -apple-system, 'SF Pro Display', BlinkMacSystemFont, sans-serif; }
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 
-body {
-  background: #0a0a0a;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 24px 16px 40px;
-  overflow-x: hidden;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%; width: 100%;
+  overflow: hidden;
+  background: #080808;
+  font-family: 'Space Mono', monospace;
+  cursor: none;
 }
 
-/* ── BACKGROUND GLOW ── */
-.bg-glow {
-  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+/* ─── CUSTOM CURSOR ─── */
+.cursor {
+  position: fixed; z-index: 9999;
+  width: 10px; height: 10px;
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%,-50%);
+  transition: transform 0.08s ease, width 0.2s, height 0.2s, opacity 0.2s;
+  mix-blend-mode: difference;
+}
+.cursor-ring {
+  position: fixed; z-index: 9998;
+  width: 36px; height: 36px;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%,-50%);
+  transition: transform 0.18s ease, width 0.25s, height 0.25s;
+}
+
+/* ─── SCENE ─── */
+.scene {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  perspective: 900px;
   overflow: hidden;
 }
-.glow-1 {
-  position: absolute; width: 600px; height: 600px;
+
+/* ─── NOISE OVERLAY ─── */
+.scene::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.028;
+  pointer-events: none; z-index: 0;
+}
+
+/* ─── AMBIENT GLOWS ─── */
+.glow-a {
+  position: absolute;
+  width: 700px; height: 700px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(201,168,130,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(220,180,100,0.055) 0%, transparent 65%);
   top: -200px; left: 50%; transform: translateX(-50%);
-  animation: float1 8s ease-in-out infinite;
+  animation: ga 12s ease-in-out infinite;
+  pointer-events: none;
 }
-.glow-2 {
-  position: absolute; width: 400px; height: 400px;
+.glow-b {
+  position: absolute;
+  width: 500px; height: 500px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(233,30,36,0.08) 0%, transparent 70%);
-  bottom: 0; right: -100px;
-  animation: float2 10s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(233,30,36,0.045) 0%, transparent 65%);
+  bottom: -150px; right: -100px;
+  animation: gb 9s ease-in-out infinite;
+  pointer-events: none;
 }
-@keyframes float1 { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-30px)} }
-@keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
+@keyframes ga { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-40px)} }
+@keyframes gb { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-30px) rotate(3deg)} }
 
-/* ── WRAPPER ── */
-.wrapper {
-  position: relative; z-index: 1;
-  width: 100%; max-width: 540px;
-  display: flex; flex-direction: column; align-items: center; gap: 0;
+/* ─── STICKERS ─── */
+.sticker {
+  position: absolute;
+  border-radius: 4px;
+  cursor: none;
+  will-change: transform;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.6));
+  transition: filter 0.3s;
+  user-select: none;
+  -webkit-user-drag: none;
+  z-index: 2;
 }
-
-/* ── LOGO ── */
-.logo-wrap {
-  margin-bottom: 28px; text-align: center;
-  opacity: 0; transform: translateY(-20px);
-  animation: fadeUp 0.6s ease forwards 0.1s;
+.sticker:hover {
+  filter: drop-shadow(0 12px 40px rgba(0,0,0,0.8)) brightness(1.08);
+  z-index: 3;
 }
-.logo-img {
-  width: 52px; height: 52px;
-  background: linear-gradient(135deg, #0066ff, #0044cc);
-  border-radius: 14px;
+.sticker img {
+  width: 100%; height: 100%; object-fit: contain;
+  display: block; pointer-events: none;
+  -webkit-user-drag: none;
+}
+/* Placeholder square for sticker when no image */
+.sticker-placeholder {
+  width: 100%; height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  border: 1.5px dashed rgba(255,255,255,0.15);
   display: flex; align-items: center; justify-content: center;
-  font-weight: 800; color: white; font-size: 16px;
-  letter-spacing: -0.5px;
-  box-shadow: 0 8px 24px rgba(0,102,255,0.35);
-  margin: 0 auto 10px;
+  font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px;
+  text-align: center; padding: 8px;
 }
-.logo-text { font-size: 13px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; }
 
-/* ── HEADLINE ── */
-.headline {
-  text-align: center; margin-bottom: 32px;
-  opacity: 0; transform: translateY(-16px);
-  animation: fadeUp 0.6s ease forwards 0.25s;
-}
-.headline h1 {
-  font-size: clamp(22px, 5vw, 30px);
-  font-weight: 700; letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  margin-bottom: 8px;
-}
-.headline p { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+/* Sticker positions & sizes — 5 stickers */
+.sticker-1 { width: 320px; height: 320px; top: 6%;   left: 4%; }
+.sticker-2 { width: 300px; height: 300px; top: 4%;   right: 8%; }
+.sticker-3 { width: 340px; height: 340px; bottom: 8%; left: 2%; }
+.sticker-4 { width: 310px; height: 310px; bottom: 6%; right: 5%; }
+.sticker-5 { width: 320px; height: 320px; top: 4%;  right: 48%; }
 
-/* ── CERTIFICATE CARD ── */
-.cert-card-wrap {
+/* ─── CERT WRAPPER ─── */
+.cert-wrap {
+  position: relative; z-index: 10;
+  width: min(520px, calc(100vw - 40px));
+  transform-style: preserve-3d;
+  will-change: transform;
+  cursor: none;
+}
+
+/* ─── CERT CARD ─── */
+.cert-card {
   width: 100%;
-  opacity: 0; transform: translateY(24px) scale(0.97);
-  animation: certIn 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards 0.45s;
-  border-radius: 20px;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.06),
-              0 24px 64px rgba(0,0,0,0.5),
-              0 0 80px rgba(201,168,130,0.08);
-  margin-bottom: 24px;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #f5ede0;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.05),
+    0 30px 80px rgba(0,0,0,0.7),
+    0 0 120px rgba(201,168,130,0.1);
+  transform-style: preserve-3d;
+
+  /* entrance anim */
+  opacity: 0;
+  animation: cardIn 0.9s cubic-bezier(0.34,1.56,0.64,1) 0.3s forwards;
 }
-@keyframes certIn {
-  to { opacity:1; transform:translateY(0) scale(1); }
+@keyframes cardIn {
+  to { opacity: 1; }
 }
 
-.cert-image-wrap {
-  position: relative; width: 100%; padding-bottom: 39.06%;
-  background: #f5ede0;
-  border-radius: 20px 20px 0 0; overflow: hidden;
+/* ─── CERT IMAGE AREA ─── */
+.cert-img-area {
+  position: relative;
+  width: 100%;
+  padding-bottom: 39.06%; /* 256:100 ratio = original design */
+  overflow: hidden;
+  background: #f0e8d8;
 }
-.cert-image-wrap img {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+.cert-img-area img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
 }
+/* Placeholder if no image */
+.cert-img-placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #f0e8d8;
+}
+.cert-img-placeholder-inner {
+  width: 80%; height: 75%;
+  border: 2px dashed rgba(0,0,0,0.12);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 8px;
+}
+.cert-img-placeholder-inner span {
+  font-size: 11px; color: rgba(0,0,0,0.25);
+  letter-spacing: 1px; text-transform: uppercase;
+  font-family: 'Space Mono', monospace;
+}
+
 .cert-overlay {
-  position: absolute; inset: 0; padding: 4% 5%;
+  position: absolute; inset: 0;
+  padding: 4% 5%;
+  display: flex; flex-direction: column; justify-content: space-between;
 }
-.cert-date-row {
-  display: flex; justify-content: flex-end;
+.cert-top-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
 }
-.cert-date-val {
-  font-family: 'Handwriting', sans-serif;
-  font-size: clamp(14px, 2.5vw, 18px);
-  color: #111;
+.cert-brand {
+  font-size: clamp(9px, 1.4vw, 12px);
+  font-weight: 700; letter-spacing: 1.5px; color: #111;
+  font-family: 'Space Mono', monospace;
 }
-.cert-bottom {
-  position: absolute; bottom: 6%; left: 5%; right: 5%;
+.cert-validity-label {
+  font-size: clamp(7px, 1vw, 9px);
+  font-weight: 800; color: #c0392b;
+  letter-spacing: 1px; text-transform: uppercase;
+  text-align: right; line-height: 1.4;
+}
+.cert-validity-val {
+  font-size: clamp(11px, 2vw, 15px);
+  font-weight: 700; color: #111; text-align: right;
+  font-family: 'Space Mono', monospace;
+}
+.cert-bottom-area {
+  display: flex; flex-direction: column; gap: 2%;
+}
+.cert-title-kz {
+  font-size: clamp(18px, 4vw, 32px);
+  font-weight: 900; color: #c0392b;
+  line-height: 1; letter-spacing: -0.5px;
+  font-family: 'Space Mono', monospace;
+}
+.cert-name-row {
+  display: flex; align-items: flex-end; gap: 8px;
+}
+.cert-name-bar {
+  width: 3px; height: clamp(22px, 3.5vw, 34px);
+  background: #111; border-radius: 2px; flex-shrink: 0;
 }
 .cert-name {
-  font-family: 'Thesignature', cursive;
-  font-size: clamp(36px, 6vw, 52px);
-  color: #111; padding-left: 16px;
-  line-height: 1.1; max-width: 70%;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  margin-bottom: 2%;
+  font-size: clamp(20px, 4vw, 38px);
+  color: #111; font-style: italic;
+  border-bottom: 1.5px solid #111;
+  padding-bottom: 2px;
+  max-width: 65%; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.1;
+  font-family: Georgia, 'Times New Roman', serif;
 }
 .cert-amount {
-  font-family: 'BenzinExtraBold', sans-serif;
-  font-size: clamp(20px, 4vw, 36px);
-  color: #e91e24; font-weight: 900; line-height: 1;
+  font-size: clamp(18px, 3.5vw, 34px);
+  font-weight: 900; color: #c0392b; line-height: 1;
+  font-family: 'Space Mono', monospace;
 }
-.cert-amount-text {
-  font-family: 'BenzinSemibold', sans-serif;
-  font-size: clamp(6px, 1vw, 9px);
-  color: #555; margin-top: 2px;
-  text-transform: uppercase; letter-spacing: 0.5px;
+.cert-amount-sub {
+  font-size: clamp(6px, 0.9vw, 8px);
+  color: #666; letter-spacing: 0.5px;
+  text-transform: uppercase; font-family: 'Space Mono', monospace;
+  margin-top: 2px;
 }
 
-/* ── INFO GRID ── */
-.cert-info {
-  background: #141414; border-radius: 0 0 20px 20px;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  padding: 20px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+/* ─── CERT INFO STRIP ─── */
+.cert-info-strip {
+  background: #111;
+  padding: 16px 20px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 .info-cell {
-  background: #1e1e1e; border-radius: 12px; padding: 14px;
+  background: #1a1a1a;
   border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px; padding: 12px;
 }
-.info-label { font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; font-weight: 600; }
-.info-val { font-size: 14px; font-weight: 700; color: #fff; }
-.info-val.code { font-family: monospace; letter-spacing: 2px; color: #0066ff; font-size: 15px; }
+.info-cell.full { grid-column: span 2; }
+.info-lbl {
+  font-size: 9px; color: rgba(255,255,255,0.3);
+  letter-spacing: 0.8px; text-transform: uppercase;
+  font-family: 'Space Mono', monospace; margin-bottom: 4px;
+}
+.info-val {
+  font-size: 13px; font-weight: 700; color: #fff;
+  font-family: 'Space Mono', monospace;
+}
+.info-val.code { color: #4488ff; letter-spacing: 2px; }
 .info-val.active { color: #00cc66; }
 .info-val.expired { color: rgba(255,255,255,0.3); }
 .info-val.revoked { color: #ff3333; }
-.info-cell.full { grid-column: span 2; }
 
-/* ── QR / VERIFIED BADGE ── */
-.verified-badge {
+/* ─── STATUS BADGE ─── */
+.status-banner {
   display: flex; align-items: center; gap: 10px;
-  padding: 12px 20px;
-  background: rgba(0,204,102,0.08);
-  border: 1px solid rgba(0,204,102,0.2);
-  border-radius: 12px; margin-bottom: 16px;
-  opacity: 0; animation: fadeUp 0.5s ease forwards 1.1s;
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid;
+  font-size: 12px; font-family: 'Space Mono', monospace;
+  opacity: 0; animation: fadeUp 0.5s ease 0.9s forwards;
 }
-.verified-icon {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: rgba(0,204,102,0.15);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.verified-icon svg { width: 16px; height: 16px; stroke: #00cc66; }
-.verified-text { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.4; }
-.verified-text b { color: #00cc66; }
+.status-banner.ok  { background: rgba(0,204,102,0.07); border-color: rgba(0,204,102,0.25); color: rgba(255,255,255,0.7); }
+.status-banner.bad { background: rgba(255,51,51,0.07);  border-color: rgba(255,51,51,0.25);  color: rgba(255,255,255,0.7); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.status-dot.ok  { background: #00cc66; box-shadow: 0 0 8px #00cc66; animation: pulse-ok 2s infinite; }
+.status-dot.bad { background: #ff3333; }
+@keyframes pulse-ok { 0%,100%{box-shadow:0 0 8px rgba(0,204,102,0.8)} 50%{box-shadow:0 0 16px rgba(0,204,102,0.4)} }
 
-.revoked-badge {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 20px;
-  background: rgba(255,51,51,0.08);
-  border: 1px solid rgba(255,51,51,0.2);
-  border-radius: 12px; margin-bottom: 16px;
+/* ─── LOADING / ERROR ─── */
+.state-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; color: rgba(255,255,255,0.3);
+  font-family: 'Space Mono', monospace; font-size: 12px;
+  letter-spacing: 1px;
 }
-.revoked-badge svg { width: 16px; height: 16px; stroke: #ff3333; flex-shrink: 0; }
-.revoked-badge span { font-size: 13px; color: rgba(255,255,255,0.7); }
-
-/* ── INSTRUCTIONS ── */
-.instructions {
-  width: 100%;
-  background: #141414; border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 16px; padding: 20px;
-  margin-bottom: 20px;
-  opacity: 0; animation: fadeUp 0.5s ease forwards 1.2s;
-}
-.instructions h3 { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 14px; }
-.step { display: flex; gap: 12px; margin-bottom: 14px; }
-.step:last-child { margin-bottom: 0; }
-.step-num {
-  width: 26px; height: 26px; border-radius: 50%;
-  background: rgba(0,102,255,0.15);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700; color: #0066ff;
-  flex-shrink: 0; margin-top: 1px;
-}
-.step-text { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.5; }
-.step-text b { color: rgba(255,255,255,0.8); }
-
-/* ── FOOTER ── */
-.cert-footer {
-  text-align: center; font-size: 12px; color: rgba(255,255,255,0.2);
-  opacity: 0; animation: fadeUp 0.5s ease forwards 1.4s;
-}
-.cert-footer a { color: rgba(255,255,255,0.3); text-decoration: none; }
-
-/* ── LOADING / ERROR ── */
-.loading-state {
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
-  padding: 60px 20px; color: rgba(255,255,255,0.3);
-}
-.spinner {
-  width: 36px; height: 36px;
+.state-spinner {
+  width: 28px; height: 28px;
   border: 2px solid rgba(255,255,255,0.1);
-  border-top-color: #0066ff;
+  border-top-color: rgba(255,255,255,0.5);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-.error-state {
-  text-align: center; padding: 60px 20px;
+
+/* ─── FOOTER ─── */
+.cert-footer {
+  position: fixed; bottom: 18px; left: 0; right: 0;
+  text-align: center;
+  font-size: 10px; color: rgba(255,255,255,0.12);
+  font-family: 'Space Mono', monospace; letter-spacing: 1px;
+  z-index: 20;
+  opacity: 0; animation: fadeUp 0.5s ease 1.2s forwards;
 }
-.error-icon { font-size: 48px; margin-bottom: 16px; }
-.error-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-.error-sub { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+.cert-footer a { color: rgba(255,255,255,0.2); text-decoration: none; }
 
 @keyframes fadeUp {
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
 }
 
-/* ── FONTS (same as QCP) ── */
-@font-face { font-family: 'BenzinExtraBold'; src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/Supremat - Benzin ExtraBold.ttf'); font-display: swap; }
-@font-face { font-family: 'BenzinSemibold';  src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/Supremat - Benzin Semibold.ttf');  font-display: swap; }
-@font-face { font-family: 'Thesignature';    src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/Thesignature.otf');    font-display: swap; }
-@font-face { font-family: 'Handwriting';     src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/handwriting.ttf');     font-display: swap; }
+/* ─── MOBILE ─── */
+@media (max-width: 600px) {
+  .sticker-1 { width: 120px; height: 120px; top: 3%;   left: 1%; }
+  .sticker-2 { width: 100px; height: 100px; top: 3%;   right: 2%; }
+  .sticker-3 { width: 130px; height: 130px; bottom: 6%; left: 0%; }
+  .sticker-4 { width: 110px; height: 110px; bottom: 5%; right: 1%; }
+  .sticker-5 { width: 90px;  height: 90px;  top: 44%;  right: 1%; }
+}
 </style>
 </head>
 <body>
 
-<div class="bg-glow">
-  <div class="glow-1"></div>
-  <div class="glow-2"></div>
+<!-- Custom cursor (desktop) -->
+<div class="cursor"      id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Loading state -->
+<div class="state-overlay" id="stateLoading">
+  <div class="state-spinner"></div>
+  <div>ЗАГРУЗКА</div>
 </div>
 
-<div class="wrapper">
+<!-- Main scene -->
+<div class="scene" id="mainScene" style="opacity:0">
 
-  <!-- Logo -->
-  <div class="logo-wrap">
-    <div class="logo-img">QCP</div>
-    <div class="logo-text">Qoima Gift Certificate</div>
+  <div class="glow-a"></div>
+  <div class="glow-b"></div>
+
+  <!-- ── STICKERS ── -->
+  <!-- 
+    Замени src на свои ссылки с GitHub:
+    https://raw.githubusercontent.com/akwthecreator/QOS/main/sticker1.png
+  -->
+  <div class="sticker sticker-1" data-speed-x="0.7" data-speed-y="0.5">
+    <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/qsm6_holo.png" alt="">
   </div>
 
-  <!-- Loading -->
-  <div id="state-loading" class="loading-state">
-    <div class="spinner"></div>
-    <div>Загружаем сертификат...</div>
+  <div class="sticker sticker-2" data-speed-x="-0.5" data-speed-y="0.8">
+      <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/Oiy2_holo.png" alt=""> 
   </div>
 
-  <!-- Error -->
-  <div id="state-error" style="display:none" class="error-state">
-    <div class="error-icon">🔍</div>
-    <div class="error-title">Сертификат не найден</div>
-    <div class="error-sub">Проверьте правильность ссылки<br>или обратитесь в магазин Qoima</div>
+  <div class="sticker sticker-3" data-speed-x="0.4" data-speed-y="-0.6">
+    <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/Orta2_holo.png" alt="">
   </div>
 
-  <!-- Certificate -->
-  <div id="state-cert" style="display:none;width:100%">
+  <div class="sticker sticker-4" data-speed-x="-0.8" data-speed-y="-0.4">
+    <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/AlaClub3_holo.png" alt="">
+  </div>
 
-    <div class="headline">
-      <h1 id="cert-headline">Ваш подарочный сертификат</h1>
-      <p id="cert-subline">Предъявите этот сертификат в магазине Qoima</p>
-    </div>
+  <div class="sticker sticker-5" data-speed-x="0.9" data-speed-y="0.3">
+    <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaCurv_holo.png" alt="">
+  </div>
 
-    <!-- Verified / Revoked badge -->
-    <div class="verified-badge" id="badge-verified">
-      <div class="verified-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-      </div>
-      <div class="verified-text"><b>Сертификат действителен</b><br>Код верифицирован системой Qoima</div>
-    </div>
-    <div class="revoked-badge" id="badge-revoked" style="display:none">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-      <span id="badge-revoked-text">Сертификат аннулирован</span>
-    </div>
+  <div class="cert-wrap" id="certWrap">
+ 
+    <div class="cert-card" id="certCard">
+ 
+      <!-- Image zone -->
+      <div class="cert-img-area" id="certImgArea">
+ 
+        <!-- Картинка сертификата — полный фон -->
+        <img
+          src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaRakhmetCert.png"
+          alt="Qoima Certificate"
+          onerror="this.style.display='none';document.getElementById('certImgFallback').style.display='flex'"
+        >
+ 
+        <!-- Fallback если картинка не загрузилась -->
+        <div class="cert-img-placeholder" id="certImgFallback" style="display:none">
+          <div class="cert-img-placeholder-inner">
+            <span>Qoima</span>
+            <span>Сертификат</span>
+          </div>
+        </div>
 
-    <!-- Card -->
-    <div class="cert-card-wrap">
-      <div class="cert-image-wrap">
-        <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaRakhmetCardddas.png" alt="Qoima Certificate">
+        <!-- Overlay: динамические данные поверх картинки -->
         <div class="cert-overlay">
-          <div class="cert-date-row">
-            <div class="cert-date-val" id="c-dates">—</div>
+          <div class="cert-top-row">
+            <div class="cert-brand">QOIMA × abo</div>
+            <div style="text-align:right">
+              <div class="cert-validity-label">ЖАРАМДЫЛЫҚ<br>МЕРЗІМІ:</div>
+              <div class="cert-validity-val" id="cDates">—</div>
+            </div>
           </div>
-          <div class="cert-bottom">
-            <div class="cert-name" id="c-name">—</div>
-            <div class="cert-amount" id="c-amount">— ₸</div>
-            <div class="cert-amount-text" id="c-amount-text"></div>
+          <div class="cert-bottom-area">
+            <div class="cert-name-row">
+              <div class="cert-name-bar"></div>
+              <div class="cert-name" id="cName">—</div>
+            </div>
+            <div class="cert-amount" id="cAmount">— ₸</div>
+            <div class="cert-amount-sub" id="cAmountText"></div>
           </div>
         </div>
-      </div>
 
-      <div class="cert-info">
+      </div>
+ 
+      <!-- Info strip -->
+      <div class="cert-info-strip">
         <div class="info-cell">
-          <div class="info-label">Код сертификата</div>
-          <div class="info-val code" id="c-code">—</div>
+          <div class="info-lbl">КОД СЕРТИФИКАТА</div>
+          <div class="info-val code" id="cCode">—</div>
         </div>
         <div class="info-cell">
-          <div class="info-label">Статус</div>
-          <div class="info-val" id="c-status">—</div>
+          <div class="info-lbl">СТАТУС</div>
+          <div class="info-val active" id="cStatus">—</div>
         </div>
         <div class="info-cell">
-          <div class="info-label">Магазин</div>
-          <div class="info-val" id="c-store">—</div>
+          <div class="info-lbl">МАГАЗИН</div>
+          <div class="info-val" id="cStore">—</div>
         </div>
         <div class="info-cell">
-          <div class="info-label">Действителен до</div>
-          <div class="info-val" id="c-date-to">—</div>
+          <div class="info-lbl">ДЕЙСТВИТЕЛЕН ДО</div>
+          <div class="info-val" id="cDateTo">—</div>
         </div>
-        <div class="info-cell full" id="c-note-wrap" style="display:none">
-          <div class="info-label">Примечание</div>
-          <div class="info-val" id="c-note" style="font-weight:400;font-size:13px;color:rgba(255,255,255,0.6)"></div>
+        <div class="info-cell full" id="cNoteWrap" style="display:none">
+          <div class="info-lbl">ПРИМЕЧАНИЕ</div>
+          <div class="info-val" id="cNote"></div>
         </div>
       </div>
+ 
+    </div><!-- /cert-card -->
+
+    <!-- Status banner -->
+    <div class="status-banner ok" id="bannerOk">
+      <div class="status-dot ok"></div>
+      <span>Сертификат действителен · Верифицирован системой Qoima</span>
+    </div>
+    <div class="status-banner bad" id="bannerBad" style="display:none">
+      <div class="status-dot bad"></div>
+      <span id="bannerBadText">Сертификат недействителен</span>
     </div>
 
-    <!-- Instructions -->
-    <div class="instructions">
-      <h3>Как использовать</h3>
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-text">Придите в магазин <b>Qoima</b> и выберите понравившийся товар</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-text">Покажите эту страницу или сообщите <b>код сертификата</b> продавцу</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-text">Сумма сертификата будет списана с вашей покупки. Сертификат <b>одноразовый</b></div>
-      </div>
-    </div>
+  </div><!-- /cert-wrap -->
 
-    <div class="cert-footer">
-      Сертификат выдан магазином Qoima<br>
-      <a href="https://qoimacontrolpanel.com">qoimacontrolpanel.com</a>
-    </div>
+</div><!-- /scene -->
 
-  </div><!-- /state-cert -->
-
-</div><!-- /wrapper -->
+<div class="cert-footer">
+  Сертификат выдан магазином Qoima ·
+  <a href="https://qoimacontrolpanel.com">qoimacontrolpanel.com</a>
+</div>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 <script>
-// ── Firebase init (read-only — нет Auth) ──
+// ─────────────────────────────────────────────
+//  FIREBASE
+// ─────────────────────────────────────────────
 firebase.initializeApp({
   apiKey:            "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
   authDomain:        "qos-base.firebaseapp.com",
@@ -378,12 +476,14 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 
-// ── Helpers ──
+// ─────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────
 function numToWords(n) {
   const ones  = ['','БІР','ЕКІ','ҮШ','ТӨРТ','БЕС','АЛТЫ','ЖЕТІ','СЕГІЗ','ТОҒЫЗ'];
   const teens = ['ОН','ОН БІР','ОН ЕКІ','ОН ҮШ','ОН ТӨРТ','ОН БЕС','ОН АЛТЫ','ОН ЖЕТІ','ОН СЕГІЗ','ОН ТОҒЫЗ'];
   const tens  = ['','ОН','ЖИЫРМА','ОТЫЗ','ҚЫРЫҚ','ЕЛУ','АЛПЫС','ЖЕТПІС','СЕКСЕН','ТОҚСАН'];
-  function below1000(num) {
+  function sub(num) {
     let r = '';
     if (num >= 100) { r += ones[Math.floor(num/100)] + ' ЖҮЗ '; num %= 100; }
     if (num >= 20)  { r += tens[Math.floor(num/10)] + ' '; num %= 10; }
@@ -393,42 +493,39 @@ function numToWords(n) {
   }
   if (n === 0) return 'НӨЛДІК';
   let result = '';
-  if (n >= 1000) { result += below1000(Math.floor(n/1000)) + 'МЫҢ '; n %= 1000; }
-  result += below1000(n);
+  if (n >= 1000) { result += sub(Math.floor(n/1000)) + 'МЫҢ '; n %= 1000; }
+  result += sub(n);
   return result.trim();
 }
-
-function fmtDateShort(s) {
+function fmtShort(s) {
   if (!s) return '—';
-  const [y,m,d] = s.split('-');
-  return `${d}.${m}`;
+  const [y,m,d] = s.split('-'); return `${d}.${m}`;
+}
+function fmtFull(s) {
+  if (!s) return '—';
+  return new Date(s+'T00:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
 }
 
-function fmtDateFull(s) {
-  if (!s) return '—';
-  return new Date(s + 'T00:00:00').toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' });
-}
-
-// ── Load certificate by code ──
+// ─────────────────────────────────────────────
+//  LOAD CERT
+// ─────────────────────────────────────────────
 async function loadCert() {
-  const params = new URLSearchParams(window.location.search);
-  const code   = params.get('code');
-
-  if (!code) { showError(); return; }
+  const code = new URLSearchParams(window.location.search).get('code');
+  if (!code) { showScene(); showError('Код не указан в ссылке'); return; }
 
   try {
     const snap = await db.collection('certificates')
-      .where('code', '==', code.toUpperCase())
-      .limit(1)
-      .get();
+      .where('code','==', code.toUpperCase()).limit(1).get();
 
-    if (snap.empty) { showError(); return; }
+    if (snap.empty) { showScene(); showError('Сертификат не найден'); return; }
 
     const cert = { id: snap.docs[0].id, ...snap.docs[0].data() };
     renderCert(cert);
+    showScene();
   } catch(e) {
     console.error(e);
-    showError();
+    showScene();
+    showError('Ошибка загрузки');
   }
 }
 
@@ -437,58 +534,178 @@ function renderCert(cert) {
   const isExpired = cert.dateTo < today;
   const isRevoked = cert.status === 'revoked';
 
-  // Fill card
-  document.getElementById('c-dates').textContent   = `${fmtDateShort(cert.dateFrom)} – ${fmtDateShort(cert.dateTo)}`;
-  document.getElementById('c-name').textContent    = cert.buyerName || '—';
-  document.getElementById('c-amount').textContent  = (cert.amount||0).toLocaleString('ru-RU') + ' ₸';
-  document.getElementById('c-amount-text').textContent = cert.amount ? numToWords(cert.amount) + ' ТЕҢГЕ КӨЛЕМІНДЕ' : '';
-  document.getElementById('c-code').textContent    = cert.code || '—';
-  document.getElementById('c-store').textContent   = cert.store || '—';
-  document.getElementById('c-date-to').textContent = fmtDateFull(cert.dateTo);
+  document.getElementById('cDates').textContent      = `${fmtShort(cert.dateFrom)} – ${fmtShort(cert.dateTo)}`;
+  document.getElementById('cName').textContent       = cert.buyerName || '—';
+  document.getElementById('cAmount').textContent     = (cert.amount||0).toLocaleString('ru-RU') + ' ₸';
+  document.getElementById('cAmountText').textContent = cert.amount ? numToWords(cert.amount) + ' ТЕҢГЕ КӨЛЕМІНДЕ' : '';
+  document.getElementById('cCode').textContent       = cert.code || '—';
+  document.getElementById('cStore').textContent      = cert.store || '—';
+  document.getElementById('cDateTo').textContent     = fmtFull(cert.dateTo);
 
-  // Status
-  const statusEl = document.getElementById('c-status');
-  if (isRevoked) {
-    statusEl.textContent = 'АННУЛИРОВАН'; statusEl.className = 'info-val revoked';
-  } else if (isExpired) {
-    statusEl.textContent = 'ИСТЁК'; statusEl.className = 'info-val expired';
-  } else {
-    statusEl.textContent = 'АКТИВЕН'; statusEl.className = 'info-val active';
-  }
+  const statusEl = document.getElementById('cStatus');
+  if (isRevoked)      { statusEl.textContent = 'АННУЛИРОВАН'; statusEl.className = 'info-val revoked'; }
+  else if (isExpired) { statusEl.textContent = 'ИСТЁК';        statusEl.className = 'info-val expired'; }
+  else                { statusEl.textContent = 'АКТИВЕН';      statusEl.className = 'info-val active'; }
 
-  // Note
   if (cert.note) {
-    document.getElementById('c-note').textContent = cert.note;
-    document.getElementById('c-note-wrap').style.display = 'block';
+    document.getElementById('cNote').textContent = cert.note;
+    document.getElementById('cNoteWrap').style.display = 'block';
   }
 
-  // Badge
-  if (isRevoked) {
-    document.getElementById('badge-verified').style.display = 'none';
-    document.getElementById('badge-revoked').style.display  = 'flex';
-    document.getElementById('badge-revoked-text').textContent = 'Этот сертификат был аннулирован';
-    document.getElementById('cert-headline').textContent = 'Сертификат аннулирован';
-    document.getElementById('cert-subline').textContent  = 'Данный сертификат недействителен';
-  } else if (isExpired) {
-    document.getElementById('badge-verified').style.display = 'none';
-    document.getElementById('badge-revoked').style.display  = 'flex';
-    document.getElementById('badge-revoked-text').textContent = 'Срок действия сертификата истёк';
-    document.getElementById('cert-headline').textContent = 'Срок сертификата истёк';
-    document.getElementById('cert-subline').textContent  = 'Обратитесь в магазин Qoima для уточнения';
+  if (isRevoked || isExpired) {
+    document.getElementById('bannerOk').style.display  = 'none';
+    document.getElementById('bannerBad').style.display = 'flex';
+    document.getElementById('bannerBadText').textContent = isRevoked
+      ? 'Сертификат аннулирован · Обратитесь в Qoima'
+      : 'Срок действия сертификата истёк';
   }
-
-  // Show
-  document.getElementById('state-loading').style.display = 'none';
-  document.getElementById('state-cert').style.display    = 'block';
 }
 
-function showError() {
-  document.getElementById('state-loading').style.display = 'none';
-  document.getElementById('state-error').style.display   = 'block';
+function showError(msg) {
+  document.getElementById('certCard').innerHTML = `
+    <div style="padding:40px;text-align:center;color:rgba(255,255,255,0.4);font-family:'Space Mono',monospace">
+      <div style="font-size:40px;margin-bottom:16px">🎫</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:8px">Сертификат не найден</div>
+      <div style="font-size:11px;letter-spacing:1px">${msg}</div>
+    </div>`;
+  document.getElementById('bannerOk').style.display  = 'none';
 }
 
-// ── Run ──
+function showScene() {
+  document.getElementById('stateLoading').style.display = 'none';
+  document.getElementById('mainScene').style.opacity    = '1';
+  document.getElementById('mainScene').style.transition = 'opacity 0.5s ease';
+}
+
 loadCert();
+
+// ─────────────────────────────────────────────
+//  PARALLAX ENGINE
+// ─────────────────────────────────────────────
+const stickers   = Array.from(document.querySelectorAll('.sticker'));
+const certWrap   = document.getElementById('certWrap');
+
+// Current & target values
+let mx = 0, my = 0;   // normalized mouse -1..1
+let tx = 0, ty = 0;   // smoothed
+let isMobile = window.matchMedia('(pointer:coarse)').matches;
+
+// Levitation seeds per sticker
+const seeds = stickers.map((_, i) => ({
+  ox: (Math.random() - 0.5) * 30,
+  oy: (Math.random() - 0.5) * 20,
+  freq: 0.0004 + Math.random() * 0.0004,
+  phase: Math.random() * Math.PI * 2,
+  rotFreq: 0.0003 + Math.random() * 0.0003,
+  rotAmp:  6 + Math.random() * 8,
+  rotPhase: Math.random() * Math.PI * 2,
+  scaleFreq: 0.0002 + Math.random() * 0.0003,
+  scaleAmp: 0.04 + Math.random() * 0.04,
+}));
+
+// ── Desktop: mouse parallax ──
+document.addEventListener('mousemove', e => {
+  if (isMobile) return;
+  mx = (e.clientX / window.innerWidth  - 0.5) * 2;
+  my = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+// ── Mobile: accelerometer ──
+let gyroPermissionAsked = false;
+function requestGyro() {
+  if (!isMobile) return;
+  if (typeof DeviceMotionEvent !== 'undefined' &&
+      typeof DeviceMotionEvent.requestPermission === 'function') {
+    if (!gyroPermissionAsked) {
+      gyroPermissionAsked = true;
+      DeviceMotionEvent.requestPermission()
+        .then(res => { if (res === 'granted') listenGyro(); })
+        .catch(() => {});
+    }
+  } else {
+    listenGyro();
+  }
+}
+document.addEventListener('touchstart', requestGyro, { once: true });
+
+function listenGyro() {
+  window.addEventListener('deviceorientation', e => {
+    if (e.beta === null) return;
+    mx = Math.max(-1, Math.min(1,  (e.gamma || 0) / 30));
+    my = Math.max(-1, Math.min(1, ((e.beta  || 0) - 30) / 30));
+  });
+}
+
+// ── Custom cursor ──
+const cursor     = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let cx = 0, cy = 0, crx = 0, cry = 0;
+document.addEventListener('mousemove', e => {
+  cx = e.clientX; cy = e.clientY;
+});
+
+// ── RAF loop ──
+let lastT = 0;
+function tick(t) {
+  const dt = Math.min(t - lastT, 32); lastT = t;
+
+  // Smooth mouse
+  const ease = 0.08;
+  tx += (mx - tx) * ease;
+  ty += (my - ty) * ease;
+
+  // ── Cert card 3D tilt ──
+  const tiltX = ty * -18;   // degrees
+  const tiltY = tx *  18;
+  const liftZ = 40;
+  certWrap.style.transform = `
+    rotateX(${tiltX}deg)
+    rotateY(${tiltY}deg)
+    translateZ(${liftZ}px)
+    translateX(${tx * -12}px)
+    translateY(${ty * -8}px)
+  `;
+
+  // ── Stickers levitation + parallax ──
+  stickers.forEach((el, i) => {
+    const s    = seeds[i];
+    const time = t;
+    const speedX = parseFloat(el.dataset.speedX) || 0.5;
+    const speedY = parseFloat(el.dataset.speedY) || 0.5;
+
+    // Levitation (sine waves)
+    const lx = s.ox + Math.sin(time * s.freq    + s.phase) * 18;
+    const ly = s.oy + Math.sin(time * s.freq * 1.3 + s.phase + 1) * 14;
+    const rot = Math.sin(time * s.rotFreq  + s.rotPhase) * s.rotAmp;
+    const scl = 1 + Math.sin(time * s.scaleFreq + s.phase) * s.scaleAmp;
+
+    // Mouse parallax layer
+    const px = tx * -60 * speedX;
+    const py = ty * -40 * speedY;
+
+    el.style.transform = `
+      translate(${lx + px}px, ${ly + py}px)
+      rotate(${rot}deg)
+      scale(${scl})
+    `;
+  });
+
+  // ── Cursor (desktop only) ──
+  if (!isMobile) {
+    crx += (cx - crx) * 0.18;
+    cry += (cy - cry) * 0.18;
+    cursor.style.left     = cx  + 'px';
+    cursor.style.top      = cy  + 'px';
+    cursorRing.style.left = crx + 'px';
+    cursorRing.style.top  = cry + 'px';
+  }
+
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(t => { lastT = t; requestAnimationFrame(tick); });
+
+// Hide system cursor on desktop
+if (!isMobile) document.body.style.cursor = 'none';
 </script>
 </body>
 </html>

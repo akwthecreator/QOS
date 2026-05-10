@@ -341,7 +341,7 @@ html, body {
         </div>
         <div class="tap-hint" id="tapHint">
           <div class="tap-hint-dot"></div>
-          <span>Нажмите чтобы открыть сертификат</span>
+          <span>Сертификатты ашу үшін экранды басыңыз</span>
         </div>
       </div>
 
@@ -363,7 +363,7 @@ html, body {
         </div>
         <div class="tap-hint">
           <div class="tap-hint-dot"></div>
-          <span>Нажмите снова чтобы перевернуть</span>
+          <span>Айналдыру үшін тағы басыңыз</span>
         </div>
       </div>
 
@@ -372,7 +372,7 @@ html, body {
 
 </div>
 
-<div class="cert-footer">Сертификат выдан магазином Qoima ·</div>
+<div class="cert-footer">Сертификатты Qoima х Abo дүкендерінде пайдалануға болады ·</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
@@ -417,15 +417,15 @@ let isFlipped  = false;
 
 async function loadCert() {
   const code = new URLSearchParams(window.location.search).get('code');
-  if (!code) { showScene(); showError('Код не указан в ссылке'); return; }
+  if (!code) { showScene(); showError('Код дұрыс емес'); return; }
   try {
     const snap = await db.collection('certificates')
       .where('code','==',code.toUpperCase()).limit(1).get();
-    if (snap.empty) { showScene(); showError('Сертификат не найден'); return; }
+    if (snap.empty) { showScene(); showError('Сертификат табылмады'); return; }
     renderCert({ id: snap.docs[0].id, ...snap.docs[0].data() });
     certLoaded = true;
   } catch(e) {
-    console.error(e); showError('Ошибка загрузки');
+    console.error(e); showError('Қателік');
   }
   showScene();
 }

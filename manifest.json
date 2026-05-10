@@ -1,0 +1,27 @@
+{
+  "name": "Qoima Control Panel",
+  "short_name": "QCP",
+  "description": "Панель управления магазинами Qoima",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0066ff",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/akwthecreator/QOS/main/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/akwthecreator/QOS/main/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["business", "productivity"]
+}

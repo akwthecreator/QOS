@@ -28,24 +28,6 @@ html, body {
   cursor: none;
 }
 
-/* ─── CUSTOM CURSOR ─── */
-.cursor {
-  position: fixed; z-index: 9999;
-  width: 10px; height: 10px; background: #fff;
-  border-radius: 50%; pointer-events: none;
-  transform: translate(-50%,-50%);
-  transition: transform 0.08s ease, width 0.2s, height 0.2s;
-  mix-blend-mode: difference;
-}
-.cursor-ring {
-  position: fixed; z-index: 9998;
-  width: 36px; height: 36px;
-  border: 1.5px solid rgba(255,255,255,0.4);
-  border-radius: 50%; pointer-events: none;
-  transform: translate(-50%,-50%);
-  transition: transform 0.18s ease, width 0.25s, height 0.25s;
-}
-
 /* ─── SCENE ─── */
 .scene {
   position: fixed; inset: 0;

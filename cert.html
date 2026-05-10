@@ -157,53 +157,83 @@ html, body {
   font-family: 'Space Mono', monospace;
 }
 
-/* ─── BACK SIDE DATA LAYOUT ─── */
+/* ─── BACK SIDE DATA LAYOUT — pixel-perfect по Figma ─── */
 .cert-back-overlay {
   position: absolute; inset: 0;
   display: flex;
 }
-/* Левая часть */
+
+/* Левая часть: ~78% ширины, бежевая зона */
 .back-left {
   flex: 0 0 78%;
-  display: flex; flex-direction: column; justify-content: flex-end;
-  padding: 0 4% 12% 5%;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding: 15% 5% 8% 6%;
+  gap: 0;
 }
+/* Имя — по центру вертикали, курсив, подчёркнутое */
 .back-name {
-  font-family: 'Space Mono', monospace;
-  font-size: clamp(18px, 3.5vw, 34px);
-  color: #111; letter-spacing: 1px; margin-bottom: 3%;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%;
-  border-bottom: 2px solid #111; padding-bottom: 4px;
+  font-family: Georgia, 'Times New Roman', serif;
   font-style: italic;
+  font-size: clamp(16px, 2.8vw, 28px);
+  color: #111;
+  letter-spacing: 2px;
+  border-bottom: 1.5px solid #111;
+  padding-bottom: 3%;
+  margin-bottom: 4%;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 92%;
 }
+/* Сумма — крупная красная */
 .back-amount {
-  font-family: 'Space Mono', monospace;
-  font-size: clamp(26px, 5.5vw, 52px);
-  color: #c0392b; font-weight: 900; line-height: 1; margin-bottom: 2%;
+  font-family: 'BenzinExtraBold', 'Space Mono', monospace;
+  font-size: clamp(28px, 5.5vw, 54px);
+  color: #c0392b; font-weight: 900; line-height: 1;
+  margin-bottom: 2%;
+  letter-spacing: -1px;
 }
+/* Прописью — мелко */
 .back-amount-sub {
   font-family: 'Space Mono', monospace;
-  font-size: clamp(7px, 1.1vw, 11px);
-  color: #555; text-transform: uppercase; letter-spacing: 0.5px;
+  font-size: clamp(6px, 0.9vw, 9px);
+  color: #666; text-transform: uppercase; letter-spacing: 0.6px;
 }
-/* Правая часть */
+
+/* Правая часть: ~22% ширины, красная зона */
 .back-right {
   flex: 0 0 22%;
-  display: flex; flex-direction: column; justify-content: space-between;
-  padding: 8% 6% 8%;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: 8% 5% 6%;
 }
+/* Лейбл даты */
+.back-date-label {
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(7px, 1vw, 9px);
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+/* Дата */
 .back-date {
   font-family: 'Space Mono', monospace;
-  font-size: clamp(10px, 1.8vw, 16px);
-  color: #fff; font-weight: 700; line-height: 1.3;
+  font-size: clamp(12px, 2vw, 18px);
+  color: #fff; font-weight: 700; line-height: 1.2;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  padding-bottom: 8%;
+  margin-bottom: auto;
 }
+/* Код сертификата */
 .back-code {
   font-family: 'Space Mono', monospace;
-  font-size: clamp(8px, 1.3vw, 13px);
-  color: #f5ede0; font-weight: 800; letter-spacing: 1px;
-  background: rgba(245,237,224,0.15);
-  padding: 4px 6px; border-radius: 4px;
-  word-break: break-all; line-height: 1.3;
+  font-size: clamp(9px, 1.4vw, 13px);
+  color: #f5ede0; font-weight: 800;
+  letter-spacing: 1px;
+  background: rgba(245,237,224,0.18);
+  border: 1px solid rgba(245,237,224,0.25);
+  padding: 5px 7px; border-radius: 5px;
+  word-break: break-all; line-height: 1.4;
+  text-align: center;
 }
 
 /* ─── FLIP ─── */
@@ -230,10 +260,7 @@ html, body {
     0 30px 80px rgba(0,0,0,0.8),
     0 0 120px rgba(201,168,130,0.08);
 }
-.cert-back-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 18px 20px 0;
-}
+/* cert-back-header removed */
 .back-status-badge {
   font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
   padding: 4px 10px; border-radius: 20px;
@@ -354,6 +381,11 @@ html, body {
           <div class="cert-img-area">
             <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaRakhmetCert.png" alt="Qoima Certificate">
             <!-- Только бренд, никаких данных -->
+            <div class="cert-overlay">
+              <div class="cert-top-row">
+                <div class="cert-brand">QOIMA × abo</div>
+              </div>
+            </div>
           </div>
         </div>
         <!-- Подсказка "нажмите" -->
@@ -370,24 +402,21 @@ html, body {
       <div class="cert-face cert-back">
         <div class="cert-card-back">
 
-          <!-- Статус + код вверху -->
-          <div class="cert-back-header">
-            <span style="font-size:11px;color:rgba(255,255,255,0.25);font-family:'Space Mono',monospace;letter-spacing:1px">QOIMA × abo</span>
-            <span class="back-status-badge" id="bStatusBadge">—</span>
-          </div>
+          <!-- header removed -->
 
           <!-- Шаблон с данными поверх -->
           <div class="cert-img-area">
             <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaCardShablon.png" alt="">
             <div class="cert-back-overlay">
-              <!-- Левая: имя, сумма, прописью -->
+              <!-- Левая зона (~78%) -->
               <div class="back-left">
                 <div class="back-name"       id="bName">—</div>
                 <div class="back-amount"     id="bAmount">—</div>
                 <div class="back-amount-sub" id="bAmountText"></div>
               </div>
-              <!-- Правая: дата вверху, код внизу -->
+              <!-- Правая красная зона (~22%) -->
               <div class="back-right">
+                <div class="back-date-label">ЖАРАМДЫЛЫҚ МЕРЗІМІ:</div>
                 <div class="back-date" id="bDateTo">—</div>
                 <div class="back-code" id="bCode">—</div>
               </div>
@@ -492,15 +521,7 @@ function renderCert(cert) {
   document.getElementById('bCode').textContent       = cert.code || '—';
   document.getElementById('bDateTo').textContent     = fmtShort(cert.dateTo);
 
-  // Статус бадж
-  const badge = document.getElementById('bStatusBadge');
-  if (isRevoked) {
-    badge.textContent = 'АННУЛИРОВАН'; badge.className = 'back-status-badge revoked';
-  } else if (isExpired) {
-    badge.textContent = 'ИСТЁК'; badge.className = 'back-status-badge expired';
-  } else {
-    badge.textContent = 'АКТИВЕН'; badge.className = 'back-status-badge active';
-  }
+  // статус-бадж убран
 }
 
 function showError(msg) {

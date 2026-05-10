@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QCP — Qoima Control Panel</title>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="QCP">
+<meta name="theme-color" content="#0066ff">
+<!-- Иконки для iOS (замени на свои ссылки с GitHub) -->
+<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/akwthecreator/QOS/main/icon-192.png">
 <style>
 :root[data-theme="dark"] {
   --bg: #0a0a0a;
@@ -404,6 +414,15 @@ async function handleLogin(e) {
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('loginForm').addEventListener('submit', handleLogin);
 });
+
+// Регистрация Service Worker (PWA)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => console.log('SW registered'))
+      .catch(e => console.warn('SW error:', e));
+  });
+}
 </script>
 </body>
 </html>

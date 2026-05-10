@@ -2464,20 +2464,18 @@ function initializeFirebaseAuth() {
       if (doc.exists) {
         const profile = doc.data();
         const role = profile.role || 'admin';
-        // Роль-гард: только admin и manager видят panel.html
-        if (role === 'seller') { window.location.href = 'seller.html'; return; }
+        // Роль-гард: только admin видит panel.html
+        if (role === 'seller')   { window.location.href = 'seller.html';  return; }
+        if (role === 'manager')  { window.location.href = 'manager.html'; return; }
         if (role === 'observer') { window.location.href = 'observer.html'; return; }
-        // Показать имя вместо email если есть
-        if (profile.name) document.getElementById('userEmail').textContent = profile.name + ' (' + role + ')';
-        // Если не admin — скрыть настройки
-        if (role !== 'admin') {
-          const settingsBtn = document.getElementById('nav-settings');
-          if (settingsBtn) settingsBtn.style.display = 'none';
-        }
+        // Показать имя вместо email
+        if (profile.name) document.getElementById('userEmail').textContent = profile.name + ' (admin)';
+        // Настройки всегда видны для admin — убедимся что показаны
+        const settingsBtn = document.getElementById('nav-settings');
+        if (settingsBtn) settingsBtn.style.display = '';
       }
     } catch(e) {
       console.warn('Role check error:', e);
-      // При ошибке — оставляем на panel.html (безопасно)
     }
   });
 }
@@ -3268,21 +3266,11 @@ async function revokeCertificate(certId) {
 }
 
 // Hook into showPage to load certs when navigating there
-const _origShowPage = typeof showPage === 'function' ? showPage : null;
-function showPageWithCerts(page) {
-  if (_origShowPage) _origShowPage(page);
-  else {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    const pageEl = document.getElementById('page-' + page);
-    if (pageEl) pageEl.classList.add('active');
-    const navEl = document.getElementById('nav-' + page);
-    if (navEl) navEl.classList.add('active');
-  }
+const _origShowPage = window.showPage;
+window.showPage = function(page) {
+  _origShowPage(page);
   if (page === 'certificates') loadCertificates();
-}
-// Override global showPage
-window.showPage = showPageWithCerts;
+};
 
 // Load certs on first open if already on page
 document.addEventListener('DOMContentLoaded', () => {

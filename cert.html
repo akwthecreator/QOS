@@ -25,7 +25,7 @@ html, body {
   border-radius: 50%;
   pointer-events: none;
   transform: translate(-50%,-50%);
-  transition: transform 0.08s ease, width 0.2s, height 0.2s, opacity 0.2s;
+  transition: transform 0.08s ease, width 0.2s, height 0.2s;
   mix-blend-mode: difference;
 }
 .cursor-ring {
@@ -45,8 +45,6 @@ html, body {
   perspective: 900px;
   overflow: hidden;
 }
-
-/* ─── NOISE OVERLAY ─── */
 .scene::before {
   content: '';
   position: absolute; inset: 0;
@@ -83,7 +81,6 @@ html, body {
   border-radius: 4px;
   cursor: none;
   will-change: transform;
-  transform-style: preserve-3d;
   filter: drop-shadow(0 8px 24px rgba(0,0,0,0.6));
   transition: filter 0.3s;
   user-select: none;
@@ -99,23 +96,13 @@ html, body {
   display: block; pointer-events: none;
   -webkit-user-drag: none;
 }
-/* Placeholder square for sticker when no image */
-.sticker-placeholder {
-  width: 100%; height: 100%;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
-  border: 1.5px dashed rgba(255,255,255,0.15);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px;
-  text-align: center; padding: 8px;
-}
 
-/* Sticker positions & sizes — 5 stickers */
-.sticker-1 { width: 320px; height: 320px; top: 6%;   left: 4%; }
-.sticker-2 { width: 300px; height: 300px; top: 4%;   right: 8%; }
+/* Sticker positions */
+.sticker-1 { width: 320px; height: 320px; top: 6%;    left: 4%; }
+.sticker-2 { width: 300px; height: 300px; top: 4%;    right: 8%; }
 .sticker-3 { width: 340px; height: 340px; bottom: 8%; left: 2%; }
 .sticker-4 { width: 310px; height: 310px; bottom: 6%; right: 5%; }
-.sticker-5 { width: 320px; height: 320px; top: 4%;  right: 48%; }
+.sticker-5 { width: 320px; height: 320px; top: 4%;    right: 48%; }
 
 /* ─── CERT WRAPPER ─── */
 .cert-wrap {
@@ -137,20 +124,16 @@ html, body {
     0 30px 80px rgba(0,0,0,0.7),
     0 0 120px rgba(201,168,130,0.1);
   transform-style: preserve-3d;
-
-  /* entrance anim */
   opacity: 0;
   animation: cardIn 0.9s cubic-bezier(0.34,1.56,0.64,1) 0.3s forwards;
 }
-@keyframes cardIn {
-  to { opacity: 1; }
-}
+@keyframes cardIn { to { opacity: 1; } }
 
-/* ─── CERT IMAGE AREA ─── */
+/* ─── IMAGE AREA ─── */
 .cert-img-area {
   position: relative;
   width: 100%;
-  padding-bottom: 39.06%; /* 256:100 ratio = original design */
+  padding-bottom: 39.06%;
   overflow: hidden;
   background: #f0e8d8;
 }
@@ -158,25 +141,8 @@ html, body {
   position: absolute; inset: 0;
   width: 100%; height: 100%; object-fit: cover;
 }
-/* Placeholder if no image */
-.cert-img-placeholder {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: #f0e8d8;
-}
-.cert-img-placeholder-inner {
-  width: 80%; height: 75%;
-  border: 2px dashed rgba(0,0,0,0.12);
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  flex-direction: column; gap: 8px;
-}
-.cert-img-placeholder-inner span {
-  font-size: 11px; color: rgba(0,0,0,0.25);
-  letter-spacing: 1px; text-transform: uppercase;
-  font-family: 'Space Mono', monospace;
-}
 
+/* ─── FRONT OVERLAY: только брендинг ─── */
 .cert-overlay {
   position: absolute; inset: 0;
   padding: 4% 5%;
@@ -190,107 +156,116 @@ html, body {
   font-weight: 700; letter-spacing: 1.5px; color: #111;
   font-family: 'Space Mono', monospace;
 }
-.cert-validity-label {
-  font-size: clamp(8px, 1.1vw, 11px);
-  font-weight: 800; color: #c0392b;
-  letter-spacing: 1px; text-transform: uppercase;
-  text-align: right; line-height: 1.4;
+
+/* ─── BACK SIDE DATA LAYOUT ─── */
+.cert-back-overlay {
+  position: absolute; inset: 0;
+  display: flex;
 }
-.cert-validity-val {
-  font-size: clamp(12px, 2.2vw, 18px);
-  font-weight: 700; color: #111; text-align: right;
+/* Левая часть */
+.back-left {
+  flex: 0 0 78%;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0 4% 12% 5%;
+}
+.back-name {
   font-family: 'Space Mono', monospace;
+  font-size: clamp(18px, 3.5vw, 34px);
+  color: #111; letter-spacing: 1px; margin-bottom: 3%;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%;
+  border-bottom: 2px solid #111; padding-bottom: 4px;
+  font-style: italic;
 }
-.cert-bottom-area {
-  display: flex; flex-direction: column; gap: 2%;
-}
-.cert-title-kz {
-  font-size: clamp(18px, 4vw, 32px);
-  font-weight: 900; color: #c0392b;
-  line-height: 1; letter-spacing: -0.5px;
+.back-amount {
   font-family: 'Space Mono', monospace;
+  font-size: clamp(26px, 5.5vw, 52px);
+  color: #c0392b; font-weight: 900; line-height: 1; margin-bottom: 2%;
 }
-.cert-name-row {
-  display: flex; align-items: flex-end; gap: 8px;
-}
-.cert-name-bar {
-  width: 3px; height: clamp(22px, 3.5vw, 34px);
-  background: #111; border-radius: 2px; flex-shrink: 0;
-}
-.cert-name {
-  font-size: clamp(22px, 4.5vw, 42px);
-  color: #111; font-style: italic;
-  border-bottom: 1.5px solid #111;
-  padding-bottom: 2px;
-  max-width: 65%; white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis;
-  line-height: 1.1;
-  font-family: Georgia, 'Times New Roman', serif;
-}
-.cert-amount {
-  font-size: clamp(20px, 4vw, 40px);
-  font-weight: 900; color: #c0392b; line-height: 1;
+.back-amount-sub {
   font-family: 'Space Mono', monospace;
+  font-size: clamp(7px, 1.1vw, 11px);
+  color: #555; text-transform: uppercase; letter-spacing: 0.5px;
 }
-.cert-amount-sub {
-  font-size: clamp(7px, 1vw, 10px);
-  color: #666; letter-spacing: 0.5px;
-  text-transform: uppercase; font-family: 'Space Mono', monospace;
-  margin-top: 2px;
+/* Правая часть */
+.back-right {
+  flex: 0 0 22%;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 8% 6% 8%;
+}
+.back-date {
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(10px, 1.8vw, 16px);
+  color: #fff; font-weight: 700; line-height: 1.3;
+}
+.back-code {
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(8px, 1.3vw, 13px);
+  color: #f5ede0; font-weight: 800; letter-spacing: 1px;
+  background: rgba(245,237,224,0.15);
+  padding: 4px 6px; border-radius: 4px;
+  word-break: break-all; line-height: 1.3;
 }
 
-/* ─── CERT INFO STRIP ─── */
-.cert-info-strip {
+/* ─── FLIP ─── */
+.cert-flipper {
+  width: 100%; position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.85s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+.cert-flipper.flipped { transform: rotateY(180deg); }
+.cert-face {
+  width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.cert-front { position: relative; }
+.cert-back  { position: absolute; top: 0; left: 0; transform: rotateY(180deg); }
+
+/* ─── BACK CARD ─── */
+.cert-card-back {
   background: #111;
-  padding: 16px 20px;
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  border-radius: 22px; overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 30px 80px rgba(0,0,0,0.8),
+    0 0 120px rgba(201,168,130,0.08);
 }
-.info-cell {
-  background: #1a1a1a;
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 10px; padding: 12px;
+.cert-back-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 20px 0;
 }
-.info-cell.full { grid-column: span 2; }
-.info-lbl {
-  font-size: 9px; color: rgba(255,255,255,0.3);
-  letter-spacing: 0.8px; text-transform: uppercase;
-  font-family: 'Space Mono', monospace; margin-bottom: 4px;
-}
-.info-val {
-  font-size: 13px; font-weight: 700; color: #fff;
+.back-status-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  padding: 4px 10px; border-radius: 20px;
   font-family: 'Space Mono', monospace;
 }
-.info-val.code { color: #4488ff; letter-spacing: 2px; }
-.info-val.active { color: #00cc66; }
-.info-val.expired { color: rgba(255,255,255,0.3); }
-.info-val.revoked { color: #ff3333; }
+.back-status-badge.active  { background: rgba(0,204,102,0.15); color: #00cc66; border: 1px solid rgba(0,204,102,0.3); }
+.back-status-badge.expired { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.1); }
+.back-status-badge.revoked { background: rgba(255,51,51,0.15); color: #ff3333; border: 1px solid rgba(255,51,51,0.3); }
 
-/* ─── STATUS BADGE ─── */
-.status-banner {
-  display: flex; align-items: center; gap: 10px;
-  margin-top: 14px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid;
-  font-size: 12px; font-family: 'Space Mono', monospace;
-  opacity: 0; animation: fadeUp 0.5s ease 0.9s forwards;
+/* ─── TAP HINT ─── */
+.tap-hint {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 16px;
+  font-size: 11px; color: rgba(255,255,255,0.3);
+  letter-spacing: 1px; font-family: 'Space Mono', monospace;
+  animation: hintPulse 2.5s ease-in-out infinite;
 }
-.status-banner.ok  { background: rgba(0,204,102,0.07); border-color: rgba(0,204,102,0.25); color: rgba(255,255,255,0.7); }
-.status-banner.bad { background: rgba(255,51,51,0.07);  border-color: rgba(255,51,51,0.25);  color: rgba(255,255,255,0.7); }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.status-dot.ok  { background: #00cc66; box-shadow: 0 0 8px #00cc66; animation: pulse-ok 2s infinite; }
-.status-dot.bad { background: #ff3333; }
-@keyframes pulse-ok { 0%,100%{box-shadow:0 0 8px rgba(0,204,102,0.8)} 50%{box-shadow:0 0 16px rgba(0,204,102,0.4)} }
+.tap-hint-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  animation: dotPulse 2.5s ease-in-out infinite;
+}
+@keyframes hintPulse { 0%,100%{opacity:0.5;transform:translateY(0)} 50%{opacity:1;transform:translateY(-3px)} }
+@keyframes dotPulse  { 0%,100%{background:rgba(255,255,255,0.3)} 50%{background:rgba(255,255,255,0.8)} }
 
-/* ─── LOADING / ERROR ─── */
+/* ─── LOADING ─── */
 .state-overlay {
   position: fixed; inset: 0; z-index: 50;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   gap: 16px; color: rgba(255,255,255,0.3);
-  font-family: 'Space Mono', monospace; font-size: 12px;
-  letter-spacing: 1px;
+  font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: 1px;
 }
 .state-spinner {
   width: 28px; height: 28px;
@@ -317,273 +292,113 @@ html, body {
   to   { opacity:1; transform:translateY(0); }
 }
 
-/* ─── FLIP CARD ─── */
-.cert-flipper {
-  width: 100%;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.85s cubic-bezier(0.4, 0.2, 0.2, 1);
-}
-.cert-flipper.flipped {
-  transform: rotateY(180deg);
-}
-.cert-face {
-  width: 100%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-.cert-front {
-  position: relative;
-}
-.cert-back {
-  position: absolute;
-  top: 0; left: 0;
-  transform: rotateY(180deg);
+/* ─── MOBILE ─── */
+@media (max-width: 600px) {
+  .sticker-1 { width: 160px; height: 160px; top: 2%;    left: 0%; }
+  .sticker-2 { width: 150px; height: 150px; top: 2%;    right: 1%; }
+  .sticker-3 { width: 170px; height: 170px; bottom: 10%; left: -2%; }
+  .sticker-4 { width: 155px; height: 155px; bottom: 10%; right: -1%; }
+  .sticker-5 { width: 150px; height: 150px; top: 2%;    left: 38%; }
+  .cert-footer { font-size: 9px; bottom: 10px; }
 }
 
-/* ─── BACK CARD STYLE ─── */
-.cert-card-back {
-  background: #111;
-  border-radius: 22px;
-  overflow: hidden;
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.06),
-    0 30px 80px rgba(0,0,0,0.8),
-    0 0 120px rgba(201,168,130,0.08);
-}
-.cert-back-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 20px 0;
-}
-.back-status-badge {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-family: 'Space Mono', monospace;
-}
-.back-status-badge.active  { background: rgba(0,204,102,0.15); color: #00cc66; border: 1px solid rgba(0,204,102,0.3); }
-.back-status-badge.expired { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.1); }
-.back-status-badge.revoked { background: rgba(255,51,51,0.15); color: #ff3333; border: 1px solid rgba(255,51,51,0.3); }
-
-/* ─── TAP HINT ─── */
-.tap-hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 16px;
-  font-size: 11px;
-  color: rgba(255,255,255,0.3);
-  letter-spacing: 1px;
-  font-family: 'Space Mono', monospace;
-  animation: hintPulse 2.5s ease-in-out infinite;
-}
-.tap-hint-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.4);
-  animation: dotPulse 2.5s ease-in-out infinite;
-}
-@keyframes hintPulse {
-  0%,100% { opacity: 0.5; transform: translateY(0); }
-  50%      { opacity: 1;   transform: translateY(-3px); }
-}
-@keyframes dotPulse {
-  0%,100% { background: rgba(255,255,255,0.3); }
-  50%      { background: rgba(255,255,255,0.8); }
-}
-
-/* ─── BACK OVERLAY ─── */
-.cert-back-overlay {
-  position: absolute; inset: 0;
-  display: flex;
-}
-
-/* Левая часть — ~78% ширины (бежевая зона) */
-.back-left {
-  flex: 0 0 78%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 0 4% 12% 5%;
-}
-
-/* Имя — на первой линии */
-.back-name {
-  font-family: 'BenzinBold', 'Space Mono', monospace;
-  font-size: clamp(18px, 4vw, 36px);
-  color: #111;
-  letter-spacing: 2px;
-  margin-bottom: 3%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 90%;
-}
-
-/* Сумма — крупная красная */
-.back-amount {
-  font-family: 'BenzinExtraBold', 'Space Mono', monospace;
-  font-size: clamp(26px, 5.5vw, 52px);
-  color: #c0392b;
-  font-weight: 900;
-  line-height: 1;
-  margin-bottom: 2%;
-}
-
-/* Прописью */
-.back-amount-sub {
-  font-family: 'BenzinSemibold', 'Space Mono', monospace;
-  font-size: clamp(7px, 1.1vw, 11px);
-  color: #555;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Правая часть — ~22% (красная секция) */
-.back-right {
-  flex: 0 0 22%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 8% 6% 8%;
-}
-
-/* Дата вверху правой секции */
-.back-date {
-  font-family: 'BenzinBold', 'Space Mono', monospace;
-  font-size: clamp(10px, 1.8vw, 16px);
-  color: #fff;
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-/* Код внизу правой секции */
-.back-code {
-  font-family: 'BenzinExtraBold', 'Space Mono', monospace;
-  font-size: clamp(8px, 1.3vw, 13px);
-  color: #f5ede0;
-  font-weight: 800;
-  letter-spacing: 1px;
-  background: rgba(245,237,224,0.15);
-  padding: 4px 6px;
-  border-radius: 4px;
-  word-break: break-all;
-  line-height: 1.3;
-}
-</style>
+/* ─── FONTS ─── */
+@font-face { font-family: 'BenzinExtraBold'; src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/BenzinExtraBold.otf'); font-display: swap; }
+@font-face { font-family: 'BenzinSemibold';  src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/BenzinSemibold.otf');  font-display: swap; }
 </style>
 </head>
 <body>
 
-<!-- Custom cursor (desktop) -->
 <div class="cursor"      id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 
-<!-- Loading state -->
+<!-- Loading -->
 <div class="state-overlay" id="stateLoading">
   <div class="state-spinner"></div>
   <div>ЗАГРУЗКА</div>
 </div>
 
-<!-- Main scene -->
-<div class="scene" id="mainScene" style="opacity:0">
+<!-- Main scene (hidden until loaded) -->
+<div class="scene" id="mainScene" style="opacity:0;transition:opacity 0.5s ease">
 
   <div class="glow-a"></div>
   <div class="glow-b"></div>
 
-  <!-- ── STICKERS ── -->
-  <!-- 
-    Замени src на свои ссылки с GitHub:
-    https://raw.githubusercontent.com/akwthecreator/QOS/main/sticker1.png
-  -->
-  <div class="sticker sticker-1" data-speed-x="0.7" data-speed-y="0.5">
+  <!-- STICKERS -->
+  <div class="sticker sticker-1" data-speed-x="0.7"  data-speed-y="0.5">
     <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/qsm6_holo.png" alt="">
   </div>
-
   <div class="sticker sticker-2" data-speed-x="-0.5" data-speed-y="0.8">
-      <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/Oiy2_holo.png" alt=""> 
+    <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/Oiy2_holo.png" alt="">
   </div>
-
-  <div class="sticker sticker-3" data-speed-x="0.4" data-speed-y="-0.6">
+  <div class="sticker sticker-3" data-speed-x="0.4"  data-speed-y="-0.6">
     <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/Orta2_holo.png" alt="">
   </div>
-
   <div class="sticker sticker-4" data-speed-x="-0.8" data-speed-y="-0.4">
     <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/AlaClub3_holo.png" alt="">
   </div>
-
-  <div class="sticker sticker-5" data-speed-x="0.9" data-speed-y="0.3">
+  <div class="sticker sticker-5" data-speed-x="0.9"  data-speed-y="0.3">
     <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaCurv_holo.png" alt="">
   </div>
 
   <div class="cert-wrap" id="certWrap">
-
-    <!-- FLIP CONTAINER -->
     <div class="cert-flipper" id="certFlipper">
 
-      <!-- ЛИЦЕВАЯ СТОРОНА: картинка сертификата -->
+      <!-- ══════════════════════════════════
+           ЛИЦЕВАЯ СТОРОНА
+           Клиент видит сначала — только картинка-конверт.
+           НИКАКИХ данных здесь нет — это сюрприз!
+      ══════════════════════════════════ -->
       <div class="cert-face cert-front">
         <div class="cert-card">
           <div class="cert-img-area">
             <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaRakhmetCert.png" alt="Qoima Certificate">
+            <!-- Только бренд, никаких данных -->
             <div class="cert-overlay">
               <div class="cert-top-row">
                 <div class="cert-brand">QOIMA × abo</div>
-                <div style="text-align:right">
-                  <div class="cert-validity-label">ЖАРАМДЫЛЫҚ<br>МЕРЗІМІ:</div>
-                  <div class="cert-validity-val" id="cDates">—</div>
-                </div>
-              </div>
-              <div class="cert-bottom-area">
-                <div class="cert-name-row">
-                  <div class="cert-name-bar"></div>
-                  <div class="cert-name" id="cName">—</div>
-                </div>
-                <div class="cert-amount" id="cAmount">— ₸</div>
-                <div class="cert-amount-sub" id="cAmountText"></div>
               </div>
             </div>
           </div>
         </div>
+        <!-- Подсказка "нажмите" -->
         <div class="tap-hint" id="tapHint">
           <div class="tap-hint-dot"></div>
           <span>Нажмите чтобы открыть сертификат</span>
         </div>
       </div>
 
-      <!-- ОБРАТНАЯ СТОРОНА: QoimaCardShablon.png + данные поверх -->
+      <!-- ══════════════════════════════════
+           ОБРАТНАЯ СТОРОНА
+           Открывается после клика — здесь все данные
+      ══════════════════════════════════ -->
       <div class="cert-face cert-back">
-        <div class="cert-card">
+        <div class="cert-card-back">
+
+          <!-- Статус + код вверху -->
+          <div class="cert-back-header">
+            <span style="font-size:11px;color:rgba(255,255,255,0.25);font-family:'Space Mono',monospace;letter-spacing:1px">QOIMA × abo</span>
+            <span class="back-status-badge" id="bStatusBadge">—</span>
+          </div>
+
+          <!-- Шаблон с данными поверх -->
           <div class="cert-img-area">
-            <!-- Фон обратной стороны -->
             <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaCardShablon.png" alt="">
-
-            <!-- Данные поверх шаблона -->
             <div class="cert-back-overlay">
-
-              <!-- Левая часть: имя, сумма, прописью -->
+              <!-- Левая: имя, сумма, прописью -->
               <div class="back-left">
-                <!-- Имя на линии -->
-                <div class="back-name" id="cName">—</div>
-                <!-- Сумма -->
-                <div class="back-amount" id="cAmount">—</div>
-                <!-- Прописью -->
-                <div class="back-amount-sub" id="cAmountText"></div>
+                <div class="back-name"       id="bName">—</div>
+                <div class="back-amount"     id="bAmount">—</div>
+                <div class="back-amount-sub" id="bAmountText"></div>
               </div>
-
-              <!-- Правая красная секция: дата вверху, код внизу -->
+              <!-- Правая: дата вверху, код внизу -->
               <div class="back-right">
-                <div class="back-date" id="cDateTo2">—</div>
-                <div class="back-code" id="cCode">—</div>
+                <div class="back-date" id="bDateTo">—</div>
+                <div class="back-code" id="bCode">—</div>
               </div>
-
             </div>
           </div>
+
         </div>
         <div class="tap-hint">
           <div class="tap-hint-dot"></div>
@@ -592,7 +407,6 @@ html, body {
       </div>
 
     </div><!-- /cert-flipper -->
-
   </div><!-- /cert-wrap -->
 
 </div><!-- /scene -->
@@ -602,14 +416,11 @@ html, body {
   <a href="https://qoimacontrolpanel.com">qoimacontrolpanel.com</a>
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 <script>
-// ─────────────────────────────────────────────
-//  FIREBASE
-// ─────────────────────────────────────────────
+// ── FIREBASE ──
 firebase.initializeApp({
   apiKey:            "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
   authDomain:        "qos-base.firebaseapp.com",
@@ -620,9 +431,7 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 
-// ─────────────────────────────────────────────
-//  HELPERS
-// ─────────────────────────────────────────────
+// ── HELPERS ──
 function numToWords(n) {
   const ones  = ['','БІР','ЕКІ','ҮШ','ТӨРТ','БЕС','АЛТЫ','ЖЕТІ','СЕГІЗ','ТОҒЫЗ'];
   const teens = ['ОН','ОН БІР','ОН ЕКІ','ОН ҮШ','ОН ТӨРТ','ОН БЕС','ОН АЛТЫ','ОН ЖЕТІ','ОН СЕГІЗ','ОН ТОҒЫЗ'];
@@ -643,35 +452,37 @@ function numToWords(n) {
 }
 function fmtShort(s) {
   if (!s) return '—';
-  const [y,m,d] = s.split('-'); return `${d}.${m}`;
+  const [y,m,d] = s.split('-');
+  return `${d}.${m}.${y}`;
 }
 function fmtFull(s) {
   if (!s) return '—';
   return new Date(s+'T00:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
 }
 
-// ─────────────────────────────────────────────
-//  LOAD CERT
-// ─────────────────────────────────────────────
+// ── STATE ──
+let certLoaded = false;
+let isFlipped  = false;
+
+// ── LOAD CERT ──
 async function loadCert() {
   const code = new URLSearchParams(window.location.search).get('code');
   if (!code) { showScene(); showError('Код не указан в ссылке'); return; }
 
   try {
     const snap = await db.collection('certificates')
-      .where('code','==', code.toUpperCase()).limit(1).get();
+      .where('code', '==', code.toUpperCase()).limit(1).get();
 
     if (snap.empty) { showScene(); showError('Сертификат не найден'); return; }
 
     const cert = { id: snap.docs[0].id, ...snap.docs[0].data() };
     renderCert(cert);
     certLoaded = true;
-    showScene();
   } catch(e) {
     console.error(e);
-    showScene();
     showError('Ошибка загрузки');
   }
+  showScene();
 }
 
 function renderCert(cert) {
@@ -679,33 +490,50 @@ function renderCert(cert) {
   const isExpired = cert.dateTo < today;
   const isRevoked = cert.status === 'revoked';
 
-  // ── Лицевая сторона ──
-  document.getElementById('cDates').textContent      = `${fmtShort(cert.dateFrom)} – ${fmtShort(cert.dateTo)}`;
-  document.getElementById('cName').textContent       = cert.buyerName || '—';
-  document.getElementById('cAmount').textContent     = (cert.amount||0).toLocaleString('ru-RU') + ' ₸';
-  document.getElementById('cAmountText').textContent = cert.amount ? numToWords(cert.amount) + ' ТЕҢГЕ КӨЛЕМІНДЕ' : '';
+  // ── Все данные ТОЛЬКО на обратной стороне ──
+  document.getElementById('bName').textContent       = cert.buyerName || '—';
+  document.getElementById('bAmount').textContent     = (cert.amount||0).toLocaleString('ru-RU') + ' ₸';
+  document.getElementById('bAmountText').textContent = cert.amount ? numToWords(cert.amount) + ' ТЕҢГЕ КӨЛЕМІНДЕ' : '';
+  document.getElementById('bCode').textContent       = cert.code || '—';
+  document.getElementById('bDateTo').textContent     = fmtShort(cert.dateTo);
 
-  // ── Обратная сторона ──
-  document.getElementById('cCode').textContent    = cert.code || '—';
-  document.getElementById('cDateTo2').textContent = fmtFull(cert.dateTo);
+  // Статус бадж
+  const badge = document.getElementById('bStatusBadge');
+  if (isRevoked) {
+    badge.textContent = 'АННУЛИРОВАН'; badge.className = 'back-status-badge revoked';
+  } else if (isExpired) {
+    badge.textContent = 'ИСТЁК'; badge.className = 'back-status-badge expired';
+  } else {
+    badge.textContent = 'АКТИВЕН'; badge.className = 'back-status-badge active';
+  }
 }
 
-// ─────────────────────────────────────────────
-//  FLIP LOGIC
-// ─────────────────────────────────────────────
-let isFlipped = false;
-let certLoaded = false;
+function showError(msg) {
+  document.getElementById('certFlipper').innerHTML = `
+    <div style="padding:60px 40px;text-align:center;color:rgba(255,255,255,0.4);
+                font-family:'Space Mono',monospace;background:#111;border-radius:22px;
+                border:1px solid rgba(255,255,255,0.06)">
+      <div style="font-size:40px;margin-bottom:20px">🎫</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:8px">Сертификат не найден</div>
+      <div style="font-size:11px;letter-spacing:1px">${msg}</div>
+    </div>`;
+  document.getElementById('tapHint') && (document.getElementById('tapHint').style.display = 'none');
+}
 
+function showScene() {
+  document.getElementById('stateLoading').style.display = 'none';
+  document.getElementById('mainScene').style.opacity    = '1';
+}
+
+// ── FLIP ──
 function flipCard() {
-  if (!certLoaded) return; // не даём флипать пока не загружен
-  const flipper = document.getElementById('certFlipper');
+  if (!certLoaded) return;
   isFlipped = !isFlipped;
-  flipper.classList.toggle('flipped', isFlipped);
-
-  // Звук щелчка (опционально — через AudioContext)
+  document.getElementById('certFlipper').classList.toggle('flipped', isFlipped);
+  // Звук щелчка
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
+    const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+    const osc  = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain); gain.connect(ctx.destination);
     osc.frequency.setValueAtTime(800, ctx.currentTime);
@@ -716,154 +544,101 @@ function flipCard() {
   } catch(e) {}
 }
 
-// Клик/тап в любом месте экрана
-document.addEventListener('click',     flipCard);
-document.addEventListener('touchend',  e => { e.preventDefault(); flipCard(); }, { passive: false });
+document.addEventListener('click',    flipCard);
+document.addEventListener('touchend', e => { e.preventDefault(); flipCard(); }, { passive: false });
 
-function showError(msg) {
-  document.getElementById('certCard').innerHTML = `
-    <div style="padding:40px;text-align:center;color:rgba(255,255,255,0.4);font-family:'Space Mono',monospace">
-      <div style="font-size:40px;margin-bottom:16px">🎫</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:8px">Сертификат не найден</div>
-      <div style="font-size:11px;letter-spacing:1px">${msg}</div>
-    </div>`;
-  document.getElementById('bannerOk').style.display  = 'none';
-}
+// ── PARALLAX ENGINE ──
+const stickers = Array.from(document.querySelectorAll('.sticker'));
+const certWrap = document.getElementById('certWrap');
+let mx=0, my=0, tx=0, ty=0;
+const isMobile = window.matchMedia('(pointer:coarse)').matches;
 
-function showScene() {
-  document.getElementById('stateLoading').style.display = 'none';
-  document.getElementById('mainScene').style.opacity    = '1';
-  document.getElementById('mainScene').style.transition = 'opacity 0.5s ease';
-}
-
-loadCert();
-
-// ─────────────────────────────────────────────
-//  PARALLAX ENGINE
-// ─────────────────────────────────────────────
-const stickers   = Array.from(document.querySelectorAll('.sticker'));
-const certWrap   = document.getElementById('certWrap');
-
-// Current & target values
-let mx = 0, my = 0;   // normalized mouse -1..1
-let tx = 0, ty = 0;   // smoothed
-let isMobile = window.matchMedia('(pointer:coarse)').matches;
-
-// Levitation seeds per sticker
-const seeds = stickers.map((_, i) => ({
-  ox: (Math.random() - 0.5) * 30,
-  oy: (Math.random() - 0.5) * 20,
-  freq: 0.0004 + Math.random() * 0.0004,
-  phase: Math.random() * Math.PI * 2,
-  rotFreq: 0.0003 + Math.random() * 0.0003,
-  rotAmp:  6 + Math.random() * 8,
-  rotPhase: Math.random() * Math.PI * 2,
-  scaleFreq: 0.0002 + Math.random() * 0.0003,
-  scaleAmp: 0.04 + Math.random() * 0.04,
+const seeds = stickers.map(() => ({
+  ox: (Math.random()-0.5)*30, oy: (Math.random()-0.5)*20,
+  freq:     0.0004 + Math.random()*0.0004,
+  phase:    Math.random()*Math.PI*2,
+  rotFreq:  0.0003 + Math.random()*0.0003,
+  rotAmp:   6 + Math.random()*8,
+  rotPhase: Math.random()*Math.PI*2,
+  scaleFreq:0.0002 + Math.random()*0.0003,
+  scaleAmp: 0.04 + Math.random()*0.04,
 }));
 
-// ── Desktop: mouse parallax ──
 document.addEventListener('mousemove', e => {
   if (isMobile) return;
-  mx = (e.clientX / window.innerWidth  - 0.5) * 2;
-  my = (e.clientY / window.innerHeight - 0.5) * 2;
+  mx = (e.clientX/window.innerWidth  - 0.5)*2;
+  my = (e.clientY/window.innerHeight - 0.5)*2;
 });
 
-// ── Mobile: accelerometer ──
-let gyroPermissionAsked = false;
+// Gyro for mobile
+let gyroAsked = false;
 function requestGyro() {
   if (!isMobile) return;
   if (typeof DeviceMotionEvent !== 'undefined' &&
       typeof DeviceMotionEvent.requestPermission === 'function') {
-    if (!gyroPermissionAsked) {
-      gyroPermissionAsked = true;
+    if (!gyroAsked) {
+      gyroAsked = true;
       DeviceMotionEvent.requestPermission()
-        .then(res => { if (res === 'granted') listenGyro(); })
-        .catch(() => {});
+        .then(r => { if (r === 'granted') listenGyro(); }).catch(()=>{});
     }
-  } else {
-    listenGyro();
-  }
+  } else { listenGyro(); }
 }
 document.addEventListener('touchstart', requestGyro, { once: true });
-
 function listenGyro() {
   window.addEventListener('deviceorientation', e => {
     if (e.beta === null) return;
-    mx = Math.max(-1, Math.min(1,  (e.gamma || 0) / 30));
-    my = Math.max(-1, Math.min(1, ((e.beta  || 0) - 30) / 30));
+    mx = Math.max(-1, Math.min(1,  (e.gamma||0)/30));
+    my = Math.max(-1, Math.min(1, ((e.beta ||0)-30)/30));
   });
 }
 
-// ── Custom cursor ──
+// Cursor
 const cursor     = document.getElementById('cursor');
 const cursorRing = document.getElementById('cursorRing');
-let cx = 0, cy = 0, crx = 0, cry = 0;
-document.addEventListener('mousemove', e => {
-  cx = e.clientX; cy = e.clientY;
-});
+let cx=0, cy=0, crx=0, cry=0;
+document.addEventListener('mousemove', e => { cx=e.clientX; cy=e.clientY; });
 
-// ── RAF loop ──
 let lastT = 0;
 function tick(t) {
-  const dt = Math.min(t - lastT, 32); lastT = t;
+  const dt = Math.min(t-lastT, 32); lastT = t;
+  tx += (mx-tx)*0.08;
+  ty += (my-ty)*0.08;
 
-  // Smooth mouse
-  const ease = 0.08;
-  tx += (mx - tx) * ease;
-  ty += (my - ty) * ease;
-
-  // ── Cert card 3D tilt (applied to wrap, flip is on inner flipper) ──
-  const tiltX = ty * -14;
-  const tiltY = tx *  14;
+  // 3D tilt on cert
   certWrap.style.transform = `
-    rotateX(${tiltX}deg)
-    rotateY(${tiltY}deg)
+    rotateX(${ty*-14}deg) rotateY(${tx*14}deg)
     translateZ(40px)
-    translateX(${tx * -10}px)
-    translateY(${ty * -6}px)
+    translateX(${tx*-10}px) translateY(${ty*-6}px)
   `;
 
-  // ── Stickers levitation + parallax ──
+  // Stickers parallax + levitation
   stickers.forEach((el, i) => {
-    const s    = seeds[i];
-    const time = t;
-    const speedX = parseFloat(el.dataset.speedX) || 0.5;
-    const speedY = parseFloat(el.dataset.speedY) || 0.5;
-
-    // Levitation (sine waves)
-    const lx = s.ox + Math.sin(time * s.freq    + s.phase) * 18;
-    const ly = s.oy + Math.sin(time * s.freq * 1.3 + s.phase + 1) * 14;
-    const rot = Math.sin(time * s.rotFreq  + s.rotPhase) * s.rotAmp;
-    const scl = 1 + Math.sin(time * s.scaleFreq + s.phase) * s.scaleAmp;
-
-    // Mouse parallax layer
-    const px = tx * -60 * speedX;
-    const py = ty * -40 * speedY;
-
+    const s = seeds[i];
+    const speedX = parseFloat(el.dataset.speedX)||0.5;
+    const speedY = parseFloat(el.dataset.speedY)||0.5;
+    const lx  = s.ox + Math.sin(t*s.freq+s.phase)*18;
+    const ly  = s.oy + Math.sin(t*s.freq*1.3+s.phase+1)*14;
+    const rot = Math.sin(t*s.rotFreq+s.rotPhase)*s.rotAmp;
+    const scl = 1+Math.sin(t*s.scaleFreq+s.phase)*s.scaleAmp;
     el.style.transform = `
-      translate(${lx + px}px, ${ly + py}px)
-      rotate(${rot}deg)
-      scale(${scl})
+      translate(${lx+tx*-60*speedX}px, ${ly+ty*-40*speedY}px)
+      rotate(${rot}deg) scale(${scl})
     `;
   });
 
-  // ── Cursor (desktop only) ──
+  // Cursor (desktop)
   if (!isMobile) {
-    crx += (cx - crx) * 0.18;
-    cry += (cy - cry) * 0.18;
-    cursor.style.left     = cx  + 'px';
-    cursor.style.top      = cy  + 'px';
-    cursorRing.style.left = crx + 'px';
-    cursorRing.style.top  = cry + 'px';
+    crx += (cx-crx)*0.18; cry += (cy-cry)*0.18;
+    cursor.style.left      = cx+'px';  cursor.style.top      = cy+'px';
+    cursorRing.style.left  = crx+'px'; cursorRing.style.top  = cry+'px';
   }
-
   requestAnimationFrame(tick);
 }
-requestAnimationFrame(t => { lastT = t; requestAnimationFrame(tick); });
-
-// Hide system cursor on desktop
+requestAnimationFrame(t => { lastT=t; requestAnimationFrame(tick); });
 if (!isMobile) document.body.style.cursor = 'none';
+
+// ── GO ──
+loadCert();
 </script>
 </body>
 </html>

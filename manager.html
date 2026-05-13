@@ -2871,19 +2871,51 @@ let allCertificates = [];
 let currentCertId = null;
 
 function numToWords(n) {
-  const ones=['','БІР','ЕКІ','ҮШ','ТӨРТ','БЕС','АЛТЫ','ЖЕТІ','СЕГІЗ','ТОҒЫЗ'];
-  const teens=['ОН','ОН БІР','ОН ЕКІ','ОН ҮШ','ОН ТӨРТ','ОН БЕС','ОН АЛТЫ','ОН ЖЕТІ','ОН СЕГІЗ','ОН ТОҒЫЗ'];
-  const tens=['','ОН','ЖИЫРМА','ОТЫЗ','ҚЫРЫҚ','ЕЛУ','АЛПЫС','ЖЕТПІС','СЕКСЕН','ТОҚСАН'];
-  if(n===0) return 'НӨЛДІК'; let r='';
-  if(n>=1000){r+=ones[Math.floor(n/1000)]+' МЫҢ ';n%=1000;}
-  if(n>=100){r+=ones[Math.floor(n/100)]+' ЖҮЗ ';n%=100;}
-  if(n>=20){r+=tens[Math.floor(n/10)]+' ';n%=10;}
-  else if(n>=10){r+=teens[n-10]+' ';n=0;}
-  if(n>0)r+=ones[n]+' '; return r.trim();
+  function below1000(num) {
+    const ones  = ['','один','два','три','четыре','пять','шесть','семь','восемь','девять'];
+    const teens = ['десять','одиннадцать','двенадцать','тринадцать','четырнадцать','пятнадцать','шестнадцать','семнадцать','восемнадцать','девятнадцать'];
+    const tens  = ['','','двадцать','тридцать','сорок','пятьдесят','шестьдесят','семьдесят','восемьдесят','девяносто'];
+    const hundreds = ['','сто','двести','триста','четыреста','пятьсот','шестьсот','семьсот','восемьсот','девятьсот'];
+    let r = '';
+    if (num >= 100) { r += hundreds[Math.floor(num/100)] + ' '; num %= 100; }
+    if (num >= 20)  { r += tens[Math.floor(num/10)] + ' '; num %= 10; }
+    else if (num >= 10) { r += teens[num-10] + ' '; num = 0; }
+    if (num > 0) r += ones[num] + ' ';
+    return r;
+  }
+  if (n === 0) return 'ноль';
+  let result = '';
+  if (n >= 1000000) { result += below1000(Math.floor(n/1000000)) + 'миллион '; n %= 1000000; }
+  if (n >= 1000) {
+    const t = Math.floor(n/1000);
+    result += below1000(t) + 'тысяч ';
+    n %= 1000;
+  }
+  result += below1000(n);
+  return result.trim().toUpperCase();
 }
-function fmtDateShort(d){if(!d)return'—';const[y,m,dd]=d.split('-');return`${dd}.${m}`;}
-function fmtDateFull(d){if(!d)return'—';return new Date(d+'T00:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});}
-function genCertCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let code='QCP-';for(let i=0;i<8;i++){if(i===4)code+='-';code+=c[Math.floor(Math.random()*c.length)];} return code;}
+
+function fmtDateShort(dateStr) {
+  if (!dateStr) return '—';
+  const [y,m,d] = dateStr.split('-');
+  return `${d}.${m}`;
+}
+
+function fmtDateFull(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('ru-RU', {day:'numeric', month:'long', year:'numeric'});
+}
+
+function genCertCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = 'QCP-';
+  for (let i = 0; i < 8; i++) {
+    if (i === 4) code += '-';
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+}
 
 function updateCertPreview() {
   const name    = document.getElementById('cert-buyer-name').value || '';
@@ -2897,142 +2929,274 @@ function updateCertPreview() {
   document.getElementById('preview-dates').textContent = (dateFrom && dateTo) ? `${fmtDateShort(dateFrom)} – ${fmtDateShort(dateTo)}` : '—';
 }
 
-function openCertModal(certId=null){
-  currentCertId=certId;
-  document.getElementById('certModal').style.display='flex';
-  document.getElementById('cert-code-display').style.display='none';
-  if(certId){
-    const cert=allCertificates.find(c=>c.id===certId);
-    if(!cert)return;
-    document.getElementById('cert-modal-title').textContent='Редактировать сертификат';
-    document.getElementById('cert-buyer-name').value=cert.buyerName||'';
-    document.getElementById('cert-amount').value=cert.amount||'';
-    document.getElementById('cert-date-from').value=cert.dateFrom||'';
-    document.getElementById('cert-date-to').value=cert.dateTo||'';
-    document.getElementById('cert-store').value=cert.store||'Grand Park';
-    document.getElementById('cert-note').value=cert.note||'';
-    document.getElementById('cert-code-value').textContent=cert.code||'';
-    document.getElementById('cert-code-display').style.display='block';
+function openCertModal(certId = null) {
+  currentCertId = certId;
+  document.getElementById('certModal').style.display = 'flex';
+  document.getElementById('cert-code-display').style.display = 'none';
+
+  if (certId) {
+    const cert = allCertificates.find(c => c.id === certId);
+    if (!cert) return;
+    document.getElementById('cert-modal-title').textContent = 'Редактировать сертификат';
+    document.getElementById('cert-buyer-name').value = cert.buyerName || '';
+    document.getElementById('cert-amount').value = cert.amount || '';
+    document.getElementById('cert-date-from').value = cert.dateFrom || '';
+    document.getElementById('cert-date-to').value = cert.dateTo || '';
+    document.getElementById('cert-store').value = cert.store || 'Grand Park';
+    document.getElementById('cert-note').value = cert.note || '';
+    document.getElementById('cert-code-value').textContent = cert.code || '';
+    document.getElementById('cert-code-display').style.display = 'block';
   } else {
-    document.getElementById('cert-modal-title').textContent='Новый сертификат';
-    ['cert-buyer-name','cert-amount','cert-note'].forEach(id=>document.getElementById(id).value='');
-    const today=new Date().toISOString().split('T')[0];
-    const twoWks=new Date(Date.now()+14*864e5).toISOString().split('T')[0];
-    document.getElementById('cert-date-from').value=today;
-    document.getElementById('cert-date-to').value=twoWks;
+    document.getElementById('cert-modal-title').textContent = 'Новый сертификат';
+    document.getElementById('cert-buyer-name').value = '';
+    document.getElementById('cert-amount').value = '';
+    const today = new Date().toISOString().split('T')[0];
+    const twoWeeks = new Date(Date.now() + 14*24*60*60*1000).toISOString().split('T')[0];
+    document.getElementById('cert-date-from').value = today;
+    document.getElementById('cert-date-to').value = twoWeeks;
+    document.getElementById('cert-store').value = 'Grand Park';
+    document.getElementById('cert-note').value = '';
   }
   updateCertPreview();
 }
-function closeCertModal(){document.getElementById('certModal').style.display='none';currentCertId=null;}
 
-async function saveCertificate(){
-  const buyerName=document.getElementById('cert-buyer-name').value.trim();
-  const amount=parseInt(document.getElementById('cert-amount').value);
-  const dateFrom=document.getElementById('cert-date-from').value;
-  const dateTo=document.getElementById('cert-date-to').value;
-  const store=document.getElementById('cert-store').value;
-  const note=document.getElementById('cert-note').value.trim();
-  if(!buyerName||!amount||!dateFrom||!dateTo){alert('Заполните обязательные поля: имя, сумма, даты');return;}
-  const db=firebase.firestore();const auth=firebase.auth();const user=auth.currentUser;
-  const certData={buyerName,amount,dateFrom,dateTo,store,note,issuedBy:user?user.email:'—',issuedByUid:user?user.uid:'—',createdAt:new Date().toISOString(),status:'active'};
-  try{
-    if(currentCertId){
+function closeCertModal() {
+  document.getElementById('certModal').style.display = 'none';
+  currentCertId = null;
+}
+
+async function saveCertificate() {
+  const buyerName = document.getElementById('cert-buyer-name').value.trim();
+  const amount    = parseInt(document.getElementById('cert-amount').value);
+  const dateFrom  = document.getElementById('cert-date-from').value;
+  const dateTo    = document.getElementById('cert-date-to').value;
+  const store     = document.getElementById('cert-store').value;
+  const note      = document.getElementById('cert-note').value.trim();
+
+  if (!buyerName || !amount || !dateFrom || !dateTo) {
+    alert('Заполните обязательные поля: имя, сумма, даты');
+    return;
+  }
+
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+  const user = auth.currentUser;
+
+  const certData = {
+    buyerName, amount, dateFrom, dateTo, store, note,
+    issuedBy: user ? user.email : '—',
+    issuedByUid: user ? user.uid : '—',
+    createdAt: new Date().toISOString(),
+    status: 'active'
+  };
+
+  try {
+    if (currentCertId) {
       await db.collection('certificates').doc(currentCertId).update(certData);
       alert('Сертификат обновлён');
     } else {
-      const code=genCertCode();certData.code=code;
+      const code = genCertCode();
+      certData.code = code;
       await db.collection('certificates').add(certData);
-      document.getElementById('cert-code-value').textContent=code;
-      document.getElementById('cert-code-display').style.display='block';
-      document.getElementById('cert-modal-title').textContent='Сертификат выдан ✓';
+      document.getElementById('cert-code-value').textContent = code;
+      document.getElementById('cert-code-display').style.display = 'block';
+      document.getElementById('cert-modal-title').textContent = 'Сертификат выдан ✓';
+      event.target.textContent = '✓ Сохранено';
+      event.target.disabled = true;
     }
     await loadCertificates();
-  }catch(e){alert('Ошибка: '+e.message);}
+  } catch(e) {
+    alert('Ошибка: ' + e.message);
+  }
 }
 
-async function loadCertificates(){
-  const db=firebase.firestore();
-  try{
-    const snap=await db.collection('certificates').get();
-    allCertificates=[];
-    snap.forEach(doc=>allCertificates.push({id:doc.id,...doc.data()}));
-    allCertificates.sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
-  }catch(e){console.error('Load certs:',e);}
-  renderCertificates(allCertificates);updateCertStats();
+async function loadCertificates() {
+  const db = firebase.firestore();
+  try {
+    const snap = await db.collection('certificates').orderBy('createdAt','desc').get();
+    allCertificates = [];
+    snap.forEach(doc => allCertificates.push({ id: doc.id, ...doc.data() }));
+  } catch(e) {
+    try {
+      const snap = await db.collection('certificates').get();
+      allCertificates = [];
+      snap.forEach(doc => allCertificates.push({ id: doc.id, ...doc.data() }));
+      allCertificates.sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
+    } catch(e2) {
+      console.error('Load certs error:', e2);
+    }
+  }
+  renderCertificates(allCertificates);
+  updateCertStats();
 }
 
-function filterCertificates(){
-  const q=document.getElementById('cert-search').value.toLowerCase();
-  const status=document.getElementById('cert-filter-status').value;
-  const today=new Date().toISOString().split('T')[0];
-  const filtered=allCertificates.filter(c=>{
-    const mq=!q||c.buyerName?.toLowerCase().includes(q)||c.code?.toLowerCase().includes(q);
-    const exp=c.dateTo&&c.dateTo<today;
-    const ms=status==='all'||(status==='active'&&!exp&&c.status!=='revoked')||(status==='expired'&&(exp||c.status==='revoked'));
-    return mq&&ms;
+function filterCertificates() {
+  const q = document.getElementById('cert-search').value.toLowerCase();
+  const status = document.getElementById('cert-filter-status').value;
+  const today = new Date().toISOString().split('T')[0];
+  let filtered = allCertificates.filter(c => {
+    const matchQ = !q || c.buyerName?.toLowerCase().includes(q) || c.code?.toLowerCase().includes(q);
+    const isExpired = c.dateTo && c.dateTo < today;
+    const matchS = status === 'all' || (status === 'active' && !isExpired && c.status !== 'revoked') || (status === 'expired' && (isExpired || c.status === 'revoked'));
+    return matchQ && matchS;
   });
   renderCertificates(filtered);
 }
 
-function updateCertStats(){
-  const today=new Date().toISOString().split('T')[0];
-  const active=allCertificates.filter(c=>c.dateTo>=today&&c.status!=='revoked');
-  const expired=allCertificates.filter(c=>c.dateTo<today||c.status==='revoked');
-  document.getElementById('cert-stat-total').textContent=allCertificates.length;
-  document.getElementById('cert-stat-active').textContent=active.length;
-  document.getElementById('cert-stat-expired').textContent=expired.length;
-  document.getElementById('cert-stat-sum').textContent=active.reduce((s,c)=>s+(c.amount||0),0).toLocaleString('ru-RU')+'₸';
+function updateCertStats() {
+  const today = new Date().toISOString().split('T')[0];
+  const active = allCertificates.filter(c => c.dateTo >= today && c.status !== 'revoked');
+  const expired = allCertificates.filter(c => c.dateTo < today || c.status === 'revoked');
+  const activeSum = active.reduce((s,c) => s + (c.amount||0), 0);
+  document.getElementById('cert-stat-total').textContent = allCertificates.length;
+  document.getElementById('cert-stat-active').textContent = active.length;
+  document.getElementById('cert-stat-expired').textContent = expired.length;
+  document.getElementById('cert-stat-sum').textContent = activeSum.toLocaleString('ru-RU') + '₸';
 }
 
-function renderCertificates(list){
-  const el=document.getElementById('cert-list');
-  const today=new Date().toISOString().split('T')[0];
-  if(!list.length){el.innerHTML='<div style="text-align:center;padding:60px;color:var(--text3)"><div style="font-size:48px;margin-bottom:12px">🎫</div><div>Сертификатов нет</div></div>';return;}
-  el.innerHTML=list.map(c=>{
-    const isExp=c.dateTo<today,isRev=c.status==='revoked';
-    const badge=isRev?`<span style="padding:3px 10px;background:rgba(255,51,51,0.12);color:var(--red);border-radius:20px;font-size:11px;font-weight:600">Аннулирован</span>`:isExp?`<span style="padding:3px 10px;background:var(--bg3);color:var(--text3);border-radius:20px;font-size:11px;font-weight:600">Истёк</span>`:`<span style="padding:3px 10px;background:rgba(0,204,102,0.12);color:var(--green);border-radius:20px;font-size:11px;font-weight:600">Активен</span>`;
-    return `<div onclick="viewCertificate('${c.id}')" style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 22px;cursor:pointer;display:flex;align-items:center;gap:16px" onmouseover="this.style.borderColor='rgba(0,102,255,0.3)'" onmouseout="this.style.borderColor='var(--border)'">
-      <div style="width:48px;height:48px;background:${isRev||isExp?'var(--bg3)':'rgba(192,57,43,0.1)'};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${isRev?'🚫':isExp?'⏰':'🎫'}</div>
-      <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700;margin-bottom:4px">${c.buyerName||'—'}</div><div style="font-size:12px;color:var(--text3)">${c.store||'—'} · ${fmtDateShort(c.dateFrom)} – ${fmtDateShort(c.dateTo)} · ${c.issuedBy||'—'}</div></div>
-      <div style="text-align:right;flex-shrink:0"><div style="font-size:18px;font-weight:800;color:var(--accent)">${(c.amount||0).toLocaleString('ru-RU')} ₸</div><div style="font-size:11px;font-family:monospace;color:var(--text3);margin-bottom:4px">${c.code||'—'}</div>${badge}</div>
+function renderCertificates(list) {
+  const el = document.getElementById('cert-list');
+  const today = new Date().toISOString().split('T')[0];
+  if (!list.length) {
+    el.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text3)"><div style="font-size:48px;margin-bottom:12px">🎫</div><div>Сертификатов нет</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(c => {
+    const isExpired = c.dateTo < today;
+    const isRevoked = c.status === 'revoked';
+    const statusBadge = isRevoked
+      ? `<span style="padding:3px 10px;background:rgba(255,51,51,0.12);color:var(--red);border-radius:20px;font-size:11px;font-weight:600">Аннулирован</span>`
+      : isExpired
+      ? `<span style="padding:3px 10px;background:var(--bg3);color:var(--text3);border-radius:20px;font-size:11px;font-weight:600">Истёк</span>`
+      : `<span style="padding:3px 10px;background:rgba(0,204,102,0.12);color:var(--green);border-radius:20px;font-size:11px;font-weight:600">Активен</span>`;
+    return `<div onclick="viewCertificate('${c.id}')" style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 22px;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;gap:16px" onmouseover="this.style.borderColor='rgba(0,102,255,0.3)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="width:48px;height:48px;background:${isRevoked||isExpired?'var(--bg3)':'rgba(192,57,43,0.1)'};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${isRevoked?'🚫':isExpired?'⏰':'🎫'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">${c.buyerName || '—'}</div>
+        <div style="font-size:12px;color:var(--text3)">${c.store || '—'} · ${fmtDateShort(c.dateFrom)} – ${fmtDateShort(c.dateTo)} · Выдал: ${c.issuedBy || '—'}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:18px;font-weight:800;color:var(--accent)">${(c.amount||0).toLocaleString('ru-RU')} ₸</div>
+        <div style="font-size:11px;font-family:monospace;color:var(--text3);margin-bottom:4px">${c.code || '—'}</div>
+        ${statusBadge}
+      </div>
     </div>`;
   }).join('');
 }
 
-function viewCertificate(certId){
-  const cert=allCertificates.find(c=>c.id===certId);if(!cert)return;
-  const today=new Date().toISOString().split('T')[0];
-  const isExp=cert.dateTo<today,isRev=cert.status==='revoked';
-  document.getElementById('certViewContent').innerHTML=`
-    <div style="text-align:center;margin-bottom:24px">
-      <div style="font-size:48px;margin-bottom:8px">${isRev?'🚫':isExp?'⏰':'🎫'}</div>
-      <div style="font-family:monospace;font-size:20px;font-weight:800;letter-spacing:3px;color:var(--accent)">${cert.code||'—'}</div>
-      <div style="font-size:12px;color:var(--text3);margin-top:4px">${isRev?'АННУЛИРОВАН':isExp?'ИСТЁК':'ДЕЙСТВИТЕЛЕН'}</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-      <div style="background:var(--bg3);border-radius:10px;padding:14px"><div style="font-size:11px;color:var(--text3);margin-bottom:4px">ПОКУПАТЕЛЬ</div><div style="font-size:15px;font-weight:600">${cert.buyerName||'—'}</div></div>
-      <div style="background:var(--bg3);border-radius:10px;padding:14px"><div style="font-size:11px;color:var(--text3);margin-bottom:4px">СУММА</div><div style="font-size:15px;font-weight:700;color:var(--accent)">${(cert.amount||0).toLocaleString('ru-RU')} ₸</div></div>
-      <div style="background:var(--bg3);border-radius:10px;padding:14px"><div style="font-size:11px;color:var(--text3);margin-bottom:4px">СРОК</div><div style="font-size:13px;font-weight:600">${fmtDateShort(cert.dateFrom)} — ${fmtDateShort(cert.dateTo)}</div></div>
-      <div style="background:var(--bg3);border-radius:10px;padding:14px"><div style="font-size:11px;color:var(--text3);margin-bottom:4px">МАГАЗИН</div><div style="font-size:13px;font-weight:600">${cert.store||'—'}</div></div>
-    </div>
-    <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-bottom:8px"><div style="font-size:11px;color:var(--text3);margin-bottom:4px">ВЫДАН</div><div style="font-size:13px">${cert.issuedBy||'—'} · ${cert.createdAt?new Date(cert.createdAt).toLocaleDateString('ru-RU'):'—'}</div></div>
-    ${cert.note?`<div style="background:var(--bg3);border-radius:10px;padding:14px"><div style="font-size:11px;color:var(--text3);margin-bottom:4px">ПРИМЕЧАНИЕ</div><div style="font-size:13px">${cert.note}</div></div>`:''}`;
-  const rb=document.getElementById('cert-revoke-btn');
-  rb.style.display=isRev?'none':'block';
-  rb.onclick=()=>revokeCertificate(certId);
-  document.getElementById('certViewModal').style.display='flex';
-}
-function closeCertViewModal(){document.getElementById('certViewModal').style.display='none';}
+function viewCertificate(certId) {
+  const cert = allCertificates.find(c => c.id === certId);
+  if (!cert) return;
+  const today = new Date().toISOString().split('T')[0];
+  const isExpired = cert.dateTo < today;
+  const isRevoked = cert.status === 'revoked';
 
-async function revokeCertificate(certId){
-  if(!confirm('Аннулировать сертификат?'))return;
-  const db=firebase.firestore();
-  try{await db.collection('certificates').doc(certId).update({status:'revoked',revokedAt:new Date().toISOString()});await loadCertificates();closeCertViewModal();alert('Сертификат аннулирован');}
-  catch(e){alert('Ошибка: '+e.message);}
+  document.getElementById('certViewContent').innerHTML = `
+    <div style="position:relative;border-radius:16px 16px 0 0;overflow:hidden;width:100%;padding-bottom:39.06%;background:#f5ede0">
+      <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaRakhmetCardddas.png"
+           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" alt="">
+      <div style="position:absolute;inset:0;padding:4% 5%">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:0">
+          <div style="text-align:right">
+            <div style="font-family:'Handwriting',sans-serif;font-size:clamp(18px,1.8%,16px);color:#111;margin-top:2px">${fmtDateShort(cert.dateFrom)} – ${fmtDateShort(cert.dateTo)}</div>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:6%;left:5%;right:5%">
+          <div style="display:flex;align-items:flex-end;gap:6px;margin-bottom:2%">
+            <div style="font-family:'Thesignature',cursive;font-size:clamp(50px,3.5%,34px);color:#111;padding-left:16px;min-width:30%;max-width:65%;white-space:nowrap;text-overflow:ellipsis;line-height:1.1">${cert.buyerName || '—'}</div>
+          </div>
+          <div style="font-family:'BenzinExtraBold',sans-serif;font-size:clamp(20px,3.8%,36px);color:#e91e24;line-height:1;font-weight:900">${(cert.amount||0).toLocaleString('ru-RU')} ₸</div>
+          <div style="font-family:'BenzinSemibold',sans-serif;font-size:clamp(6px,0.9%,9px);color:#555;margin-top:2px;text-transform:uppercase;letter-spacing:0.5px">${cert.amount ? numToWords(cert.amount) + ' ТЕҢГЕ КӨЛЕМІНДЕ' : ''}</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:var(--bg3);border-radius:10px;padding:12px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:3px">КОД</div>
+        <div style="font-size:15px;font-weight:800;letter-spacing:2px;color:var(--accent);font-family:monospace">${cert.code || '—'}</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:12px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:3px">СТАТУС</div>
+        <div style="font-size:13px;font-weight:700;color:${isRevoked?'var(--red)':isExpired?'var(--text3)':'var(--green)'}">${isRevoked?'АННУЛИРОВАН':isExpired?'ИСТЁК':'АКТИВЕН'}</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:12px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:3px">МАГАЗИН</div>
+        <div style="font-size:13px;font-weight:600">${cert.store || '—'}</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:12px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:3px">ВЫДАН</div>
+        <div style="font-size:12px">${cert.issuedBy || '—'}</div>
+      </div>
+      ${cert.note ? `<div style="grid-column:span 2;background:var(--bg3);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">ПРИМЕЧАНИЕ</div><div style="font-size:13px">${cert.note}</div></div>` : ''}
+    </div>
+  `;
+
+  _viewingCert = cert;
+  const revokeBtn = document.getElementById('cert-revoke-btn');
+  revokeBtn.style.display = isRevoked ? 'none' : 'inline-flex';
+  revokeBtn.onclick = () => revokeCertificate(certId);
+  document.getElementById('certViewModal').style.display = 'flex';
 }
 
-// Hook showPage for certificates
-const _mgr_showPage = window.showPage;
+function shareCertificate() {
+  if (!_viewingCert || !_viewingCert.code) return;
+  const base = window.location.origin;
+  const url  = `${base}/cert.html?code=${encodeURIComponent(_viewingCert.code)}`;
+  const btn  = document.getElementById('cert-share-btn');
+  if (navigator.share) {
+    navigator.share({ title: 'Сертификат Qoima', text: `Ваш подарочный сертификат на ${(_viewingCert.amount||0).toLocaleString('ru-RU')} ₸`, url }).catch(() => {});
+    return;
+  }
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = '✓ Ссылка скопирована!';
+    btn.style.background = 'var(--green)';
+    setTimeout(() => {
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Отправить клиенту`;
+      btn.style.background = 'var(--accent)';
+    }, 2500);
+  }).catch(() => { prompt('Скопируйте ссылку:', url); });
+}
+
+function copyCertificateLink() {
+  if (!_viewingCert || !_viewingCert.code) return;
+  const base = window.location.origin;
+  const url  = `${base}/cert.html?code=${encodeURIComponent(_viewingCert.code)}`;
+  const btn  = document.getElementById('cert-copy-btn');
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg> Скопировано!';
+    btn.style.borderColor = '#00cc66';
+    btn.style.backgroundColor = 'rgba(0,204,102,0.15)';
+    btn.style.color = '#00cc66';
+    setTimeout(() => {
+      btn.innerHTML = orig;
+      btn.style.borderColor = '';
+      btn.style.backgroundColor = '';
+      btn.style.color = 'var(--accent)';
+    }, 2500);
+  }).catch(() => { prompt('Скопируйте эту ссылку:', url); });
+}
+
+function closeCertViewModal() {
+  document.getElementById('certViewModal').style.display = 'none';
+}
+
+async function revokeCertificate(certId) {
+  if (!confirm('Аннулировать сертификат? Это действие нельзя отменить.')) return;
+  const db = firebase.firestore();
+  try {
+    await db.collection('certificates').doc(certId).update({ status: 'revoked', revokedAt: new Date().toISOString() });
+    await loadCertificates();
+    closeCertViewModal();
+    alert('Сертификат аннулирован');
+  } catch(e) { alert('Ошибка: ' + e.message); }
+}
+
+let _viewingCert = null;
+let allCertificates = [];
+let currentCertId = null;
+
+
 window.showPage = function(page) {
   if (_mgr_showPage) _mgr_showPage(page);
   else {
@@ -3099,10 +3263,18 @@ setTimeout(()=>{try{loadCertificates();}catch(e){}},2000);
 
 <!-- Certificate View Modal -->
 <div id="certViewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:500px">
-    <div id="certViewContent" style="padding:28px"></div>
-    <div style="padding:0 28px 28px;display:flex;gap:10px">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto">
+    <div id="certViewContent" style="padding:24px 24px 0"></div>
+    <div style="padding:16px 24px 24px;display:flex;gap:10px;flex-wrap:wrap">
       <button onclick="closeCertViewModal()" style="flex:1;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;cursor:pointer">Закрыть</button>
+      <button onclick="shareCertificate()" id="cert-share-btn" style="padding:12px 20px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Отправить клиенту
+      </button>
+      <button onclick="copyCertificateLink()" id="cert-copy-btn" style="padding:12px 20px;background:rgba(0,102,255,0.15);border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+        Копировать ссылку
+      </button>
       <button id="cert-revoke-btn" style="padding:12px 20px;background:rgba(255,51,51,0.1);border:1px solid var(--red);border-radius:10px;color:var(--red);font-size:14px;cursor:pointer">Аннулировать</button>
     </div>
   </div>

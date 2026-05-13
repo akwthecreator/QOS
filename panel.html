@@ -2490,16 +2490,14 @@ function initializeFirebaseAuth() {
       if (doc.exists) {
         const profile = doc.data();
         const role = profile.role || 'admin';
-        // Роль-гард: только admin и manager видят panel.html
-        if (role === 'seller') { window.location.href = 'seller.html'; return; }
+        // Роль-гард: только admin остаётся на panel.html
+        if (role === 'seller')   { window.location.href = 'seller.html';  return; }
+        if (role === 'manager')  { window.location.href = 'manager.html'; return; }
         if (role === 'observer') { window.location.href = 'observer.html'; return; }
-        // Показать имя вместо email если есть
-        if (profile.name) document.getElementById('userEmail').textContent = profile.name + ' (' + role + ')';
-        // Если не admin — скрыть настройки
-        if (role !== 'admin') {
-          const settingsBtn = document.getElementById('nav-settings');
-          if (settingsBtn) settingsBtn.style.display = 'none';
-        }
+        // Дошли сюда — точно admin, настройки всегда видны
+        if (profile.name) document.getElementById('userEmail').textContent = profile.name + ' (admin)';
+        const settingsBtn = document.getElementById('nav-settings');
+        if (settingsBtn) settingsBtn.style.display = '';
       }
     } catch(e) {
       console.warn('Role check error:', e);

@@ -125,39 +125,96 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .seller-val { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; width: 88px; text-align: right; flex-shrink: 0; }
 .seller-badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; flex-shrink: 0; }
 
-/* ── ADVANCED KPI ── */
-.adv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+/* ── ADVANCED KPI REDESIGN ── */
+.adv-section-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text3); padding: 10px 0 6px; margin-bottom: 8px;
+  border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+}
+.adv-section-title .team-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .adv-card {
-  background: var(--bg2); border: 1px solid var(--border); border-radius: 18px;
-  padding: 20px; cursor: default; transition: border-color 0.2s, transform 0.2s;
-  position: relative; overflow: hidden;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 11px 13px; cursor: pointer; transition: all 0.15s;
+  position: relative; margin-bottom: 7px; border-left: 3px solid transparent;
 }
-.adv-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
-.adv-card.gold  { border-color: rgba(255,215,0,0.35); background: linear-gradient(135deg, var(--bg2) 0%, rgba(255,215,0,0.04) 100%); }
-.adv-card.silver{ border-color: rgba(192,192,192,0.35); }
-.adv-card.bronze{ border-color: rgba(205,127,50,0.35); }
-.adv-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-.adv-rank { font-size: 26px; width: 40px; text-align: center; flex-shrink: 0; }
-.adv-name { font-size: 15px; font-weight: 700; color: var(--text); }
-.adv-team { font-size: 11px; color: var(--text3); margin-top: 2px; }
-.adv-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-.adv-badge {
-  font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px;
-  white-space: nowrap;
+.adv-card:hover { background: var(--bg3); transform: translateX(2px); }
+.adv-card.gold   { border-left-color: #ffd700; }
+.adv-card.silver { border-left-color: #c0c0c0; }
+.adv-card.bronze { border-left-color: #cd7f32; }
+.adv-card.danger  { border-left-color: var(--red);    background: rgba(255,51,51,0.04); }
+.adv-card.warning { border-left-color: var(--yellow); background: rgba(255,170,0,0.04); }
+.adv-card.active-card { box-shadow: 0 0 0 1px var(--accent); }
+.danger-badge {
+  position: absolute; top: 9px; right: 9px;
+  font-size: 8px; font-weight: 700; letter-spacing: 0.5px; padding: 2px 6px;
+  border-radius: 4px; background: rgba(255,51,51,0.15); color: var(--red); text-transform: uppercase;
 }
-.adv-badge.upt   { background: rgba(0,102,255,0.15); color: #4488ff; border: 1px solid rgba(0,102,255,0.3); }
-.adv-badge.avg   { background: rgba(255,170,0,0.15);  color: #ffaa00; border: 1px solid rgba(255,170,0,0.3); }
-.adv-badge.score { background: rgba(0,204,102,0.15); color: var(--green); border: 1px solid rgba(0,204,102,0.3); }
-.adv-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-.adv-metric { background: var(--bg3); border-radius: 10px; padding: 10px 12px; }
-.adv-metric-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.adv-metric-val   { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
-.adv-metric-sub   { font-size: 10px; color: var(--text3); margin-top: 2px; }
-.adv-score-wrap { margin-top: 4px; }
-.adv-score-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); margin-bottom: 5px; }
-.adv-score-track { height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
-.adv-score-fill  { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
-.adv-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; margin-bottom: 20px; }
+.warning-badge {
+  position: absolute; top: 9px; right: 9px;
+  font-size: 8px; font-weight: 700; letter-spacing: 0.5px; padding: 2px 6px;
+  border-radius: 4px; background: rgba(255,170,0,0.15); color: var(--yellow); text-transform: uppercase;
+}
+.adv-card-top { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+.adv-rank { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+.adv-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
+.adv-team { font-size: 10px; font-weight: 500; margin-top: 1px; }
+.adv-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
+.adv-badge  { font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 600; white-space: nowrap; }
+.adv-badge.upt   { background: rgba(68,136,255,0.15); color: #4488ff; }
+.adv-badge.avg   { background: rgba(255,170,0,0.15);  color: #ffaa00; }
+.adv-badge.score { background: rgba(0,204,102,0.15);  color: var(--green); }
+.adv-metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; margin-bottom: 7px; }
+.adv-metric { background: var(--bg3); border-radius: 6px; padding: 5px 7px; }
+.adv-metric-label { font-size: 8px; color: var(--text3); margin-bottom: 2px; }
+.adv-metric-val   { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1; }
+.adv-metric-sub   { font-size: 8px; color: var(--text3); margin-top: 1px; }
+.adv-score-track { height: 3px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+.adv-score-fill  { height: 100%; border-radius: 2px; transition: width 0.5s; }
+.adv-summary-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+/* Detail panel */
+.adv-detail-panel {
+  position: fixed; top: 0; right: -480px; width: 440px; height: 100vh;
+  background: var(--bg2); border-left: 1px solid var(--border);
+  z-index: 700; overflow-y: auto;
+  transition: right 0.28s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: -4px 0 24px rgba(0,0,0,0.3);
+}
+.adv-detail-panel.open { right: 0; }
+.detail-header {
+  position: sticky; top: 0; background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 14px 18px; z-index: 1; display: flex; align-items: flex-start; gap: 10px;
+}
+.detail-close {
+  margin-left: auto; background: transparent; border: none; color: var(--text3);
+  font-size: 18px; cursor: pointer; width: 26px; height: 26px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.detail-close:hover { background: var(--bg3); color: var(--text); }
+.detail-body { padding: 14px 18px; }
+.day-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.day-table th { text-align: left; padding: 4px 6px; color: var(--text3); font-weight: 500; font-size: 10px; border-bottom: 1px solid var(--border); }
+.day-table td { padding: 4px 6px; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text2); }
+.day-table tr:hover td { background: var(--bg3); }
+.day-table td.rev { font-weight: 600; color: var(--text); }
+.day-table td.no-shift { color: var(--text3); font-size: 10px; }
+/* Leaderboard sidebar */
+#adv-lb-wrap { transition: width 0.22s; }
+#adv-lb-wrap.collapsed { width: 36px !important; }
+#adv-lb-wrap.collapsed #adv-lb-body,
+#adv-lb-wrap.collapsed .lb-title { display: none; }
+.lb-row { display: flex; align-items: center; gap: 7px; padding: 6px 12px; transition: background 0.12s; }
+.lb-row:hover { background: var(--bg3); }
+.lb-pos  { font-size: 11px; width: 18px; text-align: center; flex-shrink: 0; }
+.lb-name { font-size: 11px; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-val  { font-size: 11px; font-weight: 600; color: var(--text2); flex-shrink: 0; }
+.lb-team-line { height: 1px; background: var(--border); margin: 3px 12px; }
+.lb-team-lbl  { font-size: 9px; color: var(--text3); padding: 3px 12px 1px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+@media (max-width: 900px) {
+  .adv-metrics { grid-template-columns: repeat(2, 1fr); }
+  .adv-summary-grid { grid-template-columns: repeat(2,1fr); }
+  .adv-detail-panel { width: 100%; right: -100%; }
+  #adv-lb-wrap { display: none; }
+}
 
 /* Score mode toggle */
 .mode-toggle { display: flex; background: var(--bg3); border-radius: 10px; padding: 3px; gap: 2px; margin-bottom: 20px; width: fit-content; }
@@ -796,38 +853,54 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
       <!-- ── ADVANCED KPI MODE ── -->
       <div id="sellers-advanced-section" style="display:none">
-        <!-- Filters -->
-        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-          <button onclick="setAdvView('all')" id="atab-all" class="stab stab-active">🌐 Все</button>
-          <button onclick="setAdvView('grandpark')" id="atab-grandpark" class="stab">Grand Park</button>
-          <button onclick="setAdvView('aport')" id="atab-aport" class="stab">Aport</button>
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
-          <button onclick="setAdvMetric('score')"   id="amet-score"   class="stab stab-active">🏆 Performance Score</button>
-          <button onclick="setAdvMetric('revenue')" id="amet-revenue" class="stab">💰 Выручка</button>
-          <button onclick="setAdvMetric('upt')"     id="amet-upt"     class="stab">⚡ UPT</button>
-          <button onclick="setAdvMetric('avgCheck')"id="amet-avgCheck"class="stab">🎯 Средний чек</button>
-          <button onclick="setAdvMetric('checks')"  id="amet-checks"  class="stab">🧾 Чеки</button>
+
+        <!-- Top filters row -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <div style="display:flex;gap:6px">
+            <button onclick="setAdvView('all')"       id="atab-all"       class="stab stab-active">🌐 Все</button>
+            <button onclick="setAdvView('grandpark')" id="atab-grandpark" class="stab">Grand Park</button>
+            <button onclick="setAdvView('aport')"     id="atab-aport"     class="stab">Aport West</button>
+          </div>
+          <div style="display:flex;gap:6px;margin-left:auto">
+            <button onclick="setAdvMetric('score')"    id="amet-score"    class="stab stab-active">🏆 Score</button>
+            <button onclick="setAdvMetric('revenue')"  id="amet-revenue"  class="stab">💰 Выручка</button>
+            <button onclick="setAdvMetric('upt')"      id="amet-upt"      class="stab">⚡ UPT</button>
+            <button onclick="setAdvMetric('avgCheck')" id="amet-avgCheck" class="stab">🎯 AVG</button>
+            <button onclick="setAdvMetric('checks')"   id="amet-checks"   class="stab">🧾 Чеки</button>
+          </div>
         </div>
 
         <!-- Summary stats -->
-        <div class="adv-summary-grid" id="adv-summary"></div>
+        <div class="adv-summary-grid" id="adv-summary" style="margin-bottom:16px"></div>
 
-        <!-- Legend -->
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;font-size:12px;color:var(--text3)">
-          <span>⚡ <span style="color:#4488ff">Мастер допродаж</span> — наивысший UPT</span>
-          <span>💎 <span style="color:#ffaa00">Премиум-сегмент</span> — наивысший средний чек</span>
-          <span>🏆 <span style="color:var(--green)">Performance Score</span> = 40% выручка + 30% UPT + 30% средний чек</span>
-        </div>
+        <!-- Main layout: cards + leaderboard -->
+        <div style="display:flex;gap:14px;align-items:flex-start">
 
-        <!-- Cards grid -->
-        <div class="adv-grid" id="adv-leaderboard">
-          <div style="text-align:center;padding:60px;color:var(--text3);grid-column:1/-1">
-            <div style="font-size:40px;margin-bottom:12px">⚡</div>
-            <div style="font-size:15px;margin-bottom:8px">Нет данных Advanced KPI</div>
-            <div style="font-size:12px">Укажите название листа в Настройках → «Advanced KPI лист»</div>
+          <!-- Cards column -->
+          <div style="flex:1;min-width:0">
+            <div id="adv-leaderboard">
+              <div style="text-align:center;padding:40px;color:var(--text3)">
+                <div style="font-size:32px;margin-bottom:8px">⚡</div>
+                <div style="font-size:14px">Нет данных. Укажите лист в Настройках → «Advanced KPI лист»</div>
+              </div>
+            </div>
           </div>
+
+          <!-- Leaderboard sidebar -->
+          <div id="adv-lb-wrap" style="width:220px;flex-shrink:0;transition:width 0.25s">
+            <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)">
+                <div style="font-size:12px;font-weight:600;color:var(--text)">🏆 Лидерборд</div>
+                <button onclick="toggleLeaderboard()" id="lb-toggle-btn"
+                  style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:16px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px"
+                  title="Свернуть">◀</button>
+              </div>
+              <div id="adv-lb-body" style="padding:8px 0;max-height:600px;overflow-y:auto"></div>
+            </div>
+          </div>
+
         </div>
+
       </div>
     </div>
 
@@ -977,28 +1050,9 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           <input type="text" class="settings-input" id="cfg-sheet-adv" placeholder="Например: KPI Advanced Май">
           <div style="font-size:12px;color:var(--text3)">Текущий: <span class="settings-tag" id="cfg-adv-current"></span></div>
         </div>
-        <div class="settings-row">
-          <div class="settings-label">
-            Advanced KPI — ID таблицы
-            <div style="font-size:11px;font-weight:400;color:var(--text3);margin-top:3px">Оставьте пустым если лист находится в той же таблице</div>
-          </div>
-          <input type="text" class="settings-input" id="cfg-adv-sheet-id"
-            placeholder="1aBcDeFgHiJkLmNoPqRsTuVwXyZ..."
-            style="font-family:monospace;font-size:12px">
-          <div style="font-size:12px;color:var(--text3)">
-            Текущий: <span class="settings-tag" id="cfg-adv-sheet-id-current" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:middle"></span>
-          </div>
-        </div>
-        <div style="font-size:12px;color:var(--text3);margin-top:8px;padding:12px;background:var(--bg3);border-radius:8px;line-height:1.7">
-          📋 <strong>Как найти ID таблицы:</strong> откройте Google Таблицу → скопируйте часть ссылки между <code style="background:var(--bg);padding:1px 4px;border-radius:3px">/d/</code> и <code style="background:var(--bg);padding:1px 4px;border-radius:3px">/edit</code><br>
-          Пример: <code style="color:var(--accent)">https://docs.google.com/spreadsheets/d/<strong>1aBcD.../</strong>edit</code><br><br>
-          📊 <strong>Формат листа Advanced KPI:</strong> Блок на продавца — строка 1: Имя + даты · строка 2: Выручка · строка 3: Чеки · строка 4: Товар · строка 5: UPT · строка 6: AVG · строка 7: Смена
-        </div>
-        <div style="margin-top:10px">
-          <button class="settings-btn" onclick="testAdvConnection()" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border)">
-            🔌 Проверить подключение к Advanced KPI
-          </button>
-          <div id="adv-test-result" style="font-size:12px;margin-top:8px;height:18px"></div>
+        <div style="font-size:12px;color:var(--text3);margin-top:8px;padding:10px;background:var(--bg3);border-radius:8px">
+          📋 <strong>Формат листа Advanced KPI (QOIMA Sellers):</strong><br>
+          Блок на продавца: строка 1 — Имя + даты по колонкам · строка 2 — Выручка за день · строка 3 — Кол-во чеков · строка 4 — Кол-во товара · строка 5 — UPT · строка 6 — AVG · строка 7 — Смена. Блоки разделены пустыми строками.
         </div>
       </div>
 
@@ -1138,7 +1192,6 @@ const DEFAULT_CONFIG = {
   SHEET_NAME:        'МАЙ KPI',
   SELLERS_SHEET_NAME:'ЗП Май',
   ADV_SHEET_NAME:    '',
-  ADV_SHEET_ID:      '',   // ID отдельной таблицы для Advanced KPI (если отличается от основной)
   PLAN_GRANDPARK:    6000000,
   PLAN_APORT:        5000000,
   SYNC_INTERVAL:     120
@@ -1166,8 +1219,6 @@ function SHEET_NAME()         { return CFG.SHEET_NAME; }
 function SELLERS_SHEET_NAME() { return CFG.SELLERS_SHEET_NAME; }
 function PLAN_GRANDPARK()     { return CFG.PLAN_GRANDPARK; }
 function PLAN_APORT()         { return CFG.PLAN_APORT; }
-// Advanced KPI uses its own Sheet ID if set, otherwise falls back to main SHEET_ID
-function ADV_SHEET_ID_EFFECTIVE() { return (CFG.ADV_SHEET_ID && CFG.ADV_SHEET_ID.trim()) ? CFG.ADV_SHEET_ID.trim() : SHEET_ID; }
 
 // ===================== PIN SYSTEM =====================
 const PIN_CODE     = '57725';
@@ -1241,15 +1292,11 @@ function showSettingsPage() {
   document.getElementById('cfg-sheet-kpi').value    = CFG.SHEET_NAME;
   document.getElementById('cfg-sheet-sellers').value = CFG.SELLERS_SHEET_NAME;
   document.getElementById('cfg-sheet-adv').value     = CFG.ADV_SHEET_NAME || '';
-  document.getElementById('cfg-adv-sheet-id').value  = CFG.ADV_SHEET_ID  || '';
   document.getElementById('cfg-plan-gp').value       = CFG.PLAN_GRANDPARK;
   document.getElementById('cfg-plan-aport').value    = CFG.PLAN_APORT;
   document.getElementById('cfg-kpi-current').textContent     = CFG.SHEET_NAME;
   document.getElementById('cfg-sellers-current').textContent = CFG.SELLERS_SHEET_NAME;
-  document.getElementById('cfg-adv-current').textContent          = CFG.ADV_SHEET_NAME || '(не задан)';
-  document.getElementById('cfg-adv-sheet-id-current').textContent = CFG.ADV_SHEET_ID
-    ? CFG.ADV_SHEET_ID.slice(0, 24) + '...'
-    : '(основная таблица)';
+  document.getElementById('cfg-adv-current').textContent     = CFG.ADV_SHEET_NAME || '(не задан)';
   document.getElementById('cfg-sync-interval').value = CFG.SYNC_INTERVAL;
   document.getElementById('info-sheet-id').textContent = SHEET_ID;
   const ls = localStorage.getItem('qgi_last_session');
@@ -1265,7 +1312,6 @@ function saveSettings() {
   const kpi     = document.getElementById('cfg-sheet-kpi').value.trim();
   const sellers = document.getElementById('cfg-sheet-sellers').value.trim();
   const adv     = document.getElementById('cfg-sheet-adv').value.trim();
-  const advId   = document.getElementById('cfg-adv-sheet-id').value.trim();
   const gp      = parseInt(document.getElementById('cfg-plan-gp').value) || DEFAULT_CONFIG.PLAN_GRANDPARK;
   const ap      = parseInt(document.getElementById('cfg-plan-aport').value) || DEFAULT_CONFIG.PLAN_APORT;
   const si      = parseInt(document.getElementById('cfg-sync-interval').value) || 120;
@@ -1277,7 +1323,6 @@ function saveSettings() {
   CFG.SHEET_NAME         = kpi;
   CFG.SELLERS_SHEET_NAME = sellers;
   CFG.ADV_SHEET_NAME     = adv;
-  CFG.ADV_SHEET_ID       = advId;
   CFG.PLAN_GRANDPARK     = gp;
   CFG.PLAN_APORT         = ap;
   CFG.SYNC_INTERVAL      = si;
@@ -1286,10 +1331,7 @@ function saveSettings() {
   // Update displayed labels
   document.getElementById('cfg-kpi-current').textContent     = kpi;
   document.getElementById('cfg-sellers-current').textContent = sellers;
-  document.getElementById('cfg-adv-current').textContent          = adv || '(не задан)';
-  document.getElementById('cfg-adv-sheet-id-current').textContent = advId
-    ? advId.slice(0, 24) + '...'
-    : '(основная таблица)';
+  document.getElementById('cfg-adv-current').textContent     = adv || '(не задан)';
 
   // Restart sync intervals
   startSyncIntervals();
@@ -2186,10 +2228,15 @@ function setAdvMetric(m) {
 function parseAdvKpi(rows) {
   const sellers = [];
   let i = 0;
+  let currentTeam = 'grandpark'; // текущая секция команды
 
   while (i < rows.length) {
     const row = rows[i] || [];
     const a0  = (row[0] || '').toString().trim();
+
+    // Определяем секцию команды по маркерам
+    if (a0 === 'Grand Park' || a0 === 'Grand Park ') { currentTeam = 'grandpark'; i++; continue; }
+    if (a0 === 'Aport West' || a0 === 'Aport' || a0 === 'Aport West ') { currentTeam = 'aport'; i++; continue; }
 
     // Пропускаем пустые строки и строки без имени
     if (!a0 || !/[а-яА-ЯёЁa-zA-Z]/.test(a0)) { i++; continue; }
@@ -2207,7 +2254,7 @@ function parseAdvKpi(rows) {
     let shifts  = 0;
     const dailyRevenue = [];
     const dailyShifts  = [];
-    let team = 'grandpark'; // дефолт; можно добавить логику по имени или отдельной ячейке
+    let team = currentTeam; // берём из текущей секции
 
     // Ищем строки блока (до следующей пустой / нового имени)
     let j = i + 1;
@@ -2267,38 +2314,6 @@ function calcScores(list) {
   }));
 }
 
-// ── Test Advanced KPI connection ──
-async function testAdvConnection() {
-  const sheetName = document.getElementById('cfg-sheet-adv').value.trim();
-  const sheetIdRaw = document.getElementById('cfg-adv-sheet-id').value.trim();
-  const effectiveId = sheetIdRaw || SHEET_ID;
-  const resultEl = document.getElementById('adv-test-result');
-
-  if (!sheetName) {
-    resultEl.style.color = 'var(--yellow)';
-    resultEl.textContent = '⚠️ Сначала укажите название листа';
-    return;
-  }
-  resultEl.style.color = 'var(--text3)';
-  resultEl.textContent = '⏳ Проверяем...';
-
-  try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${effectiveId}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
-    const res = await fetch(url);
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || 'HTTP ' + res.status);
-    }
-    const json = await res.json();
-    const rows = json.values?.length || 0;
-    resultEl.style.color = 'var(--green)';
-    resultEl.textContent = `✅ Подключено! Найдено строк: ${rows} · ID: ${effectiveId.slice(0,16)}...`;
-  } catch(e) {
-    resultEl.style.color = 'var(--red)';
-    resultEl.textContent = `❌ Ошибка: ${e.message}`;
-  }
-}
-
 // ── Sync Advanced KPI sheet ──
 async function syncAdvKpi() {
   const sheetName = CFG.ADV_SHEET_NAME;
@@ -2316,7 +2331,7 @@ async function syncAdvKpi() {
       <div class="spinner" style="margin:0 auto 12px"></div>Загружаем KPI данные...
     </div>`;
   try {
-    const url  = `https://sheets.googleapis.com/v4/spreadsheets/${ADV_SHEET_ID_EFFECTIVE()}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
+    const url  = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
     const res  = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
@@ -2333,101 +2348,262 @@ async function syncAdvKpi() {
   }
 }
 
-// ── Render Advanced KPI cards ──
+// ══════════════════════════════════════════════════════════
+//  ADVANCED KPI — RENDER (redesigned)
+// ══════════════════════════════════════════════════════════
+let advDetailOpen = null;  // name of currently open detail
+let lbCollapsed   = false;
+
+function toggleLeaderboard() {
+  lbCollapsed = !lbCollapsed;
+  const wrap = document.getElementById('adv-lb-wrap');
+  const btn  = document.getElementById('lb-toggle-btn');
+  wrap.classList.toggle('collapsed', lbCollapsed);
+  if (btn) btn.textContent = lbCollapsed ? '▶' : '◀';
+  if (btn) btn.title = lbCollapsed ? 'Развернуть' : 'Свернуть';
+}
+
 function renderAdvanced() {
   if (!advKpiData.length) return;
   let list = advView === 'all' ? advKpiData : advKpiData.filter(s => s.team === advView);
   list = calcScores(list);
 
-  // Sort by selected metric
   const sortKey = { score:'score', revenue:'revenue', upt:'upt', avgCheck:'avgCheck', checks:'checks' }[advMetric] || 'score';
   list = [...list].sort((a,b) => b[sortKey] - a[sortKey]);
 
-  // Badges
   const maxUptSeller = [...list].sort((a,b) => b.upt - a.upt)[0];
   const maxAvgSeller = [...list].sort((a,b) => b.avgCheck - a.avgCheck)[0];
+  const maxScore = Math.max(...list.map(s => s.score), 1);
 
   // Summary
   const totalRev = list.reduce((s,x) => s + x.revenue, 0);
   const avgUpt   = list.length ? (list.reduce((s,x) => s + x.upt, 0) / list.length).toFixed(1) : 0;
   const avgChk   = list.length ? Math.round(list.reduce((s,x) => s + x.avgCheck, 0) / list.length) : 0;
   const totalChk = list.reduce((s,x) => s + x.checks, 0);
-
   document.getElementById('adv-summary').innerHTML = `
-    <div class="stat-box"><div class="stat-label">Выручка команды</div><div class="stat-value" style="font-size:20px">${fmtMoney(totalRev)}</div></div>
-    <div class="stat-box"><div class="stat-label">Средний UPT</div><div class="stat-value" style="font-size:20px;color:#4488ff">${avgUpt}</div></div>
-    <div class="stat-box"><div class="stat-label">Средний чек</div><div class="stat-value" style="font-size:20px;color:#ffaa00">${fmtMoney(avgChk)}</div></div>
-    <div class="stat-box"><div class="stat-label">Всего чеков</div><div class="stat-value" style="font-size:20px">${totalChk}</div></div>`;
+    <div class="stat-box"><div class="stat-label">Выручка</div><div class="stat-value" style="font-size:18px">${fmtMoney(totalRev)}</div></div>
+    <div class="stat-box"><div class="stat-label">Ср. UPT</div><div class="stat-value" style="font-size:18px;color:#4488ff">${avgUpt}</div></div>
+    <div class="stat-box"><div class="stat-label">Ср. чек</div><div class="stat-value" style="font-size:18px;color:#ffaa00">${fmtMoney(avgChk)}</div></div>
+    <div class="stat-box"><div class="stat-label">Чеков</div><div class="stat-value" style="font-size:18px">${totalChk}</div></div>`;
 
-  const rankColors = ['gold','silver','bronze'];
-  const rankEmojis = ['🥇','🥈','🥉'];
-  const maxScore = Math.max(...list.map(s => s.score), 1);
+  // Split by team
+  const gp    = list.filter(s => s.team === 'grandpark');
+  const aport = list.filter(s => s.team === 'aport');
 
-  document.getElementById('adv-leaderboard').innerHTML = list.map((s, i) => {
-    const cardCls = rankColors[i] || '';
-    const isUptChamp = maxUptSeller && s.name === maxUptSeller.name && s.team === maxUptSeller.team;
-    const isAvgChamp = maxAvgSeller && s.name === maxAvgSeller.name && s.team === maxAvgSeller.team;
-    const planRevenue = s.team === 'grandpark' ? PLAN_GRANDPARK() : PLAN_APORT();
-    const planPct = planRevenue > 0 ? (s.revenue / planRevenue * 100).toFixed(1) : '—';
-    const planColor = parseFloat(planPct) >= 80 ? 'var(--green)' : parseFloat(planPct) >= 50 ? 'var(--yellow)' : 'var(--red)';
-    const scorePct = Math.min(100, s.score / maxScore * 100);
-    const scoreBarClr = i === 0 ? '#ffd700' : i === 1 ? '#c0c0c0' : i === 2 ? '#cd7f32' : 'var(--accent)';
-    const teamLabel = s.team === 'grandpark' ? 'Grand Park' : s.team === 'aport' ? 'Aport' : s.team;
-    const teamClrHex = s.team === 'grandpark' ? '#6ba3d4' : '#d4a56b';
+  let html = '';
 
-    return `<div class="adv-card ${cardCls}">
-      <div class="adv-card-top">
-        <div class="adv-rank">${rankEmojis[i] || (i+1)+'.'}</div>
-        <div style="flex:1;min-width:0">
-          <div class="adv-name">${s.name}</div>
-          <div class="adv-team" style="color:${teamClrHex}">${teamLabel}</div>
-          <div class="adv-badges">
-            ${isUptChamp ? `<span class="adv-badge upt">⚡ Мастер допродаж</span>` : ''}
-            ${isAvgChamp ? `<span class="adv-badge avg">💎 Премиум-сегмент</span>` : ''}
+  const renderTeamSection = (teamList, globalList, label, color) => {
+    if (!teamList.length) return '';
+    let out = `<div class="adv-section-title">
+      <div class="team-dot" style="background:${color}"></div>${label}
+      <span style="margin-left:auto;font-size:10px;color:var(--text3)">${teamList.length} продавцов</span>
+    </div>`;
+    teamList.forEach(s => {
+      const gi = globalList.indexOf(s);  // global rank
+      const rankEmojis = ['🥇','🥈','🥉'];
+      const rankStr = rankEmojis[gi] || (gi+1)+'.';
+      const cardCls = gi === 0 ? 'gold' : gi === 1 ? 'silver' : gi === 2 ? 'bronze' : '';
+      const isUptChamp = maxUptSeller && s.name === maxUptSeller.name;
+      const isAvgChamp = maxAvgSeller && s.name === maxAvgSeller.name;
+      const planRev = s.team === 'grandpark' ? PLAN_GRANDPARK() : PLAN_APORT();
+      const planPct = planRev > 0 ? (s.revenue / planRev * 100) : 0;
+      const planColor = planPct >= 80 ? 'var(--green)' : planPct >= 50 ? 'var(--yellow)' : 'var(--red)';
+      const scorePct  = Math.min(100, s.score / maxScore * 100);
+      const scoreBarClr = gi === 0 ? '#ffd700' : gi === 1 ? '#c0c0c0' : gi === 2 ? '#cd7f32' : 'var(--accent)';
+      const perShift = s.shifts > 0 ? Math.round(s.revenue / s.shifts) : 0;
+
+      // Danger zone logic
+      let dangerCls = '', dangerBadge = '';
+      if (planPct < 30 && s.shifts > 3) {
+        dangerCls = 'danger';
+        dangerBadge = '<div class="danger-badge">⚠ Зона опасности</div>';
+      } else if (planPct < 55 && s.shifts > 5) {
+        dangerCls = 'warning';
+        dangerBadge = '<div class="warning-badge">📉 Отстаёт</div>';
+      }
+
+      const isActive = advDetailOpen === s.name + s.team ? 'active-card' : '';
+
+      out += `<div class="adv-card ${cardCls} ${dangerCls} ${isActive}"
+        onclick="openAdvDetail(${JSON.stringify(s.name)}, ${JSON.stringify(s.team)})">
+        ${dangerBadge}
+        <div class="adv-card-top">
+          <div class="adv-rank">${rankStr}</div>
+          <div style="flex:1;min-width:0">
+            <div class="adv-name">${s.name}</div>
+            <div class="adv-badges">
+              ${isUptChamp ? '<span class="adv-badge upt">⚡ UPT лидер</span>' : ''}
+              ${isAvgChamp ? '<span class="adv-badge avg">💎 AVG лидер</span>' : ''}
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:8px;color:var(--text3)">SCORE</div>
+            <div style="font-size:17px;font-weight:800;color:var(--text);line-height:1">${s.score}</div>
           </div>
         </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-size:11px;color:var(--text3)">Performance</div>
-          <div style="font-size:20px;font-weight:800;color:var(--text)">${s.score}</div>
-          <div style="font-size:10px;color:var(--text3)">/100</div>
-        </div>
-      </div>
-
-      <div class="adv-metrics">
-        <div class="adv-metric">
-          <div class="adv-metric-label">💰 Выручка</div>
-          <div class="adv-metric-val">${fmtMoney(s.revenue)}</div>
-          <div class="adv-metric-sub" style="color:${planColor}">план ${planPct}%</div>
-        </div>
-        <div class="adv-metric">
-          <div class="adv-metric-label">🧾 Чеков</div>
-          <div class="adv-metric-val">${s.checks}</div>
-          <div class="adv-metric-sub">транзакций</div>
-        </div>
-        <div class="adv-metric">
-          <div class="adv-metric-label">⚡ UPT</div>
-          <div class="adv-metric-val" style="color:#4488ff">${s.upt}</div>
-          <div class="adv-metric-sub">товаров/чек</div>
-        </div>
-        <div class="adv-metric">
-          <div class="adv-metric-label">🎯 Средний чек</div>
-          <div class="adv-metric-val" style="color:#ffaa00">${fmtMoney(s.avgCheck)}</div>
-          <div class="adv-metric-sub">за транзакцию</div>
-        </div>
-      </div>
-
-      <div class="adv-score-wrap">
-        <div class="adv-score-label">
-          <span>Performance Score</span>
-          <span style="color:var(--text)">40% выручка · 30% UPT · 30% ср.чек</span>
+        <div class="adv-metrics">
+          <div class="adv-metric">
+            <div class="adv-metric-label">💰 Выручка</div>
+            <div class="adv-metric-val">${fmtMoney(s.revenue)}</div>
+            <div class="adv-metric-sub" style="color:${planColor}">${planPct.toFixed(0)}% плана</div>
+          </div>
+          <div class="adv-metric">
+            <div class="adv-metric-label">⚡ UPT</div>
+            <div class="adv-metric-val" style="color:#4488ff">${s.upt}</div>
+            <div class="adv-metric-sub">товаров/чек</div>
+          </div>
+          <div class="adv-metric">
+            <div class="adv-metric-label">🎯 AVG чек</div>
+            <div class="adv-metric-val" style="color:#ffaa00">${fmtMoney(s.avgCheck)}</div>
+            <div class="adv-metric-sub">за транз.</div>
+          </div>
+          <div class="adv-metric">
+            <div class="adv-metric-label">📅 Смены</div>
+            <div class="adv-metric-val">${s.shifts}</div>
+            <div class="adv-metric-sub">${fmtMoney(perShift)}/смену</div>
+          </div>
         </div>
         <div class="adv-score-track">
           <div class="adv-score-fill" style="width:${scorePct}%;background:${scoreBarClr}"></div>
         </div>
-      </div>
-    </div>`;
-  }).join('');
+      </div>`;
+    });
+    return out;
+  };
+
+  if (advView === 'all') {
+    // Show both teams with section headers
+    if (gp.length)    html += renderTeamSection(gp,    list, 'Grand Park',  '#6ba3d4');
+    if (aport.length) html += renderTeamSection(aport, list, 'Aport West',  '#d4a56b');
+    if (!gp.length && !aport.length) html = renderTeamSection(list, list, 'Все', '#888');
+  } else {
+    html = renderTeamSection(list, list, advView === 'grandpark' ? 'Grand Park' : 'Aport West',
+                              advView === 'grandpark' ? '#6ba3d4' : '#d4a56b');
+  }
+
+  document.getElementById('adv-leaderboard').innerHTML = html || '<div style="padding:30px;text-align:center;color:var(--text3)">Нет данных</div>';
+
+  // Leaderboard sidebar
+  renderLeaderboard(list);
+
+  // Reopen detail if was open
+  if (advDetailOpen) {
+    const [n, t] = advDetailOpen.split('__');
+    const s = list.find(x => x.name === n && x.team === t);
+    if (s) openAdvDetail(s.name, s.team);
+  }
 }
+
+function renderLeaderboard(list) {
+  const body = document.getElementById('adv-lb-body');
+  if (!body) return;
+
+  const sortKey = { score:'score', revenue:'revenue', upt:'upt', avgCheck:'avgCheck', checks:'checks' }[advMetric] || 'score';
+  const fmtVal = (s) => {
+    if (advMetric === 'revenue') return fmtMoney(s.revenue);
+    if (advMetric === 'upt')     return s.upt + ' UPT';
+    if (advMetric === 'avgCheck') return fmtMoney(s.avgCheck);
+    if (advMetric === 'checks')  return s.checks + ' чек';
+    return s.score + ' pts';
+  };
+
+  const rankEmojis = ['🥇','🥈','🥉'];
+  const gp    = list.filter(s => s.team === 'grandpark');
+  const aport = list.filter(s => s.team === 'aport');
+
+  const renderLbTeam = (teamList, label) => {
+    if (!teamList.length) return '';
+    return `<div class="lb-team-lbl">${label}</div>` +
+      teamList.map((s, i) => `
+        <div class="lb-row">
+          <div class="lb-pos">${rankEmojis[i] || (i+1)+'.'}</div>
+          <div class="lb-name">${s.name.split(' ')[0]}</div>
+          <div class="lb-val">${fmtVal(s)}</div>
+        </div>`).join('') +
+      '<div class="lb-team-line"></div>';
+  };
+
+  body.innerHTML = renderLbTeam(gp, 'Grand Park') + renderLbTeam(aport, 'Aport West');
+}
+
+// ── Detail panel ──
+function openAdvDetail(name, team) {
+  advDetailOpen = name + '__' + team;
+
+  // Mark card active
+  document.querySelectorAll('.adv-card').forEach(c => c.classList.remove('active-card'));
+  event.currentTarget?.classList.add('active-card');
+
+  const s = advKpiData.find(x => x.name === name && x.team === team);
+  if (!s) return;
+
+  const scored = calcScores(advKpiData.filter(x => x.team === s.team));
+  const sScored = scored.find(x => x.name === name) || s;
+  const planRev = s.team === 'grandpark' ? PLAN_GRANDPARK() : PLAN_APORT();
+  const planPct = planRev > 0 ? (s.revenue / planRev * 100).toFixed(1) : '—';
+  const planColor = parseFloat(planPct) >= 80 ? 'var(--green)' : parseFloat(planPct) >= 50 ? 'var(--yellow)' : 'var(--red)';
+  const perShift = s.shifts > 0 ? Math.round(s.revenue / s.shifts) : 0;
+  const teamClrHex = s.team === 'grandpark' ? '#6ba3d4' : '#d4a56b';
+  const teamLabel  = s.team === 'grandpark' ? 'Grand Park' : 'Aport West';
+
+  document.getElementById('dp-name').textContent = s.name;
+  document.getElementById('dp-team').innerHTML   = `<span style="color:${teamClrHex}">${teamLabel}</span>`;
+
+  document.getElementById('dp-kpi').innerHTML = `
+    <div class="stat-box"><div class="stat-label">Выручка</div><div class="stat-value" style="font-size:16px">${fmtMoney(s.revenue)}</div><div style="font-size:10px;color:${planColor};margin-top:2px">${planPct}% плана</div></div>
+    <div class="stat-box"><div class="stat-label">Чеков</div><div class="stat-value" style="font-size:16px">${s.checks}</div></div>
+    <div class="stat-box"><div class="stat-label">UPT</div><div class="stat-value" style="font-size:16px;color:#4488ff">${s.upt}</div><div style="font-size:10px;color:var(--text3);margin-top:2px">товаров/чек</div></div>
+    <div class="stat-box"><div class="stat-label">Ср. чек</div><div class="stat-value" style="font-size:16px;color:#ffaa00">${fmtMoney(s.avgCheck)}</div></div>
+    <div class="stat-box"><div class="stat-label">Смены</div><div class="stat-value" style="font-size:16px">${s.shifts}</div></div>
+    <div class="stat-box"><div class="stat-label">Выр./смену</div><div class="stat-value" style="font-size:16px">${fmtMoney(perShift)}</div></div>`;
+
+  const maxScore = Math.max(...scored.map(x => x.score), 1);
+  const scorePct = Math.min(100, (sScored.score / maxScore) * 100);
+  document.getElementById('dp-score-wrap').innerHTML = `
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:5px">
+      <span>Performance Score</span><span style="color:var(--text);font-weight:700">${sScored.score}/100</span>
+    </div>
+    <div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">
+      <div style="height:100%;width:${scorePct}%;background:var(--accent);border-radius:3px;transition:width 0.5s"></div>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:4px">40% выручка · 30% UPT · 30% средний чек</div>`;
+
+  // Days table
+  const now = new Date();
+  const dates = s.dailyRevenue.map((_, d) => {
+    const dt = new Date(now.getFullYear(), now.getMonth(), d + 1);
+    const dayRu = ['вс','пн','вт','ср','чт','пт','сб'];
+    return `${dayRu[dt.getDay()]} ${d+1}`;
+  });
+  const dayRevArr  = s.dailyRevenue  || [];
+  const dayShfArr  = s.dailyShifts   || [];
+
+  // Build daily checks/units/upt/avg from advKpiData if available
+  const tbody = document.getElementById('dp-days');
+  tbody.innerHTML = dayRevArr.map((rev, d) => {
+    const worked = dayShfArr[d] > 0;
+    if (!worked && rev === 0) return '';
+    return `<tr>
+      <td>${dates[d]}</td>
+      <td class="rev">${rev > 0 ? fmtMoney(rev) : '—'}</td>
+      <td class="${!worked?'no-shift':''}">${worked ? '✓' : '—'}</td>
+      <td>—</td><td>—</td><td>—</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('advDetailPanel').classList.add('open');
+}
+
+function closeAdvDetail() {
+  advDetailOpen = null;
+  document.getElementById('advDetailPanel').classList.remove('open');
+  document.querySelectorAll('.adv-card').forEach(c => c.classList.remove('active-card'));
+}
+
+// Close on escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAdvDetail();
+});
 
 
 function openSellerPanel(name, team) {
@@ -3863,5 +4039,27 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 </div>
+<!-- ── Advanced KPI Detail Panel ── -->
+<div class="adv-detail-panel" id="advDetailPanel">
+  <div class="detail-header">
+    <div>
+      <div style="font-size:15px;font-weight:700;color:var(--text)" id="dp-name">—</div>
+      <div style="font-size:11px;margin-top:2px" id="dp-team">—</div>
+    </div>
+    <button class="detail-close" onclick="closeAdvDetail()">✕</button>
+  </div>
+  <div class="detail-body">
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px" id="dp-kpi"></div>
+    <div style="margin-bottom:16px" id="dp-score-wrap"></div>
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;font-weight:600">📅 По дням</div>
+    <table class="day-table">
+      <thead><tr>
+        <th>День</th><th>Выручка</th><th>Чеки</th><th>Товаров</th><th>UPT</th><th>AVG</th>
+      </tr></thead>
+      <tbody id="dp-days"></tbody>
+    </table>
+  </div>
+</div>
+
 </body>
 </html>

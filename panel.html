@@ -125,6 +125,45 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .seller-val { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; width: 88px; text-align: right; flex-shrink: 0; }
 .seller-badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; flex-shrink: 0; }
 
+/* ── ADVANCED KPI ── */
+.adv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.adv-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 18px;
+  padding: 20px; cursor: default; transition: border-color 0.2s, transform 0.2s;
+  position: relative; overflow: hidden;
+}
+.adv-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
+.adv-card.gold  { border-color: rgba(255,215,0,0.35); background: linear-gradient(135deg, var(--bg2) 0%, rgba(255,215,0,0.04) 100%); }
+.adv-card.silver{ border-color: rgba(192,192,192,0.35); }
+.adv-card.bronze{ border-color: rgba(205,127,50,0.35); }
+.adv-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.adv-rank { font-size: 26px; width: 40px; text-align: center; flex-shrink: 0; }
+.adv-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.adv-team { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.adv-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.adv-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px;
+  white-space: nowrap;
+}
+.adv-badge.upt   { background: rgba(0,102,255,0.15); color: #4488ff; border: 1px solid rgba(0,102,255,0.3); }
+.adv-badge.avg   { background: rgba(255,170,0,0.15);  color: #ffaa00; border: 1px solid rgba(255,170,0,0.3); }
+.adv-badge.score { background: rgba(0,204,102,0.15); color: var(--green); border: 1px solid rgba(0,204,102,0.3); }
+.adv-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.adv-metric { background: var(--bg3); border-radius: 10px; padding: 10px 12px; }
+.adv-metric-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.adv-metric-val   { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
+.adv-metric-sub   { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.adv-score-wrap { margin-top: 4px; }
+.adv-score-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); margin-bottom: 5px; }
+.adv-score-track { height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.adv-score-fill  { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.adv-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; margin-bottom: 20px; }
+
+/* Score mode toggle */
+.mode-toggle { display: flex; background: var(--bg3); border-radius: 10px; padding: 3px; gap: 2px; margin-bottom: 20px; width: fit-content; }
+.mode-btn { padding: 7px 18px; border: none; background: transparent; border-radius: 8px; color: var(--text2); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit; white-space: nowrap; }
+.mode-btn.active { background: var(--bg2); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+
 /* ====== SETTINGS PAGE ====== */
 .settings-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
 .settings-title { font-size: 13px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; font-weight: 600; }
@@ -724,23 +763,72 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div class="header">
         <div>
           <h1>Продавцы</h1>
-          <p style="color:var(--text2);margin-top:4px;font-size:14px">Эффективность и рейтинг за месяц</p>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px" id="sellers-page-sub">Эффективность и рейтинг за месяц</p>
+        </div>
+        <div class="header-right">
+          <button class="sync-btn" onclick="syncSellers();syncAdvKpi()" title="Обновить данные">🔄</button>
         </div>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-        <button onclick="setSellersView('all')" id="stab-all" class="stab stab-active">🏆 Общий рейтинг</button>
-        <button onclick="setSellersView('grandpark')" id="stab-grandpark" class="stab">Grand Park</button>
-        <button onclick="setSellersView('aport')" id="stab-aport" class="stab">Aport</button>
+
+      <!-- Mode toggle: Basic / Advanced -->
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="mode-basic" onclick="setSellersMode('basic')">📊 Обычный</button>
+        <button class="mode-btn" id="mode-advanced" onclick="setSellersMode('advanced')">⚡ Advanced KPI</button>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
-        <button onclick="setSellersMetric('revenue')" id="smet-revenue" class="stab stab-active">💰 Выручка</button>
-        <button onclick="setSellersMetric('perShift')" id="smet-perShift" class="stab">⚡ Выр./смену</button>
-        <button onclick="setSellersMetric('plan')" id="smet-plan" class="stab">🎯 % плана</button>
-        <button onclick="setSellersMetric('shifts')" id="smet-shifts" class="stab">📅 Посещаемость</button>
+
+      <!-- ── BASIC MODE ── -->
+      <div id="sellers-basic-section">
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+          <button onclick="setSellersView('all')" id="stab-all" class="stab stab-active">🏆 Общий рейтинг</button>
+          <button onclick="setSellersView('grandpark')" id="stab-grandpark" class="stab">Grand Park</button>
+          <button onclick="setSellersView('aport')" id="stab-aport" class="stab">Aport</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
+          <button onclick="setSellersMetric('revenue')" id="smet-revenue" class="stab stab-active">💰 Выручка</button>
+          <button onclick="setSellersMetric('perShift')" id="smet-perShift" class="stab">⚡ Выр./смену</button>
+          <button onclick="setSellersMetric('plan')" id="smet-plan" class="stab">🎯 % плана</button>
+          <button onclick="setSellersMetric('shifts')" id="smet-shifts" class="stab">📅 Посещаемость</button>
+        </div>
+        <div id="sellers-leaderboard"></div>
+        <div id="sellers-summary" style="margin-top:20px"></div>
+        <div id="sellers-calendar" style="margin-top:20px"></div>
       </div>
-      <div id="sellers-leaderboard"></div>
-      <div id="sellers-summary" style="margin-top:20px"></div>
-      <div id="sellers-calendar" style="margin-top:20px"></div>
+
+      <!-- ── ADVANCED KPI MODE ── -->
+      <div id="sellers-advanced-section" style="display:none">
+        <!-- Filters -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+          <button onclick="setAdvView('all')" id="atab-all" class="stab stab-active">🌐 Все</button>
+          <button onclick="setAdvView('grandpark')" id="atab-grandpark" class="stab">Grand Park</button>
+          <button onclick="setAdvView('aport')" id="atab-aport" class="stab">Aport</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
+          <button onclick="setAdvMetric('score')"   id="amet-score"   class="stab stab-active">🏆 Performance Score</button>
+          <button onclick="setAdvMetric('revenue')" id="amet-revenue" class="stab">💰 Выручка</button>
+          <button onclick="setAdvMetric('upt')"     id="amet-upt"     class="stab">⚡ UPT</button>
+          <button onclick="setAdvMetric('avgCheck')"id="amet-avgCheck"class="stab">🎯 Средний чек</button>
+          <button onclick="setAdvMetric('checks')"  id="amet-checks"  class="stab">🧾 Чеки</button>
+        </div>
+
+        <!-- Summary stats -->
+        <div class="adv-summary-grid" id="adv-summary"></div>
+
+        <!-- Legend -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;font-size:12px;color:var(--text3)">
+          <span>⚡ <span style="color:#4488ff">Мастер допродаж</span> — наивысший UPT</span>
+          <span>💎 <span style="color:#ffaa00">Премиум-сегмент</span> — наивысший средний чек</span>
+          <span>🏆 <span style="color:var(--green)">Performance Score</span> = 40% выручка + 30% UPT + 30% средний чек</span>
+        </div>
+
+        <!-- Cards grid -->
+        <div class="adv-grid" id="adv-leaderboard">
+          <div style="text-align:center;padding:60px;color:var(--text3);grid-column:1/-1">
+            <div style="font-size:40px;margin-bottom:12px">⚡</div>
+            <div style="font-size:15px;margin-bottom:8px">Нет данных Advanced KPI</div>
+            <div style="font-size:12px">Укажите название листа в Настройках → «Advanced KPI лист»</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ===== TRENDS PAGE ===== -->
@@ -884,6 +972,15 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           <input type="text" class="settings-input" id="cfg-sheet-sellers" placeholder="Например: ЗП Май">
           <div style="font-size:12px;color:var(--text3)">Текущий: <span class="settings-tag" id="cfg-sellers-current"></span></div>
         </div>
+        <div class="settings-row">
+          <div class="settings-label">Advanced KPI лист</div>
+          <input type="text" class="settings-input" id="cfg-sheet-adv" placeholder="Например: KPI Advanced Май">
+          <div style="font-size:12px;color:var(--text3)">Текущий: <span class="settings-tag" id="cfg-adv-current"></span></div>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-top:8px;padding:10px;background:var(--bg3);border-radius:8px">
+          📋 <strong>Формат листа Advanced KPI (QOIMA Sellers):</strong><br>
+          Блок на продавца: строка 1 — Имя + даты по колонкам · строка 2 — Выручка за день · строка 3 — Кол-во чеков · строка 4 — Кол-во товара · строка 5 — UPT · строка 6 — AVG · строка 7 — Смена. Блоки разделены пустыми строками.
+        </div>
       </div>
 
       <div class="settings-section">
@@ -1021,6 +1118,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 const DEFAULT_CONFIG = {
   SHEET_NAME:        'МАЙ KPI',
   SELLERS_SHEET_NAME:'ЗП Май',
+  ADV_SHEET_NAME:    '',
   PLAN_GRANDPARK:    6000000,
   PLAN_APORT:        5000000,
   SYNC_INTERVAL:     120
@@ -1120,10 +1218,12 @@ function showSettingsPage() {
   // Populate fields from current config
   document.getElementById('cfg-sheet-kpi').value    = CFG.SHEET_NAME;
   document.getElementById('cfg-sheet-sellers').value = CFG.SELLERS_SHEET_NAME;
+  document.getElementById('cfg-sheet-adv').value     = CFG.ADV_SHEET_NAME || '';
   document.getElementById('cfg-plan-gp').value       = CFG.PLAN_GRANDPARK;
   document.getElementById('cfg-plan-aport').value    = CFG.PLAN_APORT;
   document.getElementById('cfg-kpi-current').textContent     = CFG.SHEET_NAME;
   document.getElementById('cfg-sellers-current').textContent = CFG.SELLERS_SHEET_NAME;
+  document.getElementById('cfg-adv-current').textContent     = CFG.ADV_SHEET_NAME || '(не задан)';
   document.getElementById('cfg-sync-interval').value = CFG.SYNC_INTERVAL;
   document.getElementById('info-sheet-id').textContent = SHEET_ID;
   const ls = localStorage.getItem('qgi_last_session');
@@ -1138,16 +1238,18 @@ function showSettingsPage() {
 function saveSettings() {
   const kpi     = document.getElementById('cfg-sheet-kpi').value.trim();
   const sellers = document.getElementById('cfg-sheet-sellers').value.trim();
+  const adv     = document.getElementById('cfg-sheet-adv').value.trim();
   const gp      = parseInt(document.getElementById('cfg-plan-gp').value) || DEFAULT_CONFIG.PLAN_GRANDPARK;
   const ap      = parseInt(document.getElementById('cfg-plan-aport').value) || DEFAULT_CONFIG.PLAN_APORT;
   const si      = parseInt(document.getElementById('cfg-sync-interval').value) || 120;
 
   if (!kpi || !sellers) {
-    showSettingsMsg('⚠️ Названия листов не могут быть пустыми', 'error'); return;
+    showSettingsMsg('⚠️ Названия листов KPI и ЗП не могут быть пустыми', 'error'); return;
   }
 
   CFG.SHEET_NAME         = kpi;
   CFG.SELLERS_SHEET_NAME = sellers;
+  CFG.ADV_SHEET_NAME     = adv;
   CFG.PLAN_GRANDPARK     = gp;
   CFG.PLAN_APORT         = ap;
   CFG.SYNC_INTERVAL      = si;
@@ -1156,6 +1258,7 @@ function saveSettings() {
   // Update displayed labels
   document.getElementById('cfg-kpi-current').textContent     = kpi;
   document.getElementById('cfg-sellers-current').textContent = sellers;
+  document.getElementById('cfg-adv-current').textContent     = adv || '(не задан)';
 
   // Restart sync intervals
   startSyncIntervals();
@@ -1995,6 +2098,274 @@ function renderAttendance(list) {
       </table>
     </div>`;
 }
+
+// ═══════════════════════════════════════════════════════
+//   ADVANCED KPI SYSTEM
+// ═══════════════════════════════════════════════════════
+let advKpiData  = [];       // parsed from ADV sheet
+let advView     = 'all';    // all | grandpark | aport
+let advMetric   = 'score';  // score | revenue | upt | avgCheck | checks
+let sellersMode = 'basic';  // basic | advanced
+
+// ── Mode switch ──
+function setSellersMode(mode) {
+  sellersMode = mode;
+  ['basic','advanced'].forEach(m => {
+    document.getElementById('mode-' + m).classList.toggle('active', m === mode);
+  });
+  document.getElementById('sellers-basic-section').style.display    = mode === 'basic'    ? '' : 'none';
+  document.getElementById('sellers-advanced-section').style.display = mode === 'advanced' ? '' : 'none';
+  const sub = document.getElementById('sellers-page-sub');
+  sub.textContent = mode === 'basic'
+    ? 'Эффективность и рейтинг за месяц'
+    : 'Advanced KPI — углублённый анализ продавцов';
+  if (mode === 'advanced' && advKpiData.length === 0) syncAdvKpi();
+}
+
+// ── Advanced view / metric toggles ──
+function setAdvView(v) {
+  advView = v;
+  ['all','grandpark','aport'].forEach(k =>
+    document.getElementById('atab-' + k).classList.toggle('stab-active', k === v));
+  renderAdvanced();
+}
+function setAdvMetric(m) {
+  advMetric = m;
+  ['score','revenue','upt','avgCheck','checks'].forEach(k =>
+    document.getElementById('amet-' + k).classList.toggle('stab-active', k === m));
+  renderAdvanced();
+}
+
+// ── Parse Advanced KPI sheet ──
+// Expected columns: A=Продавец, B=Команда (grandpark|aport), C=Выручка, D=Чеки, E=Единиц товара
+// Row 1 = header (skipped)
+// ── Parse Advanced KPI sheet ──
+// Структура листа (из скриншота):
+//   Блок продавца = 7+ строк, разделены пустыми строками
+//   Строка 1 блока: A = Имя продавца, B/C/D... = даты (пт 1 мая, сб 2 мая...)
+//   Строка 2: "Выручка за день."  → B,C,D... = числа по дням
+//   Строка 3: "Кол-во чеков."     → B,C,D... = числа по дням
+//   Строка 4: "Кол-во товара."    → B,C,D... = числа по дням
+//   Строка 5: "UPT"               → уже посчитано в Sheets, берём дни
+//   Строка 6: "AVG"               → уже посчитано в Sheets, берём дни
+//   Строка 7: "Смена"             → 0/1 по дням
+//
+// Команда определяется по имени: если в CFG указаны имена по командам,
+// иначе — все как 'grandpark' (можно добавить колонку M "Команда" позже)
+function parseAdvKpi(rows) {
+  const sellers = [];
+  let i = 0;
+
+  while (i < rows.length) {
+    const row = rows[i] || [];
+    const a0  = (row[0] || '').toString().trim();
+
+    // Пропускаем пустые строки и строки без имени
+    if (!a0 || !/[а-яА-ЯёЁa-zA-Z]/.test(a0)) { i++; continue; }
+
+    // Пропускаем строки с ключевыми словами (это метки внутри блока)
+    const LABELS = ['выручка','чек','товар','upt','avg','смена','shift'];
+    if (LABELS.some(l => a0.toLowerCase().includes(l))) { i++; continue; }
+
+    // Нашли имя продавца — это строка-заголовок блока
+    // Читаем следующие 6 строк внутри блока
+    const name  = a0;
+    let revenue = 0, checks = 0, units = 0;
+    let upt_sum = 0, upt_cnt = 0;
+    let avg_sum = 0, avg_cnt = 0;
+    let shifts  = 0;
+    const dailyRevenue = [];
+    const dailyShifts  = [];
+    let team = 'grandpark'; // дефолт; можно добавить логику по имени или отдельной ячейке
+
+    // Ищем строки блока (до следующей пустой / нового имени)
+    let j = i + 1;
+    while (j < rows.length && j < i + 10) {
+      const brow = rows[j] || [];
+      const lbl  = (brow[0] || '').toString().trim().toLowerCase();
+      if (!lbl) { j++; break; } // пустая строка = конец блока
+
+      // Значения по дням: колонки B,C,D,... (индексы 1,2,3,...)
+      const dayVals = brow.slice(1).map(v => parseNum(v));
+
+      if (lbl.includes('выручка')) {
+        dayVals.forEach(v => { revenue += v; dailyRevenue.push(v); });
+      } else if (lbl.includes('чек') && !lbl.includes('сред') && !lbl.includes('avg')) {
+        dayVals.forEach(v => { checks += v; });
+      } else if (lbl.includes('товар') || lbl.includes('unit')) {
+        dayVals.forEach(v => { units += v; });
+      } else if (lbl === 'upt') {
+        dayVals.forEach(v => { if (v > 0) { upt_sum += v; upt_cnt++; } });
+      } else if (lbl === 'avg') {
+        dayVals.forEach(v => { if (v > 0) { avg_sum += v; avg_cnt++; } });
+      } else if (lbl.includes('смен') || lbl.includes('shift')) {
+        dayVals.forEach(v => { if (v > 0) { shifts++; dailyShifts.push(1); } else { dailyShifts.push(0); } });
+      }
+      j++;
+    }
+
+    // Вычисляем итоги:
+    // UPT и AVG берём из Sheets если уже посчитаны, иначе считаем сами
+    const upt      = upt_cnt > 0
+      ? +(upt_sum / upt_cnt).toFixed(1)
+      : (checks > 0 ? +(units / checks).toFixed(1) : 0);
+    const avgCheck = avg_cnt > 0
+      ? Math.round(avg_sum / avg_cnt)
+      : (checks > 0 ? Math.round(revenue / checks) : 0);
+
+    if (revenue > 0 || checks > 0) {
+      sellers.push({ name, team, revenue, checks, units, shifts, upt, avgCheck, dailyRevenue, dailyShifts });
+    }
+
+    i = j; // переходим к следующему блоку
+  }
+
+  console.log('Advanced KPI parsed:', sellers.map(s => ({ name: s.name, revenue: s.revenue, checks: s.checks, upt: s.upt, avgCheck: s.avgCheck })));
+  return sellers;
+}
+
+// ── Performance Score ──
+// 40% выручка + 30% UPT + 30% средний чек (нормализовано по максимумам)
+function calcScores(list) {
+  const maxRev = Math.max(...list.map(s => s.revenue), 1);
+  const maxUpt = Math.max(...list.map(s => s.upt), 1);
+  const maxAvg = Math.max(...list.map(s => s.avgCheck), 1);
+  return list.map(s => ({
+    ...s,
+    score: +((s.revenue / maxRev * 40) + (s.upt / maxUpt * 30) + (s.avgCheck / maxAvg * 30)).toFixed(1)
+  }));
+}
+
+// ── Sync Advanced KPI sheet ──
+async function syncAdvKpi() {
+  const sheetName = CFG.ADV_SHEET_NAME;
+  if (!sheetName) {
+    document.getElementById('adv-leaderboard').innerHTML = `
+      <div style="text-align:center;padding:60px;color:var(--text3);grid-column:1/-1">
+        <div style="font-size:40px;margin-bottom:12px">⚙️</div>
+        <div style="font-size:15px;margin-bottom:8px">Лист не настроен</div>
+        <div style="font-size:12px">Перейдите в <strong>Настройки</strong> → укажите «Advanced KPI лист»</div>
+      </div>`;
+    return;
+  }
+  document.getElementById('adv-leaderboard').innerHTML = `
+    <div style="text-align:center;padding:40px;color:var(--text3);grid-column:1/-1">
+      <div class="spinner" style="margin:0 auto 12px"></div>Загружаем KPI данные...
+    </div>`;
+  try {
+    const url  = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (!json.values || json.values.length < 2) throw new Error('Нет данных в листе');
+    advKpiData = parseAdvKpi(json.values);
+    renderAdvanced();
+  } catch(e) {
+    document.getElementById('adv-leaderboard').innerHTML = `
+      <div style="text-align:center;padding:60px;color:var(--red);grid-column:1/-1">
+        <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+        <div style="font-size:14px">Ошибка: ${e.message}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px">Лист: «${sheetName}»</div>
+      </div>`;
+  }
+}
+
+// ── Render Advanced KPI cards ──
+function renderAdvanced() {
+  if (!advKpiData.length) return;
+  let list = advView === 'all' ? advKpiData : advKpiData.filter(s => s.team === advView);
+  list = calcScores(list);
+
+  // Sort by selected metric
+  const sortKey = { score:'score', revenue:'revenue', upt:'upt', avgCheck:'avgCheck', checks:'checks' }[advMetric] || 'score';
+  list = [...list].sort((a,b) => b[sortKey] - a[sortKey]);
+
+  // Badges
+  const maxUptSeller = [...list].sort((a,b) => b.upt - a.upt)[0];
+  const maxAvgSeller = [...list].sort((a,b) => b.avgCheck - a.avgCheck)[0];
+
+  // Summary
+  const totalRev = list.reduce((s,x) => s + x.revenue, 0);
+  const avgUpt   = list.length ? (list.reduce((s,x) => s + x.upt, 0) / list.length).toFixed(1) : 0;
+  const avgChk   = list.length ? Math.round(list.reduce((s,x) => s + x.avgCheck, 0) / list.length) : 0;
+  const totalChk = list.reduce((s,x) => s + x.checks, 0);
+
+  document.getElementById('adv-summary').innerHTML = `
+    <div class="stat-box"><div class="stat-label">Выручка команды</div><div class="stat-value" style="font-size:20px">${fmtMoney(totalRev)}</div></div>
+    <div class="stat-box"><div class="stat-label">Средний UPT</div><div class="stat-value" style="font-size:20px;color:#4488ff">${avgUpt}</div></div>
+    <div class="stat-box"><div class="stat-label">Средний чек</div><div class="stat-value" style="font-size:20px;color:#ffaa00">${fmtMoney(avgChk)}</div></div>
+    <div class="stat-box"><div class="stat-label">Всего чеков</div><div class="stat-value" style="font-size:20px">${totalChk}</div></div>`;
+
+  const rankColors = ['gold','silver','bronze'];
+  const rankEmojis = ['🥇','🥈','🥉'];
+  const maxScore = Math.max(...list.map(s => s.score), 1);
+
+  document.getElementById('adv-leaderboard').innerHTML = list.map((s, i) => {
+    const cardCls = rankColors[i] || '';
+    const isUptChamp = maxUptSeller && s.name === maxUptSeller.name && s.team === maxUptSeller.team;
+    const isAvgChamp = maxAvgSeller && s.name === maxAvgSeller.name && s.team === maxAvgSeller.team;
+    const planRevenue = s.team === 'grandpark' ? PLAN_GRANDPARK() : PLAN_APORT();
+    const planPct = planRevenue > 0 ? (s.revenue / planRevenue * 100).toFixed(1) : '—';
+    const planColor = parseFloat(planPct) >= 80 ? 'var(--green)' : parseFloat(planPct) >= 50 ? 'var(--yellow)' : 'var(--red)';
+    const scorePct = Math.min(100, s.score / maxScore * 100);
+    const scoreBarClr = i === 0 ? '#ffd700' : i === 1 ? '#c0c0c0' : i === 2 ? '#cd7f32' : 'var(--accent)';
+    const teamLabel = s.team === 'grandpark' ? 'Grand Park' : s.team === 'aport' ? 'Aport' : s.team;
+    const teamClrHex = s.team === 'grandpark' ? '#6ba3d4' : '#d4a56b';
+
+    return `<div class="adv-card ${cardCls}">
+      <div class="adv-card-top">
+        <div class="adv-rank">${rankEmojis[i] || (i+1)+'.'}</div>
+        <div style="flex:1;min-width:0">
+          <div class="adv-name">${s.name}</div>
+          <div class="adv-team" style="color:${teamClrHex}">${teamLabel}</div>
+          <div class="adv-badges">
+            ${isUptChamp ? `<span class="adv-badge upt">⚡ Мастер допродаж</span>` : ''}
+            ${isAvgChamp ? `<span class="adv-badge avg">💎 Премиум-сегмент</span>` : ''}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:11px;color:var(--text3)">Performance</div>
+          <div style="font-size:20px;font-weight:800;color:var(--text)">${s.score}</div>
+          <div style="font-size:10px;color:var(--text3)">/100</div>
+        </div>
+      </div>
+
+      <div class="adv-metrics">
+        <div class="adv-metric">
+          <div class="adv-metric-label">💰 Выручка</div>
+          <div class="adv-metric-val">${fmtMoney(s.revenue)}</div>
+          <div class="adv-metric-sub" style="color:${planColor}">план ${planPct}%</div>
+        </div>
+        <div class="adv-metric">
+          <div class="adv-metric-label">🧾 Чеков</div>
+          <div class="adv-metric-val">${s.checks}</div>
+          <div class="adv-metric-sub">транзакций</div>
+        </div>
+        <div class="adv-metric">
+          <div class="adv-metric-label">⚡ UPT</div>
+          <div class="adv-metric-val" style="color:#4488ff">${s.upt}</div>
+          <div class="adv-metric-sub">товаров/чек</div>
+        </div>
+        <div class="adv-metric">
+          <div class="adv-metric-label">🎯 Средний чек</div>
+          <div class="adv-metric-val" style="color:#ffaa00">${fmtMoney(s.avgCheck)}</div>
+          <div class="adv-metric-sub">за транзакцию</div>
+        </div>
+      </div>
+
+      <div class="adv-score-wrap">
+        <div class="adv-score-label">
+          <span>Performance Score</span>
+          <span style="color:var(--text)">40% выручка · 30% UPT · 30% ср.чек</span>
+        </div>
+        <div class="adv-score-track">
+          <div class="adv-score-fill" style="width:${scorePct}%;background:${scoreBarClr}"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 
 function openSellerPanel(name, team) {
   const s = sellersData && sellersData.find(x => x.name===name && x.team===team);

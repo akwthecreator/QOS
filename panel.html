@@ -977,9 +977,28 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           <input type="text" class="settings-input" id="cfg-sheet-adv" placeholder="Например: KPI Advanced Май">
           <div style="font-size:12px;color:var(--text3)">Текущий: <span class="settings-tag" id="cfg-adv-current"></span></div>
         </div>
-        <div style="font-size:12px;color:var(--text3);margin-top:8px;padding:10px;background:var(--bg3);border-radius:8px">
-          📋 <strong>Формат листа Advanced KPI (QOIMA Sellers):</strong><br>
-          Блок на продавца: строка 1 — Имя + даты по колонкам · строка 2 — Выручка за день · строка 3 — Кол-во чеков · строка 4 — Кол-во товара · строка 5 — UPT · строка 6 — AVG · строка 7 — Смена. Блоки разделены пустыми строками.
+        <div class="settings-row">
+          <div class="settings-label">
+            Advanced KPI — ID таблицы
+            <div style="font-size:11px;font-weight:400;color:var(--text3);margin-top:3px">Оставьте пустым если лист находится в той же таблице</div>
+          </div>
+          <input type="text" class="settings-input" id="cfg-adv-sheet-id"
+            placeholder="1aBcDeFgHiJkLmNoPqRsTuVwXyZ..."
+            style="font-family:monospace;font-size:12px">
+          <div style="font-size:12px;color:var(--text3)">
+            Текущий: <span class="settings-tag" id="cfg-adv-sheet-id-current" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:middle"></span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-top:8px;padding:12px;background:var(--bg3);border-radius:8px;line-height:1.7">
+          📋 <strong>Как найти ID таблицы:</strong> откройте Google Таблицу → скопируйте часть ссылки между <code style="background:var(--bg);padding:1px 4px;border-radius:3px">/d/</code> и <code style="background:var(--bg);padding:1px 4px;border-radius:3px">/edit</code><br>
+          Пример: <code style="color:var(--accent)">https://docs.google.com/spreadsheets/d/<strong>1aBcD.../</strong>edit</code><br><br>
+          📊 <strong>Формат листа Advanced KPI:</strong> Блок на продавца — строка 1: Имя + даты · строка 2: Выручка · строка 3: Чеки · строка 4: Товар · строка 5: UPT · строка 6: AVG · строка 7: Смена
+        </div>
+        <div style="margin-top:10px">
+          <button class="settings-btn" onclick="testAdvConnection()" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border)">
+            🔌 Проверить подключение к Advanced KPI
+          </button>
+          <div id="adv-test-result" style="font-size:12px;margin-top:8px;height:18px"></div>
         </div>
       </div>
 
@@ -1119,6 +1138,7 @@ const DEFAULT_CONFIG = {
   SHEET_NAME:        'МАЙ KPI',
   SELLERS_SHEET_NAME:'ЗП Май',
   ADV_SHEET_NAME:    '',
+  ADV_SHEET_ID:      '',   // ID отдельной таблицы для Advanced KPI (если отличается от основной)
   PLAN_GRANDPARK:    6000000,
   PLAN_APORT:        5000000,
   SYNC_INTERVAL:     120
@@ -1146,6 +1166,8 @@ function SHEET_NAME()         { return CFG.SHEET_NAME; }
 function SELLERS_SHEET_NAME() { return CFG.SELLERS_SHEET_NAME; }
 function PLAN_GRANDPARK()     { return CFG.PLAN_GRANDPARK; }
 function PLAN_APORT()         { return CFG.PLAN_APORT; }
+// Advanced KPI uses its own Sheet ID if set, otherwise falls back to main SHEET_ID
+function ADV_SHEET_ID_EFFECTIVE() { return (CFG.ADV_SHEET_ID && CFG.ADV_SHEET_ID.trim()) ? CFG.ADV_SHEET_ID.trim() : SHEET_ID; }
 
 // ===================== PIN SYSTEM =====================
 const PIN_CODE     = '57725';
@@ -1219,11 +1241,15 @@ function showSettingsPage() {
   document.getElementById('cfg-sheet-kpi').value    = CFG.SHEET_NAME;
   document.getElementById('cfg-sheet-sellers').value = CFG.SELLERS_SHEET_NAME;
   document.getElementById('cfg-sheet-adv').value     = CFG.ADV_SHEET_NAME || '';
+  document.getElementById('cfg-adv-sheet-id').value  = CFG.ADV_SHEET_ID  || '';
   document.getElementById('cfg-plan-gp').value       = CFG.PLAN_GRANDPARK;
   document.getElementById('cfg-plan-aport').value    = CFG.PLAN_APORT;
   document.getElementById('cfg-kpi-current').textContent     = CFG.SHEET_NAME;
   document.getElementById('cfg-sellers-current').textContent = CFG.SELLERS_SHEET_NAME;
-  document.getElementById('cfg-adv-current').textContent     = CFG.ADV_SHEET_NAME || '(не задан)';
+  document.getElementById('cfg-adv-current').textContent          = CFG.ADV_SHEET_NAME || '(не задан)';
+  document.getElementById('cfg-adv-sheet-id-current').textContent = CFG.ADV_SHEET_ID
+    ? CFG.ADV_SHEET_ID.slice(0, 24) + '...'
+    : '(основная таблица)';
   document.getElementById('cfg-sync-interval').value = CFG.SYNC_INTERVAL;
   document.getElementById('info-sheet-id').textContent = SHEET_ID;
   const ls = localStorage.getItem('qgi_last_session');
@@ -1239,6 +1265,7 @@ function saveSettings() {
   const kpi     = document.getElementById('cfg-sheet-kpi').value.trim();
   const sellers = document.getElementById('cfg-sheet-sellers').value.trim();
   const adv     = document.getElementById('cfg-sheet-adv').value.trim();
+  const advId   = document.getElementById('cfg-adv-sheet-id').value.trim();
   const gp      = parseInt(document.getElementById('cfg-plan-gp').value) || DEFAULT_CONFIG.PLAN_GRANDPARK;
   const ap      = parseInt(document.getElementById('cfg-plan-aport').value) || DEFAULT_CONFIG.PLAN_APORT;
   const si      = parseInt(document.getElementById('cfg-sync-interval').value) || 120;
@@ -1250,6 +1277,7 @@ function saveSettings() {
   CFG.SHEET_NAME         = kpi;
   CFG.SELLERS_SHEET_NAME = sellers;
   CFG.ADV_SHEET_NAME     = adv;
+  CFG.ADV_SHEET_ID       = advId;
   CFG.PLAN_GRANDPARK     = gp;
   CFG.PLAN_APORT         = ap;
   CFG.SYNC_INTERVAL      = si;
@@ -1258,7 +1286,10 @@ function saveSettings() {
   // Update displayed labels
   document.getElementById('cfg-kpi-current').textContent     = kpi;
   document.getElementById('cfg-sellers-current').textContent = sellers;
-  document.getElementById('cfg-adv-current').textContent     = adv || '(не задан)';
+  document.getElementById('cfg-adv-current').textContent          = adv || '(не задан)';
+  document.getElementById('cfg-adv-sheet-id-current').textContent = advId
+    ? advId.slice(0, 24) + '...'
+    : '(основная таблица)';
 
   // Restart sync intervals
   startSyncIntervals();
@@ -2236,6 +2267,38 @@ function calcScores(list) {
   }));
 }
 
+// ── Test Advanced KPI connection ──
+async function testAdvConnection() {
+  const sheetName = document.getElementById('cfg-sheet-adv').value.trim();
+  const sheetIdRaw = document.getElementById('cfg-adv-sheet-id').value.trim();
+  const effectiveId = sheetIdRaw || SHEET_ID;
+  const resultEl = document.getElementById('adv-test-result');
+
+  if (!sheetName) {
+    resultEl.style.color = 'var(--yellow)';
+    resultEl.textContent = '⚠️ Сначала укажите название листа';
+    return;
+  }
+  resultEl.style.color = 'var(--text3)';
+  resultEl.textContent = '⏳ Проверяем...';
+
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${effectiveId}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'HTTP ' + res.status);
+    }
+    const json = await res.json();
+    const rows = json.values?.length || 0;
+    resultEl.style.color = 'var(--green)';
+    resultEl.textContent = `✅ Подключено! Найдено строк: ${rows} · ID: ${effectiveId.slice(0,16)}...`;
+  } catch(e) {
+    resultEl.style.color = 'var(--red)';
+    resultEl.textContent = `❌ Ошибка: ${e.message}`;
+  }
+}
+
 // ── Sync Advanced KPI sheet ──
 async function syncAdvKpi() {
   const sheetName = CFG.ADV_SHEET_NAME;
@@ -2253,7 +2316,7 @@ async function syncAdvKpi() {
       <div class="spinner" style="margin:0 auto 12px"></div>Загружаем KPI данные...
     </div>`;
   try {
-    const url  = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
+    const url  = `https://sheets.googleapis.com/v4/spreadsheets/${ADV_SHEET_ID_EFFECTIVE()}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
     const res  = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();

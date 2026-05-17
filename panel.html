@@ -323,6 +323,100 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
 .task-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
 .task-card:hover { border-color: var(--accent); }
+/* ====== ADVANCED KPI ====== */
+.adv-team-header {
+  display: flex; align-items: center; gap: 12px;
+  margin: 28px 0 16px;
+}
+.adv-team-title {
+  font-size: 13px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text3);
+}
+.adv-team-line { flex: 1; height: 1px; background: var(--border); }
+.adv-team-count {
+  font-size: 11px; padding: 3px 10px; border-radius: 20px;
+  background: var(--bg3); color: var(--text3); border: 1px solid var(--border);
+}
+.seller-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.seller-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 18px 20px;
+  cursor: pointer; transition: all 0.18s;
+  position: relative; overflow: hidden;
+}
+.seller-card:hover { border-color: rgba(0,102,255,0.35); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+.seller-card.danger { border-color: rgba(255,51,51,0.4); background: linear-gradient(135deg, var(--bg2) 0%, rgba(255,51,51,0.04) 100%); }
+.seller-card.warning { border-color: rgba(255,170,0,0.35); background: linear-gradient(135deg, var(--bg2) 0%, rgba(255,170,0,0.04) 100%); }
+.seller-card.good { border-color: rgba(0,204,102,0.3); }
+.seller-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+.seller-card-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.seller-card-meta { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.seller-danger-badge {
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap;
+}
+.seller-danger-badge.red    { background: rgba(255,51,51,0.15); color: var(--red); border: 1px solid rgba(255,51,51,0.3); }
+.seller-danger-badge.yellow { background: rgba(255,170,0,0.15); color: var(--yellow); border: 1px solid rgba(255,170,0,0.3); }
+.seller-danger-badge.green  { background: rgba(0,204,102,0.12); color: var(--green); border: 1px solid rgba(0,204,102,0.25); }
+.seller-metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.seller-metric { background: var(--bg3); border-radius: 10px; padding: 10px 12px; }
+.seller-metric-lbl { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; font-weight: 600; }
+.seller-metric-val { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1; }
+.seller-metric-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.seller-score-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.seller-score-label { font-size: 10px; color: var(--text3); }
+.seller-score-val   { font-size: 11px; font-weight: 700; }
+.seller-score-track { height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.seller-score-fill  { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+
+/* Detail panel (slide-in from right) */
+.adv-detail-panel {
+  position: fixed; top: 0; right: 0;
+  width: 480px; max-width: 100vw;
+  height: 100vh; overflow-y: auto;
+  background: var(--bg2); border-left: 1px solid var(--border);
+  z-index: 500; padding: 28px 24px;
+  box-shadow: -8px 0 40px rgba(0,0,0,0.4);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.adv-detail-panel.open { transform: translateX(0); }
+.adv-detail-close {
+  position: absolute; top: 20px; right: 20px;
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--bg3); border: none; color: var(--text2);
+  cursor: pointer; font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+.adv-detail-close:hover { background: var(--border); }
+.detail-day-row {
+  display: flex; align-items: center; gap: 0;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.detail-day-row:last-child { border-bottom: none; }
+.detail-day-date { width: 90px; font-size: 12px; color: var(--text3); flex-shrink: 0; }
+.detail-day-bar-wrap { flex: 1; height: 24px; background: var(--bg3); border-radius: 6px; overflow: hidden; margin: 0 10px; position: relative; }
+.detail-day-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 600; color: white; transition: width 0.4s; min-width: 0; }
+.detail-day-rev { width: 80px; font-size: 12px; font-weight: 700; text-align: right; flex-shrink: 0; }
+.detail-day-checks { width: 50px; font-size: 11px; color: var(--text3); text-align: right; flex-shrink: 0; }
+
+/* Summary summary badges */
+.adv-summary-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.adv-summary-stat { flex: 1; min-width: 120px; background: var(--bg3); border-radius: 10px; padding: 12px 14px; }
+.adv-summary-stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.adv-summary-stat-val   { font-size: 20px; font-weight: 700; }
+
+@media (max-width: 768px) {
+  .seller-grid { grid-template-columns: 1fr; }
+  .adv-detail-panel { width: 100vw; }
+}
+
 /* ── Qoima Certificate Fonts ── */
 @font-face {
   font-family: 'BenzinBold';
@@ -564,6 +658,9 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     <button class="nav-btn" onclick="showPage('heatmap')" id="nav-heatmap" title="Тепловая карта"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></button>
     <button class="nav-btn" onclick="showPage('stores')" id="nav-stores" title="Магазины"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></button>
     <button class="nav-btn" onclick="showPage('analysis')" id="nav-analysis" title="А-Анализ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></button>
+    <button class="nav-btn" onclick="showPage('advanced')" id="nav-advanced" title="Advanced KPI">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/><line x1="8" y1="11" x2="8" y2="14"/><line x1="12" y1="9" x2="12" y2="14"/><line x1="16" y1="12" x2="16" y2="14"/></svg>
+    </button>
     <button class="nav-btn" onclick="showPage('sellers')" id="nav-sellers" title="Продавцы"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></button>
     <button class="nav-btn" onclick="showPage('trends')" id="nav-trends" title="Тренды"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></button>
     <button class="nav-btn" id="nav-alerts" onclick="showPage('alerts')" title="Алерты" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span id="alert-badge" class="badge" style="display:none"></span></button>
@@ -830,6 +927,76 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
         </div>
       </div>
     </div>
+
+    <!-- ===== ADVANCED KPI PAGE ===== -->
+    <div class="page" id="page-advanced">
+      <div class="header">
+        <div>
+          <h1>Advanced KPI</h1>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Детальный анализ по продавцам</p>
+        </div>
+        <div class="header-right">
+          <button class="sync-btn" onclick="syncAdvanced()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            <span class="btn-text">Обновить</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Summary top bar -->
+      <div class="adv-summary-bar" id="adv-summary-bar">
+        <div class="adv-summary-stat">
+          <div class="adv-summary-stat-label">Всего продавцов</div>
+          <div class="adv-summary-stat-val" id="adv-total-sellers">—</div>
+        </div>
+        <div class="adv-summary-stat" style="border-left:3px solid var(--red)">
+          <div class="adv-summary-stat-label">⚠️ Зона опасности</div>
+          <div class="adv-summary-stat-val" id="adv-danger-count" style="color:var(--red)">—</div>
+        </div>
+        <div class="adv-summary-stat" style="border-left:3px solid var(--yellow)">
+          <div class="adv-summary-stat-label">Требуют внимания</div>
+          <div class="adv-summary-stat-val" id="adv-warning-count" style="color:var(--yellow)">—</div>
+        </div>
+        <div class="adv-summary-stat" style="border-left:3px solid var(--green)">
+          <div class="adv-summary-stat-label">Справляются</div>
+          <div class="adv-summary-stat-val" id="adv-good-count" style="color:var(--green)">—</div>
+        </div>
+        <div class="adv-summary-stat">
+          <div class="adv-summary-stat-label">Лучший UPT</div>
+          <div class="adv-summary-stat-val" id="adv-best-upt">—</div>
+        </div>
+        <div class="adv-summary-stat">
+          <div class="adv-summary-stat-label">Лучший AVG</div>
+          <div class="adv-summary-stat-val" id="adv-best-avg">—</div>
+        </div>
+      </div>
+
+      <!-- Sort tabs -->
+      <div class="mode-toggle" style="margin-bottom:20px">
+        <button class="mode-btn active" onclick="setAdvSort('score',this)">По рейтингу</button>
+        <button class="mode-btn" onclick="setAdvSort('revenue',this)">По выручке</button>
+        <button class="mode-btn" onclick="setAdvSort('upt',this)">По UPT</button>
+        <button class="mode-btn" onclick="setAdvSort('avg',this)">По AVG</button>
+        <button class="mode-btn" onclick="setAdvSort('shifts',this)">По сменам</button>
+      </div>
+
+      <div id="adv-content">
+        <div style="text-align:center;padding:60px;color:var(--text3)">
+          <div style="font-size:48px;margin-bottom:16px">📊</div>
+          <div style="font-size:15px;margin-bottom:8px">Нет данных</div>
+          <div style="font-size:13px">Укажи название листа в <a href="#" onclick="openSettings()" style="color:var(--accent)">Настройках</a> и нажми Обновить</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail panel (shared, outside page) -->
+    <div class="adv-detail-panel" id="advDetailPanel">
+      <button class="adv-detail-close" onclick="closeAdvDetail()">×</button>
+      <div id="advDetailContent"></div>
+    </div>
+    <!-- Overlay backdrop -->
+    <div id="advDetailBackdrop" onclick="closeAdvDetail()"
+      style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:499"></div>
 
     <!-- ===== TRENDS PAGE ===== -->
     <div class="page" id="page-trends">
@@ -1315,8 +1482,13 @@ function toggleTheme() {
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  document.getElementById('nav-' + id).classList.add('active');
+  const pg = document.getElementById('page-' + id);
+  if (pg) pg.classList.add('active');
+  const nb = document.getElementById('nav-' + id);
+  if (nb) nb.classList.add('active');
+  // Auto-load hooks
+  if (id === 'advanced' && _advData.length === 0) syncAdvanced();
+  if (id === 'certificates') loadCertificates();
 }
 
 function setDate() {
@@ -2819,6 +2991,389 @@ function enhanceKpiTable(data) {
   });
 }
 
+
+// =====================================================================
+//  ADVANCED KPI MODULE
+// =====================================================================
+let _advData = [];        // parsed sellers
+let _advSort  = 'score';  // current sort
+
+// ── Sync from Google Sheets ──
+async function syncAdvanced() {
+  const sheetName = CFG.ADV_SHEET_NAME || '';
+  if (!sheetName) {
+    document.getElementById('adv-content').innerHTML = `
+      <div style="text-align:center;padding:60px;color:var(--text3)">
+        <div style="font-size:40px;margin-bottom:12px">⚙️</div>
+        <div style="font-size:15px;margin-bottom:8px">Лист не настроен</div>
+        <div style="font-size:13px">Укажи название листа Advanced KPI в <a href="#" onclick="openSettings()" style="color:var(--accent)">Настройках</a></div>
+      </div>`;
+    return;
+  }
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (!json.values) throw new Error('no values');
+    _advData = parseAdvancedSheet(json.values);
+    renderAdvanced();
+  } catch(e) {
+    document.getElementById('adv-content').innerHTML = `
+      <div class="message error">Ошибка загрузки Advanced KPI: ${e.message}</div>`;
+  }
+}
+
+// ── Parse sheet ──
+// Structure per seller block (10 rows, separated by blank row):
+// Row 0: [SellerName, date1, date2, ...]   ← header
+// Row 1: Выручка за день.
+// Row 2: Кол-во чеков.
+// Row 3: Кол-во товара.
+// Row 4: UPT
+// Row 5: AVG
+// Row 6: Смена
+// Sections: "Grand Park" / "Aport West" in col A
+function parseAdvancedSheet(rows) {
+  const sellers = [];
+  let team = 'grandpark';
+  let i = 0;
+
+  while (i < rows.length) {
+    const row = rows[i] || [];
+    const col0 = (row[0] || '').toString().trim();
+    const col1 = (row[1] || '').toString().trim();
+
+    // Detect team section header
+    if (col0 === 'Grand Park')  { team = 'grandpark'; i++; continue; }
+    if (col0 === 'Aport West')  { team = 'aport';     i++; continue; }
+    if (col0 === 'Aport')       { team = 'aport';     i++; continue; }
+
+    // Seller block: col1 = seller name, rest = dates
+    const hasDates = row.slice(1, 8).some(v => /\d+\s*[а-яА-Я]+/.test(String(v||'')));
+    if (hasDates && col1 && /[а-яА-ЯёЁa-zA-Z]/.test(col1)) {
+      // This is a seller header row
+      const name  = col1.trim();
+      const dates = row.slice(1).map(v => (v||'').toString().trim()).filter(Boolean);
+
+      // Read next 7 rows (metric rows)
+      const metricRows = [];
+      for (let j = 1; j <= 7; j++) metricRows.push(rows[i + j] || []);
+
+      const daily = dates.map((date, di) => {
+        const colIdx = di + 1; // offset by 1 (col0 = label)
+        return {
+          date,
+          revenue:  parseAdvNum(metricRows[0]?.[colIdx]),
+          checks:   parseAdvNum(metricRows[1]?.[colIdx]),
+          units:    parseAdvNum(metricRows[2]?.[colIdx]),
+          upt:      parseAdvNum(metricRows[3]?.[colIdx]),
+          avg:      parseAdvNum(metricRows[4]?.[colIdx]),
+          shift:    parseAdvNum(metricRows[5]?.[colIdx]) > 0 ? 1 : 0,
+        };
+      });
+
+      // Aggregate
+      const workDays = daily.filter(d => d.shift > 0);
+      const totalRev     = workDays.reduce((s,d) => s + d.revenue, 0);
+      const totalChecks  = workDays.reduce((s,d) => s + d.checks,  0);
+      const totalUnits   = workDays.reduce((s,d) => s + d.units,   0);
+      const totalShifts  = workDays.length;
+      const avgUPT = totalChecks > 0 ? totalUnits / totalChecks : 0;
+      const avgAVG = totalChecks > 0 ? totalRev   / totalChecks : 0;
+      const avgRevPerShift = totalShifts > 0 ? totalRev / totalShifts : 0;
+
+      // Avg UPT / AVG from sheet data (weighted average of non-zero days)
+      const uptDays = workDays.filter(d => d.upt > 0);
+      const avgDays = workDays.filter(d => d.avg > 0);
+      const sheetUPT = uptDays.length > 0 ? uptDays.reduce((s,d)=>s+d.upt,0)/uptDays.length : avgUPT;
+      const sheetAVG = avgDays.length > 0 ? avgDays.reduce((s,d)=>s+d.avg,0)/avgDays.length : avgAVG;
+
+      // Score formula (0-100):
+      // UPT weight 30%, AVG (normalised) 30%, revenue/shift 25%, attendance 15%
+      const plan = team === 'grandpark' ? CFG.PLAN_GRANDPARK : CFG.PLAN_APORT;
+      const planPct = plan > 0 ? Math.min(100, totalRev / plan * 100) : 0;
+      // UPT score: 1.5+ = 100, 0 = 0
+      const uptScore  = Math.min(100, (sheetUPT / 1.5) * 100);
+      // AVG score: 50000+ = 100
+      const avgScore  = Math.min(100, (sheetAVG / 50000) * 100);
+      // Rev/shift score: 300K+ = 100
+      const revScore  = Math.min(100, (avgRevPerShift / 300000) * 100);
+      // Attendance: 20+ shifts = 100
+      const attScore  = Math.min(100, (totalShifts / 20) * 100);
+      const score = uptScore*0.3 + avgScore*0.3 + revScore*0.25 + attScore*0.15;
+
+      // Zone
+      const zone = score < 35 ? 'danger' : score < 60 ? 'warning' : 'good';
+
+      sellers.push({
+        name, team, dates, daily,
+        totalRev, totalChecks, totalUnits, totalShifts,
+        avgRevPerShift, sheetUPT, sheetAVG, planPct, score, zone
+      });
+
+      i += 8; // skip the 7 metric rows + move past
+      continue;
+    }
+    i++;
+  }
+  return sellers;
+}
+
+function parseAdvNum(v) {
+  if (v === undefined || v === null || v === '') return 0;
+  const s = String(v).replace(/[₸\s ,]/g, '').replace(/,/g,'.').trim();
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+
+// ── Sort setter ──
+function setAdvSort(key, btn) {
+  _advSort = key;
+  document.querySelectorAll('.mode-toggle .mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAdvanced();
+}
+
+// ── Render ──
+function renderAdvanced() {
+  if (!_advData.length) return;
+
+  // Summary
+  const dangerCount  = _advData.filter(s => s.zone === 'danger').length;
+  const warningCount = _advData.filter(s => s.zone === 'warning').length;
+  const goodCount    = _advData.filter(s => s.zone === 'good').length;
+  const bestUPT = _advData.reduce((b,s) => s.sheetUPT > b ? s.sheetUPT : b, 0);
+  const bestAVG = _advData.reduce((b,s) => s.sheetAVG > b ? s.sheetAVG : b, 0);
+
+  document.getElementById('adv-total-sellers').textContent = _advData.length;
+  document.getElementById('adv-danger-count').textContent  = dangerCount;
+  document.getElementById('adv-warning-count').textContent = warningCount;
+  document.getElementById('adv-good-count').textContent    = goodCount;
+  document.getElementById('adv-best-upt').textContent      = bestUPT.toFixed(2);
+  document.getElementById('adv-best-avg').textContent      = fmtMoney(Math.round(bestAVG));
+
+  // Sort
+  const sorted = [..._advData].sort((a,b) => {
+    if (_advSort === 'revenue') return b.totalRev - a.totalRev;
+    if (_advSort === 'upt')     return b.sheetUPT - a.sheetUPT;
+    if (_advSort === 'avg')     return b.sheetAVG - a.sheetAVG;
+    if (_advSort === 'shifts')  return b.totalShifts - a.totalShifts;
+    return b.score - a.score;
+  });
+
+  // Group by team
+  const gp    = sorted.filter(s => s.team === 'grandpark');
+  const aport = sorted.filter(s => s.team === 'aport');
+
+  let html = '';
+  if (gp.length) {
+    html += `<div class="adv-team-header">
+      <div class="adv-team-title">Grand Park</div>
+      <div class="adv-team-line"></div>
+      <div class="adv-team-count">${gp.length} продавцов</div>
+    </div>
+    <div class="seller-grid">${gp.map(s => sellerCardHTML(s)).join('')}</div>`;
+  }
+  if (aport.length) {
+    html += `<div class="adv-team-header">
+      <div class="adv-team-title">Aport West</div>
+      <div class="adv-team-line"></div>
+      <div class="adv-team-count">${aport.length} продавцов</div>
+    </div>
+    <div class="seller-grid">${aport.map(s => sellerCardHTML(s)).join('')}</div>`;
+  }
+
+  document.getElementById('adv-content').innerHTML = html;
+}
+
+function sellerCardHTML(s) {
+  const scoreColor = s.score >= 60 ? 'var(--green)' : s.score >= 35 ? 'var(--yellow)' : 'var(--red)';
+  const scoreFill  = s.score >= 60 ? '#00cc66'       : s.score >= 35 ? '#ffaa00'       : '#ff3333';
+  const badgeLabel = s.zone === 'danger'  ? '⚠️ ЗОНА ОПАСНОСТИ' :
+                     s.zone === 'warning' ? '📊 ТРЕБУЕТ ВНИМАНИЯ' : '✅ СПРАВЛЯЕТСЯ';
+
+  // UPT color: <1.0 bad, 1.0-1.4 ok, 1.4+ good
+  const uptColor = s.sheetUPT < 1.0 ? 'var(--red)' : s.sheetUPT < 1.4 ? 'var(--yellow)' : 'var(--green)';
+  // AVG color: <20K bad, 20-35K ok, 35K+ good
+  const avgColor = s.sheetAVG < 20000 ? 'var(--red)' : s.sheetAVG < 35000 ? 'var(--yellow)' : 'var(--green)';
+  // Conv = checks/shifts (avg checks per shift)
+  const avgChecks = s.totalShifts > 0 ? (s.totalChecks / s.totalShifts).toFixed(1) : '—';
+  // Plan %
+  const planColor = s.planPct < 40 ? 'var(--red)' : s.planPct < 70 ? 'var(--yellow)' : 'var(--green)';
+
+  return `<div class="seller-card ${s.zone}" onclick="openAdvDetail('${encodeURIComponent(s.name)}')">
+    <div class="seller-card-top">
+      <div>
+        <div class="seller-card-name">${s.name}</div>
+        <div class="seller-card-meta">${s.team === 'grandpark' ? 'Grand Park' : 'Aport West'} · ${s.totalShifts} смен</div>
+      </div>
+      <div class="seller-danger-badge ${s.zone}">${badgeLabel}</div>
+    </div>
+
+    <div class="seller-metrics-grid">
+      <div class="seller-metric">
+        <div class="seller-metric-lbl">Выручка</div>
+        <div class="seller-metric-val">${fmtMoney(s.totalRev)}</div>
+        <div class="seller-metric-sub">${fmtMoney(Math.round(s.avgRevPerShift))}/смену</div>
+      </div>
+      <div class="seller-metric">
+        <div class="seller-metric-lbl">% плана</div>
+        <div class="seller-metric-val" style="color:${planColor}">${s.planPct.toFixed(1)}%</div>
+        <div class="seller-metric-sub">личный план</div>
+      </div>
+      <div class="seller-metric">
+        <div class="seller-metric-lbl">UPT</div>
+        <div class="seller-metric-val" style="color:${uptColor}">${s.sheetUPT.toFixed(2)}</div>
+        <div class="seller-metric-sub">ед./чек (цель ≥1.4)</div>
+      </div>
+      <div class="seller-metric">
+        <div class="seller-metric-lbl">AVG чек</div>
+        <div class="seller-metric-val" style="color:${avgColor}">${fmtMoney(Math.round(s.sheetAVG))}</div>
+        <div class="seller-metric-sub">ср. чеков/смену: ${avgChecks}</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="seller-score-row">
+        <div class="seller-score-label">Рейтинг эффективности</div>
+        <div class="seller-score-val" style="color:${scoreColor}">${Math.round(s.score)}/100</div>
+      </div>
+      <div class="seller-score-track">
+        <div class="seller-score-fill" style="width:${s.score}%;background:${scoreFill}"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── Detail panel ──
+function openAdvDetail(encodedName) {
+  const name = decodeURIComponent(encodedName);
+  const s = _advData.find(x => x.name === name);
+  if (!s) return;
+
+  const panel    = document.getElementById('advDetailPanel');
+  const backdrop = document.getElementById('advDetailBackdrop');
+  const content  = document.getElementById('advDetailContent');
+
+  const workDays   = s.daily.filter(d => d.shift > 0);
+  const maxRev     = Math.max(...workDays.map(d => d.revenue), 1);
+  const scoreColor = s.score >= 60 ? 'var(--green)' : s.score >= 35 ? 'var(--yellow)' : 'var(--red)';
+
+  // Build daily rows
+  const dayRows = s.daily.map(d => {
+    if (!d.shift) return `
+      <div class="detail-day-row" style="opacity:0.35">
+        <div class="detail-day-date" style="font-size:11px">${d.date}</div>
+        <div class="detail-day-bar-wrap">
+          <div style="height:100%;display:flex;align-items:center;padding-left:8px;font-size:10px;color:var(--text3)">выходной</div>
+        </div>
+        <div class="detail-day-rev" style="color:var(--text3)">—</div>
+        <div class="detail-day-checks">—</div>
+      </div>`;
+    const pct   = maxRev > 0 ? Math.min(100, (d.revenue / maxRev) * 100) : 0;
+    const barClr = d.revenue >= 300000 ? '#00cc66' : d.revenue >= 150000 ? '#0066ff' : d.revenue >= 50000 ? '#ffaa00' : '#ff3333';
+    return `
+      <div class="detail-day-row">
+        <div class="detail-day-date">${d.date}</div>
+        <div class="detail-day-bar-wrap">
+          <div class="detail-day-bar" style="width:${pct}%;background:${barClr}">
+            ${pct > 20 ? 'UPT ' + (d.upt||0).toFixed(1) : ''}
+          </div>
+        </div>
+        <div class="detail-day-rev">${fmtMoney(d.revenue)}</div>
+        <div class="detail-day-checks" title="чеков">${d.checks} чк</div>
+      </div>`;
+  }).join('');
+
+  // Trend: best/worst days
+  const sorted  = [...workDays].sort((a,b)=>b.revenue-a.revenue);
+  const bestDay = sorted[0];
+  const worstDay= sorted[sorted.length-1];
+
+  content.innerHTML = `
+    <div style="margin-bottom:20px">
+      <div style="font-size:20px;font-weight:700;margin-bottom:4px">${s.name}</div>
+      <div style="font-size:12px;color:var(--text3)">${s.team === 'grandpark' ? 'Grand Park' : 'Aport West'} · ${s.totalShifts} рабочих смен</div>
+    </div>
+
+    <!-- Score -->
+    <div style="background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">Рейтинг эффективности</div>
+        <div style="font-size:22px;font-weight:800;color:${scoreColor}">${Math.round(s.score)}<span style="font-size:13px;color:var(--text3)">/100</span></div>
+      </div>
+      <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${s.score}%;background:${scoreColor};border-radius:3px;transition:width 0.6s"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">
+        UPT ${(s.sheetUPT*0.3).toFixed(0)}/30 · AVG ${(Math.min(100,(s.sheetAVG/50000)*100)*0.3).toFixed(0)}/30 · Выр/смену ${(Math.min(100,(s.avgRevPerShift/300000)*100)*0.25).toFixed(0)}/25 · Посещаемость ${(Math.min(100,(s.totalShifts/20)*100)*0.15).toFixed(0)}/15
+      </div>
+    </div>
+
+    <!-- Key metrics row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:var(--bg3);border-radius:10px;padding:12px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Общая выручка</div>
+        <div style="font-size:20px;font-weight:700">${fmtMoney(s.totalRev)}</div>
+        <div style="font-size:11px;color:var(--text3)">${s.planPct.toFixed(1)}% личного плана</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:12px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Выр./смену</div>
+        <div style="font-size:20px;font-weight:700">${fmtMoney(Math.round(s.avgRevPerShift))}</div>
+        <div style="font-size:11px;color:var(--text3)">${s.totalChecks} чеков всего</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:12px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">UPT (ед./чек)</div>
+        <div style="font-size:20px;font-weight:700;color:${s.sheetUPT<1?'var(--red)':s.sheetUPT<1.4?'var(--yellow)':'var(--green)'}">${s.sheetUPT.toFixed(2)}</div>
+        <div style="font-size:11px;color:var(--text3)">цель ≥ 1.40</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:12px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">AVG чек</div>
+        <div style="font-size:20px;font-weight:700;color:${s.sheetAVG<20000?'var(--red)':s.sheetAVG<35000?'var(--yellow)':'var(--green)'}">${fmtMoney(Math.round(s.sheetAVG))}</div>
+        <div style="font-size:11px;color:var(--text3)">цель ≥ 35 000₸</div>
+      </div>
+    </div>
+
+    <!-- Best/Worst -->
+    ${bestDay ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:rgba(0,204,102,0.08);border:1px solid rgba(0,204,102,0.2);border-radius:10px;padding:12px">
+        <div style="font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">🏆 Лучший день</div>
+        <div style="font-size:14px;font-weight:700">${bestDay.date}</div>
+        <div style="font-size:17px;font-weight:800;color:var(--green)">${fmtMoney(bestDay.revenue)}</div>
+        <div style="font-size:11px;color:var(--text3)">${bestDay.checks} чеков · UPT ${(bestDay.upt||0).toFixed(1)}</div>
+      </div>
+      <div style="background:rgba(255,51,51,0.06);border:1px solid rgba(255,51,51,0.2);border-radius:10px;padding:12px">
+        <div style="font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">📉 Слабый день</div>
+        <div style="font-size:14px;font-weight:700">${worstDay.date}</div>
+        <div style="font-size:17px;font-weight:800;color:var(--red)">${fmtMoney(worstDay.revenue)}</div>
+        <div style="font-size:11px;color:var(--text3)">${worstDay.checks} чеков · UPT ${(worstDay.upt||0).toFixed(1)}</div>
+      </div>
+    </div>` : ''}
+
+    <!-- Daily breakdown -->
+    <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;font-weight:600">
+      График по дням
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:16px;font-size:10px;color:var(--text3);margin-bottom:8px">
+      <span>Выручка</span><span>Чеков</span>
+    </div>
+    <div>${dayRows}</div>
+  `;
+
+  backdrop.style.display = 'block';
+  setTimeout(() => panel.classList.add('open'), 10);
+}
+
+function closeAdvDetail() {
+  document.getElementById('advDetailPanel').classList.remove('open');
+  document.getElementById('advDetailBackdrop').style.display = 'none';
+}
+
+// Auto-sync handled inside the original showPage function
+
+// =====================================================================
+
 window.addEventListener('load', () => {
   setDate();
   syncData();
@@ -3662,22 +4217,6 @@ async function revokeCertificate(certId) {
   }
 }
 
-// Hook into showPage to load certs when navigating there
-const _origShowPage = typeof showPage === 'function' ? showPage : null;
-function showPageWithCerts(page) {
-  if (_origShowPage) _origShowPage(page);
-  else {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    const pageEl = document.getElementById('page-' + page);
-    if (pageEl) pageEl.classList.add('active');
-    const navEl = document.getElementById('nav-' + page);
-    if (navEl) navEl.classList.add('active');
-  }
-  if (page === 'certificates') loadCertificates();
-}
-// Override global showPage
-window.showPage = showPageWithCerts;
 
 // Load certs on first open if already on page
 document.addEventListener('DOMContentLoaded', () => {

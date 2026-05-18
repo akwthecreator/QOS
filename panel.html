@@ -2363,115 +2363,124 @@ function safeNum(v) {
 
 function parseAdvKpi(rows) {
   /*
-   * Реальная структура листа (из скриншота):
+   * РЕАЛЬНАЯ СТРУКТУРА (из скриншота):
    *
-   * A1:  "Grand Park"              ← секция
-   * A2:  "Name Of Seller"  B2: имя продавца (или пусто)  C2,D2...: даты "пт, 1 мая"
-   * A3:  "Выручка за день."        B3,C3...: числа
-   * A4:  "Кол-во чеков."           ...
-   * A5:  "Кол-во товара."          ...
-   * A6:  "Смена"                   ...
-   * A7:  "Магазин"                 ...
-   * A8:  "Трафик"                  ...
+   * A1:  "Grand Park"                       ← секция
+   * A2:  "Aidana Bakery"  B2:"пт, 1 мая"   ← имя продавца + даты
+   * A3:  "Выручка за день."  B3:302000 ...
+   * A4:  "Кол-во чеков."     B4:10 ...
+   * A5:  "Кол-во товара."    B5:10 ...
+   * A6:  "Смена"             B6:1 ...
+   * A7:  "Магазин"           B7:Qoima ...
+   * A8:  "Трафик"            B8:400 ...
    * A9:  (пусто)
-   * A10: "UPT ..."                 B10: итоговый UPT (одно число)
-   * A11: "ATV ..."                 B11: итоговый ATV
-   * A12: "AUR ..."                 B12: итоговый AUR
-   * A13: (пусто)                   ← конец блока продавца
-   * A17: "Name Of Seller"          ← следующий продавец
+   * A10: "UPT ..."           B10:1.00 ...
+   * A11: "ATV ..."           B11:30200 ...
+   * A12: "AUR ..."           B12:30200 ...
+   * A13-16: (пусто)
+   * A17: "Mako Gracia"       ← следующий продавец (та же структура)
    * ...
-   * A30: "Aport"                   ← новая секция
+   * A31: "Aport"             ← новая секция
+   * A32: "Turgen Bridge" ... ← продавец Aport
    */
 
-  const sellers    = [];
-  let currentTeam  = 'grandpark';
+  const sellers   = [];
+  let currentTeam = 'grandpark';
 
-  const norm   = s  => String(s || '').trim().toLowerCase();
-  const isSecGP    = l => l === 'grand park' || l === 'grandpark';
-  const isSecAport = l => l === 'aport west' || l === 'aport';
-  const isNameRow  = l => l === 'name of seller' || l === 'name of seller.' || l === 'name';
-  const isDateCell = v => /\d/.test(String(v || '')) && /[а-яА-ЯёЁ]/.test(String(v || ''));
-  const isRevRow   = l => l.startsWith('выручка');
-  const isChkRow   = l => l.startsWith('кол') && l.includes('чек') && !l.includes('товар');
-  const isUntRow   = l => l.startsWith('кол') && l.includes('товар');
-  const isShfRow   = l => l === 'смена' || l.startsWith('смен');
-  const isTrfRow   = l => l === 'трафик';
-  const isUptRow   = l => l.startsWith('upt');
-  const isAtvRow   = l => l.startsWith('atv');
-  const isAurRow   = l => l.startsWith('aur');
+  const n          = s  => String(s || '').trim().toLowerCase();
+  const isSecGP    = l  => l === 'grand park' || l === 'grandpark';
+  const isSecAport = l  => l === 'aport west' || l === 'aport';
+  const isDateCell = v  => /\d/.test(String(v||'')) && /[а-яА-ЯёЁ]/.test(String(v||''));
+  const isDataLbl  = l  => {
+    if (!l) return true; // пустая = не имя продавца
+    if (isSecGP(l) || isSecAport(l)) return true;
+    if (l.startsWith('выручка'))  return true;
+    if (l.startsWith('кол'))      return true;
+    if (l === 'смена' || l.startsWith('смен')) return true;
+    if (l === 'трафик')           return true;
+    if (l === 'магазин' || l.startsWith('магаз')) return true;
+    if (l.startsWith('upt'))      return true;
+    if (l.startsWith('atv'))      return true;
+    if (l.startsWith('aur'))      return true;
+    if (l === 'name of seller' || l === 'name') return true;
+    return false;
+  };
+
+  const isRevRow = l => l.startsWith('выручка');
+  const isChkRow = l => l.startsWith('кол') && l.includes('чек') && !l.includes('товар');
+  const isUntRow = l => l.startsWith('кол') && l.includes('товар');
+  const isShfRow = l => l === 'смена' || l.startsWith('смен');
+  const isTrfRow = l => l === 'трафик';
+  const isUptRow = l => l.startsWith('upt');
+  const isAtvRow = l => l.startsWith('atv');
+  const isAurRow = l => l.startsWith('aur');
 
   let i = 0;
   while (i < rows.length) {
-    const row  = rows[i] || [];
-    const a0l  = norm(row[0]);
+    const row = rows[i] || [];
+    const a0  = String(row[0] || '').trim();
+    const a0l = n(a0);
 
-    // Определяем секцию
+    // Секции
     if (isSecGP(a0l))    { currentTeam = 'grandpark'; i++; continue; }
     if (isSecAport(a0l)) { currentTeam = 'aport';     i++; continue; }
 
-    // Ищем строку "Name Of Seller" с датами в col B..
-    if (!isNameRow(a0l)) { i++; continue; }
+    // Строка-заголовок продавца:
+    // col A = имя (не пустое, не дата, не data-label)
+    // col B = дата типа "пт, 1 мая"
+    if (!a0)            { i++; continue; }
+    if (isDataLbl(a0l)) { i++; continue; }
+    if (isDateCell(a0)) { i++; continue; } // вдруг сама ячейка — дата
 
-    // Проверяем что в этой строке есть даты (col B, C, D...)
-    const hasDates = row.slice(1, 8).some(v => isDateCell(String(v || '')));
-    if (!hasDates) { i++; continue; }
+    const b1l = n(row[1] || '');
+    const hasDateInB = isDateCell(String(row[1] || ''));
+    // Дополнительная проверка: хотя бы одна из первых 6 col — дата
+    const hasAnyDate = row.slice(1, 7).some(v => isDateCell(String(v || '')));
+    if (!hasAnyDate) { i++; continue; }
 
-    // Имя продавца — ПЕРВАЯ непустая ячейка col B..Z в этой же строке
-    // (продавец вводит имя в ячейку B2)
-    let sellerName = '';
-    for (let k = 1; k < row.length; k++) {
-      const v = String(row[k] || '').trim();
-      // пропускаем ячейки с датами и пустые
-      if (v && !isDateCell(v)) { sellerName = v; break; }
-    }
-    // Если имя не нашли — генерируем placeholder по номеру
-    if (!sellerName) sellerName = `Продавец ${sellers.length + 1}`;
+    // ── Нашли строку продавца ──
+    const sellerName = a0;
 
-    // Читаем строки данных блока этого продавца
     let rev = [], checks = [], units = [], shifts = [], traffic = [];
-    let uptVal = 0, atvVal = 0, aurVal = 0;
+    let uptArr = [], atvArr = [], aurArr = [];
     let blankCount = 0;
 
     let j = i + 1;
     while (j < rows.length) {
       const brow = rows[j] || [];
-      const lbl  = norm(brow[0]);
+      const lbl  = n(brow[0]);
 
-      // Конец блока: секция или новый "Name Of Seller" с датами
+      // Стоп: новая секция
       if (isSecGP(lbl) || isSecAport(lbl)) break;
-      if (isNameRow(lbl) && brow.slice(1, 8).some(v => isDateCell(String(v || '')))) break;
 
-      if (!lbl) { blankCount++; if (blankCount >= 3) break; j++; continue; }
+      // Стоп: новый продавец (непустой col A, не data-label, есть даты в строке)
+      if (brow[0] && String(brow[0]).trim() && !isDataLbl(lbl) &&
+          !isDateCell(String(brow[0]||'')) &&
+          brow.slice(1, 7).some(v => isDateCell(String(v||'')))) break;
+
+      if (!lbl) { blankCount++; if (blankCount >= 4) break; j++; continue; }
       blankCount = 0;
 
-      const vals = brow.slice(1).map(v => safeNum(v));
+      // Значения: пропускаем #DIV/0! и нечисловое
+      const vals = brow.slice(1).map(v => {
+        const s = String(v || '').trim();
+        if (s.startsWith('#') || s === '') return 0;
+        return safeNum(v);
+      });
 
       if      (isRevRow(lbl)) rev     = vals;
       else if (isChkRow(lbl)) checks  = vals;
       else if (isUntRow(lbl)) units   = vals;
       else if (isShfRow(lbl)) shifts  = vals;
       else if (isTrfRow(lbl)) traffic = vals;
-      else if (isUptRow(lbl)) {
-        // UPT может быть одно итоговое число в col B
-        // или массив по дням
-        const nonZero = vals.filter(v => v > 0);
-        uptVal = nonZero.length === 1 ? nonZero[0]
-               : nonZero.length > 1  ? +(nonZero.reduce((a,b)=>a+b,0)/nonZero.length).toFixed(2)
-               : 0;
-      }
-      else if (isAtvRow(lbl)) {
-        const nonZero = vals.filter(v => v > 0);
-        atvVal = nonZero.length ? Math.round(nonZero.reduce((a,b)=>a+b,0)/nonZero.length) : 0;
-      }
-      else if (isAurRow(lbl)) {
-        const nonZero = vals.filter(v => v > 0);
-        aurVal = nonZero.length ? Math.round(nonZero.reduce((a,b)=>a+b,0)/nonZero.length) : 0;
-      }
+      else if (isUptRow(lbl)) uptArr  = vals;
+      else if (isAtvRow(lbl)) atvArr  = vals;
+      else if (isAurRow(lbl)) aurArr  = vals;
 
       j++;
     }
 
-    // Агрегируем по дням
+    // Агрегируем
     const dayCount = Math.max(rev.length, checks.length, shifts.length, 1);
     let totalRev = 0, totalChecks = 0, totalUnits = 0, totalTraffic = 0, totalShifts = 0;
     const dailyRevenue = [], dailyShifts = [], dailyData = [];
@@ -2494,17 +2503,29 @@ function parseAdvKpi(rows) {
       dailyData.push({ rev: r, checks: c, units: u, shifts: sh, traffic: tr });
     }
 
-    // Если вообще нет данных — пропускаем
     if (totalRev === 0 && totalChecks === 0 && totalShifts === 0) { i = j; continue; }
 
-    // Итоговые метрики: считаем сами если есть данные, иначе берём из листа
-    const upt = totalChecks > 0 ? +(totalUnits / totalChecks).toFixed(2) : uptVal;
-    const atv = totalChecks > 0 ? Math.round(totalRev / totalChecks)     : atvVal;
-    const aur = totalUnits  > 0 ? Math.round(totalRev / totalUnits)      : aurVal;
+    // Метрики — считаем сами, fallback на значения из листа
+    const uptFromSheet = uptArr.filter(v => v > 0);
+    const atvFromSheet = atvArr.filter(v => v > 0);
+    const aurFromSheet = aurArr.filter(v => v > 0);
+
+    const upt = totalChecks > 0
+      ? +(totalUnits / totalChecks).toFixed(2)
+      : uptFromSheet.length ? +(uptFromSheet.reduce((a,b)=>a+b,0)/uptFromSheet.length).toFixed(2) : 0;
+
+    const atv = totalChecks > 0
+      ? Math.round(totalRev / totalChecks)
+      : atvFromSheet.length ? Math.round(atvFromSheet.reduce((a,b)=>a+b,0)/atvFromSheet.length) : 0;
+
+    const aur = totalUnits > 0
+      ? Math.round(totalRev / totalUnits)
+      : aurFromSheet.length ? Math.round(aurFromSheet.reduce((a,b)=>a+b,0)/aurFromSheet.length) : 0;
+
     const ioc = totalTraffic > 0 && totalShifts > 0
       ? +((totalChecks / totalTraffic) * 100).toFixed(1) : 0;
 
-    console.log(`[QREI] ✅ ${sellerName} | ${currentTeam} | rev:${totalRev} checks:${totalChecks} units:${totalUnits} shifts:${totalShifts} upt:${upt} atv:${atv} ioc:${ioc}`);
+    console.log(`[QREI] ✅ ${sellerName} (${currentTeam}) | rev:${totalRev} checks:${totalChecks} units:${totalUnits} shifts:${totalShifts} upt:${upt} atv:${atv} ioc:${ioc}`);
 
     sellers.push({
       name: sellerName, team: currentTeam,
@@ -2518,10 +2539,9 @@ function parseAdvKpi(rows) {
     i = j;
   }
 
-  console.log(`[QREI] Итого распарсено: ${sellers.length} продавцов →`, sellers.map(s => `${s.name}(${s.team})`));
+  console.log(`[QREI] Итого: ${sellers.length} продавцов →`, sellers.map(s => `${s.name}(${s.team})`).join(', '));
   return sellers;
 }
-
 // ── QREI Score (0-100) ──
 // IOC 30% + UPT 30% + ATV 20% + AUR 20%
 // Нормализуется относительно бенчмарков (планов)

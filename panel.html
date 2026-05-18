@@ -125,100 +125,39 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .seller-val { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; width: 88px; text-align: right; flex-shrink: 0; }
 .seller-badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; flex-shrink: 0; }
 
-/* ── ADVANCED KPI — Apple style ── */
-.adv-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 12px;
-}
-
+/* ── ADVANCED KPI ── */
+.adv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
 .adv-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 22px 20px 20px;
-  cursor: default;
-  transition: border-color 0.2s, transform 0.18s, box-shadow 0.18s;
-  position: relative;
-  overflow: hidden;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 18px;
+  padding: 20px; cursor: default; transition: border-color 0.2s, transform 0.2s;
+  position: relative; overflow: hidden;
 }
-.adv-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
-}
-.adv-card.gold   { border-color: rgba(255,215,0,0.3);   background: linear-gradient(160deg, var(--bg2) 60%, rgba(255,215,0,0.04) 100%); }
-.adv-card.silver { border-color: rgba(192,192,192,0.25); background: linear-gradient(160deg, var(--bg2) 60%, rgba(192,192,192,0.03) 100%); }
-.adv-card.bronze { border-color: rgba(205,127,50,0.25);  background: linear-gradient(160deg, var(--bg2) 60%, rgba(205,127,50,0.03) 100%); }
-
-/* Top row: rank + avatar + name */
-.adv-top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-.adv-rank-num {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text3);
-  width: 24px;
-  flex-shrink: 0;
-}
-.adv-avatar {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px; font-weight: 700; color: var(--text2);
-  flex-shrink: 0;
-  letter-spacing: -0.5px;
-}
-.adv-name-wrap { flex: 1; min-width: 0; }
-.adv-name      { font-size: 16px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.adv-store     { font-size: 11px; color: var(--text3); margin-top: 1px; text-transform: uppercase; letter-spacing: 0.5px; }
-
-/* Hero QREI score */
-.adv-hero {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 10px;
-}
-.adv-score-group { display: flex; flex-direction: column; gap: 3px; }
-.adv-score-label-sm { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
-.adv-score-big {
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-  line-height: 1;
-}
-.adv-score-num { font-size: 52px; font-weight: 800; color: var(--text); letter-spacing: -2px; }
-.adv-score-denom { font-size: 18px; font-weight: 500; color: var(--text3); }
-
-/* Status badge */
-.adv-status-badge {
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
+.adv-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
+.adv-card.gold  { border-color: rgba(255,215,0,0.35); background: linear-gradient(135deg, var(--bg2) 0%, rgba(255,215,0,0.04) 100%); }
+.adv-card.silver{ border-color: rgba(192,192,192,0.35); }
+.adv-card.bronze{ border-color: rgba(205,127,50,0.35); }
+.adv-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.adv-rank { font-size: 26px; width: 40px; text-align: center; flex-shrink: 0; }
+.adv-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.adv-team { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.adv-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.adv-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px;
   white-space: nowrap;
-  letter-spacing: 0.2px;
-  align-self: flex-end;
-  margin-bottom: 6px;
 }
-.badge-look-maker { background: rgba(130,80,255,0.15); color: #a855f7; border: 1px solid rgba(130,80,255,0.25); }
-.badge-the-closer { background: rgba(0,200,100,0.12);  color: #00c864; border: 1px solid rgba(0,200,100,0.22); }
-.badge-trainee    { background: rgba(120,120,120,0.12); color: var(--text3); border: 1px solid var(--border); }
-.badge-premium    { background: rgba(255,170,0,0.12);   color: #ffaa00; border: 1px solid rgba(255,170,0,0.22); }
-
-/* Summary grid above cards */
-.adv-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
-  gap: 10px;
-  margin-bottom: 20px;
-}
+.adv-badge.upt   { background: rgba(0,102,255,0.15); color: #4488ff; border: 1px solid rgba(0,102,255,0.3); }
+.adv-badge.avg   { background: rgba(255,170,0,0.15);  color: #ffaa00; border: 1px solid rgba(255,170,0,0.3); }
+.adv-badge.score { background: rgba(0,204,102,0.15); color: var(--green); border: 1px solid rgba(0,204,102,0.3); }
+.adv-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.adv-metric { background: var(--bg3); border-radius: 10px; padding: 10px 12px; }
+.adv-metric-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.adv-metric-val   { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
+.adv-metric-sub   { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.adv-score-wrap { margin-top: 4px; }
+.adv-score-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); margin-bottom: 5px; }
+.adv-score-track { height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.adv-score-fill  { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.adv-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; margin-bottom: 20px; }
 
 /* Score mode toggle */
 .mode-toggle { display: flex; background: var(--bg3); border-radius: 10px; padding: 3px; gap: 2px; margin-bottom: 20px; width: fit-content; }
@@ -400,39 +339,62 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 }
 .seller-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
   margin-bottom: 8px;
 }
+/* Apple-style minimal seller card */
 .seller-card {
   background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 16px; padding: 18px 20px;
-  cursor: pointer; transition: all 0.18s;
+  border-radius: 20px; padding: 20px 20px 18px;
+  cursor: pointer; transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
   position: relative; overflow: hidden;
 }
-.seller-card:hover { border-color: rgba(0,102,255,0.35); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
-.seller-card.danger { border-color: rgba(255,51,51,0.4); background: linear-gradient(135deg, var(--bg2) 0%, rgba(255,51,51,0.04) 100%); }
-.seller-card.warning { border-color: rgba(255,170,0,0.35); background: linear-gradient(135deg, var(--bg2) 0%, rgba(255,170,0,0.04) 100%); }
-.seller-card.good { border-color: rgba(0,204,102,0.3); }
-.seller-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
-.seller-card-name { font-size: 15px; font-weight: 700; color: var(--text); }
-.seller-card-meta { font-size: 11px; color: var(--text3); margin-top: 3px; }
-.seller-danger-badge {
-  display: flex; align-items: center; gap: 5px;
-  padding: 3px 9px; border-radius: 20px;
-  font-size: 10px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap;
+.seller-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.25); border-color: rgba(255,255,255,0.1); }
+.seller-card.danger  { border-color: rgba(255,51,51,0.25); }
+.seller-card.warning { border-color: rgba(255,170,0,0.2); }
+.seller-card.good    { border-color: rgba(0,204,102,0.2); }
+
+/* Top: rank + avatar + name */
+.seller-card-top {
+  display: flex; align-items: center; gap: 11px; margin-bottom: 18px;
 }
-.seller-danger-badge.red    { background: rgba(255,51,51,0.15); color: var(--red); border: 1px solid rgba(255,51,51,0.3); }
-.seller-danger-badge.yellow { background: rgba(255,170,0,0.15); color: var(--yellow); border: 1px solid rgba(255,170,0,0.3); }
-.seller-danger-badge.green  { background: rgba(0,204,102,0.12); color: var(--green); border: 1px solid rgba(0,204,102,0.25); }
-.seller-metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.sc-rank { font-size: 13px; font-weight: 700; color: var(--text3); width: 22px; flex-shrink: 0; }
+.sc-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--bg3); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: var(--text2); flex-shrink: 0;
+}
+.sc-info { flex: 1; min-width: 0; }
+.seller-card-name { font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seller-card-meta { font-size: 11px; color: var(--text3); margin-top: 1px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+/* Hero: QREI score + badge */
+.sc-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+.sc-score-group { display: flex; flex-direction: column; gap: 2px; }
+.sc-score-lbl { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
+.sc-score-big { display: flex; align-items: baseline; gap: 1px; line-height: 1; }
+.sc-score-num { font-size: 50px; font-weight: 800; color: var(--text); letter-spacing: -2px; }
+.sc-score-den { font-size: 17px; font-weight: 500; color: var(--text3); }
+
+/* Status badge */
+.sc-badge {
+  padding: 5px 11px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+  letter-spacing: 0.2px; align-self: flex-end; margin-bottom: 5px;
+}
+.sc-badge.look-maker { background: rgba(130,80,255,0.15); color: #a855f7; border: 1px solid rgba(130,80,255,0.25); }
+.sc-badge.the-closer { background: rgba(0,200,100,0.12);  color: #00c864; border: 1px solid rgba(0,200,100,0.22); }
+.sc-badge.premium    { background: rgba(255,170,0,0.12);   color: #ffaa00; border: 1px solid rgba(255,170,0,0.22); }
+.sc-badge.trainee    { background: rgba(120,120,120,0.1);  color: var(--text3); border: 1px solid var(--border); }
+.sc-badge.danger-z   { background: rgba(255,51,51,0.12);   color: var(--red);   border: 1px solid rgba(255,51,51,0.25); }
+
+/* old classes kept for detail panel compatibility */
 .seller-metric { background: var(--bg3); border-radius: 10px; padding: 10px 12px; }
 .seller-metric-lbl { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; font-weight: 600; }
 .seller-metric-val { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1; }
 .seller-metric-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
-.seller-score-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.seller-score-label { font-size: 10px; color: var(--text3); }
-.seller-score-val   { font-size: 11px; font-weight: 700; }
 .seller-score-track { height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
 .seller-score-fill  { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
 
@@ -972,10 +934,10 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
         <div class="adv-summary-grid" id="adv-summary"></div>
 
         <!-- Legend -->
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;font-size:12px;color:var(--text3)">
-          <span><span style="color:#a855f7">The Look Maker</span> — лучший UPT (мастер допродаж)</span>
-          <span><span style="color:#ffaa00">Premium Seller</span> — наивысший средний чек</span>
-          <span><span style="color:#00c864">The Closer</span> — сильный общий результат (Score ≥70)</span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;font-size:12px;color:var(--text3)">
+          <span>⚡ <span style="color:#4488ff">Мастер допродаж</span> — наивысший UPT</span>
+          <span>💎 <span style="color:#ffaa00">Премиум-сегмент</span> — наивысший средний чек</span>
+          <span>🏆 <span style="color:var(--green)">Performance Score</span> = 40% выручка + 30% UPT + 30% средний чек</span>
         </div>
 
         <!-- Cards grid -->
@@ -2526,14 +2488,15 @@ function renderAdvanced() {
   let list = advView === 'all' ? advKpiData : advKpiData.filter(s => s.team === advView);
   list = calcScores(list);
 
+  // Sort by selected metric
   const sortKey = { score:'score', revenue:'revenue', upt:'upt', avgCheck:'avgCheck', checks:'checks' }[advMetric] || 'score';
   list = [...list].sort((a,b) => b[sortKey] - a[sortKey]);
 
-  // Find badge holders
-  const maxUpt = Math.max(...list.map(s => s.upt), 0);
-  const maxAvg = Math.max(...list.map(s => s.avgCheck), 0);
+  // Badges
+  const maxUptSeller = [...list].sort((a,b) => b.upt - a.upt)[0];
+  const maxAvgSeller = [...list].sort((a,b) => b.avgCheck - a.avgCheck)[0];
 
-  // Summary row
+  // Summary
   const totalRev = list.reduce((s,x) => s + x.revenue, 0);
   const avgUpt   = list.length ? (list.reduce((s,x) => s + x.upt, 0) / list.length).toFixed(1) : 0;
   const avgChk   = list.length ? Math.round(list.reduce((s,x) => s + x.avgCheck, 0) / list.length) : 0;
@@ -2546,48 +2509,70 @@ function renderAdvanced() {
     <div class="stat-box"><div class="stat-label">Всего чеков</div><div class="stat-value" style="font-size:20px">${totalChk}</div></div>`;
 
   const rankColors = ['gold','silver','bronze'];
-  const maxScore   = Math.max(...list.map(s => s.score), 1);
+  const rankEmojis = ['🥇','🥈','🥉'];
+  const maxScore = Math.max(...list.map(s => s.score), 1);
 
   document.getElementById('adv-leaderboard').innerHTML = list.map((s, i) => {
-    const isUptChamp = s.upt > 0 && s.upt === maxUpt;
-    const isAvgChamp = s.avgCheck > 0 && s.avgCheck === maxAvg;
-
-    // Determine badge — one badge per seller, priority: UPT > AVG > score threshold
-    let badgeHtml = '';
-    if (isUptChamp && isAvgChamp) {
-      badgeHtml = `<span class="adv-status-badge badge-look-maker">The Look Maker</span>`;
-    } else if (isUptChamp) {
-      badgeHtml = `<span class="adv-status-badge badge-look-maker">The Look Maker</span>`;
-    } else if (isAvgChamp) {
-      badgeHtml = `<span class="adv-status-badge badge-premium">Premium Seller</span>`;
-    } else if (s.score >= 70) {
-      badgeHtml = `<span class="adv-status-badge badge-the-closer">The Closer</span>`;
-    } else {
-      badgeHtml = `<span class="adv-status-badge badge-trainee">Trainee</span>`;
-    }
-
-    // Avatar initials — first letter of each word
-    const initials = s.name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+    const cardCls = rankColors[i] || '';
+    const isUptChamp = maxUptSeller && s.name === maxUptSeller.name && s.team === maxUptSeller.team;
+    const isAvgChamp = maxAvgSeller && s.name === maxAvgSeller.name && s.team === maxAvgSeller.team;
+    const planRevenue = s.team === 'grandpark' ? PLAN_GRANDPARK() : PLAN_APORT();
+    const planPct = planRevenue > 0 ? (s.revenue / planRevenue * 100).toFixed(1) : '—';
+    const planColor = parseFloat(planPct) >= 80 ? 'var(--green)' : parseFloat(planPct) >= 50 ? 'var(--yellow)' : 'var(--red)';
+    const scorePct = Math.min(100, s.score / maxScore * 100);
+    const scoreBarClr = i === 0 ? '#ffd700' : i === 1 ? '#c0c0c0' : i === 2 ? '#cd7f32' : 'var(--accent)';
     const teamLabel = s.team === 'grandpark' ? 'Grand Park' : s.team === 'aport' ? 'Aport' : s.team;
+    const teamClrHex = s.team === 'grandpark' ? '#6ba3d4' : '#d4a56b';
 
-    return `<div class="adv-card ${rankColors[i] || ''}">
-      <div class="adv-top">
-        <div class="adv-rank-num">#${i+1}</div>
-        <div class="adv-avatar">${initials}</div>
-        <div class="adv-name-wrap">
+    return `<div class="adv-card ${cardCls}">
+      <div class="adv-card-top">
+        <div class="adv-rank">${rankEmojis[i] || (i+1)+'.'}</div>
+        <div style="flex:1;min-width:0">
           <div class="adv-name">${s.name}</div>
-          <div class="adv-store">${teamLabel}</div>
-        </div>
-      </div>
-      <div class="adv-hero">
-        <div class="adv-score-group">
-          <div class="adv-score-label-sm">QREI Score</div>
-          <div class="adv-score-big">
-            <span class="adv-score-num">${s.score}</span>
-            <span class="adv-score-denom">/100</span>
+          <div class="adv-team" style="color:${teamClrHex}">${teamLabel}</div>
+          <div class="adv-badges">
+            ${isUptChamp ? `<span class="adv-badge upt">⚡ Мастер допродаж</span>` : ''}
+            ${isAvgChamp ? `<span class="adv-badge avg">💎 Премиум-сегмент</span>` : ''}
           </div>
         </div>
-        ${badgeHtml}
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:11px;color:var(--text3)">Performance</div>
+          <div style="font-size:20px;font-weight:800;color:var(--text)">${s.score}</div>
+          <div style="font-size:10px;color:var(--text3)">/100</div>
+        </div>
+      </div>
+
+      <div class="adv-metrics">
+        <div class="adv-metric">
+          <div class="adv-metric-label">💰 Выручка</div>
+          <div class="adv-metric-val">${fmtMoney(s.revenue)}</div>
+          <div class="adv-metric-sub" style="color:${planColor}">план ${planPct}%</div>
+        </div>
+        <div class="adv-metric">
+          <div class="adv-metric-label">🧾 Чеков</div>
+          <div class="adv-metric-val">${s.checks}</div>
+          <div class="adv-metric-sub">транзакций</div>
+        </div>
+        <div class="adv-metric">
+          <div class="adv-metric-label">⚡ UPT</div>
+          <div class="adv-metric-val" style="color:#4488ff">${s.upt}</div>
+          <div class="adv-metric-sub">товаров/чек</div>
+        </div>
+        <div class="adv-metric">
+          <div class="adv-metric-label">🎯 Средний чек</div>
+          <div class="adv-metric-val" style="color:#ffaa00">${fmtMoney(s.avgCheck)}</div>
+          <div class="adv-metric-sub">за транзакцию</div>
+        </div>
+      </div>
+
+      <div class="adv-score-wrap">
+        <div class="adv-score-label">
+          <span>Performance Score</span>
+          <span style="color:var(--text)">40% выручка · 30% UPT · 30% ср.чек</span>
+        </div>
+        <div class="adv-score-track">
+          <div class="adv-score-fill" style="width:${scorePct}%;background:${scoreBarClr}"></div>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -3221,6 +3206,8 @@ function renderAdvanced() {
   const gp    = sorted.filter(s => s.team === 'grandpark');
   const aport = sorted.filter(s => s.team === 'aport');
 
+  let gpRank = 0, apRank = 0, allRank = 0;
+
   let html = '';
   if (gp.length) {
     html += `<div class="adv-team-header">
@@ -3228,7 +3215,7 @@ function renderAdvanced() {
       <div class="adv-team-line"></div>
       <div class="adv-team-count">${gp.length} продавцов</div>
     </div>
-    <div class="seller-grid">${gp.map(s => sellerCardHTML(s)).join('')}</div>`;
+    <div class="seller-grid">${gp.map((s,i) => sellerCardHTML(s, i+1)).join('')}</div>`;
   }
   if (aport.length) {
     html += `<div class="adv-team-header">
@@ -3236,67 +3223,51 @@ function renderAdvanced() {
       <div class="adv-team-line"></div>
       <div class="adv-team-count">${aport.length} продавцов</div>
     </div>
-    <div class="seller-grid">${aport.map(s => sellerCardHTML(s)).join('')}</div>`;
+    <div class="seller-grid">${aport.map((s,i) => sellerCardHTML(s, i+1)).join('')}</div>`;
   }
 
   document.getElementById('adv-content').innerHTML = html;
 }
 
-function sellerCardHTML(s) {
-  const scoreColor = s.score >= 60 ? 'var(--green)' : s.score >= 35 ? 'var(--yellow)' : 'var(--red)';
-  const scoreFill  = s.score >= 60 ? '#00cc66'       : s.score >= 35 ? '#ffaa00'       : '#ff3333';
-  const badgeLabel = s.zone === 'danger'  ? '⚠️ ЗОНА ОПАСНОСТИ' :
-                     s.zone === 'warning' ? '📊 ТРЕБУЕТ ВНИМАНИЯ' : '✅ СПРАВЛЯЕТСЯ';
+function sellerCardHTML(s, rank) {
+  // Determine badge — single most important status
+  let badgeCls, badgeText;
+  if (s.zone === 'danger') {
+    badgeCls = 'danger-z'; badgeText = 'Зона риска';
+  } else if (s.zone === 'warning') {
+    badgeCls = 'trainee'; badgeText = 'Trainee';
+  } else if (s.sheetUPT >= 1.8) {
+    badgeCls = 'look-maker'; badgeText = 'The Look Maker';
+  } else if (s.sheetAVG >= 35000) {
+    badgeCls = 'premium'; badgeText = 'Premium Seller';
+  } else if (s.score >= 60) {
+    badgeCls = 'the-closer'; badgeText = 'The Closer';
+  } else {
+    badgeCls = 'trainee'; badgeText = 'Trainee';
+  }
 
-  // UPT color: <1.0 bad, 1.0-1.4 ok, 1.4+ good
-  const uptColor = s.sheetUPT < 1.0 ? 'var(--red)' : s.sheetUPT < 1.4 ? 'var(--yellow)' : 'var(--green)';
-  // AVG color: <20K bad, 20-35K ok, 35K+ good
-  const avgColor = s.sheetAVG < 20000 ? 'var(--red)' : s.sheetAVG < 35000 ? 'var(--yellow)' : 'var(--green)';
-  // Conv = checks/shifts (avg checks per shift)
-  const avgChecks = s.totalShifts > 0 ? (s.totalChecks / s.totalShifts).toFixed(1) : '—';
-  // Plan %
-  const planColor = s.planPct < 40 ? 'var(--red)' : s.planPct < 70 ? 'var(--yellow)' : 'var(--green)';
+  // Avatar initials
+  const initials = s.name.trim().split(/\s+/).slice(0,2).map(w => w[0]).join('').toUpperCase();
+  const teamLabel = s.team === 'grandpark' ? 'Grand Park' : 'Aport West';
 
   return `<div class="seller-card ${s.zone}" onclick="openAdvDetail('${encodeURIComponent(s.name)}')">
     <div class="seller-card-top">
-      <div>
+      <div class="sc-rank">#${rank}</div>
+      <div class="sc-avatar">${initials}</div>
+      <div class="sc-info">
         <div class="seller-card-name">${s.name}</div>
-        <div class="seller-card-meta">${s.team === 'grandpark' ? 'Grand Park' : 'Aport West'} · ${s.totalShifts} смен</div>
-      </div>
-      <div class="seller-danger-badge ${s.zone}">${badgeLabel}</div>
-    </div>
-
-    <div class="seller-metrics-grid">
-      <div class="seller-metric">
-        <div class="seller-metric-lbl">Выручка</div>
-        <div class="seller-metric-val">${fmtMoney(s.totalRev)}</div>
-        <div class="seller-metric-sub">${fmtMoney(Math.round(s.avgRevPerShift))}/смену</div>
-      </div>
-      <div class="seller-metric">
-        <div class="seller-metric-lbl">% плана</div>
-        <div class="seller-metric-val" style="color:${planColor}">${s.planPct.toFixed(1)}%</div>
-        <div class="seller-metric-sub">личный план</div>
-      </div>
-      <div class="seller-metric">
-        <div class="seller-metric-lbl">UPT</div>
-        <div class="seller-metric-val" style="color:${uptColor}">${s.sheetUPT.toFixed(2)}</div>
-        <div class="seller-metric-sub">ед./чек (цель ≥1.4)</div>
-      </div>
-      <div class="seller-metric">
-        <div class="seller-metric-lbl">AVG чек</div>
-        <div class="seller-metric-val" style="color:${avgColor}">${fmtMoney(Math.round(s.sheetAVG))}</div>
-        <div class="seller-metric-sub">ср. чеков/смену: ${avgChecks}</div>
+        <div class="seller-card-meta">${teamLabel}</div>
       </div>
     </div>
-
-    <div>
-      <div class="seller-score-row">
-        <div class="seller-score-label">Рейтинг эффективности</div>
-        <div class="seller-score-val" style="color:${scoreColor}">${Math.round(s.score)}/100</div>
+    <div class="sc-hero">
+      <div class="sc-score-group">
+        <div class="sc-score-lbl">QREI Score</div>
+        <div class="sc-score-big">
+          <span class="sc-score-num">${Math.round(s.score)}</span>
+          <span class="sc-score-den">/100</span>
+        </div>
       </div>
-      <div class="seller-score-track">
-        <div class="seller-score-fill" style="width:${s.score}%;background:${scoreFill}"></div>
-      </div>
+      <span class="sc-badge ${badgeCls}">${badgeText}</span>
     </div>
   </div>`;
 }

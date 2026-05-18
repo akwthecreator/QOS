@@ -2364,219 +2364,558 @@ function setAdvMetric(m) {
 //
 // Команда определяется по имени: если в CFG указаны имена по командам,
 // иначе — все как 'grandpark' (можно добавить колонку M "Команда" позже)
+// ══════════════════════════════════════════════════════
+//  QREI — Qoima Retail Excellence Index
+//  ТЗ: IOC(30%) + UPT(30%) + ATV(20%) + AUR(20%)
+// ══════════════════════════════════════════════════════
+
+// Безопасный парсер числа из ячейки Sheets
+function safeNum(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  const s = v.toString().replace(/\s/g,'').replace(',','.');
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+
+/*
+  Структура листа (из скриншота):
+  Строка A1: "Grand Park" или "Aport" — секция команды (тёмно-синяя)
+  Строка A2: "Name Of Seller" | B2: "пт, 1 мая" | C2: "сб, 2 мая" ...
+  Строка A3: "Выручка за день."   | B3: 302000 | C3: 250000 ...
+  Строка A4: "Кол-во чеков."      | B4: 10     | C4: 7 ...
+  Строка A5: "Кол-во товара."     | B5: 10     | C5: 10 ...
+  Строка A6: "Смена"              | B6: 1      | C6: 1 ...
+  Строка A7: "Магазин"            | B7: Qoima  | C7: Qoima ...
+  Строка A8: "Трафик"             | B8: 400    | C8: 400 ...
+  Строки 9-14: пусто (разделитель перед следующим продавцом)
+  Строка A10: "UPT ..."           | B10: 1.00  ...
+  Строка A11: "ATV ..."           | B11: 30200 ...
+  Строка A12: "AUR ..."           | B12: 30200 ...
+  Строка A13-15: пусто
+  Затем следующий продавец...
+  Строка A16/17: "Aport" — новая секция
+*/
+
 function parseAdvKpi(rows) {
-  const sellers = [];
+  const sellers    = [];
+  let currentTeam  = 'grandpark';
   let i = 0;
+
+  // Метки строк данных (toLowerCase contains)
+  const isRevRow     = l => l.includes('выручка');
+  const isCheckRow   = l => l.includes('чек') && !l.includes('avg') && !l.includes('atv') && !l.includes('средн');
+  const isUnitsRow   = l => l.includes('товар') || l.includes('unit') || (l.includes('кол') && l.includes('тов'));
+  const isShiftRow   = l => l === 'смена' || l.includes('смен') && !l.includes('выруч') && !l.includes('сред');
+  const isStoreRow   = l => l.includes('магаз') || l.includes('store') || l.includes('трц');
+  const isTrafficRow = l => l === 'трафик' || l.includes('traffic') || l.includes('трафик');
+  const isUptRow     = l => l === 'upt' || l.startsWith('upt ') || l.startsWith('upt(');
+  const isAtvRow     = l => l === 'atv' || l.startsWith('atv ') || l.startsWith('atv(') || (l.includes('avg') && l.includes('ticket')) || (l.includes('средн') && l.includes('чек'));
+  const isAurRow     = l => l === 'aur' || l.startsWith('aur ') || l.startsWith('aur(') || (l.includes('avg') && l.includes('unit') && l.includes('retail'));
+
+  // Строки которые точно НЕ являются именами продавцов
+  const SKIP_LABELS = [
+    'grand park','grandpark','aport west','aport','name of seller','name','seller',
+    'выручка','чек','товар','unit','смена','shift','магаз','store','трафик','traffic',
+    'upt','atv','aur','avg','средн','кол','трц','конверс'
+  ];
+  const isDataLabel = l => SKIP_LABELS.some(s => l.startsWith(s) || l.includes(s));
+
+  // Определяем количество дат-колонок из строки "Name Of Seller"
+  let numDays = 31; // по умолчанию
 
   while (i < rows.length) {
     const row = rows[i] || [];
     const a0  = (row[0] || '').toString().trim();
+    const a0l = a0.toLowerCase();
 
-    // Пропускаем пустые строки и строки без имени
-    if (!a0 || !/[а-яА-ЯёЁa-zA-Z]/.test(a0)) { i++; continue; }
+    // ── Определяем секцию команды ──
+    if (a0l === 'grand park' || a0l === 'grandpark') { currentTeam = 'grandpark'; i++; continue; }
+    if (a0l === 'aport west' || a0l === 'aport')      { currentTeam = 'aport';     i++; continue; }
 
-    // Пропускаем строки с ключевыми словами (это метки внутри блока)
-    const LABELS = ['выручка','чек','товар','upt','avg','смена','shift'];
-    if (LABELS.some(l => a0.toLowerCase().includes(l))) { i++; continue; }
+    // ── Строка дат (Name Of Seller) — определяем количество дней ──
+    if (a0l.includes('name of seller') || a0l.includes('name')) {
+      numDays = row.slice(1).filter(c => c && c.toString().trim()).length;
+      i++; continue;
+    }
 
-    // Нашли имя продавца — это строка-заголовок блока
-    // Читаем следующие 6 строк внутри блока
-    const name  = a0;
-    let revenue = 0, checks = 0, units = 0;
-    let upt_sum = 0, upt_cnt = 0;
-    let avg_sum = 0, avg_cnt = 0;
-    let shifts  = 0;
-    const dailyRevenue = [];
-    const dailyShifts  = [];
-    let team = 'grandpark'; // дефолт; можно добавить логику по имени или отдельной ячейке
+    // ── Пустая строка — пропускаем ──
+    if (!a0) { i++; continue; }
 
-    // Ищем строки блока (до следующей пустой / нового имени)
+    // ── Строка с меткой данных — пропускаем ──
+    if (isDataLabel(a0l)) { i++; continue; }
+
+    // ── Нашли имя продавца ──
+    const sellerName = a0;
+
+    // Данные для этого продавца
+    let rev     = [];  // выручка по дням
+    let checks  = [];  // чеки по дням
+    let units   = [];  // товаров по дням
+    let shifts  = [];  // смены (0/1)
+    let traffic = [];  // трафик по дням
+    let stores  = [];  // магазин по дням
+    let uptArr  = [];  // UPT по дням (из Sheets, если есть)
+    let atvArr  = [];  // ATV по дням
+    let aurArr  = [];  // AUR по дням
+    let sellersOnShift = []; // продавцов на смене
+
+    // Читаем строки блока этого продавца
     let j = i + 1;
-    while (j < rows.length && j < i + 10) {
+    while (j < rows.length) {
       const brow = rows[j] || [];
-      const lbl  = (brow[0] || '').toString().trim().toLowerCase();
-      if (!lbl) { j++; break; } // пустая строка = конец блока
+      const lbl  = (brow[0] || '').toString().trim();
+      const lbll = lbl.toLowerCase();
 
-      // Значения по дням: колонки B,C,D,... (индексы 1,2,3,...)
-      const dayVals = brow.slice(1).map(v => parseNum(v));
-
-      if (lbl.includes('выручка')) {
-        dayVals.forEach(v => { revenue += v; dailyRevenue.push(v); });
-      } else if (lbl.includes('чек') && !lbl.includes('сред') && !lbl.includes('avg')) {
-        dayVals.forEach(v => { checks += v; });
-      } else if (lbl.includes('товар') || lbl.includes('unit')) {
-        dayVals.forEach(v => { units += v; });
-      } else if (lbl === 'upt') {
-        dayVals.forEach(v => { if (v > 0) { upt_sum += v; upt_cnt++; } });
-      } else if (lbl === 'avg') {
-        dayVals.forEach(v => { if (v > 0) { avg_sum += v; avg_cnt++; } });
-      } else if (lbl.includes('смен') || lbl.includes('shift')) {
-        dayVals.forEach(v => { if (v > 0) { shifts++; dailyShifts.push(1); } else { dailyShifts.push(0); } });
+      // Конец блока: пустая строка или новая секция или новый продавец
+      // Новый продавец — строка которая не является меткой данных
+      if (!lbl) {
+        // Несколько пустых — ищем дальше, если следующая тоже пустая — выходим
+        if (j + 1 < rows.length && !(rows[j+1] || [])[0]) { j++; break; }
+        j++; continue;
       }
+      if (lbll === 'grand park' || lbll === 'grandpark' || lbll === 'aport west' || lbll === 'aport') break;
+
+      // Если строка — не метка данных и содержит буквы — это новый продавец
+      if (!isDataLabel(lbll) && /[а-яА-ЯёЁa-zA-Z]/.test(lbl) && lbl.length > 1) break;
+
+      const vals = brow.slice(1).map(v => safeNum(v));
+      const strVals = brow.slice(1).map(v => (v || '').toString().trim());
+
+      if (isRevRow(lbll))     rev     = vals;
+      else if (isCheckRow(lbll))   checks  = vals;
+      else if (isUnitsRow(lbll))   units   = vals;
+      else if (isShiftRow(lbll))   shifts  = vals;
+      else if (isTrafficRow(lbll)) traffic = vals;
+      else if (isStoreRow(lbll))   stores  = strVals;
+      else if (isUptRow(lbll))     uptArr  = vals;
+      else if (isAtvRow(lbll))     atvArr  = vals;
+      else if (isAurRow(lbll))     aurArr  = vals;
+
       j++;
     }
 
-    // Вычисляем итоги:
-    // UPT и AVG берём из Sheets если уже посчитаны, иначе считаем сами
-    const upt      = upt_cnt > 0
-      ? +(upt_sum / upt_cnt).toFixed(1)
-      : (checks > 0 ? +(units / checks).toFixed(1) : 0);
-    const avgCheck = avg_cnt > 0
-      ? Math.round(avg_sum / avg_cnt)
-      : (checks > 0 ? Math.round(revenue / checks) : 0);
+    // ── Агрегируем по всем дням ──
+    const dayCount = Math.max(rev.length, checks.length, 1);
+    let totalRev = 0, totalChecks = 0, totalUnits = 0, totalTraffic = 0, totalShifts = 0;
+    const dailyRevenue = [], dailyShifts = [], dailyData = [];
 
-    if (revenue > 0 || checks > 0) {
-      sellers.push({ name, team, revenue, checks, units, shifts, upt, avgCheck, dailyRevenue, dailyShifts });
+    for (let d = 0; d < dayCount; d++) {
+      const r  = safeNum(rev[d]);
+      const c  = safeNum(checks[d]);
+      const u  = safeNum(units[d]);
+      const sh = safeNum(shifts[d]);
+      const tr = safeNum(traffic[d]);
+      const st = stores[d] || '';
+
+      totalRev     += r;
+      totalChecks  += c;
+      totalUnits   += u;
+      totalTraffic += tr;
+      if (sh > 0) totalShifts++;
+
+      dailyRevenue.push(r);
+      dailyShifts.push(sh > 0 ? 1 : 0);
+
+      // Суточные рассчитанные метрики
+      const dUpt = c > 0 ? +(u / c).toFixed(2) : (safeNum(uptArr[d]) || 0);
+      const dAtv = c > 0 ? Math.round(r / c)   : (safeNum(atvArr[d]) || 0);
+      const dAur = u > 0 ? Math.round(r / u)   : (safeNum(aurArr[d]) || 0);
+      // IOC: чеки продавца / (трафик ТРЦ / продавцов на смене) * 100
+      // продавцов на смене пока = 1 (если нет отдельной строки)
+      const sellers_on = safeNum(sellersOnShift[d]) || 1;
+      const dIoc = (tr > 0 && sh > 0)
+        ? +((c / (tr / sellers_on)) * 100).toFixed(1)
+        : 0;
+
+      dailyData.push({ rev: r, checks: c, units: u, shifts: sh, traffic: tr, store: st, upt: dUpt, atv: dAtv, aur: dAur, ioc: dIoc });
     }
 
-    i = j; // переходим к следующему блоку
+    if (totalRev === 0 && totalChecks === 0) { i = j; continue; }
+
+    // ── Итоговые метрики ──
+    const upt = totalChecks > 0
+      ? +(totalUnits / totalChecks).toFixed(2)
+      : (uptArr.filter(v=>v>0).length ? +(uptArr.filter(v=>v>0).reduce((a,b)=>a+b,0)/uptArr.filter(v=>v>0).length).toFixed(2) : 0);
+
+    const atv = totalChecks > 0
+      ? Math.round(totalRev / totalChecks)
+      : (atvArr.filter(v=>v>0).length ? Math.round(atvArr.filter(v=>v>0).reduce((a,b)=>a+b,0)/atvArr.filter(v=>v>0).length) : 0);
+
+    const aur = totalUnits > 0
+      ? Math.round(totalRev / totalUnits)
+      : (aurArr.filter(v=>v>0).length ? Math.round(aurArr.filter(v=>v>0).reduce((a,b)=>a+b,0)/aurArr.filter(v=>v>0).length) : 0);
+
+    // IOC (суммарный): чеки / (суммарный трафик / суммарные смены) * 100
+    const ioc = (totalTraffic > 0 && totalShifts > 0)
+      ? +((totalChecks / (totalTraffic / totalShifts)) * 100).toFixed(1)
+      : 0;
+
+    sellers.push({
+      name: sellerName,
+      team: currentTeam,
+      revenue:  totalRev,
+      checks:   totalChecks,
+      units:    totalUnits,
+      shifts:   totalShifts,
+      traffic:  totalTraffic,
+      upt, atv, aur, ioc,
+      // Legacy compat
+      avgCheck: atv,
+      dailyRevenue, dailyShifts, dailyData
+    });
+
+    i = j;
   }
 
-  console.log('Advanced KPI parsed:', sellers.map(s => ({ name: s.name, revenue: s.revenue, checks: s.checks, upt: s.upt, avgCheck: s.avgCheck })));
+  console.log('[QREI] Parsed sellers:', sellers.map(s =>
+    `${s.name} | rev:${s.revenue} checks:${s.checks} units:${s.units} ioc:${s.ioc}% upt:${s.upt} atv:${s.atv} aur:${s.aur} team:${s.team}`
+  ));
   return sellers;
 }
 
-// ── Performance Score ──
-// 40% выручка + 30% UPT + 30% средний чек (нормализовано по максимумам)
-function calcScores(list) {
-  const maxRev = Math.max(...list.map(s => s.revenue), 1);
-  const maxUpt = Math.max(...list.map(s => s.upt), 1);
-  const maxAvg = Math.max(...list.map(s => s.avgCheck), 1);
-  return list.map(s => ({
-    ...s,
-    score: +((s.revenue / maxRev * 40) + (s.upt / maxUpt * 30) + (s.avgCheck / maxAvg * 30)).toFixed(1)
-  }));
+// ── QREI Score (0-100) ──
+// IOC 30% + UPT 30% + ATV 20% + AUR 20%
+// Нормализуется относительно бенчмарков (планов)
+const QREI_BENCH = {
+  ioc: 20,    // целевая конверсия %
+  upt: 2.2,   // целевой UPT
+  atv: 45000, // целевой средний чек ₸
+  aur: 25000, // целевая средняя цена вещи ₸
+};
+
+function calcQreiScore(seller) {
+  const norm = (val, bench) => Math.min(1, bench > 0 ? val / bench : 0);
+  const iocScore = norm(seller.ioc, QREI_BENCH.ioc) * 30;
+  const uptScore = norm(seller.upt, QREI_BENCH.upt) * 30;
+  const atvScore = norm(seller.atv, QREI_BENCH.atv) * 20;
+  const aurScore = norm(seller.aur, QREI_BENCH.aur) * 20;
+  return Math.min(100, Math.round(iocScore + uptScore + atvScore + aurScore));
 }
 
-// ── Sync Advanced KPI sheet ──
+function calcScores(list) {
+  // Находим лидеров по каждой метрике
+  const maxUpt = Math.max(...list.map(s => s.upt), 0.01);
+  const maxIoc = Math.max(...list.map(s => s.ioc), 0.01);
+  const maxAur = Math.max(...list.map(s => s.aur), 0.01);
+
+  return list.map(s => {
+    const score = calcQreiScore(s);
+
+    // Динамические бейджи по ТЗ
+    const badges = [];
+    if (s.upt === maxUpt && s.upt > 0) badges.push({ text: 'The Look Maker', cls: 'upt' });
+    if (s.ioc === maxIoc && s.ioc > 0) badges.push({ text: 'The Closer',     cls: 'ioc' });
+    if (s.aur === maxAur && s.aur > 0) badges.push({ text: 'Premium Stylist', cls: 'aur' });
+
+    // AI инсайт по ТЗ
+    let aiInsight = '';
+    if (s.upt < 1.5 && s.checks > 0) {
+      aiInsight = `${s.name.split(' ')[0]}, объём выручки стабилен, но комплексность чека (UPT: ${s.upt.toFixed(1)}) ниже нормы. Сфокусируйся на предложении аксессуаров на кассе и комбинировании позиций в примерочной.`;
+    } else if (s.ioc > 20 && s.upt > 2.0) {
+      aiInsight = `Шикарная смена, ${s.name.split(' ')[0]}! Высокая конверсия возможностей и показатель луков (${s.upt.toFixed(1)} ед.) делают тебя лучшим стилистом дня. Передавай опыт команде.`;
+    } else if (score >= 80) {
+      aiInsight = `${s.name.split(' ')[0]}, отличные показатели! QREI Score ${score}/100 — продолжай в том же темпе.`;
+    } else if (score < 40 && s.shifts > 2) {
+      aiInsight = `${s.name.split(' ')[0]}, QREI Score ${score}/100 требует внимания. Сфокусируйся на конверсии и комплектности чека — это ключевые зоны роста.`;
+    }
+
+    return { ...s, score, badges, aiInsight };
+  });
+}
+
+// ── Sync ──
 async function syncAdvKpi() {
-  const sheetName = CFG.ADV_SHEET_NAME;
+  const sheetName = CFG.ADV_SHEET_NAME || SELLERS_SHEET_NAME();
   if (!sheetName) {
-    document.getElementById('adv-leaderboard').innerHTML = `
-      <div style="text-align:center;padding:60px;color:var(--text3);grid-column:1/-1">
+    document.getElementById('adv-leaderboard').innerHTML =
+      `<div style="text-align:center;padding:60px;color:var(--text3)">
         <div style="font-size:40px;margin-bottom:12px">⚙️</div>
-        <div style="font-size:15px;margin-bottom:8px">Лист не настроен</div>
-        <div style="font-size:12px">Перейдите в <strong>Настройки</strong> → укажите «Advanced KPI лист»</div>
+        <div>Укажите название листа в <strong>Настройках</strong></div>
       </div>`;
     return;
   }
-  document.getElementById('adv-leaderboard').innerHTML = `
-    <div style="text-align:center;padding:40px;color:var(--text3);grid-column:1/-1">
-      <div class="spinner" style="margin:0 auto 12px"></div>Загружаем KPI данные...
+  document.getElementById('adv-leaderboard').innerHTML =
+    `<div style="text-align:center;padding:40px;color:var(--text3)">
+      <div class="spinner" style="margin:0 auto 12px"></div>Загружаем QREI данные...
     </div>`;
   try {
     const url  = `https://sheets.googleapis.com/v4/spreadsheets/${ADV_SHEET_ID()}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
     const res  = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
-    if (!json.values || json.values.length < 2) throw new Error('Нет данных в листе');
+    if (!json.values || json.values.length < 2) throw new Error('Нет данных в листе «' + sheetName + '»');
     advKpiData = parseAdvKpi(json.values);
+    if (!advKpiData.length) throw new Error('Продавцы не найдены. Проверьте структуру листа.');
     renderAdvanced();
   } catch(e) {
-    document.getElementById('adv-leaderboard').innerHTML = `
-      <div style="text-align:center;padding:60px;color:var(--red);grid-column:1/-1">
+    console.error('[QREI] syncAdvKpi error:', e);
+    document.getElementById('adv-leaderboard').innerHTML =
+      `<div style="text-align:center;padding:60px;color:var(--red)">
         <div style="font-size:40px;margin-bottom:12px">⚠️</div>
-        <div style="font-size:14px">Ошибка: ${e.message}</div>
+        <div style="font-size:14px">${e.message}</div>
         <div style="font-size:12px;color:var(--text3);margin-top:6px">Лист: «${sheetName}»</div>
+        <button onclick="syncAdvKpi()" style="margin-top:12px;padding:8px 16px;background:var(--accent);border:none;border-radius:8px;color:white;cursor:pointer;font-size:13px">Повторить</button>
       </div>`;
   }
 }
 
-// ── Render Advanced KPI cards ──
+
+// ══════════════════════════════════════════════════════
+//  RENDER ADVANCED KPI — QREI
+// ══════════════════════════════════════════════════════
+let advDetailOpen = null;
+let lbCollapsed   = false;
+
+function toggleLeaderboard() {
+  lbCollapsed = !lbCollapsed;
+  const wrap = document.getElementById('adv-lb-wrap');
+  const btn  = document.getElementById('lb-toggle-btn');
+  if (!wrap) return;
+  wrap.classList.toggle('collapsed', lbCollapsed);
+  if (btn) { btn.textContent = lbCollapsed ? '▶' : '◀'; btn.title = lbCollapsed ? 'Развернуть' : 'Свернуть'; }
+}
+
 function renderAdvanced() {
-  if (!advKpiData.length) return;
+  if (!advKpiData.length) {
+    document.getElementById('adv-leaderboard').innerHTML =
+      `<div style="text-align:center;padding:60px;color:var(--text3)">
+        <div style="font-size:40px;margin-bottom:12px">⚡</div>
+        <div style="font-size:14px">Нет данных. Настройте лист и нажмите 🔄</div>
+      </div>`;
+    return;
+  }
+
   let list = advView === 'all' ? advKpiData : advKpiData.filter(s => s.team === advView);
-  list = calcScores(list);
-
-  // Sort by selected metric
-  const sortKey = { score:'score', revenue:'revenue', upt:'upt', avgCheck:'avgCheck', checks:'checks' }[advMetric] || 'score';
-  list = [...list].sort((a,b) => b[sortKey] - a[sortKey]);
-
-  // Badges
-  const maxUptSeller = [...list].sort((a,b) => b.upt - a.upt)[0];
-  const maxAvgSeller = [...list].sort((a,b) => b.avgCheck - a.avgCheck)[0];
+  list = calcScores(list).sort((a,b) => b.score - a.score);
 
   // Summary
-  const totalRev = list.reduce((s,x) => s + x.revenue, 0);
-  const avgUpt   = list.length ? (list.reduce((s,x) => s + x.upt, 0) / list.length).toFixed(1) : 0;
-  const avgChk   = list.length ? Math.round(list.reduce((s,x) => s + x.avgCheck, 0) / list.length) : 0;
-  const totalChk = list.reduce((s,x) => s + x.checks, 0);
+  const totalRev = list.reduce((s,x) => s+x.revenue, 0);
+  const avgUpt   = list.length ? (list.reduce((s,x)=>s+x.upt,0)/list.length).toFixed(1) : 0;
+  const avgAtv   = list.length ? Math.round(list.reduce((s,x)=>s+x.atv,0)/list.length) : 0;
+  const avgIoc   = list.length ? (list.reduce((s,x)=>s+x.ioc,0)/list.length).toFixed(1) : 0;
+  const sumEl = document.getElementById('adv-summary');
+  if (sumEl) sumEl.innerHTML = `
+    <div class="stat-box"><div class="stat-label">Выручка</div><div class="stat-value" style="font-size:17px">${fmtMoney(totalRev)}</div></div>
+    <div class="stat-box"><div class="stat-label">Ср. IOC</div><div class="stat-value" style="font-size:17px;color:var(--green)">${avgIoc}%</div></div>
+    <div class="stat-box"><div class="stat-label">Ср. UPT</div><div class="stat-value" style="font-size:17px;color:#4488ff">${avgUpt}</div></div>
+    <div class="stat-box"><div class="stat-label">Ср. ATV</div><div class="stat-value" style="font-size:17px;color:#ffaa00">${fmtMoney(avgAtv)}</div></div>`;
 
-  document.getElementById('adv-summary').innerHTML = `
-    <div class="stat-box"><div class="stat-label">Выручка команды</div><div class="stat-value" style="font-size:20px">${fmtMoney(totalRev)}</div></div>
-    <div class="stat-box"><div class="stat-label">Средний UPT</div><div class="stat-value" style="font-size:20px;color:#4488ff">${avgUpt}</div></div>
-    <div class="stat-box"><div class="stat-label">Средний чек</div><div class="stat-value" style="font-size:20px;color:#ffaa00">${fmtMoney(avgChk)}</div></div>
-    <div class="stat-box"><div class="stat-label">Всего чеков</div><div class="stat-value" style="font-size:20px">${totalChk}</div></div>`;
+  // Split by team for section headers
+  const gp    = list.filter(s => s.team === 'grandpark');
+  const aport = list.filter(s => s.team === 'aport');
 
-  const rankColors = ['gold','silver','bronze'];
-  const rankEmojis = ['🥇','🥈','🥉'];
-  const maxScore = Math.max(...list.map(s => s.score), 1);
+  const rankIcons = ['🥇','🥈','🥉'];
 
-  document.getElementById('adv-leaderboard').innerHTML = list.map((s, i) => {
-    const cardCls = rankColors[i] || '';
-    const isUptChamp = maxUptSeller && s.name === maxUptSeller.name && s.team === maxUptSeller.team;
-    const isAvgChamp = maxAvgSeller && s.name === maxAvgSeller.name && s.team === maxAvgSeller.team;
-    const planRevenue = s.team === 'grandpark' ? PLAN_GRANDPARK() : PLAN_APORT();
-    const planPct = planRevenue > 0 ? (s.revenue / planRevenue * 100).toFixed(1) : '—';
-    const planColor = parseFloat(planPct) >= 80 ? 'var(--green)' : parseFloat(planPct) >= 50 ? 'var(--yellow)' : 'var(--red)';
-    const scorePct = Math.min(100, s.score / maxScore * 100);
-    const scoreBarClr = i === 0 ? '#ffd700' : i === 1 ? '#c0c0c0' : i === 2 ? '#cd7f32' : 'var(--accent)';
-    const teamLabel = s.team === 'grandpark' ? 'Grand Park' : s.team === 'aport' ? 'Aport' : s.team;
-    const teamClrHex = s.team === 'grandpark' ? '#6ba3d4' : '#d4a56b';
+  const renderCard = (s, globalRank) => {
+    const icon = rankIcons[globalRank] || `<span style="font-size:11px;color:var(--text3)">#${globalRank+1}</span>`;
+    const cardCls = globalRank === 0 ? 'gold' : globalRank === 1 ? 'silver' : globalRank === 2 ? 'bronze' : '';
+    // Danger zone
+    let dangerHtml = '';
+    const planRev = s.team === 'grandpark' ? PLAN_GRANDPARK() : PLAN_APORT();
+    const planPct = planRev > 0 ? (s.revenue / planRev * 100) : 0;
+    if (s.score < 30 && s.shifts >= 3) dangerHtml = `<div class="danger-badge">⚠ Зона опасности</div>`;
+    else if (s.score < 50 && s.shifts >= 5) dangerHtml = `<div class="warning-badge">📉 Отстаёт</div>`;
+    const dangerCardCls = dangerHtml.includes('danger-badge') ? 'danger' : dangerHtml.includes('warning-badge') ? 'warning' : '';
 
-    return `<div class="adv-card ${cardCls}">
+    const badgeHtml = s.badges.map(b =>
+      `<span class="adv-badge ${b.cls}" style="${b.cls==='upt'?'color:#ffaa00;background:rgba(255,170,0,0.15)':b.cls==='ioc'?'color:var(--green);background:rgba(0,204,102,0.15)':'color:var(--accent);background:rgba(0,102,255,0.15)'}">${b.text}</span>`
+    ).join('');
+
+    const isActive = advDetailOpen === s.name + s.team ? 'active-card' : '';
+    const perShift = s.shifts > 0 ? Math.round(s.revenue / s.shifts) : 0;
+    const scoreColor = s.score >= 70 ? 'var(--green)' : s.score >= 45 ? 'var(--yellow)' : 'var(--red)';
+
+    return `<div class="adv-card ${cardCls} ${dangerCardCls} ${isActive}"
+      onclick="openAdvDetail(${JSON.stringify(s.name)}, ${JSON.stringify(s.team)}, event)">
+      ${dangerHtml}
       <div class="adv-card-top">
-        <div class="adv-rank">${rankEmojis[i] || (i+1)+'.'}</div>
+        <div class="adv-rank">${icon}</div>
         <div style="flex:1;min-width:0">
           <div class="adv-name">${s.name}</div>
-          <div class="adv-team" style="color:${teamClrHex}">${teamLabel}</div>
-          <div class="adv-badges">
-            ${isUptChamp ? `<span class="adv-badge upt">⚡ Мастер допродаж</span>` : ''}
-            ${isAvgChamp ? `<span class="adv-badge avg">💎 Премиум-сегмент</span>` : ''}
-          </div>
+          <div class="adv-badges">${badgeHtml || '<span style="font-size:9px;color:var(--text3)">—</span>'}</div>
         </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-size:11px;color:var(--text3)">Performance</div>
-          <div style="font-size:20px;font-weight:800;color:var(--text)">${s.score}</div>
-          <div style="font-size:10px;color:var(--text3)">/100</div>
+        <div style="text-align:right;flex-shrink:0;margin-right:${dangerHtml?'72px':'8px'}">
+          <div style="font-size:8px;color:var(--text3);letter-spacing:0.5px">QREI</div>
+          <div style="font-size:22px;font-weight:800;color:${scoreColor};line-height:1">${s.score}</div>
+          <div style="font-size:8px;color:var(--text3)">/ 100</div>
         </div>
       </div>
-
       <div class="adv-metrics">
         <div class="adv-metric">
-          <div class="adv-metric-label">💰 Выручка</div>
-          <div class="adv-metric-val">${fmtMoney(s.revenue)}</div>
-          <div class="adv-metric-sub" style="color:${planColor}">план ${planPct}%</div>
-        </div>
-        <div class="adv-metric">
-          <div class="adv-metric-label">🧾 Чеков</div>
-          <div class="adv-metric-val">${s.checks}</div>
-          <div class="adv-metric-sub">транзакций</div>
+          <div class="adv-metric-label">📊 IOC</div>
+          <div class="adv-metric-val" style="color:var(--green)">${s.ioc > 0 ? s.ioc.toFixed(1)+'%' : '—'}</div>
+          <div class="adv-metric-sub">конверсия</div>
         </div>
         <div class="adv-metric">
           <div class="adv-metric-label">⚡ UPT</div>
-          <div class="adv-metric-val" style="color:#4488ff">${s.upt}</div>
+          <div class="adv-metric-val" style="color:#4488ff">${s.upt > 0 ? s.upt.toFixed(1) : '—'}</div>
           <div class="adv-metric-sub">товаров/чек</div>
         </div>
         <div class="adv-metric">
-          <div class="adv-metric-label">🎯 Средний чек</div>
-          <div class="adv-metric-val" style="color:#ffaa00">${fmtMoney(s.avgCheck)}</div>
-          <div class="adv-metric-sub">за транзакцию</div>
+          <div class="adv-metric-label">🎯 ATV</div>
+          <div class="adv-metric-val" style="color:#ffaa00">${s.atv > 0 ? fmtMoney(s.atv) : '—'}</div>
+          <div class="adv-metric-sub">ср. чек</div>
+        </div>
+        <div class="adv-metric">
+          <div class="adv-metric-label">💎 AUR</div>
+          <div class="adv-metric-val">${s.aur > 0 ? fmtMoney(s.aur) : '—'}</div>
+          <div class="adv-metric-sub">ср. вещь</div>
         </div>
       </div>
-
-      <div class="adv-score-wrap">
-        <div class="adv-score-label">
-          <span>Performance Score</span>
-          <span style="color:var(--text)">40% выручка · 30% UPT · 30% ср.чек</span>
-        </div>
-        <div class="adv-score-track">
-          <div class="adv-score-fill" style="width:${scorePct}%;background:${scoreBarClr}"></div>
-        </div>
+      <div class="adv-score-track">
+        <div class="adv-score-fill" style="width:${s.score}%;background:${scoreColor}"></div>
       </div>
     </div>`;
-  }).join('');
+  };
+
+  const renderSection = (teamList, globalList, label, color) => {
+    if (!teamList.length) return '';
+    return `<div class="adv-section-title">
+      <div class="team-dot" style="background:${color}"></div>${label}
+      <span style="margin-left:auto;font-size:10px;color:var(--text3)">${teamList.length} чел.</span>
+    </div>` + teamList.map(s => renderCard(s, globalList.indexOf(s))).join('');
+  };
+
+  let html = '';
+  if (advView === 'all') {
+    if (gp.length)    html += renderSection(gp,    list, 'Grand Park',  '#6ba3d4');
+    if (aport.length) html += renderSection(aport, list, 'Aport West',  '#d4a56b');
+  } else {
+    html = renderSection(list, list, advView === 'grandpark' ? 'Grand Park' : 'Aport West',
+                          advView === 'grandpark' ? '#6ba3d4' : '#d4a56b');
+  }
+  document.getElementById('adv-leaderboard').innerHTML = html || '<div style="padding:40px;text-align:center;color:var(--text3)">Нет данных</div>';
+
+  // Leaderboard sidebar
+  renderQreiLeaderboard(list);
 }
+
+// ── Leaderboard sidebar ──
+function renderQreiLeaderboard(list) {
+  const body = document.getElementById('adv-lb-body');
+  if (!body) return;
+  const sorted = [...list].sort((a,b) => b.score - a.score);
+  const gp    = sorted.filter(s => s.team === 'grandpark');
+  const aport = sorted.filter(s => s.team === 'aport');
+  const icons = ['🥇','🥈','🥉'];
+  const renderRows = (arr, label) => {
+    if (!arr.length) return '';
+    return `<div class="lb-team-lbl">${label}</div>` +
+      arr.map((s,i) => `<div class="lb-row">
+        <div class="lb-pos">${icons[i]||'#'+(i+1)}</div>
+        <div class="lb-name">${s.name.split(' ')[0]}</div>
+        <div class="lb-val" style="color:${s.score>=70?'var(--green)':s.score>=45?'var(--yellow)':'var(--red)'}">${s.score}pt</div>
+      </div>`).join('') + '<div class="lb-team-line"></div>';
+  };
+  body.innerHTML = renderRows(gp, 'Grand Park') + renderRows(aport, 'Aport West');
+}
+
+// ── Detail panel (slide-over) ──
+function openAdvDetail(name, team, evt) {
+  advDetailOpen = name + team;
+  if (evt) { evt.stopPropagation(); }
+
+  document.querySelectorAll('.adv-card').forEach(c => c.classList.remove('active-card'));
+  if (evt && evt.currentTarget) evt.currentTarget.classList.add('active-card');
+
+  const s = calcScores(advKpiData).find(x => x.name === name && x.team === team);
+  if (!s) return;
+
+  const planRev = s.team === 'grandpark' ? PLAN_GRANDPARK() : PLAN_APORT();
+  const planPct = planRev > 0 ? (s.revenue / planRev * 100).toFixed(1) : 0;
+  const planColor = parseFloat(planPct) >= 80 ? 'var(--green)' : parseFloat(planPct) >= 50 ? 'var(--yellow)' : 'var(--red)';
+  const perShift = s.shifts > 0 ? Math.round(s.revenue / s.shifts) : 0;
+  const scoreColor = s.score >= 70 ? 'var(--green)' : s.score >= 45 ? 'var(--yellow)' : 'var(--red)';
+  const teamLabel  = s.team === 'grandpark' ? 'Grand Park' : 'Aport West';
+  const teamColor  = s.team === 'grandpark' ? '#6ba3d4' : '#d4a56b';
+
+  // Badge html
+  const badgeHtml = s.badges.map(b =>
+    `<span class="adv-badge ${b.cls}" style="${b.cls==='upt'?'color:#ffaa00;background:rgba(255,170,0,0.15)':b.cls==='ioc'?'color:var(--green);background:rgba(0,204,102,0.15)':'color:var(--accent);background:rgba(0,102,255,0.15)'}">${b.text}</span>`
+  ).join(' ');
+
+  // Day-by-day table
+  const now = new Date();
+  const dayRuShort = ['вс','пн','вт','ср','чт','пт','сб'];
+  const dayRows = (s.dailyData || []).map((d, idx) => {
+    if (!d.shifts && d.rev === 0) return '';
+    const dt  = new Date(now.getFullYear(), now.getMonth(), idx+1);
+    const day = `${dayRuShort[dt.getDay()]} ${idx+1}`;
+    const worked = d.shifts > 0;
+    return `<tr>
+      <td>${day}</td>
+      <td class="${worked?'rev':'no-shift'}">${d.rev > 0 ? fmtMoney(d.rev) : '—'}</td>
+      <td>${d.checks || '—'}</td>
+      <td>${d.units  || '—'}</td>
+      <td style="color:#4488ff">${d.upt > 0 ? d.upt.toFixed(1) : '—'}</td>
+      <td style="color:#ffaa00">${d.atv > 0 ? fmtMoney(d.atv) : '—'}</td>
+      <td>${d.ioc > 0 ? d.ioc.toFixed(1)+'%' : '—'}</td>
+    </tr>`;
+  }).filter(Boolean).join('');
+
+  const aiHtml = s.aiInsight
+    ? `<div style="margin-top:16px;background:rgba(0,102,255,0.06);border:1px solid rgba(0,102,255,0.2);border-radius:10px;padding:14px">
+        <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:1px;margin-bottom:8px">✨ QOIMA AI GUIDE</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6">${s.aiInsight}</div>
+      </div>`
+    : '';
+
+  document.getElementById('dp-name').textContent = s.name;
+  document.getElementById('dp-team').innerHTML = `<span style="color:${teamColor}">${teamLabel}</span> ${badgeHtml}`;
+
+  document.getElementById('dp-kpi').innerHTML = `
+    <div class="stat-box"><div class="stat-label">QREI Score</div><div class="stat-value" style="font-size:22px;color:${scoreColor}">${s.score}<span style="font-size:12px;color:var(--text3)">/100</span></div></div>
+    <div class="stat-box"><div class="stat-label">Выручка</div><div class="stat-value" style="font-size:16px">${fmtMoney(s.revenue)}</div><div style="font-size:10px;color:${planColor};margin-top:2px">${planPct}% плана</div></div>
+    <div class="stat-box"><div class="stat-label">IOC (конв.)</div><div class="stat-value" style="font-size:16px;color:var(--green)">${s.ioc > 0 ? s.ioc.toFixed(1)+'%' : '—'}</div><div style="font-size:9px;color:var(--text3)">цель: ${QREI_BENCH.ioc}%</div></div>
+    <div class="stat-box"><div class="stat-label">UPT</div><div class="stat-value" style="font-size:16px;color:#4488ff">${s.upt > 0 ? s.upt.toFixed(1) : '—'}</div><div style="font-size:9px;color:var(--text3)">цель: ${QREI_BENCH.upt}</div></div>
+    <div class="stat-box"><div class="stat-label">ATV (ср. чек)</div><div class="stat-value" style="font-size:16px;color:#ffaa00">${s.atv > 0 ? fmtMoney(s.atv) : '—'}</div><div style="font-size:9px;color:var(--text3)">цель: ${fmtMoney(QREI_BENCH.atv)}</div></div>
+    <div class="stat-box"><div class="stat-label">AUR (ср. вещь)</div><div class="stat-value" style="font-size:16px">${s.aur > 0 ? fmtMoney(s.aur) : '—'}</div><div style="font-size:9px;color:var(--text3)">цель: ${fmtMoney(QREI_BENCH.aur)}</div></div>`;
+
+  document.getElementById('dp-score-wrap').innerHTML = `
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:5px">
+      <span>QREI = IOC(30%) + UPT(30%) + ATV(20%) + AUR(20%)</span>
+      <span style="color:${scoreColor};font-weight:700">${s.score}/100</span>
+    </div>
+    <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden">
+      <div style="height:100%;width:${s.score}%;background:${scoreColor};border-radius:3px;transition:width 0.5s"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;font-size:10px;color:var(--text3);text-align:center">
+      <div>IOC<br><b style="color:var(--green)">${Math.min(30, Math.round((s.ioc/QREI_BENCH.ioc)*30))}pt</b></div>
+      <div>UPT<br><b style="color:#4488ff">${Math.min(30, Math.round((s.upt/QREI_BENCH.upt)*30))}pt</b></div>
+      <div>ATV<br><b style="color:#ffaa00">${Math.min(20, Math.round((s.atv/QREI_BENCH.atv)*20))}pt</b></div>
+      <div>AUR<br><b style="color:var(--text)">${Math.min(20, Math.round((s.aur/QREI_BENCH.aur)*20))}pt</b></div>
+    </div>
+    ${aiHtml}`;
+
+  document.getElementById('dp-days').innerHTML = dayRows ||
+    '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:16px">Нет данных по дням</td></tr>';
+
+  // Update day table headers
+  const dpTable = document.getElementById('dp-day-table');
+  if (dpTable) {
+    const thead = dpTable.querySelector('thead tr');
+    if (thead) thead.innerHTML = '<th>День</th><th>Выручка</th><th>Чеки</th><th>Товаров</th><th>UPT</th><th>ATV</th><th>IOC</th>';
+  }
+
+  // Open panel + blur overlay
+  const panel   = document.getElementById('advDetailPanel');
+  const overlay = document.getElementById('advDetailOverlay');
+  if (panel)   panel.classList.add('open');
+  if (overlay) overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAdvDetail() {
+  advDetailOpen = null;
+  const panel   = document.getElementById('advDetailPanel');
+  const overlay = document.getElementById('advDetailOverlay');
+  if (panel)   panel.classList.remove('open');
+  if (overlay) overlay.classList.remove('active');
+  document.body.style.overflow = '';
+  document.querySelectorAll('.adv-card').forEach(c => c.classList.remove('active-card'));
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAdvDetail(); });
 
 
 function openSellerPanel(name, team) {
@@ -4363,6 +4702,34 @@ document.addEventListener('DOMContentLoaded', () => {
       </button>
       <button id="cert-revoke-btn" style="padding:12px 20px;background:rgba(255,51,51,0.1);border:1px solid var(--red);border-radius:10px;color:var(--red);font-size:14px;cursor:pointer">Аннулировать</button>
     </div>
+  </div>
+</div>
+<!-- ── Advanced Detail overlay (blur bg) ── -->
+<div id="advDetailOverlay" onclick="closeAdvDetail()"
+  style="display:none;position:fixed;inset:0;z-index:699;backdrop-filter:blur(4px);background:rgba(0,0,0,0.3)"></div>
+<style>
+#advDetailOverlay.active { display:block; }
+</style>
+
+<!-- ── Advanced KPI Detail Panel (slide-over 450px) ── -->
+<div class="adv-detail-panel" id="advDetailPanel">
+  <div class="detail-header">
+    <div style="flex:1;min-width:0">
+      <div style="font-size:16px;font-weight:700;color:var(--text)" id="dp-name">—</div>
+      <div style="font-size:12px;margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap" id="dp-team">—</div>
+    </div>
+    <button class="detail-close" onclick="closeAdvDetail()">✕</button>
+  </div>
+  <div class="detail-body">
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px" id="dp-kpi"></div>
+    <div style="margin-bottom:14px" id="dp-score-wrap"></div>
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;font-weight:600">📅 По дням</div>
+    <table class="day-table" id="dp-day-table">
+      <thead><tr>
+        <th>День</th><th>Выручка</th><th>Чеки</th><th>Ед.</th><th>UPT</th><th>ATV</th><th>IOC</th>
+      </tr></thead>
+      <tbody id="dp-days"></tbody>
+    </table>
   </div>
 </div>
 </body>

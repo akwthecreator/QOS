@@ -886,14 +886,8 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           <p style="color:var(--text2);margin-top:4px;font-size:14px" id="sellers-page-sub">Эффективность и рейтинг за месяц</p>
         </div>
         <div class="header-right">
-          <button class="sync-btn" onclick="syncSellers();syncAdvKpi()" title="Обновить данные">🔄</button>
+          <button class="sync-btn" onclick="syncSellers()" title="Обновить данные">🔄</button>
         </div>
-      </div>
-
-      <!-- Mode toggle: Basic / Advanced -->
-      <div class="mode-toggle">
-        <button class="mode-btn active" id="mode-basic" onclick="setSellersMode('basic')">📊 Обычный</button>
-        <button class="mode-btn" id="mode-advanced" onclick="setSellersMode('advanced')">⚡ Advanced KPI</button>
       </div>
 
       <!-- ── BASIC MODE ── -->
@@ -914,41 +908,6 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
         <div id="sellers-calendar" style="margin-top:20px"></div>
       </div>
 
-      <!-- ── ADVANCED KPI MODE ── -->
-      <div id="sellers-advanced-section" style="display:none">
-        <!-- Filters -->
-        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-          <button onclick="setAdvView('all')" id="atab-all" class="stab stab-active">🌐 Все</button>
-          <button onclick="setAdvView('grandpark')" id="atab-grandpark" class="stab">Grand Park</button>
-          <button onclick="setAdvView('aport')" id="atab-aport" class="stab">Aport</button>
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
-          <button onclick="setAdvMetric('score')"   id="amet-score"   class="stab stab-active">🏆 Performance Score</button>
-          <button onclick="setAdvMetric('revenue')" id="amet-revenue" class="stab">💰 Выручка</button>
-          <button onclick="setAdvMetric('upt')"     id="amet-upt"     class="stab">⚡ UPT</button>
-          <button onclick="setAdvMetric('avgCheck')"id="amet-avgCheck"class="stab">🎯 Средний чек</button>
-          <button onclick="setAdvMetric('checks')"  id="amet-checks"  class="stab">🧾 Чеки</button>
-        </div>
-
-        <!-- Summary stats -->
-        <div class="adv-summary-grid" id="adv-summary"></div>
-
-        <!-- Legend -->
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;font-size:12px;color:var(--text3)">
-          <span>⚡ <span style="color:#4488ff">Мастер допродаж</span> — наивысший UPT</span>
-          <span>💎 <span style="color:#ffaa00">Премиум-сегмент</span> — наивысший средний чек</span>
-          <span>🏆 <span style="color:var(--green)">Performance Score</span> = 40% выручка + 30% UPT + 30% средний чек</span>
-        </div>
-
-        <!-- Cards grid -->
-        <div class="adv-grid" id="adv-leaderboard">
-          <div style="text-align:center;padding:60px;color:var(--text3);grid-column:1/-1">
-            <div style="font-size:40px;margin-bottom:12px">⚡</div>
-            <div style="font-size:15px;margin-bottom:8px">Нет данных Advanced KPI</div>
-            <div style="font-size:12px">Укажите название листа в Настройках → «Advanced KPI лист»</div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- ===== ADVANCED KPI PAGE ===== -->
@@ -959,7 +918,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           <p style="color:var(--text2);margin-top:4px;font-size:14px">Детальный анализ по продавцам</p>
         </div>
         <div class="header-right">
-          <button class="sync-btn" onclick="syncAdvanced()">
+          <button class="sync-btn" onclick="syncAdvKpi()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
             <span class="btn-text">Обновить</span>
           </button>
@@ -995,15 +954,27 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       </div>
 
       <!-- Sort tabs -->
-      <div class="mode-toggle" style="margin-bottom:20px">
-        <button class="mode-btn active" onclick="setAdvSort('score',this)">По рейтингу</button>
-        <button class="mode-btn" onclick="setAdvSort('revenue',this)">По выручке</button>
-        <button class="mode-btn" onclick="setAdvSort('upt',this)">По UPT</button>
-        <button class="mode-btn" onclick="setAdvSort('avg',this)">По AVG</button>
-        <button class="mode-btn" onclick="setAdvSort('shifts',this)">По сменам</button>
+      <!-- Filters -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <button onclick="setAdvView('all')" id="atab-all" class="stab stab-active">🌐 Все</button>
+        <button onclick="setAdvView('grandpark')" id="atab-grandpark" class="stab">Grand Park</button>
+        <button onclick="setAdvView('aport')" id="atab-aport" class="stab">Aport</button>
       </div>
 
-      <div id="adv-content">
+      <!-- Summary stats -->
+      <div class="adv-summary-grid" id="adv-summary" style="margin-bottom:20px"></div>
+
+      <!-- Legend -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;font-size:12px;color:var(--text3)">
+        <span>📊 <span style="color:var(--green)">IOC</span> — конверсия (чеки/трафик)</span>
+        <span>⚡ <span style="color:#4488ff">UPT</span> — товаров на чек</span>
+        <span>🎯 <span style="color:#ffaa00">ATV</span> — средний чек</span>
+        <span>💎 <span style="color:var(--text)">AUR</span> — средняя цена вещи</span>
+        <span>🏆 <span style="color:var(--green)">QREI</span> = IOC(30%) + UPT(30%) + ATV(20%) + AUR(20%)</span>
+      </div>
+
+      <!-- Cards grid -->
+      <div id="adv-leaderboard">
         <div style="text-align:center;padding:60px;color:var(--text3)">
           <div style="font-size:48px;margin-bottom:16px">📊</div>
           <div style="font-size:15px;margin-bottom:8px">Нет данных</div>
@@ -1527,7 +1498,7 @@ function showPage(id) {
   const nb = document.getElementById('nav-' + id);
   if (nb) nb.classList.add('active');
   // Auto-load hooks
-  if (id === 'advanced' && _advData.length === 0) syncAdvanced();
+  if (id === 'advanced' && advKpiData.length === 0) syncAdvKpi();
   if (id === 'certificates') loadCertificates();
 }
 
@@ -2317,34 +2288,28 @@ function renderAttendance(list) {
 let advKpiData  = [];       // parsed from ADV sheet
 let advView     = 'all';    // all | grandpark | aport
 let advMetric   = 'score';  // score | revenue | upt | avgCheck | checks
-let sellersMode = 'basic';  // basic | advanced
 
-// ── Mode switch ──
+// ── Mode switch (stub, kept for compat) ──
 function setSellersMode(mode) {
-  sellersMode = mode;
-  ['basic','advanced'].forEach(m => {
-    document.getElementById('mode-' + m).classList.toggle('active', m === mode);
-  });
-  document.getElementById('sellers-basic-section').style.display    = mode === 'basic'    ? '' : 'none';
-  document.getElementById('sellers-advanced-section').style.display = mode === 'advanced' ? '' : 'none';
-  const sub = document.getElementById('sellers-page-sub');
-  sub.textContent = mode === 'basic'
-    ? 'Эффективность и рейтинг за месяц'
-    : 'Advanced KPI — углублённый анализ продавцов';
-  if (mode === 'advanced' && advKpiData.length === 0) syncAdvKpi();
+  // Mode toggle removed — sellers page shows basic view only
+  // Advanced KPI is available via the dedicated sidebar page
 }
 
 // ── Advanced view / metric toggles ──
 function setAdvView(v) {
   advView = v;
-  ['all','grandpark','aport'].forEach(k =>
-    document.getElementById('atab-' + k).classList.toggle('stab-active', k === v));
+  ['all','grandpark','aport'].forEach(k => {
+    const el = document.getElementById('atab-' + k);
+    if (el) el.classList.toggle('stab-active', k === v);
+  });
   renderAdvanced();
 }
 function setAdvMetric(m) {
   advMetric = m;
-  ['score','revenue','upt','avgCheck','checks'].forEach(k =>
-    document.getElementById('amet-' + k).classList.toggle('stab-active', k === m));
+  ['score','revenue','upt','avgCheck','checks'].forEach(k => {
+    const el = document.getElementById('amet-' + k);
+    if (el) el.classList.toggle('stab-active', k === m);
+  });
   renderAdvanced();
 }
 
@@ -2397,96 +2362,83 @@ function safeNum(v) {
 */
 
 function parseAdvKpi(rows) {
-  const sellers    = [];
-  let currentTeam  = 'grandpark';
+  const sellers = [];
+  let currentTeam = 'grandpark';
+
+  const isSectionGP    = l => l === 'grand park' || l === 'grandpark';
+  const isSectionAport = l => l === 'aport west' || l === 'aport';
+
+  const isRevRow     = l => l.startsWith('выручка');
+  const isCheckRow   = l => (l.startsWith('кол-во чек') || (l.startsWith('кол') && l.includes('чек'))) && !l.includes('товар');
+  const isUnitsRow   = l => l.startsWith('кол-во товар') || (l.startsWith('кол') && l.includes('товар'));
+  const isShiftRow   = l => l === 'смена' || l.startsWith('смен');
+  const isTrafficRow = l => l === 'трафик';
+  const isUptRow     = l => l.startsWith('upt');
+  const isAtvRow     = l => l.startsWith('atv');
+  const isAurRow     = l => l.startsWith('aur');
+  const isDateCell   = v => /\d/.test(String(v || '')) && /[а-яА-ЯёЁ]/.test(String(v || ''));
+  const isNameOfSeller = l => l === 'name of seller' || l === 'name';
+
+  const DATA_LABELS = new Set([
+    'выручка за день.','выручка за день','кол-во чеков.','кол-во чеков',
+    'кол-во товара.','кол-во товара','смена','магазин','трафик',
+    'upt (units per transactio','atv (avarage ticket value','aur (avarage unit retail)',
+    'upt','atv','aur','name of seller','name','grand park','grandpark','aport','aport west'
+  ]);
+  const isDataLabel = l => {
+    if (DATA_LABELS.has(l)) return true;
+    if (l.startsWith('upt') || l.startsWith('atv') || l.startsWith('aur')) return true;
+    if (l.startsWith('выручка') || l.startsWith('кол-во') || l.startsWith('кол ')) return true;
+    if (l.startsWith('магаз') || l.startsWith('store') || l.startsWith('трц')) return true;
+    return false;
+  };
+
   let i = 0;
-
-  // Метки строк данных (toLowerCase contains)
-  const isRevRow     = l => l.includes('выручка');
-  const isCheckRow   = l => l.includes('чек') && !l.includes('avg') && !l.includes('atv') && !l.includes('средн');
-  const isUnitsRow   = l => l.includes('товар') || l.includes('unit') || (l.includes('кол') && l.includes('тов'));
-  const isShiftRow   = l => l === 'смена' || l.includes('смен') && !l.includes('выруч') && !l.includes('сред');
-  const isStoreRow   = l => l.includes('магаз') || l.includes('store') || l.includes('трц');
-  const isTrafficRow = l => l === 'трафик' || l.includes('traffic') || l.includes('трафик');
-  const isUptRow     = l => l === 'upt' || l.startsWith('upt ') || l.startsWith('upt(');
-  const isAtvRow     = l => l === 'atv' || l.startsWith('atv ') || l.startsWith('atv(') || (l.includes('avg') && l.includes('ticket')) || (l.includes('средн') && l.includes('чек'));
-  const isAurRow     = l => l === 'aur' || l.startsWith('aur ') || l.startsWith('aur(') || (l.includes('avg') && l.includes('unit') && l.includes('retail'));
-
-  // Строки которые точно НЕ являются именами продавцов
-  const SKIP_LABELS = [
-    'grand park','grandpark','aport west','aport','name of seller','name','seller',
-    'выручка','чек','товар','unit','смена','shift','магаз','store','трафик','traffic',
-    'upt','atv','aur','avg','средн','кол','трц','конверс'
-  ];
-  const isDataLabel = l => SKIP_LABELS.some(s => l.startsWith(s) || l.includes(s));
-
-  // Определяем количество дат-колонок из строки "Name Of Seller"
-  let numDays = 31; // по умолчанию
-
   while (i < rows.length) {
-    const row = rows[i] || [];
-    const a0  = (row[0] || '').toString().trim();
-    const a0l = a0.toLowerCase();
+    const row  = rows[i] || [];
+    const a0   = String(row[0] || '').trim();
+    const a0l  = a0.toLowerCase();
 
-    // ── Определяем секцию команды ──
-    if (a0l === 'grand park' || a0l === 'grandpark') { currentTeam = 'grandpark'; i++; continue; }
-    if (a0l === 'aport west' || a0l === 'aport')      { currentTeam = 'aport';     i++; continue; }
-
-    // ── Строка дат (Name Of Seller) — определяем количество дней ──
-    if (a0l.includes('name of seller') || a0l.includes('name')) {
-      numDays = row.slice(1).filter(c => c && c.toString().trim()).length;
-      i++; continue;
-    }
-
-    // ── Пустая строка — пропускаем ──
+    if (isSectionGP(a0l))    { currentTeam = 'grandpark'; i++; continue; }
+    if (isSectionAport(a0l)) { currentTeam = 'aport';     i++; continue; }
     if (!a0) { i++; continue; }
 
-    // ── Строка с меткой данных — пропускаем ──
+    // Строка-заголовок блока продавца: col B = дата вида "пт, 1 мая"
+    const isHeaderRow = row.slice(1, 6).some(v => isDateCell(String(v || '')));
+    if (!isHeaderRow) { i++; continue; }
+
+    // Если col A = "Name Of Seller" — имя не введено, пропускаем
+    if (isNameOfSeller(a0l)) { i++; continue; }
     if (isDataLabel(a0l)) { i++; continue; }
 
-    // ── Нашли имя продавца ──
     const sellerName = a0;
+    let rev = [], checks = [], units = [], shifts = [], traffic = [];
+    let stores = [], uptArr = [], atvArr = [], aurArr = [];
 
-    // Данные для этого продавца
-    let rev     = [];  // выручка по дням
-    let checks  = [];  // чеки по дням
-    let units   = [];  // товаров по дням
-    let shifts  = [];  // смены (0/1)
-    let traffic = [];  // трафик по дням
-    let stores  = [];  // магазин по дням
-    let uptArr  = [];  // UPT по дням (из Sheets, если есть)
-    let atvArr  = [];  // ATV по дням
-    let aurArr  = [];  // AUR по дням
-    let sellersOnShift = []; // продавцов на смене
-
-    // Читаем строки блока этого продавца
     let j = i + 1;
-    while (j < rows.length) {
-      const brow = rows[j] || [];
-      const lbl  = (brow[0] || '').toString().trim();
-      const lbll = lbl.toLowerCase();
+    let blankCount = 0;
+    while (j < rows.length && blankCount < 3) {
+      const brow  = rows[j] || [];
+      const lbl   = String(brow[0] || '').trim();
+      const lbll  = lbl.toLowerCase();
 
-      // Конец блока: пустая строка или новая секция или новый продавец
-      // Новый продавец — строка которая не является меткой данных
-      if (!lbl) {
-        // Несколько пустых — ищем дальше, если следующая тоже пустая — выходим
-        if (j + 1 < rows.length && !(rows[j+1] || [])[0]) { j++; break; }
-        j++; continue;
-      }
-      if (lbll === 'grand park' || lbll === 'grandpark' || lbll === 'aport west' || lbll === 'aport') break;
+      if (!lbl) { blankCount++; j++; continue; }
+      blankCount = 0;
 
-      // Если строка — не метка данных и содержит буквы — это новый продавец
-      if (!isDataLabel(lbll) && /[а-яА-ЯёЁa-zA-Z]/.test(lbl) && lbl.length > 1) break;
+      if (isSectionGP(lbll) || isSectionAport(lbll)) break;
+      // New seller block starts
+      const bIsHeader = brow.slice(1, 5).some(v => isDateCell(String(v || '')));
+      if (bIsHeader && !isDataLabel(lbll) && !isNameOfSeller(lbll)) break;
 
       const vals = brow.slice(1).map(v => safeNum(v));
-      const strVals = brow.slice(1).map(v => (v || '').toString().trim());
+      const strs = brow.slice(1).map(v => String(v || '').trim());
 
-      if (isRevRow(lbll))     rev     = vals;
+      if      (isRevRow(lbll))     rev     = vals;
       else if (isCheckRow(lbll))   checks  = vals;
       else if (isUnitsRow(lbll))   units   = vals;
       else if (isShiftRow(lbll))   shifts  = vals;
       else if (isTrafficRow(lbll)) traffic = vals;
-      else if (isStoreRow(lbll))   stores  = strVals;
+      else if (lbll.includes('магаз') || lbll === 'store') stores = strs;
       else if (isUptRow(lbll))     uptArr  = vals;
       else if (isAtvRow(lbll))     atvArr  = vals;
       else if (isAurRow(lbll))     aurArr  = vals;
@@ -2494,8 +2446,7 @@ function parseAdvKpi(rows) {
       j++;
     }
 
-    // ── Агрегируем по всем дням ──
-    const dayCount = Math.max(rev.length, checks.length, 1);
+    const dayCount = Math.max(rev.length, checks.length, shifts.length, 1);
     let totalRev = 0, totalChecks = 0, totalUnits = 0, totalTraffic = 0, totalShifts = 0;
     const dailyRevenue = [], dailyShifts = [], dailyData = [];
 
@@ -2516,60 +2467,41 @@ function parseAdvKpi(rows) {
       dailyRevenue.push(r);
       dailyShifts.push(sh > 0 ? 1 : 0);
 
-      // Суточные рассчитанные метрики
       const dUpt = c > 0 ? +(u / c).toFixed(2) : (safeNum(uptArr[d]) || 0);
       const dAtv = c > 0 ? Math.round(r / c)   : (safeNum(atvArr[d]) || 0);
       const dAur = u > 0 ? Math.round(r / u)   : (safeNum(aurArr[d]) || 0);
-      // IOC: чеки продавца / (трафик ТРЦ / продавцов на смене) * 100
-      // продавцов на смене пока = 1 (если нет отдельной строки)
-      const sellers_on = safeNum(sellersOnShift[d]) || 1;
-      const dIoc = (tr > 0 && sh > 0)
-        ? +((c / (tr / sellers_on)) * 100).toFixed(1)
-        : 0;
-
+      const dIoc = (tr > 0 && sh > 0) ? +((c / tr) * 100).toFixed(1) : 0;
       dailyData.push({ rev: r, checks: c, units: u, shifts: sh, traffic: tr, store: st, upt: dUpt, atv: dAtv, aur: dAur, ioc: dIoc });
     }
 
-    if (totalRev === 0 && totalChecks === 0) { i = j; continue; }
+    if (totalRev === 0 && totalChecks === 0 && totalShifts === 0) { i = j; continue; }
 
-    // ── Итоговые метрики ──
     const upt = totalChecks > 0
       ? +(totalUnits / totalChecks).toFixed(2)
       : (uptArr.filter(v=>v>0).length ? +(uptArr.filter(v=>v>0).reduce((a,b)=>a+b,0)/uptArr.filter(v=>v>0).length).toFixed(2) : 0);
-
     const atv = totalChecks > 0
       ? Math.round(totalRev / totalChecks)
       : (atvArr.filter(v=>v>0).length ? Math.round(atvArr.filter(v=>v>0).reduce((a,b)=>a+b,0)/atvArr.filter(v=>v>0).length) : 0);
-
     const aur = totalUnits > 0
       ? Math.round(totalRev / totalUnits)
       : (aurArr.filter(v=>v>0).length ? Math.round(aurArr.filter(v=>v>0).reduce((a,b)=>a+b,0)/aurArr.filter(v=>v>0).length) : 0);
-
-    // IOC (суммарный): чеки / (суммарный трафик / суммарные смены) * 100
     const ioc = (totalTraffic > 0 && totalShifts > 0)
-      ? +((totalChecks / (totalTraffic / totalShifts)) * 100).toFixed(1)
-      : 0;
+      ? +((totalChecks / totalTraffic) * 100).toFixed(1) : 0;
+
+    console.log(`[QREI] ${sellerName} | team:${currentTeam} rev:${totalRev} checks:${totalChecks} units:${totalUnits} shifts:${totalShifts} ioc:${ioc} upt:${upt} atv:${atv}`);
 
     sellers.push({
-      name: sellerName,
-      team: currentTeam,
-      revenue:  totalRev,
-      checks:   totalChecks,
-      units:    totalUnits,
-      shifts:   totalShifts,
-      traffic:  totalTraffic,
-      upt, atv, aur, ioc,
-      // Legacy compat
-      avgCheck: atv,
+      name: sellerName, team: currentTeam,
+      revenue: totalRev, checks: totalChecks, units: totalUnits,
+      shifts: totalShifts, traffic: totalTraffic,
+      upt, atv, aur, ioc, avgCheck: atv,
       dailyRevenue, dailyShifts, dailyData
     });
 
     i = j;
   }
 
-  console.log('[QREI] Parsed sellers:', sellers.map(s =>
-    `${s.name} | rev:${s.revenue} checks:${s.checks} units:${s.units} ioc:${s.ioc}% upt:${s.upt} atv:${s.atv} aur:${s.aur} team:${s.team}`
-  ));
+  console.log(`[QREI] Parsed ${sellers.length} sellers:`, sellers.map(s => s.name));
   return sellers;
 }
 
@@ -2686,10 +2618,9 @@ function renderAdvanced() {
   }
 
   let list = advView === 'all' ? advKpiData : advKpiData.filter(s => s.team === advView);
-  list = calcScores(list).sort((a,b) => b.score - a.score);
+  list = calcScores(list).sort((a, b) => b.score - a.score);
 
-  // Summary
-  const totalRev = list.reduce((s,x) => s+x.revenue, 0);
+  const totalRev = list.reduce((s, x) => s + x.revenue, 0);
   const avgUpt   = list.length ? (list.reduce((s,x)=>s+x.upt,0)/list.length).toFixed(1) : 0;
   const avgAtv   = list.length ? Math.round(list.reduce((s,x)=>s+x.atv,0)/list.length) : 0;
   const avgIoc   = list.length ? (list.reduce((s,x)=>s+x.ioc,0)/list.length).toFixed(1) : 0;
@@ -2700,95 +2631,149 @@ function renderAdvanced() {
     <div class="stat-box"><div class="stat-label">Ср. UPT</div><div class="stat-value" style="font-size:17px;color:#4488ff">${avgUpt}</div></div>
     <div class="stat-box"><div class="stat-label">Ср. ATV</div><div class="stat-value" style="font-size:17px;color:#ffaa00">${fmtMoney(avgAtv)}</div></div>`;
 
-  // Split by team for section headers
+  // Also update summary bar stats on page-advanced
+  if (document.getElementById('adv-total-sellers')) {
+    document.getElementById('adv-total-sellers').textContent = list.length;
+    const dz = list.filter(s => s.score < 30 && s.shifts >= 3).length;
+    const wz = list.filter(s => s.score >= 30 && s.score < 50).length;
+    const gz = list.filter(s => s.score >= 50).length;
+    document.getElementById('adv-danger-count').textContent  = dz;
+    document.getElementById('adv-warning-count').textContent = wz;
+    document.getElementById('adv-good-count').textContent    = gz;
+    const bestUpt = Math.max(...list.map(s => s.upt), 0);
+    const bestAtv = Math.max(...list.map(s => s.atv), 0);
+    document.getElementById('adv-best-upt').textContent = bestUpt.toFixed(2);
+    document.getElementById('adv-best-avg').textContent = fmtMoney(Math.round(bestAtv));
+  }
+
   const gp    = list.filter(s => s.team === 'grandpark');
   const aport = list.filter(s => s.team === 'aport');
 
-  const rankIcons = ['🥇','🥈','🥉'];
-
   const renderCard = (s, globalRank) => {
-    const icon = rankIcons[globalRank] || `<span style="font-size:11px;color:var(--text3)">#${globalRank+1}</span>`;
-    const cardCls = globalRank === 0 ? 'gold' : globalRank === 1 ? 'silver' : globalRank === 2 ? 'bronze' : '';
-    // Danger zone
-    let dangerHtml = '';
-    const planRev = s.team === 'grandpark' ? PLAN_GRANDPARK() : PLAN_APORT();
-    const planPct = planRev > 0 ? (s.revenue / planRev * 100) : 0;
-    if (s.score < 30 && s.shifts >= 3) dangerHtml = `<div class="danger-badge">⚠ Зона опасности</div>`;
-    else if (s.score < 50 && s.shifts >= 5) dangerHtml = `<div class="warning-badge">📉 Отстаёт</div>`;
-    const dangerCardCls = dangerHtml.includes('danger-badge') ? 'danger' : dangerHtml.includes('warning-badge') ? 'warning' : '';
+    const icons = ['🥇','🥈','🥉'];
+    const icon = icons[globalRank] || `#${globalRank+1}`;
+    const cardBorder = globalRank === 0
+      ? 'border-color:rgba(255,215,0,0.5);background:linear-gradient(135deg,var(--bg2) 0%,rgba(255,215,0,0.05) 100%)'
+      : globalRank === 1 ? 'border-color:rgba(192,192,192,0.4)'
+      : globalRank === 2 ? 'border-color:rgba(205,127,50,0.4)' : '';
 
-    const badgeHtml = s.badges.map(b =>
-      `<span class="adv-badge ${b.cls}" style="${b.cls==='upt'?'color:#ffaa00;background:rgba(255,170,0,0.15)':b.cls==='ioc'?'color:var(--green);background:rgba(0,204,102,0.15)':'color:var(--accent);background:rgba(0,102,255,0.15)'}">${b.text}</span>`
-    ).join('');
-
-    const isActive = advDetailOpen === s.name + s.team ? 'active-card' : '';
-    const perShift = s.shifts > 0 ? Math.round(s.revenue / s.shifts) : 0;
     const scoreColor = s.score >= 70 ? 'var(--green)' : s.score >= 45 ? 'var(--yellow)' : 'var(--red)';
 
-    return `<div class="adv-card ${cardCls} ${dangerCardCls} ${isActive}"
-      onclick="openAdvDetail(${JSON.stringify(s.name)}, ${JSON.stringify(s.team)}, event)">
+    let dangerHtml = '';
+    if (s.score < 30 && s.shifts >= 3)      dangerHtml = `<div style="position:absolute;top:12px;right:12px;padding:3px 9px;background:rgba(255,51,51,0.15);border:1px solid rgba(255,51,51,0.4);border-radius:20px;font-size:10px;font-weight:700;color:var(--red)">⚠ Зона риска</div>`;
+    else if (s.score < 50 && s.shifts >= 5) dangerHtml = `<div style="position:absolute;top:12px;right:12px;padding:3px 9px;background:rgba(255,170,0,0.12);border:1px solid rgba(255,170,0,0.3);border-radius:20px;font-size:10px;font-weight:700;color:var(--yellow)">📉 Отстаёт</div>`;
+
+    const badgeHtml = s.badges.map(b => {
+      const style = b.cls==='upt' ? 'color:#ffaa00;background:rgba(255,170,0,0.15);border:1px solid rgba(255,170,0,0.3)'
+                  : b.cls==='ioc' ? 'color:var(--green);background:rgba(0,204,102,0.15);border:1px solid rgba(0,204,102,0.3)'
+                  : 'color:var(--accent);background:rgba(0,102,255,0.15);border:1px solid rgba(0,102,255,0.3)';
+      return `<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;${style}">${b.text}</span>`;
+    }).join('');
+
+    const perShift = s.shifts > 0 ? Math.round(s.revenue / s.shifts) : 0;
+    const normIoc = Math.min(100, QREI_BENCH.ioc > 0 ? s.ioc / QREI_BENCH.ioc * 100 : 0);
+    const normUpt = Math.min(100, QREI_BENCH.upt > 0 ? s.upt / QREI_BENCH.upt * 100 : 0);
+    const normAtv = Math.min(100, QREI_BENCH.atv > 0 ? s.atv / QREI_BENCH.atv * 100 : 0);
+    const normAur = Math.min(100, QREI_BENCH.aur > 0 ? s.aur / QREI_BENCH.aur * 100 : 0);
+
+    return `
+    <div onclick="openAdvDetail(${JSON.stringify(s.name)}, ${JSON.stringify(s.team)}, event)"
+      style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:22px 22px 18px;cursor:pointer;
+             transition:transform 0.18s,box-shadow 0.18s,border-color 0.18s;position:relative;overflow:hidden;${cardBorder}"
+      onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,0.3)'"
+      onmouseout="this.style.transform='';this.style.boxShadow=''">
       ${dangerHtml}
-      <div class="adv-card-top">
-        <div class="adv-rank">${icon}</div>
+      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:18px">
+        <div style="font-size:22px;flex-shrink:0;line-height:1;margin-top:2px">${icon}</div>
         <div style="flex:1;min-width:0">
-          <div class="adv-name">${s.name}</div>
-          <div class="adv-badges">${badgeHtml || '<span style="font-size:9px;color:var(--text3)">—</span>'}</div>
+          <div style="font-size:16px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:0.4px">${s.team==='grandpark'?'Grand Park':'Aport West'} · ${s.shifts} смен</div>
+          ${badgeHtml ? `<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">${badgeHtml}</div>` : ''}
         </div>
-        <div style="text-align:right;flex-shrink:0;margin-right:${dangerHtml?'72px':'8px'}">
-          <div style="font-size:8px;color:var(--text3);letter-spacing:0.5px">QREI</div>
-          <div style="font-size:22px;font-weight:800;color:${scoreColor};line-height:1">${s.score}</div>
-          <div style="font-size:8px;color:var(--text3)">/ 100</div>
-        </div>
-      </div>
-      <div class="adv-metrics">
-        <div class="adv-metric">
-          <div class="adv-metric-label">📊 IOC</div>
-          <div class="adv-metric-val" style="color:var(--green)">${s.ioc > 0 ? s.ioc.toFixed(1)+'%' : '—'}</div>
-          <div class="adv-metric-sub">конверсия</div>
-        </div>
-        <div class="adv-metric">
-          <div class="adv-metric-label">⚡ UPT</div>
-          <div class="adv-metric-val" style="color:#4488ff">${s.upt > 0 ? s.upt.toFixed(1) : '—'}</div>
-          <div class="adv-metric-sub">товаров/чек</div>
-        </div>
-        <div class="adv-metric">
-          <div class="adv-metric-label">🎯 ATV</div>
-          <div class="adv-metric-val" style="color:#ffaa00">${s.atv > 0 ? fmtMoney(s.atv) : '—'}</div>
-          <div class="adv-metric-sub">ср. чек</div>
-        </div>
-        <div class="adv-metric">
-          <div class="adv-metric-label">💎 AUR</div>
-          <div class="adv-metric-val">${s.aur > 0 ? fmtMoney(s.aur) : '—'}</div>
-          <div class="adv-metric-sub">ср. вещь</div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase">QREI</div>
+          <div style="font-size:38px;font-weight:900;color:${scoreColor};line-height:1;letter-spacing:-2px">${s.score}</div>
+          <div style="font-size:11px;color:var(--text3)">/100</div>
         </div>
       </div>
-      <div class="adv-score-track">
-        <div class="adv-score-fill" style="width:${s.score}%;background:${scoreColor}"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="background:var(--bg3);border-radius:10px;padding:10px 8px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">IOC</div>
+          <div style="font-size:16px;font-weight:800;color:var(--green);line-height:1">${s.ioc>0?s.ioc.toFixed(1)+'%':'—'}</div>
+          <div style="font-size:9px;color:var(--text3);margin-top:2px">конверсия</div>
+          <div style="height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden"><div style="height:100%;width:${normIoc}%;background:var(--green);border-radius:2px"></div></div>
+        </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:10px 8px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">UPT</div>
+          <div style="font-size:16px;font-weight:800;color:#4488ff;line-height:1">${s.upt>0?s.upt.toFixed(1):'—'}</div>
+          <div style="font-size:9px;color:var(--text3);margin-top:2px">ед./чек</div>
+          <div style="height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden"><div style="height:100%;width:${normUpt}%;background:#4488ff;border-radius:2px"></div></div>
+        </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:10px 8px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">ATV</div>
+          <div style="font-size:16px;font-weight:800;color:#ffaa00;line-height:1">${s.atv>0?fmtMoney(s.atv):'—'}</div>
+          <div style="font-size:9px;color:var(--text3);margin-top:2px">ср. чек</div>
+          <div style="height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden"><div style="height:100%;width:${normAtv}%;background:#ffaa00;border-radius:2px"></div></div>
+        </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:10px 8px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">AUR</div>
+          <div style="font-size:16px;font-weight:800;color:var(--text);line-height:1">${s.aur>0?fmtMoney(s.aur):'—'}</div>
+          <div style="font-size:9px;color:var(--text3);margin-top:2px">ср. вещь</div>
+          <div style="height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden"><div style="height:100%;width:${normAur}%;background:var(--text3);border-radius:2px"></div></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg3);border-radius:10px;margin-bottom:12px">
+        <div>
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px">Выручка</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text)">${fmtMoney(s.revenue)}</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px">В смену</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text)">${fmtMoney(perShift)}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px">Чеков</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text)">${s.checks}</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:5px">
+        <span>QREI Score</span><span style="color:${scoreColor};font-weight:700">${s.score}/100</span>
+      </div>
+      <div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${s.score}%;background:${scoreColor};border-radius:3px;transition:width 0.6s"></div>
       </div>
     </div>`;
   };
 
   const renderSection = (teamList, globalList, label, color) => {
     if (!teamList.length) return '';
-    return `<div class="adv-section-title">
-      <div class="team-dot" style="background:${color}"></div>${label}
-      <span style="margin-left:auto;font-size:10px;color:var(--text3)">${teamList.length} чел.</span>
-    </div>` + teamList.map(s => renderCard(s, globalList.indexOf(s))).join('');
+    return `
+    <div style="display:flex;align-items:center;gap:12px;margin:28px 0 16px">
+      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3)">${label}</div>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <div style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--bg3);color:var(--text3);border:1px solid var(--border)">${teamList.length} чел.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px">
+      ${teamList.map(s => renderCard(s, globalList.indexOf(s))).join('')}
+    </div>`;
   };
 
   let html = '';
   if (advView === 'all') {
-    if (gp.length)    html += renderSection(gp,    list, 'Grand Park',  '#6ba3d4');
-    if (aport.length) html += renderSection(aport, list, 'Aport West',  '#d4a56b');
+    if (gp.length)    html += renderSection(gp,    list, 'Grand Park', '#6ba3d4');
+    if (aport.length) html += renderSection(aport, list, 'Aport West', '#d4a56b');
   } else {
-    html = renderSection(list, list, advView === 'grandpark' ? 'Grand Park' : 'Aport West',
-                          advView === 'grandpark' ? '#6ba3d4' : '#d4a56b');
+    const label = advView === 'grandpark' ? 'Grand Park' : 'Aport West';
+    const color = advView === 'grandpark' ? '#6ba3d4' : '#d4a56b';
+    html = renderSection(list, list, label, color);
   }
-  document.getElementById('adv-leaderboard').innerHTML = html || '<div style="padding:40px;text-align:center;color:var(--text3)">Нет данных</div>';
 
-  // Leaderboard sidebar
+  document.getElementById('adv-leaderboard').innerHTML = html ||
+    '<div style="padding:40px;text-align:center;color:var(--text3)">Нет данных</div>';
+
   renderQreiLeaderboard(list);
 }
+
 
 // ── Leaderboard sidebar ──
 function renderQreiLeaderboard(list) {
@@ -3371,373 +3356,6 @@ function enhanceKpiTable(data) {
 }
 
 
-// =====================================================================
-//  ADVANCED KPI MODULE
-// =====================================================================
-let _advData = [];        // parsed sellers
-let _advSort  = 'score';  // current sort
-
-// ── Sync from Google Sheets ──
-async function syncAdvanced() {
-  const sheetName = CFG.ADV_SHEET_NAME || '';
-  if (!sheetName) {
-    document.getElementById('adv-content').innerHTML = `
-      <div style="text-align:center;padding:60px;color:var(--text3)">
-        <div style="font-size:40px;margin-bottom:12px">⚙️</div>
-        <div style="font-size:15px;margin-bottom:8px">Лист не настроен</div>
-        <div style="font-size:13px">Укажи название листа Advanced KPI в <a href="#" onclick="openSettings()" style="color:var(--accent)">Настройках</a></div>
-      </div>`;
-    return;
-  }
-  try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${ADV_SHEET_ID()}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
-    const res  = await fetch(url);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
-    if (!json.values) throw new Error('no values');
-    _advData = parseAdvancedSheet(json.values);
-    renderAdvanced();
-  } catch(e) {
-    document.getElementById('adv-content').innerHTML = `
-      <div class="message error">Ошибка загрузки Advanced KPI: ${e.message}</div>`;
-  }
-}
-
-// ── Parse sheet ──
-// Structure per seller block (10 rows, separated by blank row):
-// Row 0: [SellerName, date1, date2, ...]   ← header
-// Row 1: Выручка за день.
-// Row 2: Кол-во чеков.
-// Row 3: Кол-во товара.
-// Row 4: UPT
-// Row 5: AVG
-// Row 6: Смена
-// Sections: "Grand Park" / "Aport West" in col A
-function parseAdvancedSheet(rows) {
-  const sellers = [];
-  let team = 'grandpark';
-  let i = 0;
-
-  while (i < rows.length) {
-    const row = rows[i] || [];
-    const col0 = (row[0] || '').toString().trim();
-    const col1 = (row[1] || '').toString().trim();
-
-    // Detect team section header
-    if (col0 === 'Grand Park')  { team = 'grandpark'; i++; continue; }
-    if (col0 === 'Aport West')  { team = 'aport';     i++; continue; }
-    if (col0 === 'Aport')       { team = 'aport';     i++; continue; }
-
-    // Seller block: col1 = seller name, rest = dates
-    const hasDates = row.slice(1, 8).some(v => /\d+\s*[а-яА-Я]+/.test(String(v||'')));
-    if (hasDates && col1 && /[а-яА-ЯёЁa-zA-Z]/.test(col1)) {
-      // This is a seller header row
-      const name  = col1.trim();
-      const dates = row.slice(1).map(v => (v||'').toString().trim()).filter(Boolean);
-
-      // Read next 7 rows (metric rows)
-      const metricRows = [];
-      for (let j = 1; j <= 7; j++) metricRows.push(rows[i + j] || []);
-
-      const daily = dates.map((date, di) => {
-        const colIdx = di + 1; // offset by 1 (col0 = label)
-        return {
-          date,
-          revenue:  parseAdvNum(metricRows[0]?.[colIdx]),
-          checks:   parseAdvNum(metricRows[1]?.[colIdx]),
-          units:    parseAdvNum(metricRows[2]?.[colIdx]),
-          upt:      parseAdvNum(metricRows[3]?.[colIdx]),
-          avg:      parseAdvNum(metricRows[4]?.[colIdx]),
-          shift:    parseAdvNum(metricRows[5]?.[colIdx]) > 0 ? 1 : 0,
-        };
-      });
-
-      // Aggregate
-      const workDays = daily.filter(d => d.shift > 0);
-      const totalRev     = workDays.reduce((s,d) => s + d.revenue, 0);
-      const totalChecks  = workDays.reduce((s,d) => s + d.checks,  0);
-      const totalUnits   = workDays.reduce((s,d) => s + d.units,   0);
-      const totalShifts  = workDays.length;
-      const avgUPT = totalChecks > 0 ? totalUnits / totalChecks : 0;
-      const avgAVG = totalChecks > 0 ? totalRev   / totalChecks : 0;
-      const avgRevPerShift = totalShifts > 0 ? totalRev / totalShifts : 0;
-
-      // Avg UPT / AVG from sheet data (weighted average of non-zero days)
-      const uptDays = workDays.filter(d => d.upt > 0);
-      const avgDays = workDays.filter(d => d.avg > 0);
-      const sheetUPT = uptDays.length > 0 ? uptDays.reduce((s,d)=>s+d.upt,0)/uptDays.length : avgUPT;
-      const sheetAVG = avgDays.length > 0 ? avgDays.reduce((s,d)=>s+d.avg,0)/avgDays.length : avgAVG;
-
-      // Score formula (0-100):
-      // UPT weight 30%, AVG (normalised) 30%, revenue/shift 25%, attendance 15%
-      const plan = team === 'grandpark' ? CFG.PLAN_GRANDPARK : CFG.PLAN_APORT;
-      const planPct = plan > 0 ? Math.min(100, totalRev / plan * 100) : 0;
-      // UPT score: 1.5+ = 100, 0 = 0
-      const uptScore  = Math.min(100, (sheetUPT / 1.5) * 100);
-      // AVG score: 50000+ = 100
-      const avgScore  = Math.min(100, (sheetAVG / 50000) * 100);
-      // Rev/shift score: 300K+ = 100
-      const revScore  = Math.min(100, (avgRevPerShift / 300000) * 100);
-      // Attendance: 20+ shifts = 100
-      const attScore  = Math.min(100, (totalShifts / 20) * 100);
-      const score = uptScore*0.3 + avgScore*0.3 + revScore*0.25 + attScore*0.15;
-
-      // Zone
-      const zone = score < 35 ? 'danger' : score < 60 ? 'warning' : 'good';
-
-      sellers.push({
-        name, team, dates, daily,
-        totalRev, totalChecks, totalUnits, totalShifts,
-        avgRevPerShift, sheetUPT, sheetAVG, planPct, score, zone
-      });
-
-      i += 8; // skip the 7 metric rows + move past
-      continue;
-    }
-    i++;
-  }
-  return sellers;
-}
-
-function parseAdvNum(v) {
-  if (v === undefined || v === null || v === '') return 0;
-  const s = String(v).replace(/[₸\s ,]/g, '').replace(/,/g,'.').trim();
-  const n = parseFloat(s);
-  return isNaN(n) ? 0 : n;
-}
-
-// ── Sort setter ──
-function setAdvSort(key, btn) {
-  _advSort = key;
-  document.querySelectorAll('.mode-toggle .mode-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderAdvanced();
-}
-
-// ── Render ──
-function renderAdvanced() {
-  if (!_advData.length) return;
-
-  // Summary
-  const dangerCount  = _advData.filter(s => s.zone === 'danger').length;
-  const warningCount = _advData.filter(s => s.zone === 'warning').length;
-  const goodCount    = _advData.filter(s => s.zone === 'good').length;
-  const bestUPT = _advData.reduce((b,s) => s.sheetUPT > b ? s.sheetUPT : b, 0);
-  const bestAVG = _advData.reduce((b,s) => s.sheetAVG > b ? s.sheetAVG : b, 0);
-
-  document.getElementById('adv-total-sellers').textContent = _advData.length;
-  document.getElementById('adv-danger-count').textContent  = dangerCount;
-  document.getElementById('adv-warning-count').textContent = warningCount;
-  document.getElementById('adv-good-count').textContent    = goodCount;
-  document.getElementById('adv-best-upt').textContent      = bestUPT.toFixed(2);
-  document.getElementById('adv-best-avg').textContent      = fmtMoney(Math.round(bestAVG));
-
-  // Sort
-  const sorted = [..._advData].sort((a,b) => {
-    if (_advSort === 'revenue') return b.totalRev - a.totalRev;
-    if (_advSort === 'upt')     return b.sheetUPT - a.sheetUPT;
-    if (_advSort === 'avg')     return b.sheetAVG - a.sheetAVG;
-    if (_advSort === 'shifts')  return b.totalShifts - a.totalShifts;
-    return b.score - a.score;
-  });
-
-  // Group by team
-  const gp    = sorted.filter(s => s.team === 'grandpark');
-  const aport = sorted.filter(s => s.team === 'aport');
-
-  let gpRank = 0, apRank = 0, allRank = 0;
-
-  let html = '';
-  if (gp.length) {
-    html += `<div class="adv-team-header">
-      <div class="adv-team-title">Grand Park</div>
-      <div class="adv-team-line"></div>
-      <div class="adv-team-count">${gp.length} продавцов</div>
-    </div>
-    <div class="seller-grid">${gp.map((s,i) => sellerCardHTML(s, i+1)).join('')}</div>`;
-  }
-  if (aport.length) {
-    html += `<div class="adv-team-header">
-      <div class="adv-team-title">Aport West</div>
-      <div class="adv-team-line"></div>
-      <div class="adv-team-count">${aport.length} продавцов</div>
-    </div>
-    <div class="seller-grid">${aport.map((s,i) => sellerCardHTML(s, i+1)).join('')}</div>`;
-  }
-
-  document.getElementById('adv-content').innerHTML = html;
-}
-
-function sellerCardHTML(s, rank) {
-  // Determine badge — single most important status
-  let badgeCls, badgeText;
-  if (s.zone === 'danger') {
-    badgeCls = 'danger-z'; badgeText = 'Зона риска';
-  } else if (s.zone === 'warning') {
-    badgeCls = 'trainee'; badgeText = 'Trainee';
-  } else if (s.sheetUPT >= 1.8) {
-    badgeCls = 'look-maker'; badgeText = 'The Look Maker';
-  } else if (s.sheetAVG >= 35000) {
-    badgeCls = 'premium'; badgeText = 'Premium Seller';
-  } else if (s.score >= 60) {
-    badgeCls = 'the-closer'; badgeText = 'The Closer';
-  } else {
-    badgeCls = 'trainee'; badgeText = 'Trainee';
-  }
-
-  // Avatar initials
-  const initials = s.name.trim().split(/\s+/).slice(0,2).map(w => w[0]).join('').toUpperCase();
-  const teamLabel = s.team === 'grandpark' ? 'Grand Park' : 'Aport West';
-
-  return `<div class="seller-card ${s.zone}" onclick="openAdvDetail('${encodeURIComponent(s.name)}')">
-    <div class="seller-card-top">
-      <div class="sc-rank">#${rank}</div>
-      <div class="sc-avatar">${initials}</div>
-      <div class="sc-info">
-        <div class="seller-card-name">${s.name}</div>
-        <div class="seller-card-meta">${teamLabel}</div>
-      </div>
-    </div>
-    <div class="sc-hero">
-      <div class="sc-score-group">
-        <div class="sc-score-lbl">QREI Score</div>
-        <div class="sc-score-big">
-          <span class="sc-score-num">${Math.round(s.score)}</span>
-          <span class="sc-score-den">/100</span>
-        </div>
-      </div>
-      <span class="sc-badge ${badgeCls}">${badgeText}</span>
-    </div>
-  </div>`;
-}
-
-// ── Detail panel ──
-function openAdvDetail(encodedName) {
-  const name = decodeURIComponent(encodedName);
-  const s = _advData.find(x => x.name === name);
-  if (!s) return;
-
-  const panel    = document.getElementById('advDetailPanel');
-  const backdrop = document.getElementById('advDetailBackdrop');
-  const content  = document.getElementById('advDetailContent');
-
-  const workDays   = s.daily.filter(d => d.shift > 0);
-  const maxRev     = Math.max(...workDays.map(d => d.revenue), 1);
-  const scoreColor = s.score >= 60 ? 'var(--green)' : s.score >= 35 ? 'var(--yellow)' : 'var(--red)';
-
-  // Build daily rows
-  const dayRows = s.daily.map(d => {
-    if (!d.shift) return `
-      <div class="detail-day-row" style="opacity:0.35">
-        <div class="detail-day-date" style="font-size:11px">${d.date}</div>
-        <div class="detail-day-bar-wrap">
-          <div style="height:100%;display:flex;align-items:center;padding-left:8px;font-size:10px;color:var(--text3)">выходной</div>
-        </div>
-        <div class="detail-day-rev" style="color:var(--text3)">—</div>
-        <div class="detail-day-checks">—</div>
-      </div>`;
-    const pct   = maxRev > 0 ? Math.min(100, (d.revenue / maxRev) * 100) : 0;
-    const barClr = d.revenue >= 300000 ? '#00cc66' : d.revenue >= 150000 ? '#0066ff' : d.revenue >= 50000 ? '#ffaa00' : '#ff3333';
-    return `
-      <div class="detail-day-row">
-        <div class="detail-day-date">${d.date}</div>
-        <div class="detail-day-bar-wrap">
-          <div class="detail-day-bar" style="width:${pct}%;background:${barClr}">
-            ${pct > 20 ? 'UPT ' + (d.upt||0).toFixed(1) : ''}
-          </div>
-        </div>
-        <div class="detail-day-rev">${fmtMoney(d.revenue)}</div>
-        <div class="detail-day-checks" title="чеков">${d.checks} чк</div>
-      </div>`;
-  }).join('');
-
-  // Trend: best/worst days
-  const sorted  = [...workDays].sort((a,b)=>b.revenue-a.revenue);
-  const bestDay = sorted[0];
-  const worstDay= sorted[sorted.length-1];
-
-  content.innerHTML = `
-    <div style="margin-bottom:20px">
-      <div style="font-size:20px;font-weight:700;margin-bottom:4px">${s.name}</div>
-      <div style="font-size:12px;color:var(--text3)">${s.team === 'grandpark' ? 'Grand Park' : 'Aport West'} · ${s.totalShifts} рабочих смен</div>
-    </div>
-
-    <!-- Score -->
-    <div style="background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:16px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">Рейтинг эффективности</div>
-        <div style="font-size:22px;font-weight:800;color:${scoreColor}">${Math.round(s.score)}<span style="font-size:13px;color:var(--text3)">/100</span></div>
-      </div>
-      <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
-        <div style="height:100%;width:${s.score}%;background:${scoreColor};border-radius:3px;transition:width 0.6s"></div>
-      </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:8px">
-        UPT ${(s.sheetUPT*0.3).toFixed(0)}/30 · AVG ${(Math.min(100,(s.sheetAVG/50000)*100)*0.3).toFixed(0)}/30 · Выр/смену ${(Math.min(100,(s.avgRevPerShift/300000)*100)*0.25).toFixed(0)}/25 · Посещаемость ${(Math.min(100,(s.totalShifts/20)*100)*0.15).toFixed(0)}/15
-      </div>
-    </div>
-
-    <!-- Key metrics row -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-      <div style="background:var(--bg3);border-radius:10px;padding:12px">
-        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Общая выручка</div>
-        <div style="font-size:20px;font-weight:700">${fmtMoney(s.totalRev)}</div>
-        <div style="font-size:11px;color:var(--text3)">${s.planPct.toFixed(1)}% личного плана</div>
-      </div>
-      <div style="background:var(--bg3);border-radius:10px;padding:12px">
-        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Выр./смену</div>
-        <div style="font-size:20px;font-weight:700">${fmtMoney(Math.round(s.avgRevPerShift))}</div>
-        <div style="font-size:11px;color:var(--text3)">${s.totalChecks} чеков всего</div>
-      </div>
-      <div style="background:var(--bg3);border-radius:10px;padding:12px">
-        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">UPT (ед./чек)</div>
-        <div style="font-size:20px;font-weight:700;color:${s.sheetUPT<1?'var(--red)':s.sheetUPT<1.4?'var(--yellow)':'var(--green)'}">${s.sheetUPT.toFixed(2)}</div>
-        <div style="font-size:11px;color:var(--text3)">цель ≥ 1.40</div>
-      </div>
-      <div style="background:var(--bg3);border-radius:10px;padding:12px">
-        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">AVG чек</div>
-        <div style="font-size:20px;font-weight:700;color:${s.sheetAVG<20000?'var(--red)':s.sheetAVG<35000?'var(--yellow)':'var(--green)'}">${fmtMoney(Math.round(s.sheetAVG))}</div>
-        <div style="font-size:11px;color:var(--text3)">цель ≥ 35 000₸</div>
-      </div>
-    </div>
-
-    <!-- Best/Worst -->
-    ${bestDay ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-      <div style="background:rgba(0,204,102,0.08);border:1px solid rgba(0,204,102,0.2);border-radius:10px;padding:12px">
-        <div style="font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">🏆 Лучший день</div>
-        <div style="font-size:14px;font-weight:700">${bestDay.date}</div>
-        <div style="font-size:17px;font-weight:800;color:var(--green)">${fmtMoney(bestDay.revenue)}</div>
-        <div style="font-size:11px;color:var(--text3)">${bestDay.checks} чеков · UPT ${(bestDay.upt||0).toFixed(1)}</div>
-      </div>
-      <div style="background:rgba(255,51,51,0.06);border:1px solid rgba(255,51,51,0.2);border-radius:10px;padding:12px">
-        <div style="font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">📉 Слабый день</div>
-        <div style="font-size:14px;font-weight:700">${worstDay.date}</div>
-        <div style="font-size:17px;font-weight:800;color:var(--red)">${fmtMoney(worstDay.revenue)}</div>
-        <div style="font-size:11px;color:var(--text3)">${worstDay.checks} чеков · UPT ${(worstDay.upt||0).toFixed(1)}</div>
-      </div>
-    </div>` : ''}
-
-    <!-- Daily breakdown -->
-    <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;font-weight:600">
-      График по дням
-    </div>
-    <div style="display:flex;justify-content:flex-end;gap:16px;font-size:10px;color:var(--text3);margin-bottom:8px">
-      <span>Выручка</span><span>Чеков</span>
-    </div>
-    <div>${dayRows}</div>
-  `;
-
-  backdrop.style.display = 'block';
-  setTimeout(() => panel.classList.add('open'), 10);
-}
-
-function closeAdvDetail() {
-  document.getElementById('advDetailPanel').classList.remove('open');
-  document.getElementById('advDetailBackdrop').style.display = 'none';
-}
-
-// Auto-sync handled inside the original showPage function
-
-// =====================================================================
 
 window.addEventListener('load', () => {
   setDate();

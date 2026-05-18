@@ -2703,7 +2703,7 @@ function renderAdvanced() {
     const badgeHtml = s.badges.map(b => {
       const style = b.cls==='upt' ? 'color:#ffaa00;background:rgba(255,170,0,0.15);border:1px solid rgba(255,170,0,0.3)'
                   : b.cls==='ioc' ? 'color:var(--green);background:rgba(0,204,102,0.15);border:1px solid rgba(0,204,102,0.3)'
-                  : 'color:'var(--accent)';background:rgba(0,102,255,0.15);border:1px solid rgba(0,102,255,0.3)';
+                  : 'color:var(--accent);background:rgba(0,102,255,0.15);border:1px solid rgba(0,102,255,0.3)';
       return `<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;${style}">${b.text}</span>`;
     }).join('');
 
@@ -2853,7 +2853,7 @@ function openAdvDetail(name, team, evt) {
 
   // Badge html
   const badgeHtml = s.badges.map(b =>
-    `<span class="adv-badge ${b.cls}" style="${b.cls==='upt'?'color:#ffaa00;background:rgba(255,170,0,0.15)':b.cls==='ioc'?'color:var(--green);background:rgba(0,204,102,0.15)':'color: 'var(--accent)';background:rgba(0,102,255,0.15)'}">${b.text}</span>`
+    `<span class="adv-badge ${b.cls}" style="${b.cls==='upt'?'color:#ffaa00;background:rgba(255,170,0,0.15)':b.cls==='ioc'?'color:var(--green);background:rgba(0,204,102,0.15)':'color:var(--accent);background:rgba(0,102,255,0.15)'}">${b.text}</span>`
   ).join(' ');
 
   // Day-by-day table

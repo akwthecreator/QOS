@@ -175,10 +175,6 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 .ioc-track{flex:1;height:3px;background:var(--bg4);border-radius:2px}
 .ioc-fill{height:100%;border-radius:2px;background:var(--green)}
 .ioc-right{font-size:9px;color:var(--text3);white-space:nowrap}
-.traffic-share-row{display:flex;align-items:center;gap:6px;margin-top:7px;padding:6px 10px;background:rgba(100,180,255,0.07);border-radius:8px;border:1px solid rgba(100,180,255,0.15)}
-.ts-icon{font-size:12px;flex-shrink:0}
-.ts-label{font-size:10px;color:var(--text3);flex:1}
-.ts-val{font-size:11px;font-weight:700;color:#6ab4ff;white-space:nowrap}
 
 /* ── DANGER BADGE ── */
 .danger-badge{
@@ -197,8 +193,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 }
 .panel-overlay.open{display:block}
 .slide-panel{
-  position:fixed;top:0;right:-500px;
-  width:460px;max-width:96vw;height:100vh;
+  position:fixed;top:0;right:-680px;
+  width:640px;max-width:96vw;height:100vh;
   background:var(--bg);
   border-left:1px solid var(--border);
   z-index:600;overflow-y:auto;
@@ -208,7 +204,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 }
 .slide-panel.open{right:0}
 .panel-top{
-  padding:20px 20px 0;
+  padding:20px 28px 0;
   position:sticky;top:0;
   background:var(--bg);
   border-bottom:1px solid var(--border);
@@ -224,7 +220,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
   transition:all 0.15s;
 }
 .panel-close:hover{border-color:var(--red);color:var(--red)}
-.panel-body{padding:20px}
+.panel-body{padding:24px 28px}
 
 /* Panel avatar */
 .panel-avatar-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:20px}
@@ -246,7 +242,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 .qrei-sub{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
 
 /* Score breakdown */
-.score-breakdown{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px}
+.score-breakdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
 .breakdown-cell{
   background:var(--bg2);border:1px solid var(--border);
   border-radius:10px;padding:8px 4px;text-align:center;
@@ -258,13 +254,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 .breakdown-bar-fill{height:100%;border-radius:1px}
 
 /* 4 KPI tiles */
-.kpi-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.traffic-share-tile{display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(100,180,255,0.07);border:1px solid rgba(100,180,255,0.2);border-radius:12px;margin-bottom:16px}
-.ts-tile-icon{font-size:22px;flex-shrink:0}
-.ts-tile-body{flex:1;min-width:0}
-.ts-tile-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
-.ts-tile-val{font-size:22px;font-weight:800;color:#6ab4ff;line-height:1}
-.ts-tile-sub{font-size:10px;color:var(--text3);margin-top:3px}
+.kpi-tiles{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px}
 .kpi-tile{
   background:var(--bg2);border:1px solid var(--border);
   border-radius:12px;padding:12px;
@@ -275,7 +265,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 
 /* Day table */
 .day-table-wrap{margin-bottom:16px;overflow-x:auto}
-.day-table{width:100%;border-collapse:collapse;font-size:11px}
+.day-table{width:100%;border-collapse:collapse;font-size:12px}
 .day-table th{
   padding:5px 8px;text-align:left;
   color:var(--text3);font-weight:500;
@@ -649,22 +639,15 @@ function parseSheet(rows) {
         const key = `${d.magasin}_${d.dayIdx}`;
         const realSc = dayMagCount[key] || 1;
         d.sellers_cnt = realSc;
-        // IOC: чеки продавца / (трафик / кол-во продавцов в этом магазине в этот день)
         d.ioc = (d.checks / (d.traffic / realSc)) * 100;
-        // Доля трафика: трафик бутика / кол-во продавцов на смене
-        d.trafficShare = Math.round(d.traffic / realSc);
         ioc_recalc.push(d.ioc);
       } else if (!d.shift || d.traffic === 0) {
         d.ioc = 0;
-        d.trafficShare = 0;
       }
     });
     if (ioc_recalc.length) {
       s.ioc = ioc_recalc.reduce((a,b)=>a+b,0) / ioc_recalc.length;
     }
-    // Средняя доля трафика по рабочим сменам
-    const tsSamples = s.days.filter(d => d.shift && d.trafficShare > 0).map(d => d.trafficShare);
-    s.avgTrafficShare = tsSamples.length ? Math.round(tsSamples.reduce((a,b)=>a+b,0) / tsSamples.length) : 0;
   });
 
   console.log('[QREI] Parsed', sellers.length, 'sellers:', sellers.map(s=>
@@ -722,12 +705,10 @@ function filterByPeriod(sellers) {
     const shf   = d_range.filter(d=>d.shift).length;
     const iocs  = d_range.filter(d=>d.shift&&d.traffic>0).map(d=>d.ioc);
     const ioc   = iocs.length ? iocs.reduce((a,b)=>a+b)/iocs.length : 0;
-    const tsSamples = d_range.filter(d=>d.shift&&d.trafficShare>0).map(d=>d.trafficShare);
-    const avgTrafficShare = tsSamples.length ? Math.round(tsSamples.reduce((a,b)=>a+b,0)/tsSamples.length) : s.avgTrafficShare||0;
     const upt   = chk > 0 ? unt/chk : 0;
     const atv   = chk > 0 ? rev/chk : 0;
     const aur   = unt > 0 ? rev/unt : 0;
-    return { ...s, revenue:rev, checks:chk, units:unt, shifts:shf, ioc, avgTrafficShare, upt, atv, aur, days:d_range };
+    return { ...s, revenue:rev, checks:chk, units:unt, shifts:shf, ioc, upt, atv, aur, days:d_range };
   }).filter(s=>s.revenue>0||s.checks>0||s.shifts>0);
 }
 
@@ -754,7 +735,6 @@ function render() {
       <div class="summary-cell"><div class="summary-lbl">Ср. UPT</div><div class="summary-val" style="color:#4488ff">${avgUpt.toFixed(1)}</div></div>
       <div class="summary-cell"><div class="summary-lbl">Ср. ATV</div><div class="summary-val" style="color:var(--yellow)">${fmtKT(avgAtv)}</div></div>
       <div class="summary-cell"><div class="summary-lbl">Ср. IOC</div><div class="summary-val" style="color:var(--green)">${avgIoc.toFixed(1)}%</div></div>
-      <div class="summary-cell"><div class="summary-lbl">Ср. доля тр.</div><div class="summary-val" style="color:#6ab4ff">${Math.round(list.reduce((a,s)=>a+(s.avgTrafficShare||0),0)/list.length)}👤</div></div>
       ${dangerCnt?`<div class="summary-cell" style="border-color:rgba(255,51,51,0.3);background:rgba(255,51,51,0.04)"><div class="summary-lbl" style="color:var(--red)">⚠️ Зона риска</div><div class="summary-val" style="color:var(--red)">${dangerCnt}</div></div>`:''}`;
   } else {
     strip.style.display = 'none';
@@ -840,11 +820,6 @@ function renderCard(s, rank, origIdx) {
       <div class="ioc-track"><div class="ioc-fill" style="width:${iocPct}%"></div></div>
       <span class="ioc-right">${s.shifts} смен · ${s.checks} чек.</span>
     </div>
-    ${s.avgTrafficShare > 0 ? `<div class="traffic-share-row">
-      <span class="ts-icon">👤</span>
-      <span class="ts-label">Доля трафика</span>
-      <span class="ts-val">${s.avgTrafficShare.toLocaleString('ru-RU')} чел./смену</span>
-    </div>` : ''}
   </div>`;
 }
 
@@ -892,31 +867,51 @@ function openPanel(origIdx) {
     return `<tr class="${cls}">
       <td>${dayLabel}</td>
       <td>${d.shift?'●':'—'}</td>
-      <td style="font-weight:600">${d.revenue>0?fmtKT(d.revenue):'—'}</td>
+      <td style="font-weight:600;font-variant-numeric:tabular-nums">${d.revenue>0?fmt(d.revenue):'—'}</td>
       <td>${d.checks||'—'}</td>
       <td style="color:#4488ff">${d.checks>0?d.upt.toFixed(1):'—'}</td>
-      <td style="color:var(--yellow)">${d.checks>0?fmtKT(d.atv):'—'}</td>
-      <td style="color:var(--purple)">${d.units>0?fmtKT(d.aur):'—'}</td>
+      <td style="color:var(--yellow);font-variant-numeric:tabular-nums">${d.checks>0?fmt(d.atv):'—'}</td>
+      <td style="color:var(--purple);font-variant-numeric:tabular-nums">${d.units>0?fmt(d.aur):'—'}</td>
       <td style="color:var(--green)">${d.traffic>0?d.ioc.toFixed(1)+'%':'—'}</td>
-      <td style="color:#6ab4ff;font-size:11px">${d.trafficShare>0?d.trafficShare.toLocaleString('ru-RU')+'👤':'—'}</td>
       <td style="color:var(--text3);font-size:10px">${d.magasin||'—'}</td>
     </tr>`;
   }).filter(Boolean).join('');
 
   document.getElementById('panelBody').innerHTML = `
-    <!-- Avatar + name -->
-    <div class="panel-avatar-wrap">
-      <div class="panel-avatar" style="background:${avBg};color:${avTx}">${s.name.charAt(0)}</div>
-      <div class="panel-name">${s.name}</div>
-      <div class="panel-store">${teamLbl}</div>
-      ${s.badge?`<div class="card-badge" style="background:${s.badge.color}18;color:${s.badge.color};margin-top:6px">${s.badge.icon} ${s.badge.label}</div>`:''}
-      ${s.isDanger?`<div class="danger-badge" style="margin-top:6px">⚠️ Зона риска — требует внимания</div>`:''}
+    <!-- Header: avatar + name + QREI side by side -->
+    <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:20px">
+      <div class="panel-avatar" style="background:${avBg};color:${avTx};flex-shrink:0">${s.name.charAt(0)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="panel-name" style="font-size:18px">${s.name}</div>
+        <div class="panel-store">${teamLbl} · ${s.shifts} смен</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+          ${s.badge?`<div class="card-badge" style="background:${s.badge.color}18;color:${s.badge.color}">${s.badge.icon} ${s.badge.label}</div>`:''}
+          ${s.isDanger?`<div class="danger-badge">⚠️ Зона риска</div>`:''}
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:2px">QREI Score</div>
+        <div style="font-size:44px;font-weight:900;color:${scoreClr};line-height:1;letter-spacing:-2px">${s.qrei}</div>
+        <div style="font-size:12px;color:var(--text3)">/100</div>
+      </div>
     </div>
 
-    <!-- QREI display -->
-    <div class="qrei-display">
-      <div class="qrei-num" style="color:${scoreClr}">${s.qrei}<span style="font-size:24px;color:var(--text3);font-weight:400">/100</span></div>
-      <div class="qrei-sub">QREI Score</div>
+    <!-- Prominent revenue block -->
+    <div style="background:linear-gradient(135deg,var(--bg2) 0%,rgba(0,102,255,0.06) 100%);border:1px solid rgba(0,102,255,0.2);border-radius:16px;padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+      <div>
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">💰 Общая выручка</div>
+        <div style="font-size:30px;font-weight:900;color:var(--text);letter-spacing:-0.5px;font-variant-numeric:tabular-nums">${fmt(s.revenue)}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:right">
+        <div>
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Чеков</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text)">${s.checks}</div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">В смену</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text)">${s.shifts > 0 ? fmt(Math.round(s.revenue / s.shifts)) : '—'}</div>
+        </div>
+      </div>
     </div>
 
     <!-- Score breakdown -->
@@ -925,7 +920,7 @@ function openPanel(origIdx) {
       <div class="score-breakdown">${breakdown}</div>
     </div>
 
-    <!-- 4+1 KPI tiles -->
+    <!-- 4 KPI tiles -->
     <div class="kpi-tiles">
       <div class="kpi-tile">
         <div class="kpi-tile-lbl">Конверсия (IOC)</div>
@@ -940,22 +935,14 @@ function openPanel(origIdx) {
       <div class="kpi-tile">
         <div class="kpi-tile-lbl">Средний чек (ATV)</div>
         <div class="kpi-tile-val" style="color:var(--yellow)">${fmt(s.atv)}</div>
-        <div class="kpi-tile-sub">план ${fmtKT(BENCH.atv)}</div>
+        <div class="kpi-tile-sub">план ${fmt(BENCH.atv)}</div>
       </div>
       <div class="kpi-tile">
         <div class="kpi-tile-lbl">Средняя цена вещи (AUR)</div>
         <div class="kpi-tile-val" style="color:var(--purple)">${fmt(s.aur)}</div>
-        <div class="kpi-tile-sub">план ${fmtKT(BENCH.aur)}</div>
+        <div class="kpi-tile-sub">план ${fmt(BENCH.aur)}</div>
       </div>
     </div>
-    ${s.avgTrafficShare > 0 ? `<div class="traffic-share-tile">
-      <div class="ts-tile-icon">👥</div>
-      <div class="ts-tile-body">
-        <div class="ts-tile-lbl">Доля трафика в смену</div>
-        <div class="ts-tile-val">${s.avgTrafficShare.toLocaleString('ru-RU')} чел.</div>
-        <div class="ts-tile-sub">трафик бутика ÷ кол-во продавцов на смене</div>
-      </div>
-    </div>` : ''}
 
     <!-- Day table -->
     <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">По дням</div>
@@ -967,7 +954,6 @@ function openPanel(origIdx) {
           <th style="color:var(--yellow)">ATV</th>
           <th style="color:var(--purple)">AUR</th>
           <th style="color:var(--green)">IOC</th>
-          <th style="color:#6ab4ff">Доля тр.</th>
           <th>Магазин</th>
         </tr></thead>
         <tbody>${dayRows||`<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--text3)">Нет данных</td></tr>`}</tbody>

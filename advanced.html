@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>QREI — Advanced KPI</title>
+<style>
+:root[data-theme="dark"] {
+  --bg:#0a0a0a; --bg2:#141414; --bg3:#1e1e1e; --bg4:#252525;
+  --border:#2a2a2a; --border2:#333;
+  --text:#fff; --text2:#aaa; --text3:#555;
+  --accent:#0066ff; --green:#00cc66; --yellow:#ffaa00; --red:#ff3333; --purple:#a78bfa;
+}
+:root[data-theme="light"] {
+  --bg:#f5f5f7; --bg2:#fff; --bg3:#f0f0f2; --bg4:#e8e8ec;
+  --border:#e0e0e0; --border2:#d0d0d0;
+  --text:#1a1a1a; --text2:#666; --text3:#aaa;
+  --accent:#0066ff; --green:#00aa55; --yellow:#cc8800; --red:#dd2222; --purple:#7c3aed;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+
+/* ── TOP BAR ── */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:16px;
+  padding:0 24px;height:56px;
+  background:rgba(10,10,10,0.85);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.topbar-logo{font-size:13px;font-weight:700;letter-spacing:0.5px;color:var(--text2)}
+.topbar-title{font-size:15px;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.pill-btn{
+  padding:6px 14px;border-radius:20px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;
+  transition:all 0.15s;font-family:inherit;
+}
+.pill-btn:hover{border-color:var(--accent);color:var(--accent)}
+.pill-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.icon-btn{
+  width:32px;height:32px;border-radius:8px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all 0.15s;
+}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── LAYOUT ── */
+.layout{display:flex;height:calc(100vh - 56px);overflow:hidden}
+
+/* ── SIDEBAR LEADERBOARD ── */
+.lb-sidebar{
+  width:260px;flex-shrink:0;
+  border-right:1px solid var(--border);
+  overflow-y:auto;
+  transition:width 0.3s cubic-bezier(0.16,1,0.3,1);
+  background:var(--bg2);
+}
+.lb-sidebar.collapsed{width:0;border-right:none;overflow:hidden}
+.lb-header{
+  padding:14px 16px 10px;
+  border-bottom:1px solid var(--border);
+  font-size:10px;font-weight:700;
+  color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;
+  position:sticky;top:0;background:var(--bg2);z-index:2;
+}
+.lb-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;cursor:pointer;
+  border-bottom:1px solid var(--border);
+  transition:background 0.12s;
+}
+.lb-row:hover{background:var(--bg3)}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{font-size:11px;font-weight:700;color:var(--text3);width:18px;text-align:center;flex-shrink:0}
+.lb-avatar{
+  width:28px;height:28px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;
+}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-store{font-size:10px;color:var(--text3);margin-top:1px}
+.lb-score{font-size:14px;font-weight:800;flex-shrink:0}
+.lb-bar{height:2px;background:var(--bg4);border-radius:1px;margin-top:4px;margin-left:56px;margin-right:14px}
+.lb-bar-fill{height:100%;border-radius:1px;transition:width 0.6s}
+
+/* ── MAIN CONTENT ── */
+.main{flex:1;overflow-y:auto;padding:20px 24px}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-divider{width:1px;height:20px;background:var(--border2);margin:0 4px}
+
+/* ── SUMMARY STRIP ── */
+.summary-strip{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;
+  margin-bottom:20px;
+}
+.summary-cell{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:10px 12px;
+}
+.summary-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.summary-val{font-size:17px;font-weight:700}
+
+/* ── CARDS GRID ── */
+.cards-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:12px;
+}
+
+/* ── SELLER CARD ── */
+.seller-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+  cursor:pointer;
+  transition:border-color 0.2s,transform 0.15s,box-shadow 0.2s;
+  position:relative;
+  overflow:hidden;
+}
+.seller-card::before{
+  content:'';position:absolute;inset:0;border-radius:16px;
+  background:linear-gradient(135deg,rgba(255,255,255,0.02),transparent);
+  pointer-events:none;
+}
+.seller-card:hover{
+  border-color:rgba(255,255,255,0.12);
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+.seller-card.danger{
+  border-color:rgba(255,51,51,0.3);
+  background:linear-gradient(135deg,rgba(255,51,51,0.04),var(--bg2));
+}
+.seller-card.danger:hover{border-color:rgba(255,51,51,0.5)}
+
+.card-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.card-rank{font-size:12px;font-weight:700;color:var(--text3);line-height:1;margin-top:2px;width:24px;flex-shrink:0}
+.card-avatar{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:700;flex-shrink:0;
+}
+.card-meta{flex:1;min-width:0}
+.card-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-store{font-size:11px;color:var(--text3);margin-top:2px}
+.card-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  margin-top:5px;padding:2px 8px;border-radius:20px;
+  font-size:9px;font-weight:700;letter-spacing:0.3px;
+}
+.card-score-block{text-align:right;flex-shrink:0}
+.card-score-num{font-size:28px;font-weight:900;line-height:1;letter-spacing:-0.5px}
+.card-score-label{font-size:9px;color:var(--text3);margin-top:1px;letter-spacing:0.3px}
+
+/* ── METRICS GRID ── */
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.metric-cell{
+  background:var(--bg3);border-radius:10px;
+  padding:8px 10px;
+}
+.metric-lbl{font-size:9px;color:var(--text3);margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.metric-val{font-size:15px;font-weight:700}
+
+/* ── IOC BAR ── */
+.ioc-row{display:flex;align-items:center;gap:8px}
+.ioc-label{font-size:9px;color:var(--text3);white-space:nowrap}
+.ioc-track{flex:1;height:3px;background:var(--bg4);border-radius:2px}
+.ioc-fill{height:100%;border-radius:2px;background:var(--green)}
+.ioc-right{font-size:9px;color:var(--text3);white-space:nowrap}
+
+/* ── DANGER BADGE ── */
+.danger-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;border-radius:20px;
+  font-size:9px;font-weight:700;
+  background:rgba(255,51,51,0.12);color:var(--red);
+  margin-top:5px;
+}
+
+/* ── SLIDE PANEL ── */
+.panel-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.6);z-index:500;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.panel-overlay.open{display:block}
+.slide-panel{
+  position:fixed;top:0;right:-500px;
+  width:460px;max-width:96vw;height:100vh;
+  background:var(--bg);
+  border-left:1px solid var(--border);
+  z-index:600;overflow-y:auto;
+  padding:0;
+  box-shadow:-12px 0 60px rgba(0,0,0,0.5);
+  transition:right 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.slide-panel.open{right:0}
+.panel-top{
+  padding:20px 20px 0;
+  position:sticky;top:0;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  padding-bottom:16px;
+  z-index:2;
+}
+.panel-close{
+  width:28px;height:28px;border-radius:8px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  margin-left:auto;margin-bottom:16px;
+  transition:all 0.15s;
+}
+.panel-close:hover{border-color:var(--red);color:var(--red)}
+.panel-body{padding:20px}
+
+/* Panel avatar */
+.panel-avatar-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:20px}
+.panel-avatar{
+  width:64px;height:64px;border-radius:20px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:700;margin-bottom:10px;
+}
+.panel-name{font-size:20px;font-weight:700;margin-bottom:3px}
+.panel-store{font-size:13px;color:var(--text3)}
+
+/* Score ring */
+.qrei-display{
+  text-align:center;margin-bottom:20px;
+  padding:16px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:14px;
+}
+.qrei-num{font-size:48px;font-weight:900;letter-spacing:-2px;line-height:1}
+.qrei-sub{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+
+/* Score breakdown */
+.score-breakdown{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px}
+.breakdown-cell{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:8px 4px;text-align:center;
+}
+.breakdown-lbl{font-size:9px;color:var(--text3);margin-bottom:4px}
+.breakdown-weight{font-size:8px;color:var(--text3);margin-bottom:2px}
+.breakdown-val{font-size:16px;font-weight:800}
+.breakdown-bar{height:2px;background:var(--border2);border-radius:1px;margin:4px 4px 0}
+.breakdown-bar-fill{height:100%;border-radius:1px}
+
+/* 4 KPI tiles */
+.kpi-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.kpi-tile{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;padding:12px;
+}
+.kpi-tile-lbl{font-size:10px;color:var(--text3);margin-bottom:6px}
+.kpi-tile-val{font-size:22px;font-weight:800;line-height:1}
+.kpi-tile-sub{font-size:10px;color:var(--text3);margin-top:4px}
+
+/* Day table */
+.day-table-wrap{margin-bottom:16px;overflow-x:auto}
+.day-table{width:100%;border-collapse:collapse;font-size:11px}
+.day-table th{
+  padding:5px 8px;text-align:left;
+  color:var(--text3);font-weight:500;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+.day-table td{
+  padding:5px 8px;
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+.day-table tr:last-child td{border-bottom:none}
+.day-table tr.day-off{opacity:0.3}
+
+/* Loader */
+.loader{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px 20px;color:var(--text3);gap:12px;font-size:13px;
+}
+.spinner{
+  width:24px;height:24px;
+  border:2px solid var(--border2);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Empty state */
+.empty-state{
+  text-align:center;padding:80px 20px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.empty-icon{font-size:40px}
+.empty-title{font-size:16px;font-weight:600;color:var(--text2)}
+.empty-sub{font-size:13px;color:var(--text3);max-width:260px;line-height:1.5}
+
+/* Tooltip config */
+.config-bar{
+  background:rgba(255,170,0,0.06);
+  border:1px solid rgba(255,170,0,0.2);
+  border-radius:10px;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:20px;font-size:12px;color:var(--yellow);
+  cursor:pointer;transition:background 0.15s;
+}
+.config-bar:hover{background:rgba(255,170,0,0.1)}
+
+/* Mobile */
+@media(max-width:768px){
+  .lb-sidebar{display:none}
+  .main{padding:12px}
+  .slide-panel{width:100%;max-width:100%}
+  .cards-grid{grid-template-columns:1fr}
+  .score-breakdown{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="topbar">
+  <span class="topbar-logo">QCP</span>
+  <span style="color:var(--border2)">›</span>
+  <span class="topbar-title">Team Performance</span>
+  <div class="topbar-right">
+    <!-- Period -->
+    <button class="pill-btn active" id="btn-all-time" onclick="setPeriod('all')">Всё время</button>
+    <button class="pill-btn" id="btn-today" onclick="setPeriod('today')">Сегодня</button>
+    <button class="pill-btn" id="btn-week" onclick="setPeriod('week')">Неделя</button>
+    <div class="filter-divider"></div>
+    <!-- Leaderboard toggle -->
+    <button class="icon-btn" id="lb-toggle" onclick="toggleSidebar()" title="Скрыть/показать рейтинг">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
+    </button>
+    <!-- Refresh -->
+    <button class="icon-btn" onclick="loadData()" title="Обновить">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+    </button>
+    <!-- Theme -->
+    <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="layout">
+
+  <!-- Leaderboard sidebar -->
+  <div class="lb-sidebar" id="lbSidebar">
+    <div class="lb-header">🏆 QREI Рейтинг</div>
+    <div id="lbList"></div>
+  </div>
+
+  <!-- Main area -->
+  <div class="main">
+
+    <!-- Config warning (if sheet not set) -->
+    <div class="config-bar" id="configBar" style="display:none" onclick="goToSettings()">
+      ⚙️ <span>Таблица Advanced KPI не настроена — нажмите чтобы перейти в настройки</span>
+      <span style="margin-left:auto;opacity:0.6">→</span>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <button class="pill-btn active" id="tab-all" onclick="setTeam('all')">Все</button>
+      <button class="pill-btn" id="tab-grandpark" onclick="setTeam('grandpark')">Grand Park</button>
+      <button class="pill-btn" id="tab-aport" onclick="setTeam('aport')">Aport</button>
+      <div class="filter-divider"></div>
+      <span id="last-updated" style="font-size:11px;color:var(--text3)"></span>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-strip" id="summaryStrip" style="display:none"></div>
+
+    <!-- Cards / loading / empty -->
+    <div id="mainContent">
+      <div class="loader"><div class="spinner"></div>Загрузка...</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── SLIDE PANEL OVERLAY ── -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<div class="slide-panel" id="slidePanel">
+  <div class="panel-top">
+    <button class="panel-close" onclick="closePanel()">×</button>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════
+//  CONFIG — читаем из localStorage (сохраняется в panel.html settings)
+// ══════════════════════════════════════════════════════════
+const FIREBASE_CFG = {
+  apiKey:"AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
+  authDomain:"qos-base.firebaseapp.com",
+  projectId:"qos-base",
+  storageBucket:"qos-base.firebasestorage.app",
+  messagingSenderId:"639485153845",
+  appId:"1:639485153845:web:61baa7942382ba7444d77c"
+};
+firebase.initializeApp(FIREBASE_CFG);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+// Google Sheets
+const MAIN_SHEET_ID = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
+const API_KEY = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
+
+function getCFG() {
+  try { return JSON.parse(localStorage.getItem('qgi_config') || '{}'); } catch(e) { return {}; }
+}
+function getSheetId()   {
+  const c = getCFG();
+  return (c.ADV_SHEET_ID || '').trim() || MAIN_SHEET_ID;
+}
+function getSheetName() {
+  const c = getCFG();
+  // Приоритет: ADV_SHEET_NAME → SELLERS_SHEET_NAME → дефолт "3 Май"
+  return (c.ADV_SHEET_NAME || c.SELLERS_SHEET_NAME || '').trim() || '3 Май';
+}
+
+// ══════════════════════════════════════════════════════════
+//  QREI BENCHMARKS (per ТЗ)
+// ══════════════════════════════════════════════════════════
+const BENCH = { ioc:15, upt:2.2, atv:25000, aur:20000 };
+const WEIGHTS = { ioc:0.30, upt:0.30, atv:0.20, aur:0.20 };
+
+// ══════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════
+let allSellers = [];
+let filteredSellers = [];
+let currentTeam    = 'all';
+let currentPeriod  = 'all';
+let sidebarCollapsed = false;
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function pn(val) {
+  if (!val || String(val).trim() === '' || String(val) === 'nan' || String(val).includes('DIV')) return 0;
+  const s = String(val)
+    .replace(/\u00a0/g,'').replace(/\s/g,'').replace(/₸/g,'').replace(/%/g,'')
+    .replace(/,/g,'.').trim();
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+function fmt(n)    { return Math.round(n).toLocaleString('ru-RU') + ' ₸'; }
+function fmtK(n)   { return n >= 1e6 ? (n/1e6).toFixed(1)+'М' : n >= 1e3 ? Math.round(n/1e3)+'К' : Math.round(n); }
+function fmtKT(n)  { return fmtK(n) + '₸'; }
+
+// ══════════════════════════════════════════════════════════
+//  PARSER — точная структура QOIMA Sellers CSV
+//  Блок продавца:
+//    Строка 1: ИмяПродавца | дата1 | дата2 | ...
+//    Строка 2: "Выручка за день."    | 302000 | 250000 | ...
+//    Строка 3: "Кол-во чеков."       | 10 | 7 | ...
+//    Строка 4: "Кол-во товара."      | 10 | 10 | ...
+//    Строка 5: "Смена"               | 1 | 1 | 0 | ...
+//    Строка 6: "Магазин"             | Qoima | Qoima | ...
+//    Строка 7: "Трафик"              | 400 | 400 | ...
+//    Строка 8: "" (пустая метка)     | 2 | ... ← продавцов на смене
+//    Строка 9: "UPT ..."             | 1,00 | ...
+//    Строка 10: "ATV ..."            | 30200 | ...
+//    Строка 11: "AUR ..."            | 30200 | ...
+//    Строки 12+: пустые (разделитель)
+// ══════════════════════════════════════════════════════════
+function parseSheet(rows) {
+  const SECTION_MAP = {
+    'grand park':'grandpark','grandpark':'grandpark',
+    'aport':'aport','aport west':'aport','aport city':'aport'
+  };
+  const DATE_RX = /мая|апр|март|июн|июл|авг|сент|окт|нояб|дек|янв|фев/i;
+
+  const LABEL = {
+    rev:   l => l.startsWith('выручка'),
+    chk:   l => l.startsWith('кол-во чеков'),
+    unt:   l => l.startsWith('кол-во товар'),
+    shift: l => l === 'смена' || l.startsWith('смена'),
+    store: l => l === 'магазин',
+    traf:  l => l === 'трафик',
+    upt:   l => l.startsWith('upt'),
+    atv:   l => l.startsWith('atv'),
+    aur:   l => l.startsWith('aur'),
+  };
+  const isAnyLabel = l => Object.values(LABEL).some(fn => fn(l));
+
+  const sellers = [];
+  let section = 'grandpark';
+  let i = 0;
+
+  while (i < rows.length) {
+    const row = rows[i] || [];
+    const a0  = String(row[0] || '').trim();
+    const a0l = a0.toLowerCase();
+
+    // ── Секция команды ──
+    if (SECTION_MAP[a0l] !== undefined) {
+      section = SECTION_MAP[a0l];
+      i++; continue;
+    }
+
+    // ── Пустая строка ──
+    if (!a0 || a0 === 'nan') { i++; continue; }
+
+    // ── Строка с меткой данных — пропускаем ──
+    if (isAnyLabel(a0l)) { i++; continue; }
+
+    // ── Проверяем что col1 выглядит как дата ──
+    const col1 = String(row[1] || '').trim();
+    if (!(/\d/.test(col1) && DATE_RX.test(col1))) { i++; continue; }
+
+    // ════ Начало блока продавца ════
+    const name = a0;
+    let revD=[], chkD=[], untD=[], shiftD=[], storeD=[], trfD=[], scD=[];
+
+    let j = i + 1;
+    let emptyStreak = 0;
+
+    while (j < rows.length) {
+      const brow = rows[j] || [];
+      const lbl  = String(brow[0] || '').trim();
+      const lbll = lbl.toLowerCase();
+
+      // Новый продавец или новая секция — выходим
+      if (lbl && lbl !== 'nan') {
+        if (SECTION_MAP[lbll] !== undefined) break;
+        // Новый продавец: не метка данных + col1 — дата
+        const bc1 = String(brow[1] || '').trim();
+        if (!isAnyLabel(lbll) && /\d/.test(bc1) && DATE_RX.test(bc1)) break;
+      }
+
+      if (!lbl || lbl === 'nan') {
+        emptyStreak++;
+        // Строка с пустым ключом но с числами = продавцов на смене
+        const vals = brow.slice(1).map((v,k) => pn(v));
+        if (vals.some(v => v > 0 && v <= 20)) {
+          vals.forEach((v,d) => { if (v > 0) scD[d] = v; });
+        }
+        if (emptyStreak > 5) { j++; break; }
+        j++; continue;
+      }
+      emptyStreak = 0;
+
+      // Значения по дням (индексы 1..31)
+      const vals = brow.slice(1).map(v => pn(v));
+      const strs = brow.slice(1).map(v => String(v || '').trim());
+
+      if      (LABEL.rev(lbll))   vals.forEach((v,d) => { revD[d] = (revD[d]||0)+v; });
+      else if (LABEL.chk(lbll))   vals.forEach((v,d) => { chkD[d] = (chkD[d]||0)+v; });
+      else if (LABEL.unt(lbll))   vals.forEach((v,d) => { untD[d] = (untD[d]||0)+v; });
+      else if (LABEL.shift(lbll)) vals.forEach((v,d) => { shiftD[d] = v > 0 ? 1 : 0; });
+      else if (LABEL.store(lbll)) strs.forEach((v,d) => { storeD[d] = v; });
+      else if (LABEL.traf(lbll))  vals.forEach((v,d) => { trfD[d] = v; });
+      // UPT/ATV/AUR из Sheets — используем только как fallback если нет исходников
+      j++;
+    }
+
+    // ── Агрегируем по дням ──
+    const numDays = Math.max(revD.length, chkD.length, shiftD.length, 1);
+    const days = [];
+    const ioc_samples = [];
+    let totalRev=0, totalChk=0, totalUnt=0, totalShifts=0;
+
+    for (let d = 0; d < numDays; d++) {
+      const rv  = revD[d]   || 0;
+      const ch  = chkD[d]   || 0;
+      const un  = untD[d]   || 0;
+      const sh  = shiftD[d] || 0;
+      const tr  = trfD[d]   || 0;
+      const mg  = storeD[d] || '';
+      // Продавцов на смене: берём из scD, если нет — считаем сколько продавцов
+      // в тот же магазин вышли (определим в post-processing)
+      const sc  = Math.max(1, scD[d] || 1);
+
+      // IOC: деление на ноль защита по ТЗ
+      const ioc_d = (sh && tr > 0) ? (ch / (tr / sc)) * 100 : 0;
+      if (sh && tr > 0) ioc_samples.push(ioc_d);
+
+      const upt_d = ch > 0 ? un / ch : 0;
+      const atv_d = ch > 0 ? rv / ch : 0;
+      const aur_d = un > 0 ? rv / un : 0;
+
+      if (sh) { totalShifts++; }
+      totalRev += rv;
+      totalChk += ch;
+      totalUnt += un;
+
+      days.push({ shift:sh, revenue:rv, checks:ch, units:un, traffic:tr,
+                  sellers_cnt:sc, magasin:mg, ioc:ioc_d, upt:upt_d, atv:atv_d, aur:aur_d, dayIdx:d });
+    }
+
+    // Итоговые показатели (взвешенное среднее по сменам)
+    const ioc = ioc_samples.length ? ioc_samples.reduce((a,b)=>a+b,0) / ioc_samples.length : 0;
+    const upt = totalChk > 0 ? totalUnt / totalChk : 0;
+    const atv = totalChk > 0 ? totalRev / totalChk : 0;
+    const aur = totalUnt > 0 ? totalRev / totalUnt : 0;
+
+    if (totalRev > 0 || totalChk > 0) {
+      sellers.push({
+        name, team: section,
+        revenue: totalRev, checks: totalChk, units: totalUnt, shifts: totalShifts,
+        ioc, upt, atv, aur, days
+      });
+    }
+    i = j;
+  }
+
+  // ── Post-processing: пересчёт IOC если scD был пустой ──
+  // Для каждого дня по каждому магазину считаем реальное кол-во продавцов
+  const dayMagCount = {}; // "mag_dayIdx" → count
+  sellers.forEach(s => {
+    s.days.forEach(d => {
+      if (d.shift && d.magasin) {
+        const key = `${d.magasin}_${d.dayIdx}`;
+        dayMagCount[key] = (dayMagCount[key] || 0) + 1;
+      }
+    });
+  });
+
+  sellers.forEach(s => {
+    const ioc_recalc = [];
+    s.days.forEach(d => {
+      if (d.shift && d.traffic > 0 && d.magasin) {
+        const key = `${d.magasin}_${d.dayIdx}`;
+        const realSc = dayMagCount[key] || 1;
+        d.sellers_cnt = realSc;
+        d.ioc = (d.checks / (d.traffic / realSc)) * 100;
+        ioc_recalc.push(d.ioc);
+      } else if (!d.shift || d.traffic === 0) {
+        d.ioc = 0;
+      }
+    });
+    if (ioc_recalc.length) {
+      s.ioc = ioc_recalc.reduce((a,b)=>a+b,0) / ioc_recalc.length;
+    }
+  });
+
+  console.log('[QREI] Parsed', sellers.length, 'sellers:', sellers.map(s=>
+    `${s.name}(${s.team}) rev:${s.revenue} chk:${s.checks} upt:${s.upt.toFixed(2)} ioc:${s.ioc.toFixed(1)}%`
+  ));
+  return sellers;
+}
+
+// ══════════════════════════════════════════════════════════
+//  QREI SCORE CALCULATION (per ТЗ)
+// ══════════════════════════════════════════════════════════
+function calcQREI(sellers) {
+  const maxUpt = Math.max(...sellers.map(s=>s.upt), 0.01);
+  const maxIoc = Math.max(...sellers.map(s=>s.ioc), 0.01);
+  const maxAur = Math.max(...sellers.map(s=>s.aur), 0.01);
+
+  return sellers.map(s => {
+    // Normalize vs benchmark (capped at 100)
+    const n_ioc = Math.min(100, s.ioc > 0 ? s.ioc / BENCH.ioc * 100 : 0);
+    const n_upt = Math.min(100, s.upt > 0 ? s.upt / BENCH.upt * 100 : 0);
+    const n_atv = Math.min(100, s.atv > 0 ? s.atv / BENCH.atv * 100 : 0);
+    const n_aur = Math.min(100, s.aur > 0 ? s.aur / BENCH.aur * 100 : 0);
+    const qrei  = Math.round(n_ioc*WEIGHTS.ioc + n_upt*WEIGHTS.upt + n_atv*WEIGHTS.atv + n_aur*WEIGHTS.aur);
+
+    // Danger zone per ТЗ
+    const isDanger = qrei < 40 || s.upt < 1.2;
+
+    // Dynamic badge (among whole filtered list)
+    let badge = null;
+    if (s.upt === maxUpt && maxUpt > 0)       badge = {label:'The Look Maker', color:'var(--yellow)', icon:'⚡'};
+    else if (s.ioc === maxIoc && maxIoc > 0)  badge = {label:'The Closer',     color:'var(--green)',  icon:'🎯'};
+    else if (s.aur === maxAur && maxAur > 0)  badge = {label:'Premium Stylist', color:'var(--accent)', icon:'💎'};
+
+    return { ...s, qrei, isDanger, badge, n_ioc, n_upt, n_atv, n_aur };
+  }).sort((a,b)=>b.qrei-a.qrei);
+}
+
+// ══════════════════════════════════════════════════════════
+//  PERIOD FILTER
+// ══════════════════════════════════════════════════════════
+function filterByPeriod(sellers) {
+  if (currentPeriod === 'all') return sellers;
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const weekStart = todayIdx - 6;
+
+  return sellers.map(s => {
+    let d_range;
+    if (currentPeriod === 'today') d_range = s.days.filter((_,i)=>i===todayIdx);
+    else d_range = s.days.filter((_,i)=>i>=weekStart && i<=todayIdx);
+
+    const rev   = d_range.reduce((a,d)=>a+d.revenue,0);
+    const chk   = d_range.reduce((a,d)=>a+d.checks,0);
+    const unt   = d_range.reduce((a,d)=>a+d.units,0);
+    const shf   = d_range.filter(d=>d.shift).length;
+    const iocs  = d_range.filter(d=>d.shift&&d.traffic>0).map(d=>d.ioc);
+    const ioc   = iocs.length ? iocs.reduce((a,b)=>a+b)/iocs.length : 0;
+    const upt   = chk > 0 ? unt/chk : 0;
+    const atv   = chk > 0 ? rev/chk : 0;
+    const aur   = unt > 0 ? rev/unt : 0;
+    return { ...s, revenue:rev, checks:chk, units:unt, shifts:shf, ioc, upt, atv, aur, days:d_range };
+  }).filter(s=>s.revenue>0||s.checks>0||s.shifts>0);
+}
+
+// ══════════════════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════════════════
+function render() {
+  let list = allSellers;
+  if (currentTeam !== 'all') list = list.filter(s=>s.team===currentTeam);
+  list = filterByPeriod(list);
+  list = calcQREI(list);
+
+  // Summary strip
+  const strip = document.getElementById('summaryStrip');
+  if (list.length) {
+    const totalRev  = list.reduce((a,s)=>a+s.revenue,0);
+    const avgUpt    = list.reduce((a,s)=>a+s.upt,0)/list.length;
+    const avgAtv    = list.reduce((a,s)=>a+s.atv,0)/list.length;
+    const avgIoc    = list.reduce((a,s)=>a+s.ioc,0)/list.length;
+    const dangerCnt = list.filter(s=>s.isDanger).length;
+    strip.style.display = '';
+    strip.innerHTML = `
+      <div class="summary-cell"><div class="summary-lbl">Выручка</div><div class="summary-val">${fmtKT(totalRev)}</div></div>
+      <div class="summary-cell"><div class="summary-lbl">Ср. UPT</div><div class="summary-val" style="color:#4488ff">${avgUpt.toFixed(1)}</div></div>
+      <div class="summary-cell"><div class="summary-lbl">Ср. ATV</div><div class="summary-val" style="color:var(--yellow)">${fmtKT(avgAtv)}</div></div>
+      <div class="summary-cell"><div class="summary-lbl">Ср. IOC</div><div class="summary-val" style="color:var(--green)">${avgIoc.toFixed(1)}%</div></div>
+      ${dangerCnt?`<div class="summary-cell" style="border-color:rgba(255,51,51,0.3);background:rgba(255,51,51,0.04)"><div class="summary-lbl" style="color:var(--red)">⚠️ Зона риска</div><div class="summary-val" style="color:var(--red)">${dangerCnt}</div></div>`:''}`;
+  } else {
+    strip.style.display = 'none';
+  }
+
+  // Leaderboard sidebar
+  document.getElementById('lbList').innerHTML = list.map((s,i)=>{
+    const rankStr = i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+    const clr = s.isDanger?'var(--red)':i===0?'#ffd700':i<3?'var(--accent)':'var(--text2)';
+    const avBg = s.team==='grandpark'?'#0d1a2e':'#2e1a0d';
+    const avTx = s.team==='grandpark'?'#6ba3d4':'#d4a56b';
+    const idx = allSellers.findIndex(x=>x.name===s.name&&x.team===s.team);
+    return `<div class="lb-row" onclick="openPanel(${idx})">
+      <span class="lb-rank">${rankStr}</span>
+      <div class="lb-avatar" style="background:${avBg};color:${avTx}">${s.name.charAt(0)}</div>
+      <div class="lb-info">
+        <div class="lb-name">${s.name}</div>
+        <div class="lb-store">${s.team==='grandpark'?'Grand Park':'Aport'}</div>
+      </div>
+      <span class="lb-score" style="color:${clr}">${s.qrei}</span>
+    </div>
+    <div class="lb-bar"><div class="lb-bar-fill" style="width:${s.qrei}%;background:${clr}"></div></div>`;
+  }).join('') || '<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">Нет данных</div>';
+
+  // Cards grid
+  const mc = document.getElementById('mainContent');
+  if (!list.length) {
+    mc.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Нет данных</div><div class="empty-sub">Попробуйте изменить фильтры или обновить данные</div></div>`;
+    return;
+  }
+
+  // Cards grid
+  mc.innerHTML = `<div class="cards-grid">${list.map((s,i)=>renderCard(s,i,allSellers.findIndex(x=>x.name===s.name&&x.team===s.team))).join('')}</div>`;
+}
+
+function renderCard(s, rank, origIdx) {
+  const avBg  = s.team==='grandpark'?'#0d1a2e':'#2e1a0d';
+  const avTx  = s.team==='grandpark'?'#6ba3d4':'#d4a56b';
+  const teamLbl = s.team==='grandpark'?'Grand Park':'Aport';
+  const rankStr = rank===0?'🥇':rank===1?'🥈':rank===2?'🥉':`#${rank+1}`;
+  const scoreClr= s.isDanger?'var(--red)':s.qrei>=80?'var(--green)':s.qrei>=60?'var(--yellow)':'var(--text)';
+  const iocPct  = Math.min(100, s.ioc / 30 * 100);
+
+  // Уникальные магазины продавца
+  const storeSet = [...new Set(s.days.filter(d=>d.shift&&d.magasin).map(d=>d.magasin))];
+  const storeLabel = storeSet.length ? storeSet.join(', ') : teamLbl;
+
+  return `<div class="seller-card${s.isDanger?' danger':''}" onclick="openPanel(${origIdx})">
+    <div class="card-header">
+      <div class="card-rank">${rankStr}</div>
+      <div class="card-avatar" style="background:${avBg};color:${avTx}">${s.name.charAt(0)}</div>
+      <div class="card-meta">
+        <div class="card-name">${s.name}</div>
+        <div class="card-store">${storeLabel}</div>
+        ${s.badge?`<div class="card-badge" style="background:${s.badge.color}18;color:${s.badge.color}">${s.badge.icon} ${s.badge.label}</div>`:''}
+        ${s.isDanger?`<div class="danger-badge">⚠️ Зона риска</div>`:''}
+      </div>
+      <div class="card-score-block">
+        <div class="card-score-num" style="color:${scoreClr}">${s.qrei}</div>
+        <div class="card-score-label">QREI SCORE</div>
+      </div>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-cell">
+        <div class="metric-lbl">💰 Выручка</div>
+        <div class="metric-val">${fmtKT(s.revenue)}</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-lbl">⚡ UPT</div>
+        <div class="metric-val" style="color:#4488ff">${s.upt.toFixed(1)}</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-lbl">🎯 ATV</div>
+        <div class="metric-val" style="color:var(--yellow)">${fmtKT(s.atv)}</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-lbl">💎 AUR</div>
+        <div class="metric-val" style="color:var(--purple)">${fmtKT(s.aur)}</div>
+      </div>
+    </div>
+    <div class="ioc-row">
+      <span class="ioc-label">IOC ${s.ioc.toFixed(1)}%</span>
+      <div class="ioc-track"><div class="ioc-fill" style="width:${iocPct}%"></div></div>
+      <span class="ioc-right">${s.shifts} смен · ${s.checks} чек.</span>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+//  SLIDE PANEL
+// ══════════════════════════════════════════════════════════
+function openPanel(origIdx) {
+  const raw = allSellers[origIdx];
+  if (!raw) return;
+
+  // Recalc QREI for this seller in context of current filter
+  let ctx = allSellers;
+  if (currentTeam !== 'all') ctx = ctx.filter(s=>s.team===raw.team);
+  ctx = filterByPeriod(ctx);
+  const scored = calcQREI(ctx).find(s=>s.name===raw.name&&s.team===raw.team);
+  if (!scored) return;
+
+  const s = scored;
+  const avBg  = s.team==='grandpark'?'#0d1a2e':'#2e1a0d';
+  const avTx  = s.team==='grandpark'?'#6ba3d4':'#d4a56b';
+  const teamLbl = s.team==='grandpark'?'Grand Park':'Aport';
+  const scoreClr= s.isDanger?'var(--red)':s.qrei>=80?'var(--green)':s.qrei>=60?'var(--yellow)':'var(--text)';
+
+  // Score breakdown cells
+  const breakdown = [
+    ['IOC','30%', s.n_ioc, 'var(--green)'],
+    ['UPT','30%', s.n_upt, '#4488ff'],
+    ['ATV','20%', s.n_atv, 'var(--yellow)'],
+    ['AUR','20%', s.n_aur, 'var(--purple)'],
+  ].map(([lbl,w,v,clr])=>`<div class="breakdown-cell">
+    <div class="breakdown-lbl">${lbl}</div>
+    <div class="breakdown-weight">${w}</div>
+    <div class="breakdown-val" style="color:${clr}">${Math.round(v)}</div>
+    <div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:${v}%;background:${clr}"></div></div>
+  </div>`).join('');
+
+  // Day-by-day table
+  const now = new Date();
+  const dayRu = ['вс','пн','вт','ср','чт','пт','сб'];
+  const dayRows = s.days.map((d,i)=>{
+    if (!d.shift && !d.revenue) return '';
+    const dt = new Date(now.getFullYear(), now.getMonth(), i+1);
+    const dayLabel = `${dayRu[dt.getDay()]} ${i+1}`;
+    const cls = d.shift ? '' : 'day-off';
+    return `<tr class="${cls}">
+      <td>${dayLabel}</td>
+      <td>${d.shift?'●':'—'}</td>
+      <td style="font-weight:600">${d.revenue>0?fmtKT(d.revenue):'—'}</td>
+      <td>${d.checks||'—'}</td>
+      <td style="color:#4488ff">${d.checks>0?d.upt.toFixed(1):'—'}</td>
+      <td style="color:var(--yellow)">${d.checks>0?fmtKT(d.atv):'—'}</td>
+      <td style="color:var(--purple)">${d.units>0?fmtKT(d.aur):'—'}</td>
+      <td style="color:var(--green)">${d.traffic>0?d.ioc.toFixed(1)+'%':'—'}</td>
+      <td style="color:var(--text3);font-size:10px">${d.magasin||'—'}</td>
+    </tr>`;
+  }).filter(Boolean).join('');
+
+  document.getElementById('panelBody').innerHTML = `
+    <!-- Avatar + name -->
+    <div class="panel-avatar-wrap">
+      <div class="panel-avatar" style="background:${avBg};color:${avTx}">${s.name.charAt(0)}</div>
+      <div class="panel-name">${s.name}</div>
+      <div class="panel-store">${teamLbl}</div>
+      ${s.badge?`<div class="card-badge" style="background:${s.badge.color}18;color:${s.badge.color};margin-top:6px">${s.badge.icon} ${s.badge.label}</div>`:''}
+      ${s.isDanger?`<div class="danger-badge" style="margin-top:6px">⚠️ Зона риска — требует внимания</div>`:''}
+    </div>
+
+    <!-- QREI display -->
+    <div class="qrei-display">
+      <div class="qrei-num" style="color:${scoreClr}">${s.qrei}<span style="font-size:24px;color:var(--text3);font-weight:400">/100</span></div>
+      <div class="qrei-sub">QREI Score</div>
+    </div>
+
+    <!-- Score breakdown -->
+    <div class="breakdown-cells" style="margin-bottom:6px">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Структура оценки</div>
+      <div class="score-breakdown">${breakdown}</div>
+    </div>
+
+    <!-- 4 KPI tiles -->
+    <div class="kpi-tiles">
+      <div class="kpi-tile">
+        <div class="kpi-tile-lbl">Конверсия (IOC)</div>
+        <div class="kpi-tile-val" style="color:var(--green)">${s.ioc.toFixed(1)}%</div>
+        <div class="kpi-tile-sub">чеки / (трафик / продавцов)</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-tile-lbl">Товаров в чеке (UPT)</div>
+        <div class="kpi-tile-val" style="color:#4488ff">${s.upt.toFixed(2)}</div>
+        <div class="kpi-tile-sub">ед. · план ${BENCH.upt}</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-tile-lbl">Средний чек (ATV)</div>
+        <div class="kpi-tile-val" style="color:var(--yellow)">${fmt(s.atv)}</div>
+        <div class="kpi-tile-sub">план ${fmtKT(BENCH.atv)}</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-tile-lbl">Средняя цена вещи (AUR)</div>
+        <div class="kpi-tile-val" style="color:var(--purple)">${fmt(s.aur)}</div>
+        <div class="kpi-tile-sub">план ${fmtKT(BENCH.aur)}</div>
+      </div>
+    </div>
+
+    <!-- Day table -->
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">По дням</div>
+    <div class="day-table-wrap">
+      <table class="day-table">
+        <thead><tr>
+          <th>День</th><th>Смена</th><th>Выручка</th>
+          <th>Чеки</th><th style="color:#4488ff">UPT</th>
+          <th style="color:var(--yellow)">ATV</th>
+          <th style="color:var(--purple)">AUR</th>
+          <th style="color:var(--green)">IOC</th>
+          <th>Магазин</th>
+        </tr></thead>
+        <tbody>${dayRows||`<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--text3)">Нет данных</td></tr>`}</tbody>
+      </table>
+    </div>`;
+
+  document.getElementById('panelOverlay').classList.add('open');
+  requestAnimationFrame(()=>document.getElementById('slidePanel').classList.add('open'));
+  document.body.style.overflow = 'hidden';
+}
+
+function closePanel() {
+  document.getElementById('slidePanel').classList.remove('open');
+  document.getElementById('panelOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ══════════════════════════════════════════════════════════
+//  CONTROLS
+// ══════════════════════════════════════════════════════════
+function setTeam(t) {
+  currentTeam = t;
+  ['all','grandpark','aport'].forEach(k=>document.getElementById('tab-'+k).classList.toggle('active',k===t));
+  render();
+}
+function setPeriod(p) {
+  currentPeriod = p;
+  ['all-time','today','week'].forEach(k=>document.getElementById('btn-'+k).classList.toggle('active',k===p));
+  render();
+}
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  document.getElementById('lbSidebar').classList.toggle('collapsed', sidebarCollapsed);
+}
+function toggleTheme() {
+  const html = document.documentElement;
+  const cur  = html.getAttribute('data-theme');
+  const next = cur==='dark'?'light':'dark';
+  html.setAttribute('data-theme',next);
+  document.getElementById('themeBtn').textContent = next==='dark'?'🌙':'☀️';
+  localStorage.setItem('adv_theme',next);
+}
+function goToSettings() {
+  window.location.href = 'panel.html';
+}
+
+// ══════════════════════════════════════════════════════════
+//  DATA LOADING
+// ══════════════════════════════════════════════════════════
+async function loadData() {
+  const sheetName = getSheetName();
+  const sheetId   = getSheetId();
+
+  if (!sheetName) {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚙️</div>
+        <div class="empty-title">Таблица не настроена</div>
+        <div class="empty-sub">Перейдите в панель → Настройки → укажите «Advanced KPI лист»</div>
+      </div>`;
+    document.getElementById('configBar').style.display = 'flex';
+    return;
+  }
+
+  document.getElementById('mainContent').innerHTML = '<div class="loader"><div class="spinner"></div>Загрузка данных...</div>';
+  document.getElementById('last-updated').textContent = `Лист: ${sheetName}`;
+
+  try {
+    const url  = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
+    const res  = await fetch(url);
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.error?.message || 'HTTP ' + res.status);
+    }
+    const json = await res.json();
+    if (!json.values || json.values.length < 2) throw new Error('Таблица пустая или недоступна');
+
+    allSellers = parseSheet(json.values);
+    document.getElementById('last-updated').textContent = 'Обновлено: ' + new Date().toLocaleTimeString('ru-RU');
+    render();
+  } catch(e) {
+    console.error('[QREI]', e);
+    document.getElementById('mainContent').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <div class="empty-title">Ошибка загрузки</div>
+        <div class="empty-sub">${e.message}</div>
+      </div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+auth.onAuthStateChanged(user => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  // Apply saved theme
+  const savedTheme = localStorage.getItem('adv_theme') || localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  document.getElementById('themeBtn').textContent = savedTheme==='dark'?'🌙':'☀️';
+  loadData();
+});
+</script>
+</body>
+</html>

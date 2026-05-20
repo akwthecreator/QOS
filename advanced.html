@@ -175,6 +175,10 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 .ioc-track{flex:1;height:3px;background:var(--bg4);border-radius:2px}
 .ioc-fill{height:100%;border-radius:2px;background:var(--green)}
 .ioc-right{font-size:9px;color:var(--text3);white-space:nowrap}
+.traffic-share-row{display:flex;align-items:center;gap:6px;margin-top:7px;padding:6px 10px;background:rgba(100,180,255,0.07);border-radius:8px;border:1px solid rgba(100,180,255,0.15)}
+.ts-icon{font-size:12px;flex-shrink:0}
+.ts-label{font-size:10px;color:var(--text3);flex:1}
+.ts-val{font-size:11px;font-weight:700;color:#6ab4ff;white-space:nowrap}
 
 /* ── DANGER BADGE ── */
 .danger-badge{
@@ -255,6 +259,12 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 
 /* 4 KPI tiles */
 .kpi-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.traffic-share-tile{display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(100,180,255,0.07);border:1px solid rgba(100,180,255,0.2);border-radius:12px;margin-bottom:16px}
+.ts-tile-icon{font-size:22px;flex-shrink:0}
+.ts-tile-body{flex:1;min-width:0}
+.ts-tile-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.ts-tile-val{font-size:22px;font-weight:800;color:#6ab4ff;line-height:1}
+.ts-tile-sub{font-size:10px;color:var(--text3);margin-top:3px}
 .kpi-tile{
   background:var(--bg2);border:1px solid var(--border);
   border-radius:12px;padding:12px;
@@ -639,15 +649,22 @@ function parseSheet(rows) {
         const key = `${d.magasin}_${d.dayIdx}`;
         const realSc = dayMagCount[key] || 1;
         d.sellers_cnt = realSc;
+        // IOC: чеки продавца / (трафик / кол-во продавцов в этом магазине в этот день)
         d.ioc = (d.checks / (d.traffic / realSc)) * 100;
+        // Доля трафика: трафик бутика / кол-во продавцов на смене
+        d.trafficShare = Math.round(d.traffic / realSc);
         ioc_recalc.push(d.ioc);
       } else if (!d.shift || d.traffic === 0) {
         d.ioc = 0;
+        d.trafficShare = 0;
       }
     });
     if (ioc_recalc.length) {
       s.ioc = ioc_recalc.reduce((a,b)=>a+b,0) / ioc_recalc.length;
     }
+    // Средняя доля трафика по рабочим сменам
+    const tsSamples = s.days.filter(d => d.shift && d.trafficShare > 0).map(d => d.trafficShare);
+    s.avgTrafficShare = tsSamples.length ? Math.round(tsSamples.reduce((a,b)=>a+b,0) / tsSamples.length) : 0;
   });
 
   console.log('[QREI] Parsed', sellers.length, 'sellers:', sellers.map(s=>
@@ -705,10 +722,12 @@ function filterByPeriod(sellers) {
     const shf   = d_range.filter(d=>d.shift).length;
     const iocs  = d_range.filter(d=>d.shift&&d.traffic>0).map(d=>d.ioc);
     const ioc   = iocs.length ? iocs.reduce((a,b)=>a+b)/iocs.length : 0;
+    const tsSamples = d_range.filter(d=>d.shift&&d.trafficShare>0).map(d=>d.trafficShare);
+    const avgTrafficShare = tsSamples.length ? Math.round(tsSamples.reduce((a,b)=>a+b,0)/tsSamples.length) : s.avgTrafficShare||0;
     const upt   = chk > 0 ? unt/chk : 0;
     const atv   = chk > 0 ? rev/chk : 0;
     const aur   = unt > 0 ? rev/unt : 0;
-    return { ...s, revenue:rev, checks:chk, units:unt, shifts:shf, ioc, upt, atv, aur, days:d_range };
+    return { ...s, revenue:rev, checks:chk, units:unt, shifts:shf, ioc, avgTrafficShare, upt, atv, aur, days:d_range };
   }).filter(s=>s.revenue>0||s.checks>0||s.shifts>0);
 }
 
@@ -735,6 +754,7 @@ function render() {
       <div class="summary-cell"><div class="summary-lbl">Ср. UPT</div><div class="summary-val" style="color:#4488ff">${avgUpt.toFixed(1)}</div></div>
       <div class="summary-cell"><div class="summary-lbl">Ср. ATV</div><div class="summary-val" style="color:var(--yellow)">${fmtKT(avgAtv)}</div></div>
       <div class="summary-cell"><div class="summary-lbl">Ср. IOC</div><div class="summary-val" style="color:var(--green)">${avgIoc.toFixed(1)}%</div></div>
+      <div class="summary-cell"><div class="summary-lbl">Ср. доля тр.</div><div class="summary-val" style="color:#6ab4ff">${Math.round(list.reduce((a,s)=>a+(s.avgTrafficShare||0),0)/list.length)}👤</div></div>
       ${dangerCnt?`<div class="summary-cell" style="border-color:rgba(255,51,51,0.3);background:rgba(255,51,51,0.04)"><div class="summary-lbl" style="color:var(--red)">⚠️ Зона риска</div><div class="summary-val" style="color:var(--red)">${dangerCnt}</div></div>`:''}`;
   } else {
     strip.style.display = 'none';
@@ -820,6 +840,11 @@ function renderCard(s, rank, origIdx) {
       <div class="ioc-track"><div class="ioc-fill" style="width:${iocPct}%"></div></div>
       <span class="ioc-right">${s.shifts} смен · ${s.checks} чек.</span>
     </div>
+    ${s.avgTrafficShare > 0 ? `<div class="traffic-share-row">
+      <span class="ts-icon">👤</span>
+      <span class="ts-label">Доля трафика</span>
+      <span class="ts-val">${s.avgTrafficShare.toLocaleString('ru-RU')} чел./смену</span>
+    </div>` : ''}
   </div>`;
 }
 
@@ -873,6 +898,7 @@ function openPanel(origIdx) {
       <td style="color:var(--yellow)">${d.checks>0?fmtKT(d.atv):'—'}</td>
       <td style="color:var(--purple)">${d.units>0?fmtKT(d.aur):'—'}</td>
       <td style="color:var(--green)">${d.traffic>0?d.ioc.toFixed(1)+'%':'—'}</td>
+      <td style="color:#6ab4ff;font-size:11px">${d.trafficShare>0?d.trafficShare.toLocaleString('ru-RU')+'👤':'—'}</td>
       <td style="color:var(--text3);font-size:10px">${d.magasin||'—'}</td>
     </tr>`;
   }).filter(Boolean).join('');
@@ -899,7 +925,7 @@ function openPanel(origIdx) {
       <div class="score-breakdown">${breakdown}</div>
     </div>
 
-    <!-- 4 KPI tiles -->
+    <!-- 4+1 KPI tiles -->
     <div class="kpi-tiles">
       <div class="kpi-tile">
         <div class="kpi-tile-lbl">Конверсия (IOC)</div>
@@ -922,6 +948,14 @@ function openPanel(origIdx) {
         <div class="kpi-tile-sub">план ${fmtKT(BENCH.aur)}</div>
       </div>
     </div>
+    ${s.avgTrafficShare > 0 ? `<div class="traffic-share-tile">
+      <div class="ts-tile-icon">👥</div>
+      <div class="ts-tile-body">
+        <div class="ts-tile-lbl">Доля трафика в смену</div>
+        <div class="ts-tile-val">${s.avgTrafficShare.toLocaleString('ru-RU')} чел.</div>
+        <div class="ts-tile-sub">трафик бутика ÷ кол-во продавцов на смене</div>
+      </div>
+    </div>` : ''}
 
     <!-- Day table -->
     <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">По дням</div>
@@ -933,6 +967,7 @@ function openPanel(origIdx) {
           <th style="color:var(--yellow)">ATV</th>
           <th style="color:var(--purple)">AUR</th>
           <th style="color:var(--green)">IOC</th>
+          <th style="color:#6ab4ff">Доля тр.</th>
           <th>Магазин</th>
         </tr></thead>
         <tbody>${dayRows||`<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--text3)">Нет данных</td></tr>`}</tbody>

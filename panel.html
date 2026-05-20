@@ -669,20 +669,28 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
   .kpi-grid { grid-template-columns: 1fr; }
 }
 
-/* ── Safari: adv cards fix ── */
-#adv-leaderboard > div > div {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+/* Advanced KPI cards grid — Safari compatible */
+.adv-cards-grid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  gap: 16px;
 }
-@media (max-width: 1100px) {
-  #adv-leaderboard div[style*="repeat(3"] {
-    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
-  }
+.adv-cards-grid > div {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: calc(33.333% - 11px);
+  min-width: 280px;
+  -webkit-flex: 1 1 280px;
+  flex: 1 1 280px;
 }
-@media (max-width: 680px) {
-  #adv-leaderboard div[style*="repeat(3"] {
-    grid-template-columns: minmax(0,1fr) !important;
-  }
+@media (max-width: 960px) {
+  .adv-cards-grid > div { width: calc(50% - 8px); -webkit-flex: 1 1 260px; flex: 1 1 260px; }
+}
+@media (max-width: 600px) {
+  .adv-cards-grid > div { width: 100%; -webkit-flex: 1 1 100%; flex: 1 1 100%; }
 }
 
 </style>
@@ -2806,7 +2814,7 @@ function renderAdvanced() {
       <div style="flex:1;height:1px;background:var(--border)"></div>
       <div style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--bg3);color:var(--text3);border:1px solid var(--border)">${teamList.length} чел.</div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
+    <div class="adv-cards-grid">
       ${teamList.map(s => renderCard(s, globalList.indexOf(s))).join('')}
     </div>`;
   };

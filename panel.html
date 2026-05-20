@@ -337,66 +337,82 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
   font-size: 11px; padding: 3px 10px; border-radius: 20px;
   background: var(--bg3); color: var(--text3); border: 1px solid var(--border);
 }
+/* Advanced KPI cards grid — Safari safe flexbox */
 .seller-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 8px;
 }
-/* Apple-style minimal seller card */
-.seller-card {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 20px; padding: 20px 20px 18px;
-  cursor: pointer; transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
-  position: relative; overflow: hidden;
+.seller-grid > .adv-seller-card {
+  -webkit-flex: 1 1 300px;
+  flex: 1 1 300px;
+  min-width: 280px;
+  max-width: 100%;
 }
-.seller-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.25); border-color: rgba(255,255,255,0.1); }
-.seller-card.danger  { border-color: rgba(255,51,51,0.25); }
-.seller-card.warning { border-color: rgba(255,170,0,0.2); }
-.seller-card.good    { border-color: rgba(0,204,102,0.2); }
-
-/* Top: rank + avatar + name */
-.seller-card-top {
-  display: flex; align-items: center; gap: 11px; margin-bottom: 18px;
+/* Advanced KPI card — NO overflow:hidden, NO position:relative на верхнем уровне */
+.adv-seller-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  cursor: pointer;
+  -webkit-transition: border-color 0.2s, -webkit-box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
-.sc-rank { font-size: 13px; font-weight: 700; color: var(--text3); width: 22px; flex-shrink: 0; }
-.sc-avatar {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: var(--bg3); border: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 700; color: var(--text2); flex-shrink: 0;
-}
-.sc-info { flex: 1; min-width: 0; }
-.seller-card-name { font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.seller-card-meta { font-size: 11px; color: var(--text3); margin-top: 1px; text-transform: uppercase; letter-spacing: 0.4px; }
+.adv-seller-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,102,255,0.12); }
+.adv-seller-card.rank-0 { border-color: rgba(255,215,0,0.4); }
+.adv-seller-card.rank-1 { border-color: rgba(192,192,192,0.35); }
+.adv-seller-card.rank-2 { border-color: rgba(205,127,50,0.35); }
 
-/* Hero: QREI score + badge */
-.sc-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
-.sc-score-group { display: flex; flex-direction: column; gap: 2px; }
-.sc-score-lbl { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
-.sc-score-big { display: flex; align-items: baseline; gap: 1px; line-height: 1; }
-.sc-score-num { font-size: 50px; font-weight: 800; color: var(--text); letter-spacing: -2px; }
-.sc-score-den { font-size: 17px; font-weight: 500; color: var(--text3); }
+/* Card header row */
+.adv-card-head { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 12px; margin-bottom: 14px; }
+.adv-card-icon { font-size: 22px; -webkit-flex-shrink: 0; flex-shrink: 0; line-height: 1; }
+.adv-card-info { -webkit-flex: 1; flex: 1; min-width: 0; }
+.adv-card-name { font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adv-card-sub  { font-size: 11px; color: var(--text3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.4px; }
+.adv-card-score-wrap { text-align: right; -webkit-flex-shrink: 0; flex-shrink: 0; }
+.adv-card-score-lbl  { font-size: 9px; font-weight: 700; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
+.adv-card-score-num  { font-size: 36px; font-weight: 900; line-height: 1; letter-spacing: -1px; }
+.adv-card-score-den  { font-size: 11px; color: var(--text3); }
 
-/* Status badge */
-.sc-badge {
-  padding: 5px 11px; border-radius: 20px;
-  font-size: 11px; font-weight: 600; white-space: nowrap;
-  letter-spacing: 0.2px; align-self: flex-end; margin-bottom: 5px;
-}
-.sc-badge.look-maker { background: rgba(130,80,255,0.15); color: #a855f7; border: 1px solid rgba(130,80,255,0.25); }
-.sc-badge.the-closer { background: rgba(0,200,100,0.12);  color: #00c864; border: 1px solid rgba(0,200,100,0.22); }
-.sc-badge.premium    { background: rgba(255,170,0,0.12);   color: #ffaa00; border: 1px solid rgba(255,170,0,0.22); }
-.sc-badge.trainee    { background: rgba(120,120,120,0.1);  color: var(--text3); border: 1px solid var(--border); }
-.sc-badge.danger-z   { background: rgba(255,51,51,0.12);   color: var(--red);   border: 1px solid rgba(255,51,51,0.25); }
+/* Badges row */
+.adv-card-badges { display: -webkit-flex; display: flex; gap: 5px; -webkit-flex-wrap: wrap; flex-wrap: wrap; margin-bottom: 12px; }
+.adv-badge-pill { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+.adv-badge-upt  { color:#ffaa00; background:rgba(255,170,0,0.15); border:1px solid rgba(255,170,0,0.3); }
+.adv-badge-ioc  { color:var(--green); background:rgba(0,204,102,0.15); border:1px solid rgba(0,204,102,0.3); }
+.adv-badge-atv  { color:var(--accent); background:rgba(0,102,255,0.15); border:1px solid rgba(0,102,255,0.3); }
 
-/* old classes kept for detail panel compatibility */
+/* Metrics 4-col */
+.adv-card-metrics { display: -webkit-flex; display: flex; gap: 6px; margin-bottom: 12px; }
+.adv-card-metric { -webkit-flex: 1; flex: 1; background: var(--bg3); border-radius: 8px; padding: 8px 6px; text-align: center; }
+.adv-metric-lbl { font-size: 8px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.adv-metric-val { font-size: 14px; font-weight: 800; line-height: 1; }
+.adv-metric-sub { font-size: 8px; color: var(--text3); margin-top: 2px; }
+.adv-metric-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 5px; }
+.adv-metric-bar-fill { height: 100%; border-radius: 2px; }
+
+/* Revenue row */
+.adv-card-rev { display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; -webkit-align-items: center; align-items: center; padding: 10px 12px; background: var(--bg3); border-radius: 8px; margin-bottom: 10px; }
+.adv-rev-item-lbl { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
+.adv-rev-item-val { font-size: 14px; font-weight: 700; color: var(--text); }
+
+/* Score bar */
+.adv-card-score-bar-head { display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+.adv-card-score-bar-track { height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.adv-card-score-bar-fill  { height: 100%; border-radius: 3px; }
+
+/* old compat classes */
 .seller-metric { background: var(--bg3); border-radius: 10px; padding: 10px 12px; }
 .seller-metric-lbl { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; font-weight: 600; }
 .seller-metric-val { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1; }
 .seller-metric-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
 .seller-score-track { height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
-.seller-score-fill  { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.seller-score-fill  { height: 100%; border-radius: 3px; -webkit-transition: width 0.6s ease; transition: width 0.6s ease; }
 
 /* Detail panel (slide-in from right) */
 .adv-detail-panel {
@@ -667,30 +683,6 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 }
 @media (max-width: 420px) {
   .kpi-grid { grid-template-columns: 1fr; }
-}
-
-/* Advanced KPI cards grid — Safari compatible */
-.adv-cards-grid {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.adv-cards-grid > div {
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  width: calc(33.333% - 11px);
-  min-width: 280px;
-  -webkit-flex: 1 1 280px;
-  flex: 1 1 280px;
-}
-@media (max-width: 960px) {
-  .adv-cards-grid > div { width: calc(50% - 8px); -webkit-flex: 1 1 260px; flex: 1 1 260px; }
-}
-@media (max-width: 600px) {
-  .adv-cards-grid > div { width: 100%; -webkit-flex: 1 1 100%; flex: 1 1 100%; }
 }
 
 </style>
@@ -2712,96 +2704,83 @@ function renderAdvanced() {
 
   const renderCard = (s, globalRank) => {
     const icons = ['🥇','🥈','🥉'];
-    const icon = icons[globalRank] || `#${globalRank+1}`;
-    const cardBorder = globalRank === 0
-      ? 'border-color:rgba(255,215,0,0.5);background:linear-gradient(135deg,var(--bg2) 0%,rgba(255,215,0,0.05) 100%)'
-      : globalRank === 1 ? 'border-color:rgba(192,192,192,0.4)'
-      : globalRank === 2 ? 'border-color:rgba(205,127,50,0.4)' : '';
+    const icon  = icons[globalRank] || `#${globalRank+1}`;
+    const rankCls = globalRank <= 2 ? `rank-${globalRank}` : '';
 
     const scoreColor = s.score >= 70 ? 'var(--green)' : s.score >= 45 ? 'var(--yellow)' : 'var(--red)';
+    const perShift   = s.shifts > 0 ? Math.round(s.revenue / s.shifts) : 0;
 
-    let dangerHtml = '';
-    if (s.score < 30 && s.shifts >= 3)      dangerHtml = `<div style="position:absolute;top:12px;right:12px;padding:3px 9px;background:rgba(255,51,51,0.15);border:1px solid rgba(255,51,51,0.4);border-radius:20px;font-size:10px;font-weight:700;color:var(--red)">⚠ Зона риска</div>`;
-    else if (s.score < 50 && s.shifts >= 5) dangerHtml = `<div style="position:absolute;top:12px;right:12px;padding:3px 9px;background:rgba(255,170,0,0.12);border:1px solid rgba(255,170,0,0.3);border-radius:20px;font-size:10px;font-weight:700;color:var(--yellow)">📉 Отстаёт</div>`;
-
-    const badgeHtml = s.badges.map(b => {
-      const style = b.cls==='upt' ? 'color:#ffaa00;background:rgba(255,170,0,0.15);border:1px solid rgba(255,170,0,0.3)'
-                  : b.cls==='ioc' ? 'color:var(--green);background:rgba(0,204,102,0.15);border:1px solid rgba(0,204,102,0.3)'
-                  : 'color:var(--accent);background:rgba(0,102,255,0.15);border:1px solid rgba(0,102,255,0.3)';
-      return `<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;${style}">${b.text}</span>`;
-    }).join('');
-
-    const perShift = s.shifts > 0 ? Math.round(s.revenue / s.shifts) : 0;
     const normIoc = Math.min(100, QREI_BENCH.ioc > 0 ? s.ioc / QREI_BENCH.ioc * 100 : 0);
     const normUpt = Math.min(100, QREI_BENCH.upt > 0 ? s.upt / QREI_BENCH.upt * 100 : 0);
     const normAtv = Math.min(100, QREI_BENCH.atv > 0 ? s.atv / QREI_BENCH.atv * 100 : 0);
     const normAur = Math.min(100, QREI_BENCH.aur > 0 ? s.aur / QREI_BENCH.aur * 100 : 0);
 
-    return `
-    <div onclick="openAdvDetail(${JSON.stringify(s.name)}, ${JSON.stringify(s.team)}, event)"
-      style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:22px 22px 18px;cursor:pointer;
-             transition:transform 0.18s,box-shadow 0.18s,border-color 0.18s;position:relative;${cardBorder}"
-      onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,0.3)'"
-      onmouseout="this.style.transform='';this.style.boxShadow=''">
-      ${dangerHtml}
-      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:18px">
-        <div style="font-size:22px;flex-shrink:0;line-height:1;margin-top:2px">${icon}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:16px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:0.4px">${s.team==='grandpark'?'Grand Park':'Aport West'} · ${s.shifts} смен</div>
-          ${badgeHtml ? `<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">${badgeHtml}</div>` : ''}
+    const badgeHtml = s.badges.map(b => {
+      const cls = b.cls === 'upt' ? 'adv-badge-upt' : b.cls === 'ioc' ? 'adv-badge-ioc' : 'adv-badge-atv';
+      return `<span class="adv-badge-pill ${cls}">${b.text}</span>`;
+    }).join('');
+
+    const dangerBadge = (s.score < 30 && s.shifts >= 3)
+      ? `<span class="adv-badge-pill" style="color:var(--red);background:rgba(255,51,51,0.12);border:1px solid rgba(255,51,51,0.3)">⚠ Зона риска</span>`
+      : (s.score < 50 && s.shifts >= 5)
+      ? `<span class="adv-badge-pill" style="color:var(--yellow);background:rgba(255,170,0,0.1);border:1px solid rgba(255,170,0,0.25)">📉 Отстаёт</span>`
+      : '';
+
+    return `<div class="adv-seller-card ${rankCls}" onclick="openAdvDetail(${JSON.stringify(s.name)}, ${JSON.stringify(s.team)}, event)">
+      <div class="adv-card-head">
+        <div class="adv-card-icon">${icon}</div>
+        <div class="adv-card-info">
+          <div class="adv-card-name">${s.name}</div>
+          <div class="adv-card-sub">${s.team==='grandpark'?'Grand Park':'Aport West'} · ${s.shifts} смен</div>
         </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase">QREI</div>
-          <div style="font-size:38px;font-weight:900;color:${scoreColor};line-height:1;letter-spacing:-2px">${s.score}</div>
-          <div style="font-size:11px;color:var(--text3)">/100</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:14px">
-        <div style="background:var(--bg3);border-radius:10px;padding:10px 8px 8px;text-align:center">
-          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">IOC</div>
-          <div style="font-size:16px;font-weight:800;color:var(--green);line-height:1">${s.ioc>0?s.ioc.toFixed(1)+'%':'—'}</div>
-          <div style="font-size:9px;color:var(--text3);margin-top:2px">конверсия</div>
-          <div style="height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden"><div style="height:100%;width:${normIoc}%;background:var(--green);border-radius:2px"></div></div>
-        </div>
-        <div style="background:var(--bg3);border-radius:10px;padding:10px 8px 8px;text-align:center">
-          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">UPT</div>
-          <div style="font-size:16px;font-weight:800;color:#4488ff;line-height:1">${s.upt>0?s.upt.toFixed(1):'—'}</div>
-          <div style="font-size:9px;color:var(--text3);margin-top:2px">ед./чек</div>
-          <div style="height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden"><div style="height:100%;width:${normUpt}%;background:#4488ff;border-radius:2px"></div></div>
-        </div>
-        <div style="background:var(--bg3);border-radius:10px;padding:10px 8px 8px;text-align:center">
-          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">ATV</div>
-          <div style="font-size:16px;font-weight:800;color:#ffaa00;line-height:1">${s.atv>0?fmtMoney(s.atv):'—'}</div>
-          <div style="font-size:9px;color:var(--text3);margin-top:2px">ср. чек</div>
-          <div style="height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden"><div style="height:100%;width:${normAtv}%;background:#ffaa00;border-radius:2px"></div></div>
-        </div>
-        <div style="background:var(--bg3);border-radius:10px;padding:10px 8px 8px;text-align:center">
-          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">AUR</div>
-          <div style="font-size:16px;font-weight:800;color:var(--text);line-height:1">${s.aur>0?fmtMoney(s.aur):'—'}</div>
-          <div style="font-size:9px;color:var(--text3);margin-top:2px">ср. вещь</div>
-          <div style="height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden"><div style="height:100%;width:${normAur}%;background:var(--text3);border-radius:2px"></div></div>
+        <div class="adv-card-score-wrap">
+          <div class="adv-card-score-lbl">QREI</div>
+          <div class="adv-card-score-num" style="color:${scoreColor}">${s.score}</div>
+          <div class="adv-card-score-den">/100</div>
         </div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg3);border-radius:10px;margin-bottom:12px">
-        <div>
-          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px">Выручка</div>
-          <div style="font-size:15px;font-weight:700;color:var(--text)">${fmtMoney(s.revenue)}</div>
+
+      ${(badgeHtml || dangerBadge) ? `<div class="adv-card-badges">${dangerBadge}${badgeHtml}</div>` : ''}
+
+      <div class="adv-card-metrics">
+        <div class="adv-card-metric">
+          <div class="adv-metric-lbl">IOC</div>
+          <div class="adv-metric-val" style="color:var(--green)">${s.ioc>0?s.ioc.toFixed(1)+'%':'—'}</div>
+          <div class="adv-metric-sub">конверсия</div>
+          <div class="adv-metric-bar"><div class="adv-metric-bar-fill" style="width:${normIoc}%;background:var(--green)"></div></div>
         </div>
-        <div style="text-align:center">
-          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px">В смену</div>
-          <div style="font-size:15px;font-weight:700;color:var(--text)">${fmtMoney(perShift)}</div>
+        <div class="adv-card-metric">
+          <div class="adv-metric-lbl">UPT</div>
+          <div class="adv-metric-val" style="color:#4488ff">${s.upt>0?s.upt.toFixed(1):'—'}</div>
+          <div class="adv-metric-sub">ед./чек</div>
+          <div class="adv-metric-bar"><div class="adv-metric-bar-fill" style="width:${normUpt}%;background:#4488ff"></div></div>
         </div>
-        <div style="text-align:right">
-          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px">Чеков</div>
-          <div style="font-size:15px;font-weight:700;color:var(--text)">${s.checks}</div>
+        <div class="adv-card-metric">
+          <div class="adv-metric-lbl">ATV</div>
+          <div class="adv-metric-val" style="color:#ffaa00">${s.atv>0?fmtMoney(s.atv):'—'}</div>
+          <div class="adv-metric-sub">ср. чек</div>
+          <div class="adv-metric-bar"><div class="adv-metric-bar-fill" style="width:${normAtv}%;background:#ffaa00"></div></div>
+        </div>
+        <div class="adv-card-metric">
+          <div class="adv-metric-lbl">AUR</div>
+          <div class="adv-metric-val" style="color:var(--text)">${s.aur>0?fmtMoney(s.aur):'—'}</div>
+          <div class="adv-metric-sub">ср. вещь</div>
+          <div class="adv-metric-bar"><div class="adv-metric-bar-fill" style="width:${normAur}%;background:var(--text3)"></div></div>
         </div>
       </div>
-      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:5px">
-        <span>QREI Score</span><span style="color:${scoreColor};font-weight:700">${s.score}/100</span>
+
+      <div class="adv-card-rev">
+        <div><div class="adv-rev-item-lbl">Выручка</div><div class="adv-rev-item-val">${fmtMoney(s.revenue)}</div></div>
+        <div style="text-align:center"><div class="adv-rev-item-lbl">В смену</div><div class="adv-rev-item-val">${fmtMoney(perShift)}</div></div>
+        <div style="text-align:right"><div class="adv-rev-item-lbl">Чеков</div><div class="adv-rev-item-val">${s.checks}</div></div>
       </div>
-      <div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">
-        <div style="height:100%;width:${s.score}%;background:${scoreColor};border-radius:3px;transition:width 0.6s"></div>
+
+      <div class="adv-card-score-bar-head">
+        <span>QREI Score</span>
+        <span style="color:${scoreColor};font-weight:700">${s.score}/100</span>
+      </div>
+      <div class="adv-card-score-bar-track">
+        <div class="adv-card-score-bar-fill" style="width:${s.score}%;background:${scoreColor}"></div>
       </div>
     </div>`;
   };
@@ -2809,12 +2788,12 @@ function renderAdvanced() {
   const renderSection = (teamList, globalList, label, color) => {
     if (!teamList.length) return '';
     return `
-    <div style="display:flex;align-items:center;gap:12px;margin:28px 0 16px">
+    <div style="display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:12px;margin:28px 0 16px">
       <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3)">${label}</div>
       <div style="flex:1;height:1px;background:var(--border)"></div>
       <div style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--bg3);color:var(--text3);border:1px solid var(--border)">${teamList.length} чел.</div>
     </div>
-    <div class="adv-cards-grid">
+    <div class="seller-grid">
       ${teamList.map(s => renderCard(s, globalList.indexOf(s))).join('')}
     </div>`;
   };

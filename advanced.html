@@ -12,10 +12,10 @@
   --accent:#0066ff; --green:#00cc66; --yellow:#ffaa00; --red:#ff3333; --purple:#a78bfa;
 }
 :root[data-theme="light"] {
-  --bg:#f5f5f7; --bg2:#fff; --bg3:#f0f0f2; --bg4:#e8e8ec;
-  --border:#e0e0e0; --border2:#d0d0d0;
-  --text:#1a1a1a; --text2:#666; --text3:#aaa;
-  --accent:#0066ff; --green:#00aa55; --yellow:#cc8800; --red:#dd2222; --purple:#7c3aed;
+  --bg:#f0f0f2; --bg2:#ffffff; --bg3:#f5f5f7; --bg4:#ebebed;
+  --border:#e2e2e6; --border2:#d0d0d6;
+  --text:#111111; --text2:#555560; --text3:#9999a8;
+  --accent:#0057e0; --green:#00aa55; --yellow:#cc8800; --red:#dd2222; --purple:#7c3aed;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
@@ -193,8 +193,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 }
 .panel-overlay.open{display:block}
 .slide-panel{
-  position:fixed;top:0;right:-680px;
-  width:640px;max-width:96vw;height:100vh;
+  position:fixed;top:0;right:-820px;
+  width:780px;max-width:96vw;height:100vh;
   background:var(--bg);
   border-left:1px solid var(--border);
   z-index:600;overflow-y:auto;
@@ -338,14 +338,20 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
     <div class="filter-divider"></div>
     <!-- Leaderboard toggle -->
     <button class="icon-btn" id="lb-toggle" onclick="toggleSidebar()" title="Скрыть/показать рейтинг">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
     </button>
     <!-- Refresh -->
     <button class="icon-btn" onclick="loadData()" title="Обновить">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
     </button>
     <!-- Theme -->
-    <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+    <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Тема">
+      <svg id="themeBtnIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+    </button>
+    <!-- Settings -->
+    <button class="icon-btn" onclick="goToSettings()" title="Настройки">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
   </div>
 </div>
 
@@ -354,7 +360,10 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 
   <!-- Leaderboard sidebar -->
   <div class="lb-sidebar" id="lbSidebar">
-    <div class="lb-header">🏆 QREI Рейтинг</div>
+    <div class="lb-header">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      QREI РЕЙТИНГ
+    </div>
     <div id="lbList"></div>
   </div>
 
@@ -363,7 +372,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 
     <!-- Config warning (if sheet not set) -->
     <div class="config-bar" id="configBar" style="display:none" onclick="goToSettings()">
-      ⚙️ <span>Таблица Advanced KPI не настроена — нажмите чтобы перейти в настройки</span>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      <span>Таблица Advanced KPI не настроена — нажмите чтобы перейти в настройки</span>
       <span style="margin-left:auto;opacity:0.6">→</span>
     </div>
 
@@ -462,6 +472,7 @@ function pn(val) {
 function fmt(n)    { return Math.round(n).toLocaleString('ru-RU') + ' ₸'; }
 function fmtK(n)   { return n >= 1e6 ? (n/1e6).toFixed(1)+'М' : n >= 1e3 ? Math.round(n/1e3)+'К' : Math.round(n); }
 function fmtKT(n)  { return fmtK(n) + '₸'; }
+function fmtFull(n){ return Math.round(n).toLocaleString('ru-RU') + ' ₸'; } // всегда полный формат
 
 // ══════════════════════════════════════════════════════════
 //  PARSER — точная структура QOIMA Sellers CSV
@@ -677,9 +688,9 @@ function calcQREI(sellers) {
 
     // Dynamic badge (among whole filtered list)
     let badge = null;
-    if (s.upt === maxUpt && maxUpt > 0)       badge = {label:'The Look Maker', color:'var(--yellow)', icon:'⚡'};
-    else if (s.ioc === maxIoc && maxIoc > 0)  badge = {label:'The Closer',     color:'var(--green)',  icon:'🎯'};
-    else if (s.aur === maxAur && maxAur > 0)  badge = {label:'Premium Stylist', color:'var(--accent)', icon:'💎'};
+    if (s.upt === maxUpt && maxUpt > 0)       badge = {label:'The Look Maker', color:'var(--text2)', icon:''};
+    else if (s.ioc === maxIoc && maxIoc > 0)  badge = {label:'The Closer',     color:'var(--text2)', icon:''};
+    else if (s.aur === maxAur && maxAur > 0)  badge = {label:'Premium Stylist', color:'var(--text2)', icon:''};
 
     return { ...s, qrei, isDanger, badge, n_ioc, n_upt, n_atv, n_aur };
   }).sort((a,b)=>b.qrei-a.qrei);
@@ -721,7 +732,7 @@ function render() {
   list = filterByPeriod(list);
   list = calcQREI(list);
 
-  // Summary strip
+  // Summary strip — no colors on numbers except danger count
   const strip = document.getElementById('summaryStrip');
   if (list.length) {
     const totalRev  = list.reduce((a,s)=>a+s.revenue,0);
@@ -732,55 +743,74 @@ function render() {
     strip.style.display = '';
     strip.innerHTML = `
       <div class="summary-cell"><div class="summary-lbl">Выручка</div><div class="summary-val">${fmtKT(totalRev)}</div></div>
-      <div class="summary-cell"><div class="summary-lbl">Ср. UPT</div><div class="summary-val" style="color:#4488ff">${avgUpt.toFixed(1)}</div></div>
-      <div class="summary-cell"><div class="summary-lbl">Ср. ATV</div><div class="summary-val" style="color:var(--yellow)">${fmtKT(avgAtv)}</div></div>
-      <div class="summary-cell"><div class="summary-lbl">Ср. IOC</div><div class="summary-val" style="color:var(--green)">${avgIoc.toFixed(1)}%</div></div>
-      ${dangerCnt?`<div class="summary-cell" style="border-color:rgba(255,51,51,0.3);background:rgba(255,51,51,0.04)"><div class="summary-lbl" style="color:var(--red)">⚠️ Зона риска</div><div class="summary-val" style="color:var(--red)">${dangerCnt}</div></div>`:''}`;
+      <div class="summary-cell"><div class="summary-lbl">Ср. UPT</div><div class="summary-val">${avgUpt.toFixed(1)}</div></div>
+      <div class="summary-cell"><div class="summary-lbl">Ср. ATV</div><div class="summary-val">${fmtKT(avgAtv)}</div></div>
+      <div class="summary-cell"><div class="summary-lbl">Ср. IOC</div><div class="summary-val">${avgIoc.toFixed(1)}%</div></div>
+      ${dangerCnt?`<div class="summary-cell" style="border-color:rgba(255,51,51,0.25)"><div class="summary-lbl" style="color:var(--red)">Зона риска</div><div class="summary-val" style="color:var(--red)">${dangerCnt}</div></div>`:''}`;
   } else {
     strip.style.display = 'none';
   }
 
   // Leaderboard sidebar
+  const icnRank = `<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
   document.getElementById('lbList').innerHTML = list.map((s,i)=>{
-    const rankStr = i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
-    const clr = s.isDanger?'var(--red)':i===0?'#ffd700':i<3?'var(--accent)':'var(--text2)';
-    const avBg = s.team==='grandpark'?'#0d1a2e':'#2e1a0d';
-    const avTx = s.team==='grandpark'?'#6ba3d4':'#d4a56b';
-    const idx = allSellers.findIndex(x=>x.name===s.name&&x.team===s.team);
+    const scoreClr = s.isDanger?'var(--red)':s.qrei>=80?'var(--green)':s.qrei>=60?'var(--yellow)':'var(--text2)';
+    const rankStr  = i===0?'1':i===1?'2':i===2?'3':`${i+1}`;
+    const avBg = s.team==='grandpark'?'rgba(0,80,200,0.12)':'rgba(200,100,0,0.12)';
+    const avTx = s.team==='grandpark'?'var(--accent)':'#c86400';
+    const idx  = allSellers.findIndex(x=>x.name===s.name&&x.team===s.team);
     return `<div class="lb-row" onclick="openPanel(${idx})">
-      <span class="lb-rank">${rankStr}</span>
+      <span class="lb-rank">#${rankStr}</span>
       <div class="lb-avatar" style="background:${avBg};color:${avTx}">${s.name.charAt(0)}</div>
       <div class="lb-info">
         <div class="lb-name">${s.name}</div>
         <div class="lb-store">${s.team==='grandpark'?'Grand Park':'Aport'}</div>
       </div>
-      <span class="lb-score" style="color:${clr}">${s.qrei}</span>
+      <span class="lb-score" style="color:${scoreClr}">${s.qrei}</span>
     </div>
-    <div class="lb-bar"><div class="lb-bar-fill" style="width:${s.qrei}%;background:${clr}"></div></div>`;
+    <div class="lb-bar"><div class="lb-bar-fill" style="width:${s.qrei}%;background:${scoreClr}"></div></div>`;
   }).join('') || '<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">Нет данных</div>';
 
   // Cards grid
   const mc = document.getElementById('mainContent');
   if (!list.length) {
-    mc.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Нет данных</div><div class="empty-sub">Попробуйте изменить фильтры или обновить данные</div></div>`;
+    mc.innerHTML = `<div class="empty-state">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3)"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h.01M15 9h.01M9 15h6"/></svg>
+      <div class="empty-title">Нет данных</div>
+      <div class="empty-sub">Попробуйте изменить фильтры или обновить данные</div></div>`;
     return;
   }
-
-  // Cards grid
   mc.innerHTML = `<div class="cards-grid">${list.map((s,i)=>renderCard(s,i,allSellers.findIndex(x=>x.name===s.name&&x.team===s.team))).join('')}</div>`;
 }
 
-function renderCard(s, rank, origIdx) {
-  const avBg  = s.team==='grandpark'?'#0d1a2e':'#2e1a0d';
-  const avTx  = s.team==='grandpark'?'#6ba3d4':'#d4a56b';
-  const teamLbl = s.team==='grandpark'?'Grand Park':'Aport';
-  const rankStr = rank===0?'🥇':rank===1?'🥈':rank===2?'🥉':`#${rank+1}`;
-  const scoreClr= s.isDanger?'var(--red)':s.qrei>=80?'var(--green)':s.qrei>=60?'var(--yellow)':'var(--text)';
-  const iocPct  = Math.min(100, s.ioc / 30 * 100);
+// SVG иконки для карточек (inline, видимые в Safari)
+const ICN = {
+  rev:  `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>`,
+  upt:  `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+  atv:  `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>`,
+  aur:  `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  warn: `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  ioc:  `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`,
+};
 
-  // Уникальные магазины продавца
+function renderCard(s, rank, origIdx) {
+  const avBg  = s.team==='grandpark'?'rgba(0,80,200,0.1)':'rgba(200,100,0,0.1)';
+  const avTx  = s.team==='grandpark'?'var(--accent)':'#c86400';
+  const teamLbl = s.team==='grandpark'?'Grand Park':'Aport';
+  const rankStr = `#${rank+1}`;
+  // QREI — единственное место с цветом
+  const scoreClr = s.isDanger?'var(--red)':s.qrei>=80?'var(--green)':s.qrei>=60?'var(--yellow)':'var(--text2)';
+  const iocPct   = Math.min(100, s.ioc / 30 * 100);
   const storeSet = [...new Set(s.days.filter(d=>d.shift&&d.magasin).map(d=>d.magasin))];
   const storeLabel = storeSet.length ? storeSet.join(', ') : teamLbl;
+
+  // Badge — монохромный
+  const badgeHtml = s.badge
+    ? `<div class="card-badge" style="background:var(--bg4);color:var(--text2);border:1px solid var(--border2)">${ICN.upt} ${s.badge.label}</div>`
+    : '';
+  const dangerHtml = s.isDanger
+    ? `<div class="danger-badge" style="background:rgba(221,34,34,0.08);color:var(--red);border:1px solid rgba(221,34,34,0.2)">${ICN.warn} Зона риска</div>`
+    : '';
 
   return `<div class="seller-card${s.isDanger?' danger':''}" onclick="openPanel(${origIdx})">
     <div class="card-header">
@@ -789,8 +819,7 @@ function renderCard(s, rank, origIdx) {
       <div class="card-meta">
         <div class="card-name">${s.name}</div>
         <div class="card-store">${storeLabel}</div>
-        ${s.badge?`<div class="card-badge" style="background:${s.badge.color}18;color:${s.badge.color}">${s.badge.icon} ${s.badge.label}</div>`:''}
-        ${s.isDanger?`<div class="danger-badge">⚠️ Зона риска</div>`:''}
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">${badgeHtml}${dangerHtml}</div>
       </div>
       <div class="card-score-block">
         <div class="card-score-num" style="color:${scoreClr}">${s.qrei}</div>
@@ -799,25 +828,25 @@ function renderCard(s, rank, origIdx) {
     </div>
     <div class="metrics-grid">
       <div class="metric-cell">
-        <div class="metric-lbl">💰 Выручка</div>
+        <div class="metric-lbl">${ICN.rev} Выручка</div>
         <div class="metric-val">${fmtKT(s.revenue)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl">⚡ UPT</div>
-        <div class="metric-val" style="color:#4488ff">${s.upt.toFixed(1)}</div>
+        <div class="metric-lbl">${ICN.upt} UPT</div>
+        <div class="metric-val">${s.upt.toFixed(1)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl">🎯 ATV</div>
-        <div class="metric-val" style="color:var(--yellow)">${fmtKT(s.atv)}</div>
+        <div class="metric-lbl">${ICN.atv} ATV</div>
+        <div class="metric-val">${fmtKT(s.atv)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl">💎 AUR</div>
-        <div class="metric-val" style="color:var(--purple)">${fmtKT(s.aur)}</div>
+        <div class="metric-lbl">${ICN.aur} AUR</div>
+        <div class="metric-val">${fmtKT(s.aur)}</div>
       </div>
     </div>
     <div class="ioc-row">
-      <span class="ioc-label">IOC ${s.ioc.toFixed(1)}%</span>
-      <div class="ioc-track"><div class="ioc-fill" style="width:${iocPct}%"></div></div>
+      <span class="ioc-label">${ICN.ioc} IOC ${s.ioc.toFixed(1)}%</span>
+      <div class="ioc-track"><div class="ioc-fill" style="width:${iocPct}%;background:var(--accent)"></div></div>
       <span class="ioc-right">${s.shifts} смен · ${s.checks} чек.</span>
     </div>
   </div>`;
@@ -830,7 +859,6 @@ function openPanel(origIdx) {
   const raw = allSellers[origIdx];
   if (!raw) return;
 
-  // Recalc QREI for this seller in context of current filter
   let ctx = allSellers;
   if (currentTeam !== 'all') ctx = ctx.filter(s=>s.team===raw.team);
   ctx = filterByPeriod(ctx);
@@ -838,25 +866,26 @@ function openPanel(origIdx) {
   if (!scored) return;
 
   const s = scored;
-  const avBg  = s.team==='grandpark'?'#0d1a2e':'#2e1a0d';
-  const avTx  = s.team==='grandpark'?'#6ba3d4':'#d4a56b';
+  const avBg  = s.team==='grandpark'?'rgba(0,80,200,0.12)':'rgba(200,100,0,0.12)';
+  const avTx  = s.team==='grandpark'?'var(--accent)':'#c86400';
   const teamLbl = s.team==='grandpark'?'Grand Park':'Aport';
-  const scoreClr= s.isDanger?'var(--red)':s.qrei>=80?'var(--green)':s.qrei>=60?'var(--yellow)':'var(--text)';
+  // QREI — цветной
+  const scoreClr = s.isDanger?'var(--red)':s.qrei>=80?'var(--green)':s.qrei>=60?'var(--yellow)':'var(--text2)';
 
-  // Score breakdown cells
+  // Score breakdown — монохромный кроме бара
   const breakdown = [
-    ['IOC','30%', s.n_ioc, 'var(--green)'],
-    ['UPT','30%', s.n_upt, '#4488ff'],
-    ['ATV','20%', s.n_atv, 'var(--yellow)'],
-    ['AUR','20%', s.n_aur, 'var(--purple)'],
-  ].map(([lbl,w,v,clr])=>`<div class="breakdown-cell">
+    ['IOC','30%', s.n_ioc],
+    ['UPT','30%', s.n_upt],
+    ['ATV','20%', s.n_atv],
+    ['AUR','20%', s.n_aur],
+  ].map(([lbl,w,v])=>`<div class="breakdown-cell">
     <div class="breakdown-lbl">${lbl}</div>
     <div class="breakdown-weight">${w}</div>
-    <div class="breakdown-val" style="color:${clr}">${Math.round(v)}</div>
-    <div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:${v}%;background:${clr}"></div></div>
+    <div class="breakdown-val">${Math.round(v)}</div>
+    <div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:${v}%;background:var(--accent)"></div></div>
   </div>`).join('');
 
-  // Day-by-day table
+  // Day table — все числа монохромны
   const now = new Date();
   const dayRu = ['вс','пн','вт','ср','чт','пт','сб'];
   const dayRows = s.days.map((d,i)=>{
@@ -867,27 +896,32 @@ function openPanel(origIdx) {
     return `<tr class="${cls}">
       <td>${dayLabel}</td>
       <td>${d.shift?'●':'—'}</td>
-      <td style="font-weight:600;font-variant-numeric:tabular-nums">${d.revenue>0?fmt(d.revenue):'—'}</td>
+      <td style="font-weight:600;font-variant-numeric:tabular-nums">${d.revenue>0?fmtFull(d.revenue):'—'}</td>
       <td>${d.checks||'—'}</td>
-      <td style="color:#4488ff">${d.checks>0?d.upt.toFixed(1):'—'}</td>
-      <td style="color:var(--yellow);font-variant-numeric:tabular-nums">${d.checks>0?fmt(d.atv):'—'}</td>
-      <td style="color:var(--purple);font-variant-numeric:tabular-nums">${d.units>0?fmt(d.aur):'—'}</td>
-      <td style="color:var(--green)">${d.traffic>0?d.ioc.toFixed(1)+'%':'—'}</td>
+      <td style="font-variant-numeric:tabular-nums">${d.checks>0?d.upt.toFixed(1):'—'}</td>
+      <td style="font-variant-numeric:tabular-nums">${d.checks>0?fmtFull(d.atv):'—'}</td>
+      <td style="font-variant-numeric:tabular-nums">${d.units>0?fmtFull(d.aur):'—'}</td>
+      <td>${d.traffic>0?d.ioc.toFixed(1)+'%':'—'}</td>
       <td style="color:var(--text3);font-size:10px">${d.magasin||'—'}</td>
     </tr>`;
   }).filter(Boolean).join('');
 
+  // Значок предупреждения если в зоне риска
+  const dangerPanelHtml = s.isDanger
+    ? `<div style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(221,34,34,0.08);color:var(--red);border:1px solid rgba(221,34,34,0.2);font-size:10px;font-weight:700;margin-top:6px">${ICN.warn} Зона риска</div>`
+    : '';
+  const badgePanelHtml = s.badge
+    ? `<div style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:var(--bg4);color:var(--text2);border:1px solid var(--border2);font-size:10px;font-weight:600;margin-top:6px;margin-right:4px">${ICN.upt} ${s.badge.label}</div>`
+    : '';
+
   document.getElementById('panelBody').innerHTML = `
-    <!-- Header: avatar + name + QREI side by side -->
+    <!-- Header -->
     <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:20px">
       <div class="panel-avatar" style="background:${avBg};color:${avTx};flex-shrink:0">${s.name.charAt(0)}</div>
       <div style="flex:1;min-width:0">
         <div class="panel-name" style="font-size:18px">${s.name}</div>
         <div class="panel-store">${teamLbl} · ${s.shifts} смен</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
-          ${s.badge?`<div class="card-badge" style="background:${s.badge.color}18;color:${s.badge.color}">${s.badge.icon} ${s.badge.label}</div>`:''}
-          ${s.isDanger?`<div class="danger-badge">⚠️ Зона риска</div>`:''}
-        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">${badgePanelHtml}${dangerPanelHtml}</div>
       </div>
       <div style="text-align:right;flex-shrink:0">
         <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:2px">QREI Score</div>
@@ -896,51 +930,57 @@ function openPanel(origIdx) {
       </div>
     </div>
 
-    <!-- Prominent revenue block -->
-    <div style="background:linear-gradient(135deg,var(--bg2) 0%,rgba(0,102,255,0.06) 100%);border:1px solid rgba(0,102,255,0.2);border-radius:16px;padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+    <!-- Revenue block — полный формат числа -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:16px">
       <div>
-        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">💰 Общая выручка</div>
-        <div style="font-size:30px;font-weight:900;color:var(--text);letter-spacing:-0.5px;font-variant-numeric:tabular-nums">${fmt(s.revenue)}</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">
+          ${ICN.rev} Общая выручка
+        </div>
+        <div style="font-size:28px;font-weight:900;color:var(--text);letter-spacing:-0.5px;font-variant-numeric:tabular-nums">${fmtFull(s.revenue)}</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:right">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;text-align:right">
         <div>
           <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Чеков</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text)">${s.checks}</div>
+          <div style="font-size:18px;font-weight:700">${s.checks}</div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Единиц</div>
+          <div style="font-size:18px;font-weight:700">${s.units}</div>
         </div>
         <div>
           <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">В смену</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text)">${s.shifts > 0 ? fmt(Math.round(s.revenue / s.shifts)) : '—'}</div>
+          <div style="font-size:18px;font-weight:700">${s.shifts>0?fmtKT(Math.round(s.revenue/s.shifts)):'—'}</div>
         </div>
       </div>
     </div>
 
     <!-- Score breakdown -->
-    <div class="breakdown-cells" style="margin-bottom:6px">
-      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Структура оценки</div>
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Структура оценки QREI</div>
       <div class="score-breakdown">${breakdown}</div>
     </div>
 
-    <!-- 4 KPI tiles -->
-    <div class="kpi-tiles">
+    <!-- 4 KPI tiles — числа монохромны -->
+    <div class="kpi-tiles" style="margin-bottom:16px">
       <div class="kpi-tile">
-        <div class="kpi-tile-lbl">Конверсия (IOC)</div>
-        <div class="kpi-tile-val" style="color:var(--green)">${s.ioc.toFixed(1)}%</div>
-        <div class="kpi-tile-sub">чеки / (трафик / продавцов)</div>
+        <div class="kpi-tile-lbl">${ICN.ioc} Конверсия (IOC)</div>
+        <div class="kpi-tile-val">${s.ioc.toFixed(1)}%</div>
+        <div class="kpi-tile-sub">план ${BENCH.ioc}%</div>
       </div>
       <div class="kpi-tile">
-        <div class="kpi-tile-lbl">Товаров в чеке (UPT)</div>
-        <div class="kpi-tile-val" style="color:#4488ff">${s.upt.toFixed(2)}</div>
-        <div class="kpi-tile-sub">ед. · план ${BENCH.upt}</div>
+        <div class="kpi-tile-lbl">${ICN.upt} Товаров/чек (UPT)</div>
+        <div class="kpi-tile-val">${s.upt.toFixed(2)}</div>
+        <div class="kpi-tile-sub">план ${BENCH.upt}</div>
       </div>
       <div class="kpi-tile">
-        <div class="kpi-tile-lbl">Средний чек (ATV)</div>
-        <div class="kpi-tile-val" style="color:var(--yellow)">${fmt(s.atv)}</div>
-        <div class="kpi-tile-sub">план ${fmt(BENCH.atv)}</div>
+        <div class="kpi-tile-lbl">${ICN.atv} Средний чек (ATV)</div>
+        <div class="kpi-tile-val">${fmtFull(s.atv)}</div>
+        <div class="kpi-tile-sub">план ${fmtFull(BENCH.atv)}</div>
       </div>
       <div class="kpi-tile">
-        <div class="kpi-tile-lbl">Средняя цена вещи (AUR)</div>
-        <div class="kpi-tile-val" style="color:var(--purple)">${fmt(s.aur)}</div>
-        <div class="kpi-tile-sub">план ${fmt(BENCH.aur)}</div>
+        <div class="kpi-tile-lbl">${ICN.aur} Цена вещи (AUR)</div>
+        <div class="kpi-tile-val">${fmtFull(s.aur)}</div>
+        <div class="kpi-tile-sub">план ${fmtFull(BENCH.aur)}</div>
       </div>
     </div>
 
@@ -950,11 +990,7 @@ function openPanel(origIdx) {
       <table class="day-table">
         <thead><tr>
           <th>День</th><th>Смена</th><th>Выручка</th>
-          <th>Чеки</th><th style="color:#4488ff">UPT</th>
-          <th style="color:var(--yellow)">ATV</th>
-          <th style="color:var(--purple)">AUR</th>
-          <th style="color:var(--green)">IOC</th>
-          <th>Магазин</th>
+          <th>Чеки</th><th>UPT</th><th>ATV</th><th>AUR</th><th>IOC</th><th>Магазин</th>
         </tr></thead>
         <tbody>${dayRows||`<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--text3)">Нет данных</td></tr>`}</tbody>
       </table>
@@ -993,7 +1029,12 @@ function toggleTheme() {
   const cur  = html.getAttribute('data-theme');
   const next = cur==='dark'?'light':'dark';
   html.setAttribute('data-theme',next);
-  document.getElementById('themeBtn').textContent = next==='dark'?'🌙':'☀️';
+  const icon = document.getElementById('themeBtnIcon');
+  if (next==='dark') {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+  } else {
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  }
   localStorage.setItem('adv_theme',next);
 }
 function goToSettings() {
@@ -1010,7 +1051,7 @@ async function loadData() {
   if (!sheetName) {
     document.getElementById('mainContent').innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">⚙️</div>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3)"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         <div class="empty-title">Таблица не настроена</div>
         <div class="empty-sub">Перейдите в панель → Настройки → укажите «Advanced KPI лист»</div>
       </div>`;
@@ -1038,7 +1079,7 @@ async function loadData() {
     console.error('[QREI]', e);
     document.getElementById('mainContent').innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">⚠️</div>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3)"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         <div class="empty-title">Ошибка загрузки</div>
         <div class="empty-sub">${e.message}</div>
       </div>`;
@@ -1050,10 +1091,16 @@ async function loadData() {
 // ══════════════════════════════════════════════════════════
 auth.onAuthStateChanged(user => {
   if (!user) { window.location.href = 'index.html'; return; }
-  // Apply saved theme
   const savedTheme = localStorage.getItem('adv_theme') || localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
-  document.getElementById('themeBtn').textContent = savedTheme==='dark'?'🌙':'☀️';
+  const icon = document.getElementById('themeBtnIcon');
+  if (icon) {
+    if (savedTheme==='dark') {
+      icon.innerHTML = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+    } else {
+      icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    }
+  }
   loadData();
 });
 </script>

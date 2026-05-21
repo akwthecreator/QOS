@@ -173,7 +173,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 .ioc-row{display:flex;align-items:center;gap:8px}
 .ioc-label{font-size:9px;color:var(--text3);white-space:nowrap}
 .ioc-track{flex:1;height:3px;background:var(--bg4);border-radius:2px}
-.ioc-fill{height:100%;border-radius:2px;background:var(--green)}
+.ioc-fill{height:100%;border-radius:2px;background:var(--text3)}
 .ioc-right{font-size:9px;color:var(--text3);white-space:nowrap}
 
 /* ── DANGER BADGE ── */
@@ -345,7 +345,9 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
     </button>
     <!-- Theme -->
-    <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+    <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
   </div>
 </div>
 
@@ -354,7 +356,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 
   <!-- Leaderboard sidebar -->
   <div class="lb-sidebar" id="lbSidebar">
-    <div class="lb-header">🏆 QREI Рейтинг</div>
+    <div class="lb-header">QREI Рейтинг</div>
     <div id="lbList"></div>
   </div>
 
@@ -363,7 +365,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 
     <!-- Config warning (if sheet not set) -->
     <div class="config-bar" id="configBar" style="display:none" onclick="goToSettings()">
-      ⚙️ <span>Таблица Advanced KPI не настроена — нажмите чтобы перейти в настройки</span>
+      ⚙ <span>Таблица Advanced KPI не настроена — нажмите чтобы перейти в настройки</span>
       <span style="margin-left:auto;opacity:0.6">→</span>
     </div>
 
@@ -720,9 +722,9 @@ function calcQREI(sellers) {
 
     // Dynamic badge (among whole filtered list)
     let badge = null;
-    if (s.upt === maxUpt && maxUpt > 0)       badge = {label:'The Look Maker', color:'var(--yellow)', icon:'⚡'};
-    else if (s.ioc === maxIoc && maxIoc > 0)  badge = {label:'The Closer',     color:'var(--green)',  icon:'🎯'};
-    else if (s.aur === maxAur && maxAur > 0)  badge = {label:'Premium Stylist', color:'var(--accent)', icon:'💎'};
+    if (s.upt === maxUpt && maxUpt > 0)       badge = {label:'The Look Maker', color:'var(--yellow)', icon:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'};
+    else if (s.ioc === maxIoc && maxIoc > 0)  badge = {label:'The Closer',     color:'var(--green)',  icon:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg>'};
+    else if (s.aur === maxAur && maxAur > 0)  badge = {label:'Premium Stylist', color:'var(--accent)', icon:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'};
 
     return { ...s, qrei, isDanger, badge, n_ioc, n_upt, n_atv, n_aur };
   }).sort((a,b)=>b.qrei-a.qrei);
@@ -775,17 +777,17 @@ function render() {
     strip.style.display = '';
     strip.innerHTML = `
       <div class="summary-cell"><div class="summary-lbl">Выручка</div><div class="summary-val">${fmtKT(totalRev)}</div></div>
-      <div class="summary-cell"><div class="summary-lbl">Ср. UPT</div><div class="summary-val" style="color:#4488ff">${avgUpt.toFixed(1)}</div></div>
-      <div class="summary-cell"><div class="summary-lbl">Ср. ATV</div><div class="summary-val" style="color:var(--yellow)">${fmtKT(avgAtv)}</div></div>
-      <div class="summary-cell"><div class="summary-lbl">Ср. IOC</div><div class="summary-val" style="color:var(--green)">${avgIoc.toFixed(1)}%</div></div>
-      ${dangerCnt?`<div class="summary-cell" style="border-color:rgba(255,51,51,0.3);background:rgba(255,51,51,0.04)"><div class="summary-lbl" style="color:var(--red)">⚠️ Зона риска</div><div class="summary-val" style="color:var(--red)">${dangerCnt}</div></div>`:''}`;
+      <div class="summary-cell"><div class="summary-lbl">Ср. UPT</div><div class="summary-val">${avgUpt.toFixed(1)}</div></div>
+      <div class="summary-cell"><div class="summary-lbl">Ср. ATV</div><div class="summary-val">${fmtKT(avgAtv)}</div></div>
+      <div class="summary-cell"><div class="summary-lbl">Ср. IOC</div><div class="summary-val">${avgIoc.toFixed(1)}%</div></div>
+      ${dangerCnt?`<div class="summary-cell" style="border-color:rgba(255,51,51,0.3);background:rgba(255,51,51,0.04)"><div class="summary-lbl" style="color:var(--red)">Зона риска</div><div class="summary-val" style="color:var(--red)">${dangerCnt}</div></div>`:''}`;
   } else {
     strip.style.display = 'none';
   }
 
   // Leaderboard sidebar
   document.getElementById('lbList').innerHTML = list.map((s,i)=>{
-    const rankStr = i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+    const rankStr = i===0?'<svg width="14" height="14" viewBox="0 0 24 24" fill="#ffd700" stroke="none"><circle cx="12" cy="8" r="6"/><path d="M6 8l-4 10h4l2-4 2 4h4l2-4 2 4h4L22 8" fill="#ffd700" opacity="0.3"/></svg>':i===1?'<svg width="14" height="14" viewBox="0 0 24 24" fill="#c0c0c0" stroke="none"><circle cx="12" cy="8" r="6"/></svg>':i===2?'<svg width="14" height="14" viewBox="0 0 24 24" fill="#cd7f32" stroke="none"><circle cx="12" cy="8" r="6"/></svg>':`#${i+1}`;
     const clr = s.isDanger?'var(--red)':i===0?'#ffd700':i<3?'var(--accent)':'var(--text2)';
     const avBg = s.team==='grandpark'?'#0d1a2e':'#2e1a0d';
     const avTx = s.team==='grandpark'?'#6ba3d4':'#d4a56b';
@@ -805,7 +807,7 @@ function render() {
   // Cards grid
   const mc = document.getElementById('mainContent');
   if (!list.length) {
-    mc.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Нет данных</div><div class="empty-sub">Попробуйте изменить фильтры или обновить данные</div></div>`;
+    mc.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div><div class="empty-title">Нет данных</div><div class="empty-sub">Попробуйте изменить фильтры или обновить данные</div></div>`;
     return;
   }
 
@@ -817,7 +819,7 @@ function renderCard(s, rank, origIdx) {
   const avBg  = s.team==='grandpark'?'rgba(0,80,200,0.1)':'rgba(200,100,0,0.1)';
   const avTx  = s.team==='grandpark'?'var(--accent)':'#c86400';
   const teamLbl = s.team==='grandpark'?'Grand Park':'Aport';
-  const rankStr = rank===0?'🥇':rank===1?'🥈':rank===2?'🥉':`#${rank+1}`;
+  const rankStr = rank===0?'#1':rank===1?'#2':rank===2?'#3':`#${rank+1}`;
   const scoreClr = s.isDanger?'var(--red)':s.qrei>=80?'var(--green)':s.qrei>=60?'var(--yellow)':'var(--text)';
   const iocPct   = Math.min(100, s.ioc / 30 * 100);
   const storeSet = [...new Set(s.days.filter(d=>d.shift&&d.magasin).map(d=>d.magasin))];
@@ -832,7 +834,7 @@ function renderCard(s, rank, origIdx) {
         <div class="card-name">${s.name}</div>
         <div class="card-store">${storeLabel}</div>
         ${s.badge?`<div class="card-badge" style="background:${s.badge.color}18;color:${s.badge.color}">${s.badge.icon} ${s.badge.label}</div>`:''}
-        ${s.isDanger?`<div class="danger-badge">⚠️ Зона риска</div>`:''}
+        ${s.isDanger?`<div class="danger-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Зона риска</div>`:''}
       </div>
       <div class="card-score-block">
         <div class="card-score-num" style="color:${scoreClr}">${s.qrei}</div>
@@ -841,19 +843,19 @@ function renderCard(s, rank, origIdx) {
     </div>
     <div class="metrics-grid">
       <div class="metric-cell">
-        <div class="metric-lbl">💰 Выручка</div>
+        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 6v6l4 2"/><path d="M9 2h6M12 2v4"/></svg> Выручка</div>
         <div class="metric-val">${fmtKT(s.revenue)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl">⚡ UPT</div>
-        <div class="metric-val" style="color:#4488ff">${s.upt.toFixed(1)}</div>
+        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> UPT</div>
+        <div class="metric-val">${s.upt.toFixed(1)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl">🎯 ATV</div>
-        <div class="metric-val" style="color:var(--yellow)">${fmtKT(s.atv)}</div>
+        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> ATV</div>
+        <div class="metric-val">${fmtKT(s.atv)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl">👥 Доля клиентов</div>
+        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Доля клиентов</div>
         <div class="metric-val">${share > 0 ? share : '—'}</div>
         <div class="metric-sub" style="font-size:9px;color:var(--text3)">чел. суммарно</div>
       </div>
@@ -914,11 +916,11 @@ function openPanel(origIdx) {
       <td>${d.shift?'●':'—'}</td>
       <td style="font-weight:600;font-variant-numeric:tabular-nums">${d.revenue>0?fmt(d.revenue):'—'}</td>
       <td>${d.checks||'—'}</td>
-      <td style="color:#4488ff">${d.checks>0?d.upt.toFixed(1):'—'}</td>
-      <td style="color:var(--yellow);font-variant-numeric:tabular-nums">${d.checks>0?fmt(d.atv):'—'}</td>
-      <td style="color:var(--purple);font-variant-numeric:tabular-nums">${d.units>0?fmt(d.aur):'—'}</td>
-      <td style="color:var(--green)">${d.traffic>0?d.ioc.toFixed(1)+'%':'—'}</td>
-      <td style="color:var(--text2)">${shareDay}</td>
+      <td>${d.checks>0?d.upt.toFixed(1):'—'}</td>
+      <td style="font-variant-numeric:tabular-nums">${d.checks>0?fmt(d.atv):'—'}</td>
+      <td style="font-variant-numeric:tabular-nums">${d.units>0?fmt(d.aur):'—'}</td>
+      <td>${d.traffic>0?d.ioc.toFixed(1)+'%':'—'}</td>
+      <td>${shareDay}</td>
       <td style="color:var(--text3);font-size:10px">${d.magasin||'—'} ${scDay!=='—'?`(${scDay})`:''}
       </td>
     </tr>`;
@@ -933,7 +935,7 @@ function openPanel(origIdx) {
         <div class="panel-store">${teamLbl} · ${s.shifts} смен</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
           ${s.badge?`<div class="card-badge" style="background:${s.badge.color}18;color:${s.badge.color}">${s.badge.icon} ${s.badge.label}</div>`:''}
-          ${s.isDanger?`<div class="danger-badge">⚠️ Зона риска</div>`:''}
+          ${s.isDanger?`<div class="danger-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Зона риска</div>`:''}
         </div>
       </div>
       <div style="text-align:right;flex-shrink:0">
@@ -947,7 +949,7 @@ function openPanel(origIdx) {
     <div style="background:linear-gradient(135deg,var(--bg2) 0%,rgba(0,102,255,0.06) 100%);border:1px solid rgba(0,102,255,0.2);border-radius:16px;padding:18px 22px;margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
         <div>
-          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">💰 Общая выручка</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">Общая выручка</div>
           <div style="font-size:30px;font-weight:900;color:var(--text);letter-spacing:-0.5px;font-variant-numeric:tabular-nums">${fmt(s.revenue)}</div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:right">
@@ -981,26 +983,26 @@ function openPanel(origIdx) {
     <div class="kpi-tiles">
       <div class="kpi-tile">
         <div class="kpi-tile-lbl">Конверсия (IOC)</div>
-        <div class="kpi-tile-val" style="color:var(--green)">${s.ioc.toFixed(1)}%</div>
+        <div class="kpi-tile-val">${s.ioc.toFixed(1)}%</div>
         <div class="kpi-tile-sub">чеки / доля трафика</div>
       </div>
       <div class="kpi-tile">
         <div class="kpi-tile-lbl">Товаров в чеке (UPT)</div>
-        <div class="kpi-tile-val" style="color:#4488ff">${s.upt.toFixed(2)}</div>
+        <div class="kpi-tile-val">${s.upt.toFixed(2)}</div>
         <div class="kpi-tile-sub">план ${BENCH.upt}</div>
       </div>
       <div class="kpi-tile">
         <div class="kpi-tile-lbl">Средний чек (ATV)</div>
-        <div class="kpi-tile-val" style="color:var(--yellow)">${fmt(s.atv)}</div>
+        <div class="kpi-tile-val">${fmt(s.atv)}</div>
         <div class="kpi-tile-sub">план ${fmt(BENCH.atv)}</div>
       </div>
       <div class="kpi-tile">
         <div class="kpi-tile-lbl">Цена вещи (AUR)</div>
-        <div class="kpi-tile-val" style="color:var(--purple)">${fmt(s.aur)}</div>
+        <div class="kpi-tile-val">${fmt(s.aur)}</div>
         <div class="kpi-tile-sub">план ${fmt(BENCH.aur)}</div>
       </div>
       <div class="kpi-tile" style="grid-column:span 2">
-        <div class="kpi-tile-lbl">👥 Доля клиентов (суммарно за месяц)</div>
+        <div class="kpi-tile-lbl">Доля клиентов (суммарно за месяц)</div>
         <div class="kpi-tile-val">${(s.trafficShare||0) > 0 ? s.trafficShare+' чел.' : '—'}</div>
         <div class="kpi-tile-sub">трафик бутика ÷ кол-во продавцов в этот бутик в каждый день</div>
       </div>
@@ -1012,10 +1014,10 @@ function openPanel(origIdx) {
       <table class="day-table">
         <thead><tr>
           <th>День</th><th>Смена</th><th>Выручка</th>
-          <th>Чеки</th><th style="color:#4488ff">UPT</th>
-          <th style="color:var(--yellow)">ATV</th>
-          <th style="color:var(--purple)">AUR</th>
-          <th style="color:var(--green)">IOC</th>
+          <th>Чеки</th><th>UPT</th>
+          <th>ATV</th>
+          <th>AUR</th>
+          <th>IOC</th>
           <th>Доля</th>
           <th>Бутик (прод.)</th>
         </tr></thead>
@@ -1056,7 +1058,9 @@ function toggleTheme() {
   const cur  = html.getAttribute('data-theme');
   const next = cur==='dark'?'light':'dark';
   html.setAttribute('data-theme',next);
-  document.getElementById('themeBtn').textContent = next==='dark'?'🌙':'☀️';
+  document.getElementById('themeBtn').innerHTML = next==='dark'
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
   localStorage.setItem('adv_theme',next);
 }
 function goToSettings() {
@@ -1073,7 +1077,7 @@ async function loadData() {
   if (!sheetName) {
     document.getElementById('mainContent').innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">⚙️</div>
+        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div>
         <div class="empty-title">Таблица не настроена</div>
         <div class="empty-sub">Перейдите в панель → Настройки → укажите «Advanced KPI лист»</div>
       </div>`;
@@ -1101,7 +1105,7 @@ async function loadData() {
     console.error('[QREI]', e);
     document.getElementById('mainContent').innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">⚠️</div>
+        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
         <div class="empty-title">Ошибка загрузки</div>
         <div class="empty-sub">${e.message}</div>
       </div>`;
@@ -1116,7 +1120,9 @@ auth.onAuthStateChanged(user => {
   // Apply saved theme
   const savedTheme = localStorage.getItem('adv_theme') || localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
-  document.getElementById('themeBtn').textContent = savedTheme==='dark'?'🌙':'☀️';
+  document.getElementById('themeBtn').innerHTML = savedTheme==='dark'
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
   loadData();
 });
 </script>

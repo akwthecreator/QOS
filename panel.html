@@ -513,51 +513,86 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
   .kpi-grid { grid-template-columns: 1fr; }
 }
 
-/* ── KPI daily analysis collapsible ── */
-.kpi-daily-card { padding: 0; overflow: hidden; }
-.kpi-daily-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 22px; cursor: pointer;
-  user-select: none; transition: background 0.15s;
-}
-.kpi-daily-header:hover { background: var(--bg3); border-radius: 12px; }
-.kpi-daily-hint {
-  font-size: 11px; color: var(--text3);
-  background: var(--bg3); padding: 3px 10px; border-radius: 20px;
+/* ── Top-sellers widget on home ── */
+.sellers-widget {
+  position: relative;
+  background: var(--bg2);
   border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 22px 18px;
+  margin-bottom: 24px;
+  overflow: hidden;
 }
-.kpi-daily-chevron {
-  width: 28px; height: 28px; border-radius: 8px;
-  background: var(--bg3); border: 1px solid var(--border);
+.sellers-widget-title {
+  font-size: 13px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  font-weight: 500; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sellers-widget-title svg { width: 14px; height: 14px; }
+.sw-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.sw-row:last-child { border-bottom: none; padding-bottom: 0; }
+.sw-medal { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+.sw-name { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sw-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.sw-bar-wrap { flex: 1; max-width: 80px; }
+.sw-bar-track { height: 3px; background: var(--bg3); border-radius: 2px; }
+.sw-bar-fill  { height: 100%; border-radius: 2px; }
+.sw-val { font-size: 13px; font-weight: 700; color: var(--text); min-width: 64px; text-align: right; flex-shrink: 0; }
+.sw-badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; flex-shrink: 0; font-weight: 600; }
+
+/* Expand button */
+.sw-expand-btn {
+  position: absolute; bottom: 14px; right: 14px;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  color: var(--text3); transition: transform 0.25s ease, color 0.2s;
+  box-shadow: 0 4px 16px rgba(0,102,255,0.35);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 2;
 }
-.kpi-daily-chevron.open { transform: rotate(180deg); color: var(--accent); }
-.kpi-daily-body {
-  max-height: 0; overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1);
+.sw-expand-btn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0,102,255,0.45); }
+.sw-expand-btn svg { width: 16px; height: 16px; }
+
+/* ── Advanced bottom sheet ── */
+.adv-overlay {
+  display: none; position: fixed; inset: 0; z-index: 1200;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+  opacity: 0; transition: opacity 0.3s;
 }
-.kpi-daily-body.open { max-height: 3000px; border-top: 1px solid var(--border); }
-.kpi-day-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.kpi-day-table th {
-  padding: 10px 14px; text-align: left;
-  font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.4px;
-  border-bottom: 1px solid var(--border); font-weight: 500; white-space: nowrap;
+.adv-overlay.open { display: block; opacity: 1; }
+.adv-sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1201;
+  background: var(--bg2); border-radius: 20px 20px 0 0;
+  border-top: 1px solid var(--border);
+  height: 88vh; display: flex; flex-direction: column;
+  transform: translateY(100%); transition: transform 0.38s cubic-bezier(0.16,1,0.3,1);
 }
-.kpi-day-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
-.kpi-day-table tr:last-child td { border-bottom: none; }
-.kpi-day-table tr:hover td { background: var(--bg3); }
-.kpi-day-table tr.kpi-day-today td { background: rgba(0,102,255,0.06); }
-.kpi-day-num { font-weight: 700; font-size: 14px; }
-.kpi-day-name { font-size: 10px; color: var(--text3); margin-top: 1px; }
-.kpi-day-bar-wrap { display: flex; align-items: center; gap: 8px; min-width: 120px; }
-.kpi-day-bar-track { flex: 1; height: 4px; background: var(--bg3); border-radius: 2px; }
-.kpi-day-bar-fill { height: 100%; border-radius: 2px; }
-.kpi-day-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; flex-shrink: 0; }
-.kpi-day-empty { color: var(--text3); font-size: 12px; }
-@media (max-width: 768px) {
-  .kpi-daily-hint { display: none; }
-  .kpi-day-table th, .kpi-day-table td { padding: 8px 10px; font-size: 12px; }
+.adv-sheet.open { transform: translateY(0); }
+.adv-sheet-handle {
+  width: 36px; height: 4px; background: var(--border);
+  border-radius: 2px; margin: 12px auto 0; flex-shrink: 0; cursor: grab;
+}
+.adv-sheet-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px 12px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.adv-sheet-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.adv-sheet-close {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text2); cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+.adv-sheet-iframe {
+  flex: 1; width: 100%; border: none;
+  border-radius: 0 0 0 0;
+  background: var(--bg);
 }
 
 </style>
@@ -683,14 +718,39 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
             </div>
           </div>
         </div>
+        <!-- ── Топ продавцов (виджет) ── -->
+        <div class="sellers-widget" id="home-sellers-widget" style="display:none">
+          <div class="sellers-widget-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            Рейтинг продавцов
+            <span id="sw-month-label" style="margin-left:auto;font-size:11px;color:var(--text3);text-transform:none;letter-spacing:0"></span>
+          </div>
+          <div id="sw-top3"></div>
+          <button class="sw-expand-btn" onclick="openAdvancedSheet()" title="Расширенная аналитика продавцов">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><line x1="21" y1="3" x2="14" y2="10"/><polyline points="9 21 3 21 3 15"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+          </button>
+        </div>
+
       </div>
     </div>
 
-    <div class="page" id="page-kpi">
+    <!-- ── Advanced Sheet ── -->
+    <div class="adv-overlay" id="adv-overlay" onclick="closeAdvancedSheet()"></div>
+    <div class="adv-sheet" id="adv-sheet">
+      <div class="adv-sheet-handle"></div>
+      <div class="adv-sheet-header">
+        <div class="adv-sheet-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          KPI продавцов — расширенная аналитика
+        </div>
+        <button class="adv-sheet-close" onclick="closeAdvancedSheet()">✕</button>
+      </div>
+      <iframe class="adv-sheet-iframe" id="adv-iframe" src="" allow="same-origin"></iframe>
+    </div>
       <div class="header">
         <h1>KPI анализ</h1>
       </div>
-      <div class="card" style="margin-bottom:20px">
+      <div class="card">
         <div class="card-title"><strong>Метрики по магазинам</strong></div>
         <table class="table">
           <thead>
@@ -707,26 +767,6 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           </thead>
           <tbody id="kpi-tbody"></tbody>
         </table>
-      </div>
-
-      <!-- ── Анализ по дням ── -->
-      <div class="card kpi-daily-card">
-        <div class="kpi-daily-header" onclick="toggleKpiDaily()" title="Анализ по дням">
-          <div style="display:flex;align-items:center;gap:10px">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            <strong style="font-size:14px">Анализ по дням</strong>
-            <span class="kpi-daily-hint">Подробная статистика за каждый день месяца</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span id="kpi-daily-toggle-label" style="font-size:12px;color:var(--text3)">Развернуть</span>
-            <div class="kpi-daily-chevron" id="kpi-daily-chevron">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-          </div>
-        </div>
-        <div class="kpi-daily-body" id="kpi-daily-body">
-          <div id="kpi-daily-content"></div>
-        </div>
       </div>
     </div>
 
@@ -1268,103 +1308,82 @@ const CORE_STORES = STORES.filter(s => s.core);
 
 let globalData = null;
 
+// ── Home: top-3 sellers widget ──
+function renderHomeSellerWidget() {
+  if (!sellersData || !sellersData.length) return;
+  const widget = document.getElementById('home-sellers-widget');
+  const container = document.getElementById('sw-top3');
+  if (!widget || !container) return;
+
+  // Sort by revenue, take top 3
+  const top3 = [...sellersData].sort((a, b) => b.revenue - a.revenue).slice(0, 3);
+  const maxRev = top3[0]?.revenue || 1;
+  const medals = ['🥇', '🥈', '🥉'];
+  const barColors = ['#ffd700', '#c0c0c0', '#cd7f32'];
+
+  // Month label
+  const now = new Date();
+  const monthNames = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+  document.getElementById('sw-month-label').textContent = monthNames[now.getMonth()] + ' ' + now.getFullYear();
+
+  container.innerHTML = top3.map((s, i) => {
+    const pct = Math.round((s.revenue / maxRev) * 100);
+    const planPct = s.plan > 0 ? ((s.revenue / s.plan) * 100).toFixed(0) + '%' : '—';
+    const teamLabel = s.team === 'grandpark' ? 'GP' : s.team === 'aport' ? 'Aport' : s.team;
+    const teamClrVal = s.team === 'grandpark' ? '#6ba3d4' : '#d4a56b';
+    return `<div class="sw-row">
+      <div class="sw-medal">${medals[i]}</div>
+      <div style="flex:1;min-width:0">
+        <div class="sw-name">${s.name}</div>
+        <div class="sw-meta">план ${planPct} · ${s.shifts} смен</div>
+      </div>
+      <div class="sw-bar-wrap">
+        <div class="sw-bar-track">
+          <div class="sw-bar-fill" style="width:${pct}%;background:${barColors[i]}"></div>
+        </div>
+      </div>
+      <div class="sw-val">${fmtMoney(s.revenue)}</div>
+      <div class="sw-badge" style="background:${teamClrVal}22;color:${teamClrVal}">${teamLabel}</div>
+    </div>`;
+  }).join('');
+
+  widget.style.display = 'block';
+}
+
+// ── Advanced sheet ──
+let advSheetOpen = false;
+function openAdvancedSheet() {
+  const overlay = document.getElementById('adv-overlay');
+  const sheet   = document.getElementById('adv-sheet');
+  const iframe  = document.getElementById('adv-iframe');
+  // Load iframe only once
+  if (!iframe.src || iframe.src === window.location.href || iframe.src === 'about:blank' || iframe.src === '') {
+    iframe.src = 'advanced.html';
+  }
+  overlay.style.display = 'block';
+  requestAnimationFrame(() => {
+    overlay.classList.add('open');
+    sheet.classList.add('open');
+  });
+  advSheetOpen = true;
+  document.body.style.overflow = 'hidden';
+}
+function closeAdvancedSheet() {
+  const overlay = document.getElementById('adv-overlay');
+  const sheet   = document.getElementById('adv-sheet');
+  overlay.classList.remove('open');
+  sheet.classList.remove('open');
+  setTimeout(() => { overlay.style.display = 'none'; }, 380);
+  advSheetOpen = false;
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && advSheetOpen) closeAdvancedSheet(); });
+
 function toggleTheme() {
   const html = document.documentElement;
   const current = html.getAttribute('data-theme') || 'dark';
   html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
   document.getElementById('themeBtn').textContent = current === 'dark' ? '☀️' : '🌙';
-}
-
-// ── KPI Daily analysis collapsible ──
-function toggleKpiDaily() {
-  const body    = document.getElementById('kpi-daily-body');
-  const chevron = document.getElementById('kpi-daily-chevron');
-  const label   = document.getElementById('kpi-daily-toggle-label');
-  const isOpen  = body.classList.toggle('open');
-  chevron.classList.toggle('open', isOpen);
-  label.textContent = isOpen ? 'Свернуть' : 'Развернуть';
-}
-
-function renderKpiDailyTable(data, dateLabelsFull, numDays) {
-  const container = document.getElementById('kpi-daily-content');
-  if (!container) return;
-
-  const today = new Date();
-  const todayDay = today.getDate(); // 1-based
-
-  // Collect stores that have data
-  const storesWithData = STORES.filter(s => data.stores[s.id]?.dailyRevenue?.length > 0);
-
-  // Build daily totals (revenue + visitors) across all core stores
-  const rows = [];
-  for (let d = 0; d < numDays; d++) {
-    const label = dateLabelsFull[d] || {};
-    let totalRev = 0, totalVis = 0, totalChecks = 0;
-    const storeBreakdown = [];
-    storesWithData.forEach(({ id, name, color }) => {
-      const store = data.stores[id];
-      const rev  = store.dailyRevenue?.[d]  || 0;
-      const vis  = store.dailyVisitors?.[d] || 0;
-      totalRev    += rev;
-      totalVis    += vis;
-      if (rev > 0 || vis > 0) storeBreakdown.push({ name, color, rev, vis });
-    });
-    rows.push({ day: d + 1, label, totalRev, totalVis, storeBreakdown });
-  }
-
-  const maxRev = Math.max(...rows.map(r => r.totalRev), 1);
-
-  // Build columns: day, выручка (bar), магазины (dots), посещений
-  let html = `
-    <div style="overflow-x:auto">
-    <table class="kpi-day-table">
-      <thead>
-        <tr>
-          <th>День</th>
-          <th>Выручка (итого)</th>
-          <th>График</th>
-          <th>По магазинам</th>
-          <th>Посещений</th>
-        </tr>
-      </thead>
-      <tbody>`;
-
-  rows.forEach(({ day, label, totalRev, totalVis, storeBreakdown }) => {
-    const isToday = day === todayDay;
-    const isEmpty = totalRev === 0 && totalVis === 0;
-    const pct = (totalRev / maxRev * 100).toFixed(1);
-    const barColor = totalRev >= maxRev * 0.8 ? 'var(--green)' : totalRev >= maxRev * 0.5 ? 'var(--accent)' : totalRev > 0 ? 'var(--yellow)' : 'var(--bg3)';
-    const dayName = label.dayName || '';
-    const dayNum  = label.day     || day;
-
-    const storeHtml = storeBreakdown.map(s =>
-      `<span title="${s.name}: ${(s.rev/1000).toFixed(0)}k ₸"><span class="kpi-day-dot" style="background:${s.color}"></span>${(s.rev/1000).toFixed(0)}k</span>`
-    ).join('<span style="color:var(--border);margin:0 4px">·</span>') || '<span class="kpi-day-empty">—</span>';
-
-    html += `
-      <tr class="${isToday ? 'kpi-day-today' : ''}">
-        <td>
-          <div class="kpi-day-num" style="color:${isToday ? 'var(--accent)' : 'var(--text)'}">${dayNum}${isToday ? ' <span style="font-size:9px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:4px;font-weight:600;margin-left:2px">сег.</span>' : ''}</div>
-          <div class="kpi-day-name">${dayName}</div>
-        </td>
-        <td style="font-weight:${isEmpty ? 400 : 700};color:${isEmpty ? 'var(--text3)' : 'var(--text)'}">
-          ${isEmpty ? '—' : (totalRev >= 1e6 ? (totalRev/1e6).toFixed(2)+' М₸' : Math.round(totalRev).toLocaleString('ru-RU')+' ₸')}
-        </td>
-        <td>
-          <div class="kpi-day-bar-wrap">
-            <div class="kpi-day-bar-track">
-              <div class="kpi-day-bar-fill" style="width:${isEmpty ? 0 : pct}%;background:${barColor}"></div>
-            </div>
-            <span style="font-size:10px;color:var(--text3);min-width:30px">${isEmpty ? '' : pct+'%'}</span>
-          </div>
-        </td>
-        <td style="font-size:12px">${storeHtml}</td>
-        <td style="color:${totalVis > 0 ? 'var(--text)' : 'var(--text3)'}">${totalVis > 0 ? totalVis.toLocaleString('ru-RU') : '—'}</td>
-      </tr>`;
-  });
-
-  html += `</tbody></table></div>`;
-  container.innerHTML = html;
 }
 
 function showPage(id) {
@@ -1726,9 +1745,6 @@ function updateUI(data) {
       <td>${store.visitors.toLocaleString('ru-RU')}</td>`;
     tbody.appendChild(row);
   });
-
-  // --- KPI daily table (collapsible) ---
-  renderKpiDailyTable(data, dateLabelsFull, numDays);
 
   // --- Heatmap ---
   document.getElementById('heatmap-month-label').textContent = monthYear;
@@ -2221,6 +2237,7 @@ async function syncSellers() {
     if (!json.values) throw new Error('no values');
     sellersData = parseSellersData(json.values);
     renderSellers();
+    renderHomeSellerWidget();
   } catch(e) {
     console.warn('Sellers sync error:', e.message);
     document.getElementById('sellers-leaderboard').innerHTML =

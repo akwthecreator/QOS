@@ -32,6 +32,16 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 .topbar-logo{font-size:13px;font-weight:700;letter-spacing:0.5px;color:var(--text2)}
 .topbar-title{font-size:15px;font-weight:600}
 .topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.back-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 12px 6px 8px;border-radius:20px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;
+  transition:all 0.15s;font-family:inherit;
+  text-decoration:none;flex-shrink:0;
+}
+.back-btn:hover{background:var(--bg2);color:var(--text);border-color:var(--text3);}
+.back-btn svg{flex-shrink:0;}
 .pill-btn{
   padding:6px 14px;border-radius:20px;
   border:1px solid var(--border2);background:var(--bg3);
@@ -327,6 +337,10 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 
 <!-- ── TOP BAR ── -->
 <div class="topbar">
+  <button class="back-btn" id="back-btn" onclick="goBack()" title="Вернуться назад">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    <span id="back-btn-label">Назад</span>
+  </button>
   <span class="topbar-logo">QCP</span>
   <span style="color:var(--border2)">›</span>
   <span class="topbar-title">Team Performance</span>
@@ -1115,7 +1129,17 @@ async function loadData() {
 // ══════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════
-auth.onAuthStateChanged(user => {
+// ── Back navigation (role-aware) ──
+let _backTarget = 'panel.html'; // default
+function goBack() {
+  // Если открыты внутри iframe (bottom sheet из panel.html) — закрываем sheet
+  if (window.parent && window.parent !== window) {
+    try { window.parent.closeAdvancedSheet(); return; } catch(e) {}
+  }
+  window.location.href = _backTarget;
+}
+
+auth.onAuthStateChanged(async user => {
   if (!user) { window.location.href = 'index.html'; return; }
   // Apply saved theme
   const savedTheme = localStorage.getItem('adv_theme') || localStorage.getItem('theme') || 'dark';
@@ -1123,6 +1147,25 @@ auth.onAuthStateChanged(user => {
   document.getElementById('themeBtn').innerHTML = savedTheme==='dark'
     ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
     : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+
+  // Determine back target by role
+  try {
+    const doc = await db.collection('users').doc(user.uid).get();
+    if (doc.exists) {
+      const role = (doc.data().role || 'admin').toLowerCase();
+      if (role === 'manager') {
+        _backTarget = 'manager.html';
+        document.getElementById('back-btn-label').textContent = 'Manager';
+      } else {
+        _backTarget = 'panel.html';
+        document.getElementById('back-btn-label').textContent = 'Panel';
+      }
+    }
+  } catch(e) {
+    console.warn('Role fetch error:', e);
+    // fallback: panel.html
+  }
+
   loadData();
 });
 </script>

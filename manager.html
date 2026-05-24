@@ -1202,8 +1202,7 @@ function showPage(id) {
 function setDate() {
   const d = new Date();
   const months = ['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'];
-  const el = document.getElementById('currentDate');
-  if (el) el.textContent = `${d.getDate()} ${months[d.getMonth()]}`;
+  document.getElementById('currentDate').textContent = `${d.getDate()} ${months[d.getMonth()]}`;
 }
 
 function parseNum(val) {
@@ -2446,54 +2445,49 @@ window.addEventListener('load', () => {
   initializeTasksSystem();
 });
 
-// ===== FIREBASE — единая инициализация =====
-const _fbConfig = {
-  apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
-  authDomain: "qos-base.firebaseapp.com",
-  projectId: "qos-base",
-  storageBucket: "qos-base.firebasestorage.app",
-  messagingSenderId: "639485153845",
-  appId: "1:639485153845:web:61baa7942382ba7444d77c"
-};
-if (!firebase.apps.length) firebase.initializeApp(_fbConfig);
-const _fbAuth = firebase.auth();
-const _fbDb   = firebase.firestore();
-
 // ===== FIREBASE AUTH + ROLE GUARD =====
 function initializeFirebaseAuth() {
-  _fbAuth.onAuthStateChanged(async user => {
+  const firebaseConfig = {
+    apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
+    authDomain: "qos-base.firebaseapp.com",
+    projectId: "qos-base",
+    storageBucket: "qos-base.firebasestorage.app",
+    messagingSenderId: "639485153845",
+    appId: "1:639485153845:web:61baa7942382ba7444d77c"
+  };
+
+  const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db   = firebase.firestore();
+
+  auth.onAuthStateChanged(async user => {
     if (!user) { window.location.href = 'index.html'; return; }
 
-    // Показываем профиль
+    // Показываем email
     document.getElementById('userProfileSection').style.display = 'flex';
-    const avatarEl = document.getElementById('userAvatar');
-    if (avatarEl) avatarEl.textContent = (user.email || '?')[0].toUpperCase();
     document.getElementById('userEmail').textContent = user.email;
 
     // Читаем роль из Firestore
     try {
-      const doc = await _fbDb.collection('users').doc(user.uid).get();
+      const doc = await db.collection('users').doc(user.uid).get();
       if (doc.exists) {
         const profile = doc.data();
-        const role = profile.role || 'manager';
+        const role = profile.role || 'admin';
+        // Роль-гард
         if (role === 'seller')  { window.location.href = 'seller.html';  return; }
         if (role === 'admin')   { window.location.href = 'panel.html';   return; }
         if (role === 'observer'){ window.location.href = 'observer.html'; return; }
-        // role === 'manager' — остаёмся
-        const displayName = profile.name || user.email;
-        document.getElementById('userEmail').textContent = displayName;
-        if (avatarEl) avatarEl.textContent = displayName[0].toUpperCase();
+        // role === 'manager' — остаёмся здесь
+        if (profile.name) document.getElementById('userEmail').textContent = profile.name + ' (менеджер)';
+        // Настройки скрыты для менеджера всегда
         const settingsBtn = document.getElementById('nav-settings');
         if (settingsBtn) settingsBtn.style.display = 'none';
-        showWelcome(displayName, 'manager');
-      } else {
-        const settingsBtn = document.getElementById('nav-settings');
-        if (settingsBtn) settingsBtn.style.display = 'none';
+        // Показать приветствие
+        showWelcome(profile.name || user.email, 'manager');
       }
     } catch(e) {
       console.warn('Role check error:', e);
-      const settingsBtn = document.getElementById('nav-settings');
-      if (settingsBtn) settingsBtn.style.display = 'none';
+      // При ошибке — оставляем (безопасно)
     }
   });
 }
@@ -2505,8 +2499,20 @@ let currentFilter = 'all';
 
 // Initialize Firebase for tasks
 async function initializeTasksSystem() {
+  const firebaseConfig = {
+    apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
+    authDomain: "qos-base.firebaseapp.com",
+    projectId: "qos-base",
+    storageBucket: "qos-base.firebasestorage.app",
+    messagingSenderId: "639485153845",
+    appId: "1:639485153845:web:61baa7942382ba7444d77c"
+  };
+
   try {
-    _fbAuth.onAuthStateChanged(user => {
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    auth.onAuthStateChanged(user => {
       if (user) {
         currentUser = user;
         loadTasks();
@@ -2518,7 +2524,7 @@ async function initializeTasksSystem() {
 }
 
 async function loadTasks() {
-  const db = _fbDb;
+  const db = firebase.firestore();
   try {
     const snapshot = await db.collection('tasks').get();
     allTasks = [];
@@ -2654,7 +2660,7 @@ function closeTaskModal() {
 
 async function saveTask(e) {
   e.preventDefault();
-  const db = _fbDb;
+  const db = firebase.firestore();
   const taskId = document.getElementById('taskForm').dataset.taskId;
   
   const taskData = {
@@ -2684,7 +2690,7 @@ async function saveTask(e) {
 }
 
 async function toggleTaskComplete(taskId, completed) {
-  const db = _fbDb;
+  const db = firebase.firestore();
   try {
     const updateData = {
       completed,
@@ -2722,7 +2728,7 @@ function showTaskToast(msg, type = 'info') {
 }
 
 async function markTaskAsSeen(taskId) {
-  const db = _fbDb;
+  const db = firebase.firestore();
   const task = allTasks.find(t => t.id === taskId);
   if (task && currentUser) {
     const seenBy = task.seenBy || [];
@@ -2770,9 +2776,23 @@ function closeWelcome() {
 
 function handleLogout() {
   if (confirm('Вы уверены, что хотите выйти?')) {
-    _fbAuth.signOut().then(() => {
-      window.location.href = 'index.html';
-    }).catch(e => console.error('Logout error:', e));
+    const firebaseConfig = {
+      apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
+      authDomain: "qos-base.firebaseapp.com",
+      projectId: "qos-base",
+      storageBucket: "qos-base.firebasestorage.app",
+      messagingSenderId: "639485153845",
+      appId: "1:639485153845:web:61baa7942382ba7444d77c"
+    };
+    
+    try {
+      const auth = firebase.auth();
+      auth.signOut().then(() => {
+        window.location.href = 'index.html';
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   }
 }
 </script>
@@ -2944,8 +2964,8 @@ async function saveCertificate() {
     alert('Заполните обязательные поля: имя, сумма, даты'); return;
   }
 
-  const db = _fbDb;
-  const user = _fbAuth.currentUser;
+  const db   = firebase.firestore();
+  const user = firebase.auth().currentUser;
   const certData = {
     buyerName, amount, dateFrom, dateTo, store, note,
     issuedBy:    user ? user.email : '—',
@@ -2973,7 +2993,7 @@ async function saveCertificate() {
 
 // ── LOAD ──
 async function loadCertificates() {
-  const db = _fbDb;
+  const db = firebase.firestore();
   try {
     const snap = await db.collection('certificates').orderBy('createdAt','desc').get();
     allCertificates = [];
@@ -3132,7 +3152,7 @@ function closeCertViewModal() {
 async function revokeCertificate(certId) {
   if (!confirm('Аннулировать сертификат? Это нельзя отменить.')) return;
   try {
-    await _fbDb.collection('certificates').doc(certId).update({ status:'revoked', revokedAt: new Date().toISOString() });
+    await firebase.firestore().collection('certificates').doc(certId).update({ status:'revoked', revokedAt: new Date().toISOString() });
     await loadCertificates();
     closeCertViewModal();
     alert('Сертификат аннулирован');

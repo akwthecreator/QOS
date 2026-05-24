@@ -2,8 +2,11 @@
 <html lang="ru" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>QCP — Менеджер</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 <style>
 :root[data-theme="dark"] {
   --bg: #0a0a0a;
@@ -55,8 +58,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .header h1 { font-size: 32px; font-weight: 400; letter-spacing: -0.5px; }
 .header-right { display: flex; gap: 16px; align-items: center; }
 .theme-toggle { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; font-size: 18px; }
-.status-indicator { width: 10px; height: 10px; border-radius: 50%; background: var(--red); animation: pulse 2s infinite; }
-.status-indicator.ok { background: var(--green); }
+/* status-indicator replaced by status-pill */
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
 .message { padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
@@ -154,11 +156,37 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
 /* ====== MOBILE ====== */
 @media (max-width: 768px) {
-  .sidebar { width: 100%; height: 56px; flex-direction: row; padding: 0 12px; border-right: none; border-top: 1px solid var(--border); position: fixed; bottom: 0; top: auto; z-index: 200; justify-content: space-around; }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    min-height: 80px;
+    flex-direction: row;
+    padding: 0 8px;
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+    border-right: none;
+    border-top: 1px solid var(--border);
+    position: fixed;
+    bottom: 0; top: auto;
+    z-index: 200;
+    justify-content: space-around;
+    align-items: center;
+    gap: 0;
+  }
   .logo { display: none; }
   .sidebar > [style="flex:1"] { display: none; }
-  .nav-btn { width: 44px; height: 44px; }
-  .main { margin-left: 0; margin-bottom: 56px; width: 100%; padding: 16px 12px; }
+  .nav-btn {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border-radius: 16px;
+  }
+  .nav-btn svg { width: 28px; height: 28px; }
+  .main {
+    margin-left: 0;
+    margin-bottom: calc(80px + env(safe-area-inset-bottom, 8px));
+    width: 100%;
+    padding: 16px 12px;
+  }
   .header { margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
   .header h1 { font-size: 22px; }
   .header-right { flex-wrap: wrap; gap: 8px; }
@@ -259,7 +287,27 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
 .task-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
 .task-card:hover { border-color: var(--accent); }
-/* ── TASK COMPLETE CHECKBOX ── */
+/* ── Qoima Certificate Fonts ── */
+@font-face {
+  font-family: 'BenzinBold';
+  src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/Supremat%20-%20Benzin%20Bold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'BenzinExtraBold';
+  src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/Supremat%20-%20Benzin%20ExtraBold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'BenzinSemibold';
+  src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/Supremat%20-%20Benzin%20Semibold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Thesignature';
+  src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/Thesignature.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Handwriting';
+  src: url('https://raw.githubusercontent.com/akwthecreator/QOS/main/handwriting.ttf') format('truetype');
+}
 .task-check-wrap { display: flex; align-items: flex-start; gap: 12px; }
 .task-checkbox {
   width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border);
@@ -267,15 +315,19 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
   display: flex; align-items: center; justify-content: center;
   transition: all 0.2s; position: relative; appearance: none; -webkit-appearance: none;
 }
-.task-checkbox:checked { background: var(--green); border-color: var(--green); }
-.task-checkbox:checked::after { content: '✓'; color: white; font-size: 13px; font-weight: 700; line-height: 1; }
+.task-checkbox:checked {
+  background: var(--green); border-color: var(--green);
+}
+.task-checkbox:checked::after {
+  content: '✓'; color: white; font-size: 13px; font-weight: 700; line-height: 1;
+}
 .task-checkbox:hover { border-color: var(--green); }
 .task-card.completed .task-title { text-decoration: line-through; color: var(--text3); }
 .task-card.completed { opacity: 0.65; }
 .btn-delete-task {
   padding: 5px 10px; background: rgba(255,51,51,0.1); border: 1px solid rgba(255,51,51,0.3);
   border-radius: 6px; color: var(--red); cursor: pointer; font-size: 12px;
-  transition: all 0.2s; flex-shrink: 0;
+  transition: all 0.2s; margin-left: auto; flex-shrink: 0;
 }
 .btn-delete-task:hover { background: var(--red); color: white; }
 .task-complete-label { font-size: 11px; color: var(--green); font-weight: 600; margin-top: 4px; display: none; }
@@ -322,33 +374,6 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .task-widget-item { background: var(--bg3); padding: 12px; border-radius: 8px; text-align: center; }
 .task-widget-value { font-size: 24px; font-weight: 700; color: var(--text); }
 .task-widget-label { font-size: 11px; color: var(--text3); margin-top: 4px; }
-
-/* ── WELCOME OVERLAY ── */
-.welcome-overlay {
-  position: fixed; inset: 0; z-index: 2000;
-  background: var(--bg);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  opacity: 1; transition: opacity 0.5s ease;
-}
-.welcome-overlay.fade-out { opacity: 0; pointer-events: none; }
-.welcome-overlay.hidden { display: none; }
-.welcome-logo-big {
-  width: 72px; height: 72px; background: var(--accent); border-radius: 18px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28px; font-weight: 800; color: white; margin-bottom: 28px;
-  box-shadow: 0 12px 40px rgba(0,102,255,0.35);
-}
-.welcome-greeting { font-size: 15px; color: var(--text3); letter-spacing: 0.5px; margin-bottom: 12px; text-transform: uppercase; }
-.welcome-name { font-size: 34px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; margin-bottom: 8px; text-align: center; }
-.welcome-role-lbl { font-size: 14px; color: var(--accent); font-weight: 500; margin-bottom: 40px; }
-.welcome-btn {
-  padding: 14px 40px; background: var(--accent); border: none; border-radius: 12px;
-  color: white; font-size: 15px; font-weight: 600; cursor: pointer;
-  font-family: inherit; transition: all 0.2s;
-  box-shadow: 0 4px 20px rgba(0,102,255,0.3);
-}
-.welcome-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-.welcome-time-lbl { margin-top: 16px; font-size: 12px; color: var(--text3); }
 
 
 /* ── DESIGN TOKENS v2 ── */
@@ -491,45 +516,107 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
   .kpi-grid { grid-template-columns: 1fr; }
 }
 
+/* ── KPI daily analysis collapsible ── */
+.kpi-daily-card { padding: 0; overflow: hidden; }
+.kpi-daily-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 22px; cursor: pointer;
+  user-select: none; transition: background 0.15s;
+}
+.kpi-daily-header:hover { background: var(--bg3); border-radius: 12px; }
+.kpi-daily-hint {
+  font-size: 11px; color: var(--text3);
+  background: var(--bg3); padding: 3px 10px; border-radius: 20px;
+  border: 1px solid var(--border);
+}
+.kpi-daily-chevron {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text3); transition: transform 0.25s ease, color 0.2s;
+}
+.kpi-daily-chevron.open { transform: rotate(180deg); color: var(--accent); }
+.kpi-daily-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.kpi-daily-body.open { max-height: 3000px; border-top: 1px solid var(--border); }
+.kpi-day-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.kpi-day-table th {
+  padding: 10px 14px; text-align: left;
+  font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.4px;
+  border-bottom: 1px solid var(--border); font-weight: 500; white-space: nowrap;
+}
+.kpi-day-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
+.kpi-day-table tr:last-child td { border-bottom: none; }
+.kpi-day-table tr:hover td { background: var(--bg3); }
+.kpi-day-table tr.kpi-day-today td { background: rgba(0,102,255,0.06); }
+.kpi-day-num { font-weight: 700; font-size: 14px; }
+.kpi-day-name { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.kpi-day-bar-wrap { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+.kpi-day-bar-track { flex: 1; height: 4px; background: var(--bg3); border-radius: 2px; }
+.kpi-day-bar-fill { height: 100%; border-radius: 2px; }
+.kpi-day-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; flex-shrink: 0; }
+.kpi-day-empty { color: var(--text3); font-size: 12px; }
+@media (max-width: 768px) {
+  .kpi-daily-hint { display: none; }
+  .kpi-day-table th, .kpi-day-table td { padding: 8px 10px; font-size: 12px; }
+}
+
+/* ── Sellers KPI card (home widget) ── */
+.sellers-kpi-card {
+  position: relative; overflow: hidden;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.sellers-kpi-card:hover { border-color: rgba(102,0,255,0.25); box-shadow: var(--shadow-md); }
+.sellers-kpi-card .kpi-label { margin-bottom: 16px; }
+
+.sw-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.sw-row:last-child { border-bottom: none; padding-bottom: 0; }
+.sw-medal { font-size: 16px; width: 24px; text-align: center; flex-shrink: 0; line-height: 1; }
+.sw-info { flex: 1; min-width: 0; }
+.sw-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sw-sub  { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.sw-bar-wrap { width: 50px; flex-shrink: 0; }
+.sw-bar-track { height: 3px; background: var(--bg3); border-radius: 2px; }
+.sw-bar-fill  { height: 100%; border-radius: 2px; }
+.sw-val { font-size: 12px; font-weight: 700; color: var(--text); min-width: 52px; text-align: right; flex-shrink: 0; }
+.sw-team { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 8px; flex-shrink: 0; }
+
+/* Expand arrow button */
+.sw-expand-btn {
+  position: absolute; top: 20px; right: 20px;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(0,102,255,0.4);
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.sw-expand-btn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0,102,255,0.5); }
+.sw-expand-btn svg { width: 16px; height: 16px; }
+
+.sw-empty { font-size: 13px; color: var(--text3); padding: 12px 0; }
+
 </style>
 </head>
 <body>
 
-<!-- ===== WELCOME OVERLAY ===== -->
-<div class="welcome-overlay hidden" id="welcomeOverlay">
-  <div class="welcome-logo-big">Q</div>
-  <div class="welcome-greeting">Добро пожаловать</div>
-  <div class="welcome-name" id="welcomeName">...</div>
-  <div class="welcome-role-lbl" id="welcomeRoleLbl">Менеджер · Qoima</div>
-  <button class="welcome-btn" onclick="closeWelcome()">Открыть панель →</button>
-  <div class="welcome-time-lbl" id="welcomeTime"></div>
-</div>
-
 <div class="container">
   <div class="sidebar">
     <div class="logo">QCP</div>
-    <button class="nav-btn active" onclick="showPage('home')" id="nav-home" title="Главная">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
-    </button>
-    <button class="nav-btn" onclick="showPage('kpi')" id="nav-kpi" title="KPI">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="12" width="4" height="10" rx="1"/><rect x="9" y="7" width="4" height="15" rx="1"/><rect x="16" y="3" width="4" height="19" rx="1"/></svg>
-    </button>
-    <button class="nav-btn" onclick="showPage('heatmap')" id="nav-heatmap" title="Карта">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-    </button>
-    <button class="nav-btn" onclick="showPage('analysis')" id="nav-analysis" title="А-Анализ">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/><circle cx="18" cy="5" r="2"/><circle cx="6" cy="19" r="2"/></svg>
-    </button>
-    <button class="nav-btn" onclick="showPage('sellers')" id="nav-sellers" title="Продавцы">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-    </button>
-    <button class="nav-btn" onclick="showPage('trends')" id="nav-trends" title="Тренды">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-    </button>
-    <button class="nav-btn" id="nav-alerts" onclick="showPage('alerts')" title="Алерты" style="position:relative">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      <span id="alert-badge" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--red);"></span>
-    </button>
+    <button class="nav-btn active" onclick="showPage('home')" id="nav-home" title="Главная"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></button>
+    <button class="nav-btn" onclick="showPage('kpi')" id="nav-kpi" title="KPI"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="12" width="4" height="10" rx="1"/><rect x="9" y="7" width="4" height="15" rx="1"/><rect x="16" y="3" width="4" height="19" rx="1"/></svg></button>
+    <button class="nav-btn" onclick="showPage('heatmap')" id="nav-heatmap" title="Тепловая карта"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></button>
+    <button class="nav-btn" onclick="showPage('analysis')" id="nav-analysis" title="А-Анализ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></button>
+    <button class="nav-btn" onclick="showPage('sellers')" id="nav-sellers" title="Продавцы"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></button>
+    <button class="nav-btn" onclick="showPage('trends')" id="nav-trends" title="Тренды"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></button>
+    <button class="nav-btn" id="nav-alerts" onclick="showPage('alerts')" title="Алерты" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span id="alert-badge" class="badge" style="display:none"></span></button>
     <button class="nav-btn" onclick="showPage('tasks')" id="nav-tasks" title="Задачи">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
       <span id="tasks-badge" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--red);"></span>
@@ -537,11 +624,9 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     <button class="nav-btn" onclick="showPage('certificates')" id="nav-certificates" title="Сертификаты">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/><path d="M8 15h4"/><circle cx="17" cy="15" r="2"/><path d="M15.5 16.5L14 20l3-1 3 1-1.5-3.5"/></svg>
     </button>
-    <button class="nav-btn" onclick="openSettings()" id="nav-settings" title="Настройки" style="display:none">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    </button>
+    <button class="nav-btn" onclick="openSettings()" id="nav-settings" title="Настройки" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
     <div style="flex:1"></div>
-    <button class="nav-btn" onclick="toggleTheme()" id="themeBtn" title="Тема"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+    <button class="nav-btn" onclick="toggleTheme()" id="themeBtn" title="Тема">🌙</button>
   </div>
 
   <div class="main">
@@ -552,17 +637,16 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           <p style="color:var(--text2);margin-top:4px;font-size:14px">Операционный дашборд</p>
         </div>
         <div class="header-right">
-          <div style="font-size:13px;color:var(--text2)">
-            <span id="currentDate">Загрузка...</span> | 
-            <span id="lastSync" style="font-size:11px">не синхронизирован</span>
-          </div>
-          <div id="statusDot" class="status-indicator"></div>
+          <div class="status-pill"><div class="status-dot" id="statusDot"></div><span class="pill-text" id="lastSync">не синхр.</span></div>
           <button class="sync-btn" id="syncBtn" onclick="syncData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg><span class="btn-text">Синхронизировать</span></button>
-          <div id="userProfileSection" style="display:none;display:flex;gap:12px;align-items:center;font-size:12px">
-            <span id="userEmail" style="color:var(--text2)">—</span>
-            <button onclick="handleLogout()" style="padding:6px 14px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text2);cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">Выход</button>
+          <div id="userProfileSection" style="display:none;align-items:center;gap:8px">
+            <div class="user-pill" onclick="handleLogout()" title="Выйти">
+              <div class="user-avatar" id="userAvatar">?</div>
+              <span class="user-email" id="userEmail">—</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </div>
           </div>
-          <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+          <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
         </div>
       </div>
 
@@ -571,27 +655,27 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div id="dashboardContent" style="display:none">
         <div class="kpi-grid">
           <div class="kpi-card">
-            <div class="kpi-label">Выручка месяца</div>
+            <div class="kpi-icon" style="background:rgba(0,102,255,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#0066ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="kpi-label">Выручка месяца</div>
             <div class="kpi-value" id="kpi-revenue">—</div>
             <div id="kpi-revenue-full" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
           </div>
           <div class="kpi-card" style="border-color:rgba(0,204,102,0.3);background:rgba(0,204,102,0.04)">
-            <div class="kpi-label">⚡ Выручка сегодня</div>
+            <div class="kpi-icon" style="background:rgba(0,204,102,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#00cc66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="kpi-label">Выручка сегодня</div>
             <div class="kpi-value" id="kpi-today" style="color:var(--green)">—</div>
             <div id="kpi-today-proj" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
             <div class="kpi-progress" style="margin-top:12px"><div class="kpi-progress-fill" id="today-progress-fill" style="width:0%;background:var(--green)"></div></div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Средний чек</div>
+            <div class="kpi-icon" style="background:rgba(255,170,0,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#ffaa00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="kpi-label">Средний чек</div>
             <div class="kpi-value" id="kpi-avg">—</div>
             <div id="kpi-avg-trend" style="font-size:12px;margin-top:6px"></div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Конверсия</div>
+            <div class="kpi-icon" style="background:rgba(102,0,255,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#6600ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div class="kpi-label">Конверсия</div>
             <div class="kpi-value" id="kpi-conv">—</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Выполнение плана</div>
+            <div class="kpi-icon" style="background:rgba(255,102,0,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div class="kpi-label">Выполнение плана</div>
             <div class="kpi-value" id="kpi-plan">—</div>
             <div id="plan-status" style="margin-top:16px"></div>
             <div class="kpi-progress" style="margin-top:12px">
@@ -599,13 +683,25 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
             </div>
           </div>
           <div class="kpi-card" id="kpi-chance-card" style="border-color:var(--border)">
-            <div class="kpi-label">Шанс выполнения плана</div>
+            <div class="kpi-icon" style="background:rgba(0,102,255,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#0066ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="kpi-label">Шанс выполнения плана</div>
             <div class="kpi-value" id="kpi-chance">—</div>
             <div id="kpi-chance-label" style="font-size:13px;margin-top:6px;color:var(--text3)"></div>
             <div class="kpi-progress" style="margin-top:16px">
               <div class="kpi-progress-fill" id="chance-progress-fill" style="width:0%"></div>
             </div>
             <div id="kpi-chance-detail" style="font-size:12px;color:var(--text3);margin-top:12px;line-height:1.6"></div>
+          </div>
+
+          <!-- ── Топ продавцов ── -->
+          <div class="sellers-kpi-card" id="home-sellers-widget" style="display:none">
+            <div class="kpi-icon" style="background:rgba(102,0,255,0.1)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#6600ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <div class="kpi-label">Рейтинг продавцов <span id="sw-month-label" style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;font-weight:400"></span></div>
+            <div id="sw-top3"><div class="sw-empty">Загрузка...</div></div>
+            <button class="sw-expand-btn" onclick="window.location.href='advanced.html'" title="Расширенная аналитика продавцов">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </button>
           </div>
         </div>
 
@@ -632,7 +728,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
                 <div class="stat-value" id="stat-days">—</div>
               </div>
               <div class="stat-box">
-                <div class="stat-label">Всего посещений</div>
+                <div class="stat-label"><span class="person-counter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-2 5h4l-2-5z"/><path d="M10 13l-1.5 5"/><path d="M14 13l1.5 5"/><path d="M9 10.5L7 14"/><path d="M15 10.5L17 14"/></svg><span>Посещений</span></span></div>
                 <div class="stat-value" id="stat-visitors">—</div>
               </div>
             </div>
@@ -645,7 +741,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div class="header">
         <h1>KPI анализ</h1>
       </div>
-      <div class="card">
+      <div class="card" style="margin-bottom:20px">
         <div class="card-title"><strong>Метрики по магазинам</strong></div>
         <table class="table">
           <thead>
@@ -662,6 +758,26 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           </thead>
           <tbody id="kpi-tbody"></tbody>
         </table>
+      </div>
+
+      <!-- ── Анализ по дням ── -->
+      <div class="card kpi-daily-card">
+        <div class="kpi-daily-header" onclick="toggleKpiDaily()" title="Анализ по дням">
+          <div style="display:flex;align-items:center;gap:10px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <strong style="font-size:14px">Анализ по дням</strong>
+            <span class="kpi-daily-hint">Подробная статистика за каждый день месяца</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="kpi-daily-toggle-label" style="font-size:12px;color:var(--text3)">Развернуть</span>
+            <div class="kpi-daily-chevron" id="kpi-daily-chevron">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-daily-body" id="kpi-daily-body">
+          <div id="kpi-daily-content"></div>
+        </div>
       </div>
     </div>
 
@@ -942,12 +1058,28 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           <button class="sync-btn" onclick="loadCertificates()">🔄 Обновить</button>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px">
-        <div class="kpi-card"><div class="kpi-label">Всего выдано</div><div class="kpi-value" id="cert-stat-total">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">Действующих</div><div class="kpi-value" id="cert-stat-active" style="color:var(--green)">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">Истекших</div><div class="kpi-value" id="cert-stat-expired" style="color:var(--text3)">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">Сумма (активные)</div><div class="kpi-value" id="cert-stat-sum" style="font-size:20px">—</div></div>
+    
+      <!-- Stats row -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px" id="cert-stats">
+        <div class="kpi-card">
+          <div class="kpi-label">Всего выдано</div>
+          <div class="kpi-value" id="cert-stat-total">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Действующих</div>
+          <div class="kpi-value" id="cert-stat-active" style="color:var(--green)">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Истекших</div>
+          <div class="kpi-value" id="cert-stat-expired" style="color:var(--text3)">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Сумма (активные)</div>
+          <div class="kpi-value" id="cert-stat-sum" style="font-size:20px">—</div>
+        </div>
       </div>
+    
+      <!-- Search + filter -->
       <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
         <input type="text" id="cert-search" placeholder="Поиск по имени или коду..." oninput="filterCertificates()"
           style="flex:1;min-width:200px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
@@ -958,8 +1090,13 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           <option value="expired">Истекшие</option>
         </select>
       </div>
+    
+      <!-- Certificates list -->
       <div id="cert-list" style="display:flex;flex-direction:column;gap:12px">
-        <div style="text-align:center;padding:60px;color:var(--text3)"><div style="font-size:48px;margin-bottom:12px">🎫</div><div>Загрузка...</div></div>
+        <div style="text-align:center;padding:60px;color:var(--text3)">
+          <div style="font-size:48px;margin-bottom:12px">🎫</div>
+          <div style="font-size:16px">Загрузка сертификатов...</div>
+        </div>
       </div>
     </div>
 
@@ -1189,6 +1326,98 @@ function toggleTheme() {
   document.getElementById('themeBtn').textContent = current === 'dark' ? '☀️' : '🌙';
 }
 
+// ── KPI Daily analysis collapsible ──
+function toggleKpiDaily() {
+  const body    = document.getElementById('kpi-daily-body');
+  const chevron = document.getElementById('kpi-daily-chevron');
+  const label   = document.getElementById('kpi-daily-toggle-label');
+  const isOpen  = body.classList.toggle('open');
+  chevron.classList.toggle('open', isOpen);
+  label.textContent = isOpen ? 'Свернуть' : 'Развернуть';
+}
+
+function renderKpiDailyTable(data, dateLabelsFull, numDays) {
+  const container = document.getElementById('kpi-daily-content');
+  if (!container) return;
+
+  const today = new Date();
+  const todayDay = today.getDate(); // 1-based
+
+  // Collect stores that have data
+  const storesWithData = STORES.filter(s => data.stores[s.id]?.dailyRevenue?.length > 0);
+
+  // Build daily totals (revenue + visitors) across all core stores
+  const rows = [];
+  for (let d = 0; d < numDays; d++) {
+    const label = dateLabelsFull[d] || {};
+    let totalRev = 0, totalVis = 0, totalChecks = 0;
+    const storeBreakdown = [];
+    storesWithData.forEach(({ id, name, color }) => {
+      const store = data.stores[id];
+      const rev  = store.dailyRevenue?.[d]  || 0;
+      const vis  = store.dailyVisitors?.[d] || 0;
+      totalRev    += rev;
+      totalVis    += vis;
+      if (rev > 0 || vis > 0) storeBreakdown.push({ name, color, rev, vis });
+    });
+    rows.push({ day: d + 1, label, totalRev, totalVis, storeBreakdown });
+  }
+
+  const maxRev = Math.max(...rows.map(r => r.totalRev), 1);
+
+  // Build columns: day, выручка (bar), магазины (dots), посещений
+  let html = `
+    <div style="overflow-x:auto">
+    <table class="kpi-day-table">
+      <thead>
+        <tr>
+          <th>День</th>
+          <th>Выручка (итого)</th>
+          <th>График</th>
+          <th>По магазинам</th>
+          <th>Посещений</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  rows.forEach(({ day, label, totalRev, totalVis, storeBreakdown }) => {
+    const isToday = day === todayDay;
+    const isEmpty = totalRev === 0 && totalVis === 0;
+    const pct = (totalRev / maxRev * 100).toFixed(1);
+    const barColor = totalRev >= maxRev * 0.8 ? 'var(--green)' : totalRev >= maxRev * 0.5 ? 'var(--accent)' : totalRev > 0 ? 'var(--yellow)' : 'var(--bg3)';
+    const dayName = label.dayName || '';
+    const dayNum  = label.day     || day;
+
+    const storeHtml = storeBreakdown.map(s =>
+      `<span title="${s.name}: ${(s.rev/1000).toFixed(0)}k ₸"><span class="kpi-day-dot" style="background:${s.color}"></span>${(s.rev/1000).toFixed(0)}k</span>`
+    ).join('<span style="color:var(--border);margin:0 4px">·</span>') || '<span class="kpi-day-empty">—</span>';
+
+    html += `
+      <tr class="${isToday ? 'kpi-day-today' : ''}">
+        <td>
+          <div class="kpi-day-num" style="color:${isToday ? 'var(--accent)' : 'var(--text)'}">${dayNum}${isToday ? ' <span style="font-size:9px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:4px;font-weight:600;margin-left:2px">сег.</span>' : ''}</div>
+          <div class="kpi-day-name">${dayName}</div>
+        </td>
+        <td style="font-weight:${isEmpty ? 400 : 700};color:${isEmpty ? 'var(--text3)' : 'var(--text)'}">
+          ${isEmpty ? '—' : (totalRev >= 1e6 ? (totalRev/1e6).toFixed(2)+' М₸' : Math.round(totalRev).toLocaleString('ru-RU')+' ₸')}
+        </td>
+        <td>
+          <div class="kpi-day-bar-wrap">
+            <div class="kpi-day-bar-track">
+              <div class="kpi-day-bar-fill" style="width:${isEmpty ? 0 : pct}%;background:${barColor}"></div>
+            </div>
+            <span style="font-size:10px;color:var(--text3);min-width:30px">${isEmpty ? '' : pct+'%'}</span>
+          </div>
+        </td>
+        <td style="font-size:12px">${storeHtml}</td>
+        <td style="color:${totalVis > 0 ? 'var(--text)' : 'var(--text3)'}">${totalVis > 0 ? totalVis.toLocaleString('ru-RU') : '—'}</td>
+      </tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+  container.innerHTML = html;
+}
+
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
@@ -1199,7 +1428,8 @@ function showPage(id) {
 function setDate() {
   const d = new Date();
   const months = ['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'];
-  document.getElementById('currentDate').textContent = `${d.getDate()} ${months[d.getMonth()]}`;
+  const el = document.getElementById('currentDate');
+  if (el) el.textContent = `${d.getDate()} ${months[d.getMonth()]}`;
 }
 
 function parseNum(val) {
@@ -1549,6 +1779,9 @@ function updateUI(data) {
     tbody.appendChild(row);
   });
 
+  // --- KPI daily table (collapsible) ---
+  renderKpiDailyTable(data, dateLabelsFull, numDays);
+
   // --- Heatmap ---
   document.getElementById('heatmap-month-label').textContent = monthYear;
   const hmEl = document.getElementById('heatmap-container');
@@ -1879,6 +2112,51 @@ function fmtMetricVal(val, s) {
 function rankEmoji(i) { return ['🥇','🥈','🥉'][i] || (i+1)+'.'; }
 function teamClr(t)   { return t === 'grandpark' ? '#6ba3d4' : '#d4a56b'; }
 
+// ── Home: top-3 sellers KPI widget ──
+function renderHomeSellerWidget() {
+  const widget = document.getElementById('home-sellers-widget');
+  const container = document.getElementById('sw-top3');
+  if (!widget || !container) return;
+  if (!sellersData || !sellersData.length) {
+    container.innerHTML = '<div class="sw-empty">Нет данных</div>';
+    widget.style.display = 'block';
+    return;
+  }
+
+  // Sort by revenue, top 3
+  const top3 = [...sellersData].sort((a, b) => b.revenue - a.revenue).slice(0, 3);
+  const maxRev = top3[0]?.revenue || 1;
+  const barColors = ['#ffd700', '#c0c0c0', '#cd7f32'];
+  const medals = ['🥇', '🥈', '🥉'];
+
+  // Month label
+  const now = new Date();
+  const months = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+  const lbl = document.getElementById('sw-month-label');
+  if (lbl) lbl.textContent = '· ' + months[now.getMonth()];
+
+  container.innerHTML = top3.map((s, i) => {
+    const pct = Math.round((s.revenue / maxRev) * 100);
+    const planPct = s.plan > 0 ? ((s.revenue / s.plan) * 100).toFixed(0) + '%' : '—';
+    const tc = teamClr(s.team);
+    const teamLabel = s.team === 'grandpark' ? 'GP' : 'Aport';
+    return `<div class="sw-row">
+      <div class="sw-medal">${medals[i]}</div>
+      <div class="sw-info">
+        <div class="sw-name">${s.name}</div>
+        <div class="sw-sub">план ${planPct} · ${s.shifts} смен</div>
+      </div>
+      <div class="sw-bar-wrap">
+        <div class="sw-bar-track"><div class="sw-bar-fill" style="width:${pct}%;background:${barColors[i]}"></div></div>
+      </div>
+      <div class="sw-val">${fmtMoney(s.revenue)}</div>
+      <div class="sw-team" style="background:${tc}22;color:${tc}">${teamLabel}</div>
+    </div>`;
+  }).join('');
+
+  widget.style.display = 'block';
+}
+
 function setSellersView(v) {
   sellersView = v;
   ['all','grandpark','aport'].forEach(k =>
@@ -2040,6 +2318,7 @@ async function syncSellers() {
     if (!json.values) throw new Error('no values');
     sellersData = parseSellersData(json.values);
     renderSellers();
+    renderHomeSellerWidget();
   } catch(e) {
     console.warn('Sellers sync error:', e.message);
     document.getElementById('sellers-leaderboard').innerHTML =
@@ -2434,58 +2713,58 @@ window.addEventListener('load', () => {
   syncSellers();
   startSyncIntervals();
   localStorage.setItem('qgi_last_session', new Date().toLocaleString('ru-RU'));
-  
-  // Initialize Firebase Auth
   initializeFirebaseAuth();
-  
-  // Initialize Tasks System
-  initializeTasksSystem();
 });
 
-// ===== FIREBASE AUTH + ROLE GUARD =====
+// ===== FIREBASE — единая инициализация =====
+const _fbConfig = {
+  apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
+  authDomain: "qos-base.firebaseapp.com",
+  projectId: "qos-base",
+  storageBucket: "qos-base.firebasestorage.app",
+  messagingSenderId: "639485153845",
+  appId: "1:639485153845:web:61baa7942382ba7444d77c"
+};
+if (!firebase.apps.length) firebase.initializeApp(_fbConfig);
+const _fbAuth = firebase.auth();
+const _fbDb   = firebase.firestore();
+
+// ===== FIREBASE AUTH + ROLE GUARD (менеджер) =====
 function initializeFirebaseAuth() {
-  const firebaseConfig = {
-    apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
-    authDomain: "qos-base.firebaseapp.com",
-    projectId: "qos-base",
-    storageBucket: "qos-base.firebasestorage.app",
-    messagingSenderId: "639485153845",
-    appId: "1:639485153845:web:61baa7942382ba7444d77c"
-  };
-
-  const app = firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db   = firebase.firestore();
-
-  auth.onAuthStateChanged(async user => {
+  _fbAuth.onAuthStateChanged(async user => {
     if (!user) { window.location.href = 'index.html'; return; }
 
-    // Показываем email
+    // Показываем профиль
     document.getElementById('userProfileSection').style.display = 'flex';
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) avatarEl.textContent = (user.email || '?')[0].toUpperCase();
     document.getElementById('userEmail').textContent = user.email;
 
-    // Читаем роль из Firestore
+    // Настройки — всегда скрыты для менеджера
+    const settingsBtn = document.getElementById('nav-settings');
+    if (settingsBtn) settingsBtn.style.display = 'none';
+
     try {
-      const doc = await db.collection('users').doc(user.uid).get();
+      const doc = await _fbDb.collection('users').doc(user.uid).get();
       if (doc.exists) {
         const profile = doc.data();
-        const role = profile.role || 'admin';
-        // Роль-гард
-        if (role === 'seller')  { window.location.href = 'seller.html';  return; }
-        if (role === 'admin')   { window.location.href = 'panel.html';   return; }
-        if (role === 'observer'){ window.location.href = 'observer.html'; return; }
-        // role === 'manager' — остаёмся здесь
-        if (profile.name) document.getElementById('userEmail').textContent = profile.name + ' (менеджер)';
-        // Настройки скрыты для менеджера всегда
-        const settingsBtn = document.getElementById('nav-settings');
-        if (settingsBtn) settingsBtn.style.display = 'none';
-        // Показать приветствие
-        showWelcome(profile.name || user.email, 'manager');
+        const role = (profile.role || 'manager').toLowerCase();
+        // Роль-гард: admin и seller не должны быть здесь
+        if (role === 'admin')    { window.location.href = 'panel.html';    return; }
+        if (role === 'seller')   { window.location.href = 'seller.html';   return; }
+        if (role === 'observer') { window.location.href = 'observer.html'; return; }
+        // manager — остаёмся
+        const displayName = profile.name || user.email;
+        document.getElementById('userEmail').textContent = displayName;
+        if (avatarEl) avatarEl.textContent = displayName[0].toUpperCase();
       }
     } catch(e) {
       console.warn('Role check error:', e);
-      // При ошибке — оставляем (безопасно)
     }
+
+    // Инициализируем задачи после auth
+    currentUser = user;
+    loadTasks();
   });
 }
 
@@ -2494,34 +2773,8 @@ let currentUser = null;
 let allTasks = [];
 let currentFilter = 'all';
 
-// Initialize Firebase for tasks
-async function initializeTasksSystem() {
-  const firebaseConfig = {
-    apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
-    authDomain: "qos-base.firebaseapp.com",
-    projectId: "qos-base",
-    storageBucket: "qos-base.firebasestorage.app",
-    messagingSenderId: "639485153845",
-    appId: "1:639485153845:web:61baa7942382ba7444d77c"
-  };
-
-  try {
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentUser = user;
-        loadTasks();
-      }
-    });
-  } catch (e) {
-    console.error('Tasks system error:', e);
-  }
-}
-
 async function loadTasks() {
-  const db = firebase.firestore();
+  const db = _fbDb;
   try {
     const snapshot = await db.collection('tasks').get();
     allTasks = [];
@@ -2560,6 +2813,7 @@ function updateTasksUI() {
       const isSeen = task.seenBy && task.seenBy.includes(currentUser?.uid);
       const card = document.createElement('div');
       card.className = `task-card ${task.completed ? 'completed' : ''} ${isSeen ? 'seen' : 'unseen'}`;
+      card.dataset.taskId = task.id;
       
       const priorityClass = `priority-${task.priority || 'medium'}`;
       const daysLeft = Math.ceil((new Date(task.deadline) - new Date()) / (1000 * 60 * 60 * 24));
@@ -2569,13 +2823,16 @@ function updateTasksUI() {
         <div class="task-check-wrap">
           <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}
             onclick="event.stopPropagation(); toggleTaskComplete('${task.id}', ${!task.completed})"
-            title="${task.completed ? 'Снять отметку' : 'Отметить выполненным'}">
+            title="${task.completed ? 'Отметить как невыполненное' : 'Отметить как выполненное'}">
           <div style="flex:1;min-width:0">
             <div class="task-header">
               <div class="task-title">${task.name || 'Без названия'}</div>
-              <span class="task-priority ${priorityClass}">${
-                task.priority === 'high' ? '🔴 Высокий' : task.priority === 'low' ? '🟢 Низкий' : '🟡 Средний'
-              }</span>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                <span class="task-priority ${priorityClass}">${
+                  task.priority === 'high' ? '🔴 Высокий' : task.priority === 'low' ? '🟢 Низкий' : '🟡 Средний'
+                }</span>
+                <button class="btn-delete-task" onclick="event.stopPropagation(); deleteTask('${task.id}')" title="Удалить задачу">🗑</button>
+              </div>
             </div>
             ${task.description ? `<p style="font-size:12px;color:var(--text2);margin:8px 0">${task.description}</p>` : ''}
             <div class="task-meta">
@@ -2587,7 +2844,7 @@ function updateTasksUI() {
         </div>
       `;
       card.onclick = (e) => {
-        if (e.target.classList.contains('task-checkbox')) return;
+        if (e.target.classList.contains('task-checkbox') || e.target.classList.contains('btn-delete-task')) return;
         openTaskModal(task.id);
       };
       tasksList.appendChild(card);
@@ -2657,7 +2914,7 @@ function closeTaskModal() {
 
 async function saveTask(e) {
   e.preventDefault();
-  const db = firebase.firestore();
+  const db = _fbDb;
   const taskId = document.getElementById('taskForm').dataset.taskId;
   
   const taskData = {
@@ -2687,7 +2944,7 @@ async function saveTask(e) {
 }
 
 async function toggleTaskComplete(taskId, completed) {
-  const db = firebase.firestore();
+  const db = _fbDb;
   try {
     const updateData = {
       completed,
@@ -2695,6 +2952,7 @@ async function toggleTaskComplete(taskId, completed) {
       completedBy: completed ? (currentUser?.uid || '') : null
     };
     await db.collection('tasks').doc(taskId).update(updateData);
+    // Обновляем локально без перезагрузки для быстрого отклика
     const task = allTasks.find(t => t.id === taskId);
     if (task) Object.assign(task, updateData);
     updateTasksUI();
@@ -2706,7 +2964,23 @@ async function toggleTaskComplete(taskId, completed) {
   }
 }
 
+async function deleteTask(taskId) {
+  if (!confirm('Удалить задачу? Это действие нельзя отменить.')) return;
+  const db = _fbDb;
+  try {
+    await db.collection('tasks').doc(taskId).delete();
+    allTasks = allTasks.filter(t => t.id !== taskId);
+    updateTasksUI();
+    updateTaskStats();
+    showTaskToast('🗑 Задача удалена', 'info');
+  } catch(e) {
+    console.error('Delete task error:', e);
+    showTaskToast('Ошибка удаления задачи', 'error');
+  }
+}
+
 function showTaskToast(msg, type = 'info') {
+  // Reuse any existing toast or create temporary notification
   let toast = document.getElementById('task-toast');
   if (!toast) {
     toast = document.createElement('div');
@@ -2725,7 +2999,7 @@ function showTaskToast(msg, type = 'info') {
 }
 
 async function markTaskAsSeen(taskId) {
-  const db = firebase.firestore();
+  const db = _fbDb;
   const task = allTasks.find(t => t.id === taskId);
   if (task && currentUser) {
     const seenBy = task.seenBy || [];
@@ -2743,53 +3017,11 @@ function addSubtask() {
   alert('Подзадачи будут добавлены в следующей версии');
 }
 
-// ===================== WELCOME OVERLAY =====================
-function showWelcome(name, role) {
-  const overlay = document.getElementById('welcomeOverlay');
-  if (!overlay) return;
-
-  // Только один раз за сессию
-  const sessionKey = 'qcp_welcomed_mgr_' + name;
-  if (sessionStorage.getItem(sessionKey)) return;
-
-  document.getElementById('welcomeName').textContent = name;
-  document.getElementById('welcomeRoleLbl').textContent = 'Менеджер · Qoima Control Panel';
-
-  const hour = new Date().getHours();
-  const timeGreet = hour < 6 ? 'Доброй ночи' : hour < 12 ? 'Доброе утро' : hour < 18 ? 'Добрый день' : 'Добрый вечер';
-  document.getElementById('welcomeTime').textContent = timeGreet + ' · ' + new Date().toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
-
-  overlay.classList.remove('hidden');
-}
-
-function closeWelcome() {
-  const overlay = document.getElementById('welcomeOverlay');
-  if (!overlay) return;
-  overlay.classList.add('fade-out');
-  const name = document.getElementById('welcomeName').textContent;
-  sessionStorage.setItem('qcp_welcomed_mgr_' + name, '1');
-  setTimeout(() => overlay.classList.add('hidden'), 500);
-}
-
 function handleLogout() {
   if (confirm('Вы уверены, что хотите выйти?')) {
-    const firebaseConfig = {
-      apiKey: "AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
-      authDomain: "qos-base.firebaseapp.com",
-      projectId: "qos-base",
-      storageBucket: "qos-base.firebasestorage.app",
-      messagingSenderId: "639485153845",
-      appId: "1:639485153845:web:61baa7942382ba7444d77c"
-    };
-    
-    try {
-      const auth = firebase.auth();
-      auth.signOut().then(() => {
-        window.location.href = 'index.html';
-      });
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+    _fbAuth.signOut()
+      .then(() => { window.location.href = 'index.html'; })
+      .catch(e => console.error('Logout error:', e));
   }
 }
 </script>
@@ -2857,88 +3089,99 @@ function handleLogout() {
     </form>
   </div>
 </div>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-
 <script>
 // ===================== CERTIFICATES SYSTEM =====================
 let allCertificates = [];
-let currentCertId   = null;
-let _viewingCert    = null;
+let currentCertId = null;
 
-// Числа прописью (казахский)
+// Числа прописью (казахский стиль, тысячи)
 function numToWords(n) {
   const ones  = ['','БІР','ЕКІ','ҮШ','ТӨРТ','БЕС','АЛТЫ','ЖЕТІ','СЕГІЗ','ТОҒЫЗ'];
   const teens = ['ОН','ОН БІР','ОН ЕКІ','ОН ҮШ','ОН ТӨРТ','ОН БЕС','ОН АЛТЫ','ОН ЖЕТІ','ОН СЕГІЗ','ОН ТОҒЫЗ'];
   const tens  = ['','ОН','ЖИЫРМА','ОТЫЗ','ҚЫРЫҚ','ЕЛУ','АЛПЫС','ЖЕТПІС','СЕКСЕН','ТОҚСАН'];
+
+  function below1000(num) {
+    let r = '';
+    if (num >= 100) { r += ones[Math.floor(num/100)] + ' ЖҮЗ '; num %= 100; }
+    if (num >= 20)  { r += tens[Math.floor(num/10)] + ' '; num %= 10; }
+    else if (num >= 10) { r += teens[num - 10] + ' '; num = 0; }
+    if (num > 0)    { r += ones[num] + ' '; }
+    return r;
+  }
+
   if (n === 0) return 'НӨЛДІК';
-  let r = '';
-  if (n >= 1000) { r += ones[Math.floor(n/1000)] + ' МЫҢ '; n %= 1000; }
-  if (n >= 100)  { r += ones[Math.floor(n/100)]  + ' ЖҮЗ '; n %= 100; }
-  if (n >= 20)   { r += tens[Math.floor(n/10)]   + ' ';     n %= 10; }
-  else if (n >= 10) { r += teens[n-10] + ' '; n = 0; }
-  if (n > 0) r += ones[n] + ' ';
-  return r.trim();
+  let result = '';
+  if (n >= 1000) {
+    result += below1000(Math.floor(n / 1000)) + 'МЫҢ ';
+    n %= 1000;
+  }
+  result += below1000(n);
+  return result.trim();
 }
 
-function fmtDateShort(s) {
-  if (!s) return '—';
-  const [y,m,d] = s.split('-'); return `${d}.${m}`;
+function fmtDateShort(dateStr) {
+  if (!dateStr) return '—';
+  const [y,m,d] = dateStr.split('-');
+  return `${d}.${m}`;
 }
-function fmtDateFull(s) {
-  if (!s) return '—';
-  return new Date(s+'T00:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+
+function fmtDateFull(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('ru-RU', {day:'numeric', month:'long', year:'numeric'});
 }
+
 function genCertCode() {
-  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = 'QCP-';
-  for (let i = 0; i < 8; i++) { if (i===4) code+='-'; code += c[Math.floor(Math.random()*c.length)]; }
+  for (let i = 0; i < 8; i++) {
+    if (i === 4) code += '-';
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
   return code;
 }
 
-// ── PREVIEW ──
 function updateCertPreview() {
-  const name   = document.getElementById('cert-buyer-name').value || '';
-  const amount = parseInt(document.getElementById('cert-amount').value) || 0;
-  const df     = document.getElementById('cert-date-from').value;
-  const dt     = document.getElementById('cert-date-to').value;
-  document.getElementById('preview-name').textContent        = name;
-  document.getElementById('preview-amount').textContent      = amount > 0 ? amount.toLocaleString('ru-RU') + ' ₸' : ' ₸';
+  const name    = document.getElementById('cert-buyer-name').value || '';
+  const amount  = parseInt(document.getElementById('cert-amount').value) || 0;
+  const dateFrom = document.getElementById('cert-date-from').value;
+  const dateTo   = document.getElementById('cert-date-to').value;
+
+  document.getElementById('preview-name').textContent = name;
+  document.getElementById('preview-amount').textContent = amount > 0 ? amount.toLocaleString('ru-RU') + ' ₸' : ' ₸';
   document.getElementById('preview-amount-text').textContent = amount > 0 ? numToWords(amount) + ' ТЕҢГЕ КӨЛЕМІНДЕ' : '';
-  document.getElementById('preview-dates').textContent       = (df && dt) ? `${fmtDateShort(df)} – ${fmtDateShort(dt)}` : '—';
+  document.getElementById('preview-dates').textContent = (dateFrom && dateTo) ? `${fmtDateShort(dateFrom)} – ${fmtDateShort(dateTo)}` : '—';
 }
 
-// ── OPEN / CLOSE MODAL ──
 function openCertModal(certId = null) {
   currentCertId = certId;
   document.getElementById('certModal').style.display = 'flex';
   document.getElementById('cert-code-display').style.display = 'none';
 
   if (certId) {
+    // Edit mode
     const cert = allCertificates.find(c => c.id === certId);
     if (!cert) return;
-    document.getElementById('cert-modal-title').textContent  = 'Редактировать сертификат';
+    document.getElementById('cert-modal-title').textContent = 'Редактировать сертификат';
     document.getElementById('cert-buyer-name').value = cert.buyerName || '';
-    document.getElementById('cert-amount').value     = cert.amount    || '';
-    document.getElementById('cert-date-from').value  = cert.dateFrom  || '';
-    document.getElementById('cert-date-to').value    = cert.dateTo    || '';
-    document.getElementById('cert-store').value      = cert.store     || 'Grand Park';
-    document.getElementById('cert-note').value       = cert.note      || '';
+    document.getElementById('cert-amount').value = cert.amount || '';
+    document.getElementById('cert-date-from').value = cert.dateFrom || '';
+    document.getElementById('cert-date-to').value = cert.dateTo || '';
+    document.getElementById('cert-store').value = cert.store || 'Grand Park';
+    document.getElementById('cert-note').value = cert.note || '';
     document.getElementById('cert-code-value').textContent = cert.code || '';
     document.getElementById('cert-code-display').style.display = 'block';
   } else {
+    // Create mode
     document.getElementById('cert-modal-title').textContent = 'Новый сертификат';
-    ['cert-buyer-name','cert-amount','cert-note'].forEach(id => document.getElementById(id).value = '');
-    const today    = new Date().toISOString().split('T')[0];
-    const twoWeeks = new Date(Date.now() + 14*864e5).toISOString().split('T')[0];
+    document.getElementById('cert-buyer-name').value = '';
+    document.getElementById('cert-amount').value = '';
+    const today = new Date().toISOString().split('T')[0];
+    const twoWeeks = new Date(Date.now() + 14*24*60*60*1000).toISOString().split('T')[0];
     document.getElementById('cert-date-from').value = today;
-    document.getElementById('cert-date-to').value   = twoWeeks;
-    document.getElementById('cert-store').value     = 'Grand Park';
-    // re-enable save button if was disabled
-    const saveBtn = document.querySelector('#certModal button[onclick="saveCertificate()"]');
-    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Выдать сертификат'; }
+    document.getElementById('cert-date-to').value = twoWeeks;
+    document.getElementById('cert-store').value = 'Grand Park';
+    document.getElementById('cert-note').value = '';
   }
   updateCertPreview();
 }
@@ -2948,7 +3191,6 @@ function closeCertModal() {
   currentCertId = null;
 }
 
-// ── SAVE ──
 async function saveCertificate() {
   const buyerName = document.getElementById('cert-buyer-name').value.trim();
   const amount    = parseInt(document.getElementById('cert-amount').value);
@@ -2958,17 +3200,20 @@ async function saveCertificate() {
   const note      = document.getElementById('cert-note').value.trim();
 
   if (!buyerName || !amount || !dateFrom || !dateTo) {
-    alert('Заполните обязательные поля: имя, сумма, даты'); return;
+    alert('Заполните обязательные поля: имя, сумма, даты');
+    return;
   }
 
-  const db   = firebase.firestore();
-  const user = firebase.auth().currentUser;
+  const db = _fbDb;
+  const auth = _fbAuth;
+  const user = auth.currentUser;
+
   const certData = {
     buyerName, amount, dateFrom, dateTo, store, note,
-    issuedBy:    user ? user.email : '—',
-    issuedByUid: user ? user.uid   : '—',
-    createdAt:   new Date().toISOString(),
-    status:      'active'
+    issuedBy: user ? user.email : '—',
+    issuedByUid: user ? user.uid : '—',
+    createdAt: new Date().toISOString(),
+    status: 'active'
   };
 
   try {
@@ -2976,202 +3221,324 @@ async function saveCertificate() {
       await db.collection('certificates').doc(currentCertId).update(certData);
       alert('Сертификат обновлён');
     } else {
-      certData.code = genCertCode();
-      await db.collection('certificates').add(certData);
-      document.getElementById('cert-code-value').textContent = certData.code;
+      const code = genCertCode();
+      certData.code = code;
+      const docRef = await db.collection('certificates').add(certData);
+      document.getElementById('cert-code-value').textContent = code;
       document.getElementById('cert-code-display').style.display = 'block';
       document.getElementById('cert-modal-title').textContent = 'Сертификат выдан ✓';
-      const saveBtn = document.querySelector('#certModal button[onclick="saveCertificate()"]');
-      if (saveBtn) { saveBtn.textContent = '✓ Сохранено'; saveBtn.disabled = true; }
+      // hide save button
+      event.target.textContent = '✓ Сохранено';
+      event.target.disabled = true;
     }
     await loadCertificates();
-  } catch(e) { alert('Ошибка: ' + e.message); }
+  } catch(e) {
+    alert('Ошибка: ' + e.message);
+  }
 }
 
-// ── LOAD ──
 async function loadCertificates() {
-  const db = firebase.firestore();
+  const db = _fbDb;
   try {
     const snap = await db.collection('certificates').orderBy('createdAt','desc').get();
     allCertificates = [];
     snap.forEach(doc => allCertificates.push({ id: doc.id, ...doc.data() }));
   } catch(e) {
+    // Firestore may need index — try without orderBy
     try {
       const snap = await db.collection('certificates').get();
       allCertificates = [];
       snap.forEach(doc => allCertificates.push({ id: doc.id, ...doc.data() }));
       allCertificates.sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
-    } catch(e2) { console.error('loadCertificates:', e2); }
+    } catch(e2) {
+      console.error('Load certs error:', e2);
+    }
   }
   renderCertificates(allCertificates);
   updateCertStats();
 }
 
-// ── FILTER ──
 function filterCertificates() {
-  const q      = document.getElementById('cert-search').value.toLowerCase();
+  const q = document.getElementById('cert-search').value.toLowerCase();
   const status = document.getElementById('cert-filter-status').value;
-  const today  = new Date().toISOString().split('T')[0];
-  const filtered = allCertificates.filter(c => {
-    const mq  = !q || (c.buyerName||'').toLowerCase().includes(q) || (c.code||'').toLowerCase().includes(q);
-    const exp = c.dateTo && c.dateTo < today;
-    const ms  = status==='all'
-      || (status==='active'  && !exp && c.status!=='revoked')
-      || (status==='expired' && (exp || c.status==='revoked'));
-    return mq && ms;
+  const today = new Date().toISOString().split('T')[0];
+  let filtered = allCertificates.filter(c => {
+    const matchQ = !q || c.buyerName?.toLowerCase().includes(q) || c.code?.toLowerCase().includes(q);
+    const isExpired = c.dateTo && c.dateTo < today;
+    const matchS = status === 'all' || (status === 'active' && !isExpired && c.status !== 'revoked') || (status === 'expired' && (isExpired || c.status === 'revoked'));
+    return matchQ && matchS;
   });
   renderCertificates(filtered);
 }
 
-// ── STATS ──
 function updateCertStats() {
-  const today   = new Date().toISOString().split('T')[0];
-  const active  = allCertificates.filter(c => c.dateTo >= today && c.status !== 'revoked');
-  const expired = allCertificates.filter(c => c.dateTo <  today || c.status === 'revoked');
-  document.getElementById('cert-stat-total').textContent   = allCertificates.length;
-  document.getElementById('cert-stat-active').textContent  = active.length;
+  const today = new Date().toISOString().split('T')[0];
+  const active = allCertificates.filter(c => c.dateTo >= today && c.status !== 'revoked');
+  const expired = allCertificates.filter(c => c.dateTo < today || c.status === 'revoked');
+  const activeSum = active.reduce((s,c) => s + (c.amount||0), 0);
+
+  document.getElementById('cert-stat-total').textContent = allCertificates.length;
+  document.getElementById('cert-stat-active').textContent = active.length;
   document.getElementById('cert-stat-expired').textContent = expired.length;
-  document.getElementById('cert-stat-sum').textContent     = active.reduce((s,c)=>s+(c.amount||0),0).toLocaleString('ru-RU') + '₸';
+  document.getElementById('cert-stat-sum').textContent = activeSum.toLocaleString('ru-RU') + '₸';
 }
 
-// ── RENDER LIST ──
 function renderCertificates(list) {
-  const el    = document.getElementById('cert-list');
+  const el = document.getElementById('cert-list');
   const today = new Date().toISOString().split('T')[0];
   if (!list.length) {
     el.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text3)"><div style="font-size:48px;margin-bottom:12px">🎫</div><div>Сертификатов нет</div></div>';
     return;
   }
   el.innerHTML = list.map(c => {
-    const isExp = c.dateTo < today, isRev = c.status === 'revoked';
-    const badge = isRev
+    const isExpired = c.dateTo < today;
+    const isRevoked = c.status === 'revoked';
+    const statusBadge = isRevoked
       ? `<span style="padding:3px 10px;background:rgba(255,51,51,0.12);color:var(--red);border-radius:20px;font-size:11px;font-weight:600">Аннулирован</span>`
-      : isExp
+      : isExpired
       ? `<span style="padding:3px 10px;background:var(--bg3);color:var(--text3);border-radius:20px;font-size:11px;font-weight:600">Истёк</span>`
       : `<span style="padding:3px 10px;background:rgba(0,204,102,0.12);color:var(--green);border-radius:20px;font-size:11px;font-weight:600">Активен</span>`;
-    return `<div onclick="viewCertificate('${c.id}')" style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 22px;cursor:pointer;transition:border-color 0.18s;display:flex;align-items:center;gap:16px" onmouseover="this.style.borderColor='rgba(0,102,255,0.3)'" onmouseout="this.style.borderColor='var(--border)'">
-      <div style="width:48px;height:48px;background:${isRev||isExp?'var(--bg3)':'rgba(192,57,43,0.1)'};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${isRev?'🚫':isExp?'⏰':'🎫'}</div>
+    return `<div onclick="viewCertificate('${c.id}')" style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 22px;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;gap:16px" onmouseover="this.style.borderColor='rgba(0,102,255,0.3)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="width:48px;height:48px;background:${isRevoked||isExpired?'var(--bg3)':'rgba(192,57,43,0.1)'};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${isRevoked?'🚫':isExpired?'⏰':'🎫'}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:15px;font-weight:700;margin-bottom:4px">${c.buyerName||'—'}</div>
-        <div style="font-size:12px;color:var(--text3)">${c.store||'—'} · ${fmtDateShort(c.dateFrom)} – ${fmtDateShort(c.dateTo)} · Выдал: ${c.issuedBy||'—'}</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">${c.buyerName || '—'}</div>
+        <div style="font-size:12px;color:var(--text3)">${c.store || '—'} · ${fmtDateShort(c.dateFrom)} – ${fmtDateShort(c.dateTo)} · Выдал: ${c.issuedBy || '—'}</div>
       </div>
       <div style="text-align:right;flex-shrink:0">
         <div style="font-size:18px;font-weight:800;color:var(--accent)">${(c.amount||0).toLocaleString('ru-RU')} ₸</div>
-        <div style="font-size:11px;font-family:monospace;color:var(--text3);margin-bottom:4px">${c.code||'—'}</div>
-        ${badge}
+        <div style="font-size:11px;font-family:monospace;color:var(--text3);margin-bottom:4px">${c.code || '—'}</div>
+        ${statusBadge}
       </div>
     </div>`;
   }).join('');
 }
 
-// ── VIEW ──
 function viewCertificate(certId) {
   const cert = allCertificates.find(c => c.id === certId);
   if (!cert) return;
-  const today  = new Date().toISOString().split('T')[0];
-  const isExp  = cert.dateTo < today;
-  const isRev  = cert.status === 'revoked';
+  const today = new Date().toISOString().split('T')[0];
+  const isExpired = cert.dateTo < today;
+  const isRevoked = cert.status === 'revoked';
 
   document.getElementById('certViewContent').innerHTML = `
+    <!-- Сертификат — точный дизайн как в certModal -->
     <div style="position:relative;border-radius:16px 16px 0 0;overflow:hidden;width:100%;padding-bottom:39.06%;background:#f5ede0">
       <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaRakhmetCardddas.png"
            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" alt="">
       <div style="position:absolute;inset:0;padding:4% 5%">
-        <div style="display:flex;justify-content:flex-end">
-          <div style="font-family:'Handwriting',sans-serif;font-size:clamp(14px,1.8%,16px);color:#111">${fmtDateShort(cert.dateFrom)} – ${fmtDateShort(cert.dateTo)}</div>
+
+        <!-- Верхний ряд: дата справа -->
+        <div style="display:flex;justify-content:flex-end;margin-bottom:0">
+          <div style="text-align:right">
+            <div style="font-family:'Handwriting',sans-serif;font-size:clamp(18px,1.8%,16px);color:#111;margin-top:2px">${fmtDateShort(cert.dateFrom)} – ${fmtDateShort(cert.dateTo)}</div>
+          </div>
         </div>
+
+        <!-- Нижняя часть: имя + сумма -->
         <div style="position:absolute;bottom:6%;left:5%;right:5%">
-          <div style="font-family:'Thesignature',cursive;font-size:clamp(40px,3.5%,34px);color:#111;padding-left:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:65%;line-height:1.1">${cert.buyerName||'—'}</div>
-          <div style="font-family:'BenzinExtraBold',sans-serif;font-size:clamp(18px,3.8%,36px);color:#e91e24;font-weight:900">${(cert.amount||0).toLocaleString('ru-RU')} ₸</div>
-          <div style="font-size:clamp(6px,0.9%,9px);color:#555;text-transform:uppercase;letter-spacing:0.5px">${cert.amount ? numToWords(cert.amount)+' ТЕҢГЕ КӨЛЕМІНДЕ' : ''}</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;margin-bottom:2%">
+            <div style="font-family:'Thesignature',cursive;font-size:clamp(50px,3.5%,34px);color:#111;padding-left:16px;min-width:30%;max-width:65%;white-space:nowrap;text-overflow:ellipsis;line-height:1.1">${cert.buyerName || '—'}</div>
+          </div>
+          <div style="font-family:'BenzinExtraBold',sans-serif;font-size:clamp(20px,3.8%,36px);color:#e91e24;line-height:1;font-weight:900">${(cert.amount||0).toLocaleString('ru-RU')} ₸</div>
+          <div style="font-family:'BenzinSemibold',sans-serif;font-size:clamp(6px,0.9%,9px);color:#555;margin-top:2px;text-transform:uppercase;letter-spacing:0.5px">${cert.amount ? numToWords(cert.amount) + ' ТЕҢГЕ КӨЛЕМІНДЕ' : ''}</div>
         </div>
+
       </div>
     </div>
+    <!-- Инфо -->
     <div style="padding:16px 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div style="background:var(--bg3);border-radius:10px;padding:12px">
         <div style="font-size:10px;color:var(--text3);margin-bottom:3px">КОД</div>
-        <div style="font-size:15px;font-weight:800;letter-spacing:2px;color:var(--accent);font-family:monospace">${cert.code||'—'}</div>
+        <div style="font-size:15px;font-weight:800;letter-spacing:2px;color:var(--accent);font-family:monospace">${cert.code || '—'}</div>
       </div>
       <div style="background:var(--bg3);border-radius:10px;padding:12px">
         <div style="font-size:10px;color:var(--text3);margin-bottom:3px">СТАТУС</div>
-        <div style="font-size:13px;font-weight:700;color:${isRev?'var(--red)':isExp?'var(--text3)':'var(--green)'}">${isRev?'АННУЛИРОВАН':isExp?'ИСТЁК':'АКТИВЕН'}</div>
+        <div style="font-size:13px;font-weight:700;color:${isRevoked?'var(--red)':isExpired?'var(--text3)':'var(--green)'}">${isRevoked?'АННУЛИРОВАН':isExpired?'ИСТЁК':'АКТИВЕН'}</div>
       </div>
       <div style="background:var(--bg3);border-radius:10px;padding:12px">
         <div style="font-size:10px;color:var(--text3);margin-bottom:3px">МАГАЗИН</div>
-        <div style="font-size:13px;font-weight:600">${cert.store||'—'}</div>
+        <div style="font-size:13px;font-weight:600">${cert.store || '—'}</div>
       </div>
       <div style="background:var(--bg3);border-radius:10px;padding:12px">
         <div style="font-size:10px;color:var(--text3);margin-bottom:3px">ВЫДАН</div>
-        <div style="font-size:12px">${cert.issuedBy||'—'} · ${cert.createdAt ? new Date(cert.createdAt).toLocaleDateString('ru-RU') : '—'}</div>
+        <div style="font-size:12px">${cert.issuedBy || '—'}</div>
       </div>
       ${cert.note ? `<div style="grid-column:span 2;background:var(--bg3);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">ПРИМЕЧАНИЕ</div><div style="font-size:13px">${cert.note}</div></div>` : ''}
-    </div>`;
+    </div>
+  `;
 
   _viewingCert = cert;
-  const rb = document.getElementById('cert-revoke-btn');
-  rb.style.display = isRev ? 'none' : 'inline-flex';
-  rb.onclick = () => revokeCertificate(certId);
+  const revokeBtn = document.getElementById('cert-revoke-btn');
+  revokeBtn.style.display = isRevoked ? 'none' : 'inline-flex';
+  revokeBtn.onclick = () => revokeCertificate(certId);
   document.getElementById('certViewModal').style.display = 'flex';
 }
 
-// ── SHARE / COPY ──
 function shareCertificate() {
-  if (!_viewingCert?.code) return;
-  const url = `${window.location.origin}/cert.html?code=${encodeURIComponent(_viewingCert.code)}`;
-  const btn = document.getElementById('cert-share-btn');
+  if (!_viewingCert || !_viewingCert.code) return;
+  const base = window.location.origin;
+  const url  = `${base}/cert.html?code=${encodeURIComponent(_viewingCert.code)}`;
+  const btn  = document.getElementById('cert-share-btn');
+
+  // Try native share (mobile)
   if (navigator.share) {
-    navigator.share({ title:'Сертификат Qoima', text:`Подарочный сертификат на ${(_viewingCert.amount||0).toLocaleString('ru-RU')} ₸`, url }).catch(()=>{});
+    navigator.share({
+      title: 'Сертификат Qoima',
+      text: `Ваш подарочный сертификат на ${(_viewingCert.amount||0).toLocaleString('ru-RU')} ₸`,
+      url
+    }).catch(() => {});
     return;
   }
+  // Fallback — copy to clipboard
   navigator.clipboard.writeText(url).then(() => {
-    btn.textContent = '✓ Скопировано!';
+    btn.textContent = '✓ Ссылка скопирована!';
     btn.style.background = 'var(--green)';
-    setTimeout(() => { btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Отправить клиенту`; btn.style.background = 'var(--accent)'; }, 2500);
-  }).catch(() => prompt('Скопируйте ссылку:', url));
+    setTimeout(() => {
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Отправить клиенту`;
+      btn.style.background = 'var(--accent)';
+    }, 2500);
+  }).catch(() => {
+    prompt('Скопируйте ссылку:', url);
+  });
 }
 
+// ===== КОПИРОВАНИЕ ССЫЛКИ НА СЕРТИФИКАТ =====
 function copyCertificateLink() {
-  if (!_viewingCert?.code) return;
-  const url = `${window.location.origin}/cert.html?code=${encodeURIComponent(_viewingCert.code)}`;
-  const btn = document.getElementById('cert-copy-btn');
+  if (!_viewingCert || !_viewingCert.code) return;
+  
+  const base = window.location.origin;
+  const url  = `${base}/cert.html?code=${encodeURIComponent(_viewingCert.code)}`;
+  const btn  = document.getElementById('cert-copy-btn');
+  
   navigator.clipboard.writeText(url).then(() => {
-    const orig = btn.innerHTML;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg> Скопировано!';
-    btn.style.cssText += ';border-color:#00cc66;background:rgba(0,204,102,0.15);color:#00cc66';
-    setTimeout(() => { btn.innerHTML = orig; btn.style.borderColor=''; btn.style.backgroundColor=''; btn.style.color='var(--accent)'; }, 2500);
-  }).catch(() => prompt('Скопируйте:', url));
+    // Визуальная обратная связь
+    const originalText = btn.innerHTML;
+    const originalColor = btn.style.borderColor;
+    const originalBg = btn.style.backgroundColor;
+    
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg> Скопировано!';
+    btn.style.borderColor = '#00cc66';
+    btn.style.backgroundColor = 'rgba(0,204,102,0.15)';
+    btn.style.color = '#00cc66';
+    
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.style.borderColor = originalColor;
+      btn.style.backgroundColor = originalBg;
+      btn.style.color = 'var(--accent)';
+    }, 2500);
+  }).catch(() => {
+    // Fallback если clipboard API не работает
+    prompt('Скопируйте эту ссылку:', url);
+  });
 }
 
 function closeCertViewModal() {
   document.getElementById('certViewModal').style.display = 'none';
 }
 
+let _viewingCert = null;
+
+function printCurrentCert() {
+  const cert = _viewingCert;
+  if (!cert) return;
+  const GH = 'https://raw.githubusercontent.com/akwthecreator/QOS/main/';
+  const win = window.open('', '_blank', 'width=960,height=400');
+  win.document.write(`<!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<style>
+@font-face { font-family:'BenzinBold';      src:url('${GH}Supremat%20-%20Benzin%20Bold.ttf'); }
+@font-face { font-family:'BenzinExtraBold'; src:url('${GH}Supremat%20-%20Benzin%20ExtraBold.ttf'); }
+@font-face { font-family:'BenzinSemibold';  src:url('${GH}Supremat%20-%20Benzin%20Semibold.ttf'); }
+@font-face { font-family:'Thesignature';    src:url('${GH}Thesignature.otf'); }
+@font-face { font-family:'Handwriting';     src:url('${GH}handwriting.ttf'); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:100%; height:100%; background:#fff; }
+.wrap { position:relative; width:100vw; height:100vh; }
+.wrap img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; }
+.data { position:absolute; inset:0; padding:4% 5%; display:flex; flex-direction:column; justify-content:space-between; }
+.top  { display:flex; justify-content:flex-end; }
+.validity-label { font-family:'BenzinBold',sans-serif; font-size:1.1vw; color:#c0392b; text-transform:uppercase; line-height:1.3; text-align:right; }
+.validity-date  { font-family:'Handwriting',sans-serif; font-size:1.7vw; color:#111; margin-top:0.3vw; text-align:right; }
+.bottom { }
+.name-row { display:flex; align-items:flex-end; gap:0.5vw; margin-bottom:1.5%; }
+.pipe  { font-family:'BenzinExtraBold',sans-serif; font-size:2.2vw; color:#111; line-height:1; }
+.name  { font-family:'Thesignature',cursive; font-size:3.4vw; color:#111; border-bottom:2px solid #111; padding-bottom:0.2vw; line-height:1.1; }
+.amount      { font-family:'BenzinExtraBold',sans-serif; font-size:3.8vw; color:#c0392b; line-height:1; }
+.amount-text { font-family:'BenzinSemibold',sans-serif; font-size:0.85vw; color:#555; margin-top:0.3vw; text-transform:uppercase; letter-spacing:0.05vw; }
+@media print { @page { size:landscape; margin:0; } }
+</style>
+</head><body>
+<div class="wrap">
+  <img src="${GH}QoimaRakhmetCardddas.png" alt="">
+  <div class="data">
+    <div class="top">
+      <div>
+        <div class="validity-label">ЖАРАМДЫЛЫҚ<br>МЕРЗІМІ:</div>
+        <div class="validity-date">${fmtDateShort(cert.dateFrom)} – ${fmtDateShort(cert.dateTo)}</div>
+      </div>
+    </div>
+    <div class="bottom">
+      <div class="name-row">
+        <div class="pipe">|</div>
+        <div class="name">${cert.buyerName || '—'}</div>
+      </div>
+      <div class="amount">${(cert.amount||0).toLocaleString('ru-RU')} ₸</div>
+      <div class="amount-text">${cert.amount ? numToWords(cert.amount) + ' ТЕҢГЕ КӨЛЕМІНДЕ' : ''}</div>
+    </div>
+  </div>
+</div>
+<script>
+  // Ждём загрузки шрифтов потом печатаем
+  document.fonts.ready.then(function(){ setTimeout(function(){ window.print(); }, 400); });
+<\/script>
+</body></html>`);
+  win.document.close();
+}
+
 async function revokeCertificate(certId) {
-  if (!confirm('Аннулировать сертификат? Это нельзя отменить.')) return;
+  if (!confirm('Аннулировать сертификат? Это действие нельзя отменить.')) return;
+  const db = _fbDb;
   try {
-    await firebase.firestore().collection('certificates').doc(certId).update({ status:'revoked', revokedAt: new Date().toISOString() });
+    await db.collection('certificates').doc(certId).update({ status: 'revoked', revokedAt: new Date().toISOString() });
     await loadCertificates();
     closeCertViewModal();
     alert('Сертификат аннулирован');
-  } catch(e) { alert('Ошибка: ' + e.message); }
+  } catch(e) {
+    alert('Ошибка: ' + e.message);
+  }
 }
 
-// ── HOOK showPage ──
-const _mgrOrigShowPage = window.showPage;
-window.showPage = function(page) {
-  if (_mgrOrigShowPage) _mgrOrigShowPage(page);
+// Hook into showPage to load certs when navigating there
+const _origShowPage = typeof showPage === 'function' ? showPage : null;
+function showPageWithCerts(page) {
+  if (_origShowPage) _origShowPage(page);
+  else {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    const pageEl = document.getElementById('page-' + page);
+    if (pageEl) pageEl.classList.add('active');
+    const navEl = document.getElementById('nav-' + page);
+    if (navEl) navEl.classList.add('active');
+  }
   if (page === 'certificates') loadCertificates();
-};
+}
+// Override global showPage
+window.showPage = showPageWithCerts;
 
-// Автозагрузка при открытии страницы сертификатов
+// Load certs on first open if already on page
 document.addEventListener('DOMContentLoaded', () => {
-  // Если Firebase уже готов — грузим через 1.5с после инициализации
-  setTimeout(() => { try { loadCertificates(); } catch(e) {} }, 1500);
+  // Check if Firebase is ready, then load
+  setTimeout(() => {
+    try { loadCertificates(); } catch(e) {}
+  }, 2000);
 });
 </script>
 
-<div id="certModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px">
+<div class="modal-overlay" id="certModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto">
+
+    <!-- Preview — Qoima Certificate Design -->
     <div id="cert-preview" style="position:relative;border-radius:16px 16px 0 0;overflow:hidden;width:100%;padding-bottom:39.06%;background:#f5ede0">
       <!-- Фон с GitHub -->
       <img src="https://raw.githubusercontent.com/akwthecreator/QOS/main/QoimaRakhmetCardddas.png"
@@ -3188,54 +3555,95 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <!-- Нижняя часть: имя + сумма -->
         <div style="position:absolute;bottom:6%;left:5%;right:5%">
+          <!-- Имя: шрифт Thesignature -->
           <div style="display:flex;align-items:flex-end;gap:6px;margin-bottom:2%">
             <div id="preview-name" style="font-family:'Thesignature',cursive;font-size:clamp(50px,3.5%,34px);color:#111;padding-left:16px;min-width:30%;max-width:65%;white-space:nowrap;text-overflow:ellipsis;line-height:1.1">Покупатель</div>
           </div>
+          <!-- Сумма: шрифт BenzinExtraBold -->
           <div id="preview-amount" style="font-family:'BenzinExtraBold',sans-serif;font-size:clamp(20px,3.8%,36px);color:#e91e24;line-height:1;font-weight:900">— ₸</div>
+          <!-- Сумма прописью: BenzinSemibold -->
           <div id="preview-amount-text" style="font-family:'BenzinSemibold',sans-serif;font-size:clamp(6px,0.9%,9px);color:#555;margin-top:2px;text-transform:uppercase;letter-spacing:0.5px"></div>
         </div>
 
       </div>
     </div>
+
+    <!-- Form -->
     <div style="padding:28px">
       <h2 style="font-size:18px;font-weight:700;margin-bottom:24px" id="cert-modal-title">Новый сертификат</h2>
+
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-        <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Имя покупателя *</label><input type="text" id="cert-buyer-name" placeholder="Aibek Seitkali" oninput="updateCertPreview()" style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px"></div>
-        <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Сумма (₸) *</label><input type="number" id="cert-amount" placeholder="12000" oninput="updateCertPreview()" style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px"></div>
-        <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Дата начала *</label><input type="date" id="cert-date-from" oninput="updateCertPreview()" style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px"></div>
-        <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Дата окончания *</label><input type="date" id="cert-date-to" oninput="updateCertPreview()" style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px"></div>
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Имя покупателя *</label>
+          <input type="text" id="cert-buyer-name" placeholder="Например: Aibek Seitkali" oninput="updateCertPreview()"
+            style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Сумма (₸) *</label>
+          <input type="number" id="cert-amount" placeholder="12000" oninput="updateCertPreview()"
+            style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Дата начала *</label>
+          <input type="date" id="cert-date-from" oninput="updateCertPreview()"
+            style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Дата окончания *</label>
+          <input type="date" id="cert-date-to" oninput="updateCertPreview()"
+            style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+        </div>
       </div>
-      <div style="margin-bottom:14px"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Магазин</label>
-        <select id="cert-store" style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px"><option>Grand Park</option><option>Aport</option></select></div>
-      <div style="margin-bottom:14px"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Примечание</label><input type="text" id="cert-note" placeholder="Необязательно" style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px"></div>
+
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Магазин / Точка продажи</label>
+        <select id="cert-store"
+          style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+          <option value="Grand Park">Grand Park</option>
+          <option value="Aport">Aport</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Примечание</label>
+        <input type="text" id="cert-note" placeholder="Необязательно"
+          style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13px">
+      </div>
+
+      <!-- Generated code display -->
       <div id="cert-code-display" style="display:none;padding:14px;background:var(--bg3);border-radius:10px;margin-bottom:20px;text-align:center">
         <div style="font-size:11px;color:var(--text3);margin-bottom:6px">КОД СЕРТИФИКАТА</div>
         <div style="font-size:22px;font-weight:800;letter-spacing:4px;color:var(--accent)" id="cert-code-value"></div>
         <div style="font-size:11px;color:var(--text3);margin-top:4px">Сохраните этот код для проверки</div>
       </div>
+
       <div style="display:flex;gap:10px">
-        <button onclick="saveCertificate()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:700;cursor:pointer">Выдать сертификат</button>
-        <button onclick="closeCertModal()" style="padding:12px 20px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:14px;cursor:pointer">Отмена</button>
+        <button onclick="saveCertificate()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:700;cursor:pointer">
+          Выдать сертификат
+        </button>
+        <button onclick="closeCertModal()" style="padding:12px 20px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:14px;cursor:pointer">
+          Отмена
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Certificate View Modal -->
-<div id="certViewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto">
+<!-- ===== CERTIFICATE VIEW MODAL ===== -->
+<div class="modal-overlay" id="certViewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:620px">
     <div id="certViewContent" style="padding:24px 24px 0"></div>
     <div style="padding:16px 24px 24px;display:flex;gap:10px;flex-wrap:wrap">
-      <button onclick="closeCertViewModal()" style="flex:1;min-width:100px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;cursor:pointer">Закрыть</button>
-      <button onclick="shareCertificate()" id="cert-share-btn" style="padding:12px 20px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+      <button onclick="closeCertViewModal()" style="flex:1;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;cursor:pointer">Закрыть</button>
+      <button onclick="shareCertificate()" id="cert-share-btn" style="padding:12px 20px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         Отправить клиенту
       </button>
-      <button onclick="copyCertificateLink()" id="cert-copy-btn" style="padding:12px 20px;background:rgba(0,102,255,0.15);border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+      <button onclick="copyCertificateLink()" id="cert-copy-btn" style="padding:12px 20px;background:rgba(0,102,255,0.15);border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
         Копировать ссылку
       </button>
-      <button id="cert-revoke-btn" style="padding:12px 20px;background:rgba(255,51,51,0.1);border:1px solid var(--red);border-radius:10px;color:var(--red);font-size:14px;cursor:pointer;display:inline-flex;align-items:center">Аннулировать</button>
+      <button id="cert-revoke-btn" style="padding:12px 20px;background:rgba(255,51,51,0.1);border:1px solid var(--red);border-radius:10px;color:var(--red);font-size:14px;cursor:pointer">Аннулировать</button>
     </div>
   </div>
 </div>

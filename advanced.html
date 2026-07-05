@@ -302,6 +302,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
   animation:spin 0.7s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 
 /* Empty state */
 .empty-state{
@@ -358,6 +359,10 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
     <button class="icon-btn" onclick="loadData()" title="Обновить">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
     </button>
+    <!-- Settings -->
+    <button class="icon-btn" onclick="openSettings()" title="Настройки таблицы" id="settingsBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
     <!-- Theme -->
     <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -378,7 +383,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
   <div class="main">
 
     <!-- Config warning (if sheet not set) -->
-    <div class="config-bar" id="configBar" style="display:none" onclick="goToSettings()">
+    <div class="config-bar" id="configBar" style="display:none" onclick="openSettings()">
       ⚙ <span>Таблица Advanced KPI не настроена — нажмите чтобы перейти в настройки</span>
       <span style="margin-left:auto;opacity:0.6">→</span>
     </div>
@@ -410,6 +415,51 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
     <button class="panel-close" onclick="closePanel()">×</button>
   </div>
   <div class="panel-body" id="panelBody"></div>
+</div>
+
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div id="settingsOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:32px;width:100%;max-width:480px;animation:slideUp 0.25s ease">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <div style="font-size:17px;font-weight:700">Настройки таблицы</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">Google Sheets — Advanced KPI</div>
+      </div>
+      <button onclick="closeSettings()" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
+    </div>
+
+    <!-- Sheet ID -->
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">ID таблицы Google Sheets</label>
+      <input id="s-sheet-id" type="text" placeholder="1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ"
+        style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;font-family:monospace;outline:none">
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">Из URL: docs.google.com/spreadsheets/d/<b style="color:var(--accent)">ВОТ_ЭТА_ЧАСТЬ</b>/edit</div>
+    </div>
+
+    <!-- Sheet Name (Tab) -->
+    <div style="margin-bottom:24px">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Название листа (вкладка)</label>
+      <input id="s-sheet-name" type="text" placeholder="Июль"
+        style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:14px;outline:none">
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">Точное название вкладки в таблице: <b style="color:var(--yellow)">Май</b>, <b style="color:var(--yellow)">Июнь</b>, <b style="color:var(--yellow)">Июль</b> и т.д.</div>
+    </div>
+
+    <!-- Кнопки -->
+    <div style="display:flex;gap:10px">
+      <button onclick="saveSettings()" style="flex:1;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+        Сохранить и загрузить
+      </button>
+      <button onclick="closeSettings()" style="padding:12px 20px;background:var(--bg3);color:var(--text2);border:1px solid var(--border2);border-radius:10px;font-size:14px;cursor:pointer">
+        Отмена
+      </button>
+    </div>
+
+    <!-- Текущие настройки -->
+    <div id="s-current" style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:10px;font-size:12px;color:var(--text3);display:none">
+      Текущий лист: <span id="s-current-val" style="color:var(--green);font-weight:600"></span>
+    </div>
+  </div>
 </div>
 
 <!-- Firebase -->
@@ -445,8 +495,7 @@ function getSheetId()   {
 }
 function getSheetName() {
   const c = getCFG();
-  // Приоритет: ADV_SHEET_NAME → SELLERS_SHEET_NAME → дефолт "3 Май"
-  return (c.ADV_SHEET_NAME || c.SELLERS_SHEET_NAME || '').trim() || '3 Май';
+  return (c.ADV_SHEET_NAME || c.SELLERS_SHEET_NAME || '').trim();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1077,8 +1126,71 @@ function toggleTheme() {
     : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
   localStorage.setItem('adv_theme',next);
 }
+// ══════════════════════════════════════════════════════════
+//  SETTINGS MODAL
+// ══════════════════════════════════════════════════════════
+function openSettings() {
+  const c = getCFG();
+  const overlay = document.getElementById('settingsOverlay');
+  document.getElementById('s-sheet-id').value   = c.ADV_SHEET_ID || MAIN_SHEET_ID;
+  document.getElementById('s-sheet-name').value = c.ADV_SHEET_NAME || c.SELLERS_SHEET_NAME || '';
+
+  const cur = getSheetName();
+  if (cur) {
+    document.getElementById('s-current').style.display = 'block';
+    document.getElementById('s-current-val').textContent = cur + ' (ID: ' + getSheetId().substring(0,12) + '...)';
+  } else {
+    document.getElementById('s-current').style.display = 'none';
+  }
+
+  overlay.style.display = 'flex';
+  // Focus on sheet name input
+  setTimeout(() => document.getElementById('s-sheet-name').focus(), 100);
+}
+
+function closeSettings() {
+  document.getElementById('settingsOverlay').style.display = 'none';
+}
+
+function saveSettings() {
+  const sheetId   = document.getElementById('s-sheet-id').value.trim();
+  const sheetName = document.getElementById('s-sheet-name').value.trim();
+
+  if (!sheetName) {
+    document.getElementById('s-sheet-name').style.borderColor = 'var(--red)';
+    document.getElementById('s-sheet-name').focus();
+    return;
+  }
+  document.getElementById('s-sheet-name').style.borderColor = '';
+
+  // Save to localStorage
+  const c = getCFG();
+  c.ADV_SHEET_ID   = sheetId   || MAIN_SHEET_ID;
+  c.ADV_SHEET_NAME = sheetName;
+  c.SELLERS_SHEET_NAME = sheetName; // sync both keys
+  localStorage.setItem('qgi_config', JSON.stringify(c));
+
+  closeSettings();
+  // Hide configBar if it was shown
+  const bar = document.getElementById('configBar');
+  if (bar) bar.style.display = 'none';
+  // Reload data
+  loadData();
+}
+
+// Close on backdrop click
+document.addEventListener('click', function(e) {
+  const overlay = document.getElementById('settingsOverlay');
+  if (e.target === overlay) closeSettings();
+});
+
+// Close on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeSettings();
+});
+
 function goToSettings() {
-  window.location.href = 'panel.html';
+  openSettings();
 }
 
 // ══════════════════════════════════════════════════════════

@@ -390,10 +390,22 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
           style="width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:monospace">
       </div>
       <div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Название листа <span style="color:var(--text3)">(точное, с учётом регистра)</span></div>
-        <input id="cfg-sheet-name" type="text" placeholder="3 Май"
+        <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Название листа <span style="color:var(--text3)">(выберите из списка или введите вручную)</span></div>
+        <div style="display:flex;gap:8px;margin-bottom:6px">
+          <select id="cfg-sheet-select"
+            onchange="document.getElementById('cfg-sheet-name').value=this.value"
+            style="flex:1;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit">
+            <option value="">— Загрузить список листов →</option>
+          </select>
+          <button onclick="fetchSheetsList()" title="Загрузить список листов из таблицы"
+            style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;font-family:inherit">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            Листы
+          </button>
+        </div>
+        <input id="cfg-sheet-name" type="text" placeholder="Май"
           style="width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
-        <div style="font-size:10px;color:var(--text3);margin-top:4px">Текущий: <span id="cfg-current-sheet" style="color:var(--accent)"></span></div>
+        <div style="font-size:10px;color:var(--text3);margin-top:4px">Активный: <span id="cfg-current-sheet" style="color:var(--accent)"></span></div>
       </div>
     </div>
 
@@ -510,7 +522,7 @@ const ADV_STORAGE_KEY = 'adv_cfg';
 
 const ADV_DEFAULT = {
   sheetId:   '1awUVp3geOvI7KGF4fXAHmCV03JkslS8VPYxPIXaudc4',
-  sheetName: '3 Май',
+  sheetName: 'Май',
   bench_ioc: 15,
   bench_upt: 2.2,
   bench_atv: 25000,
@@ -1176,10 +1188,65 @@ function toggleTheme() {
 // ══════════════════════════════════════════════════════════
 //  SETTINGS MODAL
 // ══════════════════════════════════════════════════════════
+// ── Fetch list of sheets from the Google Sheets spreadsheet ──
+async function fetchSheetsList() {
+  const sheetId = document.getElementById('cfg-sheet-id').value.trim()
+    || getSheetId();
+  if (!sheetId) {
+    alert('Сначала введите Sheet ID таблицы');
+    return;
+  }
+  const btn = event.currentTarget;
+  const origHTML = btn.innerHTML;
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 0.7s linear infinite"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>';
+  btn.disabled = true;
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?fields=sheets.properties.title&key=${API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    const sheets = (json.sheets || []).map(s => s.properties.title);
+    if (!sheets.length) throw new Error('Листы не найдены');
+
+    const sel = document.getElementById('cfg-sheet-select');
+    const currentVal = document.getElementById('cfg-sheet-name').value;
+    sel.innerHTML = sheets.map(name =>
+      `<option value="${name}" ${name === currentVal ? 'selected' : ''}>${name}</option>`
+    ).join('');
+    // Set input to selected value
+    if (!currentVal && sheets[0]) {
+      document.getElementById('cfg-sheet-name').value = sheets[0];
+    }
+    sel.style.borderColor = 'var(--good)';
+    setTimeout(() => sel.style.borderColor = '', 1500);
+  } catch(e) {
+    console.error('[QREI] fetchSheetsList:', e);
+    const sel = document.getElementById('cfg-sheet-select');
+    sel.innerHTML = `<option value="">⚠ Ошибка: ${e.message}</option>`;
+    sel.style.borderColor = 'var(--bad)';
+    setTimeout(() => sel.style.borderColor = '', 2000);
+  } finally {
+    btn.innerHTML = origHTML;
+    btn.disabled = false;
+  }
+}
+
 function openSettings() {
   const c = getADV();
   document.getElementById('cfg-sheet-id').value    = c.sheetId   || '';
   document.getElementById('cfg-sheet-name').value  = c.sheetName || '';
+  // Pre-select in dropdown if option exists
+  const sel = document.getElementById('cfg-sheet-select');
+  const opt = Array.from(sel.options).find(o => o.value === (c.sheetName || ''));
+  if (opt) { sel.value = c.sheetName; }
+  else {
+    // Add current as option if not in list
+    if (c.sheetName && !Array.from(sel.options).some(o => o.value === c.sheetName)) {
+      const o = document.createElement('option');
+      o.value = c.sheetName; o.textContent = c.sheetName; o.selected = true;
+      sel.insertBefore(o, sel.firstChild);
+    }
+  }
   document.getElementById('cfg-bench-ioc').value   = c.bench_ioc || '';
   document.getElementById('cfg-bench-upt').value   = c.bench_upt || '';
   document.getElementById('cfg-bench-atv').value   = c.bench_atv || '';
@@ -1211,6 +1278,14 @@ function saveSettings() {
 
   saveADV({ sheetId, sheetName, bench_ioc, bench_upt, bench_atv, bench_aur });
   document.getElementById('cfg-current-sheet').textContent = sheetName;
+  // Sync select value
+  const selEl = document.getElementById('cfg-sheet-select');
+  const existing = Array.from(selEl.options).find(o => o.value === sheetName);
+  if (!existing) {
+    const o = document.createElement('option');
+    o.value = sheetName; o.textContent = sheetName; o.selected = true;
+    selEl.insertBefore(o, selEl.firstChild);
+  } else { selEl.value = sheetName; }
   document.getElementById('cfg-save-msg').style.color = 'var(--green)';
   document.getElementById('cfg-save-msg').textContent = '✅ Сохранено! Загружаем данные...';
   setTimeout(() => { closeSettings(); loadData(); }, 800);
@@ -1231,7 +1306,7 @@ async function loadData() {
   const sheetName = getSheetName();
   const sheetId   = getSheetId();
 
-  document.getElementById('last-updated').textContent = `Лист: ${sheetName}`;
+  document.getElementById('last-updated').textContent = `Лист: ${sheetName} · ${getSheetId().slice(0,8)}…`;
 
   if (!sheetName) {
     document.getElementById('mainContent').innerHTML = `

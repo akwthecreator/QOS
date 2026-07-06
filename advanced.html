@@ -433,27 +433,25 @@ const auth = firebase.auth();
 const db   = firebase.firestore();
 
 // Google Sheets
-const MAIN_SHEET_ID    = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ'; // KPI магазинов
-const SELLERS_SHEET_ID = '1awUVp3geOvI7KGF4fXAHmCV03JkslS8VPYxPIXaudc4'; // KPI продавцов
+const MAIN_SHEET_ID = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
 const API_KEY = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
-
-// Названия месяцев на русском — совпадают с именами листов в таблице
-const MONTH_NAMES_RU = ['Январь','Февраль','Март','Апрель','Май','Июнь',
-                        'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 
 function getCFG() {
   try { return JSON.parse(localStorage.getItem('qgi_config') || '{}'); } catch(e) { return {}; }
 }
-function getSheetId() {
-  // Всегда используем таблицу продавцов — не зависим от localStorage
-  return SELLERS_SHEET_ID;
+function getSheetId()   {
+  const c = getCFG();
+  return (c.ADV_SHEET_ID || '').trim() || MAIN_SHEET_ID;
 }
 function getSheetName() {
   const c = getCFG();
-  // Если вручную задано в настройках — берём оттуда
-  if (c.ADV_SHEET_NAME && c.ADV_SHEET_NAME.trim()) return c.ADV_SHEET_NAME.trim();
-  // Иначе — текущий месяц по-русски (совпадает с именем листа)
-  return MONTH_NAMES_RU[new Date().getMonth()];
+  // Приоритет: ADV_SHEET_NAME → SELLERS_SHEET_NAME → текущий месяц по-русски
+  const saved = (c.ADV_SHEET_NAME || c.SELLERS_SHEET_NAME || '').trim();
+  if (saved) return saved;
+  // Дефолт: текущий месяц
+  const months = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                  'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  return months[new Date().getMonth()];
 }
 
 // ══════════════════════════════════════════════════════════
@@ -487,27 +485,55 @@ function fmtK(n)   { return n >= 1e6 ? (n/1e6).toFixed(1)+'М' : n >= 1e3 ? Math
 function fmtKT(n)  { return fmtK(n) + '₸'; }
 
 // ══════════════════════════════════════════════════════════
-//  PARSER — точная структура QOIMA Sellers CSV
-//  Блок продавца:
-//    Строка 1: ИмяПродавца | дата1 | дата2 | ...
-//    Строка 2: "Выручка за день."    | 302000 | 250000 | ...
-//    Строка 3: "Кол-во чеков."       | 10 | 7 | ...
-//    Строка 4: "Кол-во товара."      | 10 | 10 | ...
-//    Строка 5: "Смена"               | 1 | 1 | 0 | ...
-//    Строка 6: "Магазин"             | Qoima | Qoima | ...
-//    Строка 7: "Трафик"              | 400 | 400 | ...
-//    Строка 8: "" (пустая метка)     | 2 | ... ← продавцов на смене
-//    Строка 9: "UPT ..."             | 1,00 | ...
-//    Строка 10: "ATV ..."            | 30200 | ...
-//    Строка 11: "AUR ..."            | 30200 | ...
-//    Строки 12+: пустые (разделитель)
+//  PARSER — QOIMA Sellers Google Sheets
+//
+//  Структура листа (Google Sheets API → числа):
+//    Строка: "Grand Park"  ← маркер команды
+//    Строка: "Muslim"  | 46143 | 46144 | ...  ← имя + даты (Excel serial)
+//    Строка: "Выручка за день." | 600000 | 231400 | ...
+//    Строка: "Кол-во чеков."   | 10 | 10 | ...
+//    Строка: "Кол-во товара."  | 10 | 23 | ...
+//    Строка: "Смена"           | 1  | 1  | 0 | ...
+//    Строка: "Магазин"         | Qoima | Abo | ...
+//    Строка: "Трафик"          | 400 | 135 | ...
+//    (пустая строка — разделитель)
+//    Строка: "Bibi" | 46143 | ...  ← следующий продавец
+//    ...
+//    Строка: "Aport"  ← смена команды
+//
+//  ВАЖНО: Google Sheets API возвращает даты как Excel serial numbers
+//  (46143 = 2026-05-01, 46174 = 2026-06-01 и т.д.)
+//  Парсер принимает оба формата: числа ≥ 40000 И текстовые даты
 // ══════════════════════════════════════════════════════════
 function parseSheet(rows) {
   const SECTION_MAP = {
     'grand park':'grandpark','grandpark':'grandpark',
     'aport':'aport','aport west':'aport','aport city':'aport'
   };
+
+  // Дата может быть: Excel serial (46143) ИЛИ текст ("1 мая", "пн, 1 июн.")
   const DATE_RX = /мая|апр|март|июн|июл|авг|сент|окт|нояб|дек|янв|фев/i;
+
+  function isDateVal(v) {
+    const s = String(v || '').trim();
+    if (!s || s === 'nan') return false;
+    // Excel serial: число >= 40000 (т.е. после ~2009)
+    const n = parseFloat(s.replace(/\s/g,''));
+    if (!isNaN(n) && n >= 40000 && n <= 55000) return true;
+    // Текстовые даты
+    if (DATE_RX.test(s)) return true;
+    return false;
+  }
+
+  // Парсим дату из Excel serial в { day, month, year }
+  function excelToDate(v) {
+    const n = parseFloat(String(v || '').trim());
+    if (!isNaN(n) && n >= 40000) {
+      const d = new Date(Math.round((n - 25569) * 86400 * 1000));
+      return d;
+    }
+    return null;
+  }
 
   const LABEL = {
     rev:   l => l.startsWith('выручка'),
@@ -543,13 +569,20 @@ function parseSheet(rows) {
     // ── Строка с меткой данных — пропускаем ──
     if (isAnyLabel(a0l)) { i++; continue; }
 
-    // ── Проверяем что col1 выглядит как дата ──
+    // ── Проверяем что col1 выглядит как дата (Excel serial или текст) ──
     const col1 = String(row[1] || '').trim();
-    if (!(/\d/.test(col1) && DATE_RX.test(col1))) { i++; continue; }
+    if (!isDateVal(col1)) { i++; continue; }
 
     // ════ Начало блока продавца ════
     const name = a0;
-    let revD=[], chkD=[], untD=[], shiftD=[], storeD=[], trfD=[], scD=[];
+
+    // Собираем даты из строки заголовка (для определения дневных индексов)
+    const dateHeaders = row.slice(1).map(v => {
+      const d = excelToDate(v);
+      return d ? d.getDate() - 1 : -1; // 0-based day of month
+    });
+
+    let revD=[], chkD=[], untD=[], shiftD=[], storeD=[], trfD=[];
 
     let j = i + 1;
     let emptyStreak = 0;
@@ -559,22 +592,18 @@ function parseSheet(rows) {
       const lbl  = String(brow[0] || '').trim();
       const lbll = lbl.toLowerCase();
 
-      // Новый продавец или новая секция — выходим
-      if (lbl && lbl !== 'nan') {
-        if (SECTION_MAP[lbll] !== undefined) break;
-        // Новый продавец: не метка данных + col1 — дата
+      // Новая секция — выходим
+      if (lbl && lbl !== 'nan' && SECTION_MAP[lbll] !== undefined) break;
+
+      // Новый продавец: не метка данных, col1 — дата
+      if (lbl && lbl !== 'nan' && !isAnyLabel(lbll)) {
         const bc1 = String(brow[1] || '').trim();
-        if (!isAnyLabel(lbll) && /\d/.test(bc1) && DATE_RX.test(bc1)) break;
+        if (isDateVal(bc1)) break;
       }
 
       if (!lbl || lbl === 'nan') {
         emptyStreak++;
-        // Строка с пустым ключом но с числами = продавцов на смене
-        const vals = brow.slice(1).map((v,k) => pn(v));
-        if (vals.some(v => v > 0 && v <= 20)) {
-          vals.forEach((v,d) => { if (v > 0) scD[d] = v; });
-        }
-        if (emptyStreak > 5) { j++; break; }
+        if (emptyStreak > 3) { j++; break; }
         j++; continue;
       }
       emptyStreak = 0;
@@ -583,13 +612,12 @@ function parseSheet(rows) {
       const vals = brow.slice(1).map(v => pn(v));
       const strs = brow.slice(1).map(v => String(v || '').trim());
 
-      if      (LABEL.rev(lbll))   vals.forEach((v,d) => { revD[d] = (revD[d]||0)+v; });
-      else if (LABEL.chk(lbll))   vals.forEach((v,d) => { chkD[d] = (chkD[d]||0)+v; });
-      else if (LABEL.unt(lbll))   vals.forEach((v,d) => { untD[d] = (untD[d]||0)+v; });
+      if      (LABEL.rev(lbll))   vals.forEach((v,d) => { revD[d]   = (revD[d]  ||0)+v; });
+      else if (LABEL.chk(lbll))   vals.forEach((v,d) => { chkD[d]   = (chkD[d]  ||0)+v; });
+      else if (LABEL.unt(lbll))   vals.forEach((v,d) => { untD[d]   = (untD[d]  ||0)+v; });
       else if (LABEL.shift(lbll)) vals.forEach((v,d) => { shiftD[d] = v > 0 ? 1 : 0; });
       else if (LABEL.store(lbll)) strs.forEach((v,d) => { storeD[d] = v; });
-      else if (LABEL.traf(lbll))  vals.forEach((v,d) => { trfD[d] = v; });
-      // UPT/ATV/AUR из Sheets — используем только как fallback если нет исходников
+      else if (LABEL.traf(lbll))  vals.forEach((v,d) => { trfD[d]   = v; });
       j++;
     }
 
@@ -606,19 +634,14 @@ function parseSheet(rows) {
       const sh  = shiftD[d] || 0;
       const tr  = trfD[d]   || 0;
       const mg  = storeD[d] || '';
-      // Продавцов на смене: берём из scD, если нет — считаем сколько продавцов
-      // в тот же магазин вышли (определим в post-processing)
-      const sc  = Math.max(1, scD[d] || 1);
+      const sc  = 1; // пересчитается в post-processing
 
-      // IOC: деление на ноль защита по ТЗ
-      const ioc_d = (sh && tr > 0) ? (ch / (tr / sc)) * 100 : 0;
-      if (sh && tr > 0) ioc_samples.push(ioc_d);
-
+      const ioc_d = 0; // пересчитается в post-processing
       const upt_d = ch > 0 ? un / ch : 0;
       const atv_d = ch > 0 ? rv / ch : 0;
       const aur_d = un > 0 ? rv / un : 0;
 
-      if (sh) { totalShifts++; }
+      if (sh) totalShifts++;
       totalRev += rv;
       totalChk += ch;
       totalUnt += un;
@@ -627,46 +650,34 @@ function parseSheet(rows) {
                   sellers_cnt:sc, magasin:mg, ioc:ioc_d, upt:upt_d, atv:atv_d, aur:aur_d, dayIdx:d });
     }
 
-    // Итоговые показатели (взвешенное среднее по сменам)
-    const ioc = ioc_samples.length ? ioc_samples.reduce((a,b)=>a+b,0) / ioc_samples.length : 0;
     const upt = totalChk > 0 ? totalUnt / totalChk : 0;
     const atv = totalChk > 0 ? totalRev / totalChk : 0;
     const aur = totalUnt > 0 ? totalRev / totalUnt : 0;
 
-    if (totalRev > 0 || totalChk > 0) {
+    if (totalRev > 0 || totalChk > 0 || totalShifts > 0) {
       sellers.push({
         name, team: section,
         revenue: totalRev, checks: totalChk, units: totalUnt, shifts: totalShifts,
-        ioc, upt, atv, aur, days
+        ioc: 0, upt, atv, aur, days
       });
     }
     i = j;
   }
 
   // ── Post-processing: пересчёт IOC по бутику ──
-  // Логика: трафик привязан к конкретному бутику (Qoima / Abo / Look / Aport).
-  // Продавец работает в одном бутике в день (ячейка Магазин).
-  // IOC = чеки продавца / (трафик бутика / кол-во продавцов в этом бутике в этот день)
-  // Доля = трафик бутика / кол-во продавцов в этом бутике в этот день
-
-  // Шаг 1: для каждой пары (бутик, день) — считаем сколько продавцов вышло
-  // и какой трафик был (берём из любого продавца этого бутика в этот день)
-  const boutiqueDay = {}; // key: "Qoima_3" → { sellers: Set, traffic: N }
+  const boutiqueDay = {};
   sellers.forEach(s => {
     s.days.forEach(d => {
       if (!d.shift) return;
-      // Нормализуем название бутика: убираем пробелы, нижний регистр для ключа
       const boutique = (d.magasin || '').trim();
-      if (!boutique) return; // нет данных о магазине — пропускаем
+      if (!boutique) return;
       const key = `${boutique}__${d.dayIdx}`;
       if (!boutiqueDay[key]) boutiqueDay[key] = { sellers: new Set(), traffic: 0 };
       boutiqueDay[key].sellers.add(s.name);
-      // Трафик: берём максимальный из всех (одинаков для всех продавцов бутика в день)
       if (d.traffic > boutiqueDay[key].traffic) boutiqueDay[key].traffic = d.traffic;
     });
   });
 
-  // Шаг 2: пересчитываем IOC и долю для каждого продавца
   sellers.forEach(s => {
     const ioc_recalc = [];
     let totalShare = 0;
@@ -679,45 +690,38 @@ function parseSheet(rows) {
       const info = boutiqueDay[key];
 
       if (!info || !boutique) {
-        // Нет данных о бутике — IOC посчитать нельзя
-        d.ioc = 0;
-        d.trafficShare = 0;
-        d.sellersInBoutique = 0;
-        return;
+        d.ioc = 0; d.trafficShare = 0; d.sellersInBoutique = 0; return;
       }
 
-      const sellersCount = info.sellers.size; // кол-во продавцов в этом бутике в этот день
-      const traffic      = info.traffic;       // трафик этого бутика в этот день
+      const sellersCount = info.sellers.size;
+      const traffic      = info.traffic;
 
       d.sellersInBoutique = sellersCount;
       d.trafficShare      = sellersCount > 0 ? Math.round(traffic / sellersCount) : 0;
 
       if (traffic > 0 && sellersCount > 0) {
-        // IOC = чеки / доля трафика * 100
         d.ioc = (d.checks / d.trafficShare) * 100;
         ioc_recalc.push(d.ioc);
       } else {
         d.ioc = 0;
       }
-
       totalShare += d.trafficShare;
     });
 
-    // Итоговый IOC — среднее по рабочим дням с трафиком
     if (ioc_recalc.length) {
       s.ioc = ioc_recalc.reduce((a,b)=>a+b,0) / ioc_recalc.length;
     }
-    // Суммарная доля за месяц
     s.trafficShare = totalShare;
   });
 
-  console.log('[QREI] Parsed', sellers.length, 'sellers:', sellers.map(s=>
-    `${s.name}(${s.team}) rev:${s.revenue} chk:${s.checks} upt:${s.upt.toFixed(2)} ioc:${s.ioc.toFixed(1)}% share:${s.trafficShare}`
-  ));
+  console.log('[QREI] Parsed', sellers.length, 'sellers from sheet:',
+    sellers.map(s=>`${s.name}(${s.team}) rev:${Math.round(s.revenue/1000)}k chk:${s.checks} shifts:${s.shifts} upt:${s.upt.toFixed(2)} ioc:${s.ioc.toFixed(1)}%`));
 
-  // Debug: вывод по бутикам
-  console.log('[QREI] Бутики/день:', Object.entries(boutiqueDay).map(([k,v])=>
-    `${k} → ${v.sellers.size} прод., трафик ${v.traffic}`).join(' | '));
+  if (sellers.length === 0) {
+    console.warn('[QREI] ⚠️ Парсер не нашёл продавцов! Проверьте: название листа в настройках, формат дат в таблице.');
+    // Debug: покажем первые 10 строк
+    console.log('[QREI] Debug — первые строки таблицы:', rows.slice(0,10).map(r=>r.slice(0,4)));
+  }
 
   return sellers;
 }
@@ -1095,11 +1099,24 @@ async function loadData() {
   const sheetName = getSheetName();
   const sheetId   = getSheetId();
 
-  document.getElementById('mainContent').innerHTML = '<div class="loader"><div class="spinner"></div>Загрузка данных...</div>';
   document.getElementById('last-updated').textContent = `Лист: ${sheetName}`;
+
+  if (!sheetName) {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div>
+        <div class="empty-title">Таблица не настроена</div>
+        <div class="empty-sub">Перейдите в панель → Настройки → укажите «Advanced KPI лист»</div>
+      </div>`;
+    document.getElementById('configBar').style.display = 'flex';
+    return;
+  }
+
+  document.getElementById('mainContent').innerHTML = '<div class="loader"><div class="spinner"></div>Загрузка данных...</div>';
 
   try {
     const url  = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
+    console.log('[QREI] Fetching:', url);
     const res  = await fetch(url);
     if (!res.ok) {
       const err = await res.json().catch(()=>({}));
@@ -1108,8 +1125,22 @@ async function loadData() {
     const json = await res.json();
     if (!json.values || json.values.length < 2) throw new Error('Таблица пустая или недоступна');
 
+    console.log('[QREI] Rows received:', json.values.length,
+      '| First row preview:', json.values[0]?.slice(0,5));
+
     allSellers = parseSheet(json.values);
-    document.getElementById('last-updated').textContent = 'Обновлено: ' + new Date().toLocaleTimeString('ru-RU');
+
+    if (allSellers.length === 0) {
+      throw new Error(
+        `Парсер не нашёл продавцов в листе «${sheetName}».\n` +
+        `Убедитесь что: 1) название листа совпадает (регистр важен), ` +
+        `2) таблица содержит строки «Grand Park» / «Aport», ` +
+        `3) даты в первой строке каждого продавца.`
+      );
+    }
+
+    document.getElementById('last-updated').textContent =
+      `${sheetName} · ${allSellers.length} прод. · ${new Date().toLocaleTimeString('ru-RU')}`;
     render();
   } catch(e) {
     console.error('[QREI]', e);
@@ -1117,7 +1148,8 @@ async function loadData() {
       <div class="empty-state">
         <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
         <div class="empty-title">Ошибка загрузки</div>
-        <div class="empty-sub">${e.message}</div>
+        <div class="empty-sub" style="white-space:pre-wrap;text-align:left;max-width:480px">${e.message}</div>
+        <div class="empty-sub" style="margin-top:12px;font-size:11px;opacity:0.5">Лист: «${sheetName}» · ID: ${sheetId.slice(0,20)}...</div>
       </div>`;
   }
 }

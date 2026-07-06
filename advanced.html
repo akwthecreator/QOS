@@ -362,6 +362,72 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
     <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
+    <!-- Settings -->
+    <button class="icon-btn" onclick="openSettings()" title="Настройки">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div id="settingsOverlay" onclick="closeSettings()" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px)"></div>
+<div id="settingsModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:501;width:min(520px,calc(100vw - 32px));background:var(--bg2);border:1px solid var(--border2);border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.5)">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)">
+    <div>
+      <div style="font-size:16px;font-weight:700">⚙️ Настройки QREI</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">Независимо от panel.html</div>
+    </div>
+    <button onclick="closeSettings()" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center">✕</button>
+  </div>
+  <div style="padding:20px 22px;max-height:70vh;overflow-y:auto">
+
+    <!-- Sheet settings -->
+    <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">📋 Google Sheets</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+      <div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Sheet ID <span style="color:var(--text3)">(ID таблицы из URL)</span></div>
+        <input id="cfg-sheet-id" type="text" placeholder="1awUVp3geOvI7KGF4fXAHmCV03JkslS8VPYxPIXaudc4"
+          style="width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:monospace">
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Название листа <span style="color:var(--text3)">(точное, с учётом регистра)</span></div>
+        <input id="cfg-sheet-name" type="text" placeholder="3 Май"
+          style="width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
+        <div style="font-size:10px;color:var(--text3);margin-top:4px">Текущий: <span id="cfg-current-sheet" style="color:var(--accent)"></span></div>
+      </div>
+    </div>
+
+    <!-- Benchmarks -->
+    <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">🎯 Бенчмарки (планы)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+      <div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:5px">IOC цель (%)</div>
+        <input id="cfg-bench-ioc" type="number" step="0.1" placeholder="15"
+          style="width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:5px">UPT цель</div>
+        <input id="cfg-bench-upt" type="number" step="0.1" placeholder="2.2"
+          style="width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:5px">ATV цель (₸)</div>
+        <input id="cfg-bench-atv" type="number" step="1000" placeholder="25000"
+          style="width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:5px">AUR цель (₸)</div>
+        <input id="cfg-bench-aur" type="number" step="1000" placeholder="20000"
+          style="width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
+      </div>
+    </div>
+
+    <!-- Save/Reset -->
+    <div style="display:flex;gap:8px">
+      <button onclick="saveSettings()" style="flex:1;padding:11px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer">💾 Сохранить и загрузить</button>
+      <button onclick="resetSettings()" style="padding:11px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:13px;cursor:pointer">Сброс</button>
+    </div>
+    <div id="cfg-save-msg" style="margin-top:8px;font-size:12px;min-height:16px;text-align:center"></div>
   </div>
 </div>
 
@@ -378,8 +444,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
   <div class="main">
 
     <!-- Config warning (if sheet not set) -->
-    <div class="config-bar" id="configBar" style="display:none" onclick="goToSettings()">
-      ⚙ <span>Таблица Advanced KPI не настроена — нажмите чтобы перейти в настройки</span>
+    <div class="config-bar" id="configBar" style="display:none" onclick="openSettings()">
+      ⚙ <span>Таблица не настроена — нажмите чтобы открыть настройки</span>
       <span style="margin-left:auto;opacity:0.6">→</span>
     </div>
 
@@ -436,28 +502,46 @@ const db   = firebase.firestore();
 const MAIN_SHEET_ID = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
 const API_KEY = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
 
-function getCFG() {
-  try { return JSON.parse(localStorage.getItem('qgi_config') || '{}'); } catch(e) { return {}; }
+// ══════════════════════════════════════════════════════════
+//  CONFIG — НЕЗАВИСИМЫЙ от panel.html
+//  Хранится в localStorage под ключом 'adv_cfg'
+// ══════════════════════════════════════════════════════════
+const ADV_STORAGE_KEY = 'adv_cfg';
+
+const ADV_DEFAULT = {
+  sheetId:   '1awUVp3geOvI7KGF4fXAHmCV03JkslS8VPYxPIXaudc4',
+  sheetName: '3 Май',
+  bench_ioc: 15,
+  bench_upt: 2.2,
+  bench_atv: 25000,
+  bench_aur: 20000,
+};
+
+function getADV() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(ADV_STORAGE_KEY) || '{}');
+    return Object.assign({}, ADV_DEFAULT, saved);
+  } catch(e) { return Object.assign({}, ADV_DEFAULT); }
 }
-function getSheetId()   {
-  const c = getCFG();
-  return (c.ADV_SHEET_ID || '').trim() || MAIN_SHEET_ID;
+
+function saveADV(patch) {
+  const cur = getADV();
+  const next = Object.assign(cur, patch);
+  localStorage.setItem(ADV_STORAGE_KEY, JSON.stringify(next));
+  return next;
 }
-function getSheetName() {
-  const c = getCFG();
-  // Приоритет: ADV_SHEET_NAME → SELLERS_SHEET_NAME → текущий месяц по-русски
-  const saved = (c.ADV_SHEET_NAME || c.SELLERS_SHEET_NAME || '').trim();
-  if (saved) return saved;
-  // Дефолт: текущий месяц
-  const months = ['Январь','Февраль','Март','Апрель','Май','Июнь',
-                  'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-  return months[new Date().getMonth()];
-}
+
+function getSheetId()   { return getADV().sheetId   || ADV_DEFAULT.sheetId; }
+function getSheetName() { return getADV().sheetName || ADV_DEFAULT.sheetName; }
 
 // ══════════════════════════════════════════════════════════
 //  QREI BENCHMARKS (per ТЗ)
 // ══════════════════════════════════════════════════════════
-const BENCH = { ioc:15, upt:2.2, atv:25000, aur:20000 };
+// BENCH — динамически из настроек
+function getBENCH() {
+  const c = getADV();
+  return { ioc: c.bench_ioc, upt: c.bench_upt, atv: c.bench_atv, aur: c.bench_aur };
+}
 const WEIGHTS = { ioc:0.30, upt:0.30, atv:0.20, aur:0.20 };
 
 // ══════════════════════════════════════════════════════════
@@ -736,10 +820,10 @@ function calcQREI(sellers) {
 
   return sellers.map(s => {
     // Normalize vs benchmark (capped at 100)
-    const n_ioc = Math.min(100, s.ioc > 0 ? s.ioc / BENCH.ioc * 100 : 0);
-    const n_upt = Math.min(100, s.upt > 0 ? s.upt / BENCH.upt * 100 : 0);
-    const n_atv = Math.min(100, s.atv > 0 ? s.atv / BENCH.atv * 100 : 0);
-    const n_aur = Math.min(100, s.aur > 0 ? s.aur / BENCH.aur * 100 : 0);
+    const n_ioc = Math.min(100, s.ioc > 0 ? s.ioc / getBENCH().ioc * 100 : 0);
+    const n_upt = Math.min(100, s.upt > 0 ? s.upt / getBENCH().upt * 100 : 0);
+    const n_atv = Math.min(100, s.atv > 0 ? s.atv / getBENCH().atv * 100 : 0);
+    const n_aur = Math.min(100, s.aur > 0 ? s.aur / getBENCH().aur * 100 : 0);
     const qrei  = Math.round(n_ioc*WEIGHTS.ioc + n_upt*WEIGHTS.upt + n_atv*WEIGHTS.atv + n_aur*WEIGHTS.aur);
 
     // Danger zone per ТЗ
@@ -849,7 +933,8 @@ function renderCard(s, rank, origIdx) {
   const iocPct   = Math.min(100, s.ioc / 30 * 100);
   const storeSet = [...new Set(s.days.filter(d=>d.shift&&d.magasin).map(d=>d.magasin))];
   const storeLabel = storeSet.length ? storeSet.join(', ') : teamLbl;
-  const share = s.trafficShare || 0;
+  const share    = s.trafficShare    || 0;
+  const shareAvg = s.trafficShareAvg || (share > 0 && s.shifts > 0 ? Math.round(share / s.shifts) : 0);
 
   return `<div class="seller-card${s.isDanger?' danger':''}" onclick="openPanel(${origIdx})">
     <div class="card-header">
@@ -880,9 +965,9 @@ function renderCard(s, rank, origIdx) {
         <div class="metric-val">${fmtKT(s.atv)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Доля клиентов</div>
-        <div class="metric-val">${share > 0 ? share : '—'}</div>
-        <div class="metric-sub" style="font-size:9px;color:var(--text3)">чел. суммарно</div>
+        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Доля трафика</div>
+        <div class="metric-val">${shareAvg > 0 ? '~'+shareAvg : '—'}</div>
+        <div class="metric-sub" style="font-size:9px;color:var(--text3)">чел/смену · σ ${share > 0 ? share : '—'} всего</div>
       </div>
     </div>
     <div class="ioc-row">
@@ -1014,22 +1099,22 @@ function openPanel(origIdx) {
       <div class="kpi-tile">
         <div class="kpi-tile-lbl">Товаров в чеке (UPT)</div>
         <div class="kpi-tile-val">${s.upt.toFixed(2)}</div>
-        <div class="kpi-tile-sub">план ${BENCH.upt}</div>
+        <div class="kpi-tile-sub">план ${getBENCH().upt}</div>
       </div>
       <div class="kpi-tile">
         <div class="kpi-tile-lbl">Средний чек (ATV)</div>
         <div class="kpi-tile-val">${fmt(s.atv)}</div>
-        <div class="kpi-tile-sub">план ${fmt(BENCH.atv)}</div>
+        <div class="kpi-tile-sub">план ${fmt(getBENCH().atv)}</div>
       </div>
       <div class="kpi-tile">
         <div class="kpi-tile-lbl">Цена вещи (AUR)</div>
         <div class="kpi-tile-val">${fmt(s.aur)}</div>
-        <div class="kpi-tile-sub">план ${fmt(BENCH.aur)}</div>
+        <div class="kpi-tile-sub">план ${fmt(getBENCH().aur)}</div>
       </div>
       <div class="kpi-tile" style="grid-column:span 2">
-        <div class="kpi-tile-lbl">Доля клиентов (суммарно за месяц)</div>
-        <div class="kpi-tile-val">${(s.trafficShare||0) > 0 ? s.trafficShare+' чел.' : '—'}</div>
-        <div class="kpi-tile-sub">трафик бутика ÷ кол-во продавцов в этот бутик в каждый день</div>
+        <div class="kpi-tile-lbl">Доля трафика (ср./смену)</div>
+        <div class="kpi-tile-val">${(s.trafficShareAvg || 0) > 0 ? '~'+(s.trafficShareAvg)+' чел.' : (s.trafficShare > 0 && s.shifts > 0 ? '~'+Math.round(s.trafficShare/s.shifts)+' чел.' : '—')}</div>
+        <div class="kpi-tile-sub">трафик бутика ÷ продавцов в смену · всего ${s.trafficShare > 0 ? s.trafficShare+' чел.' : '—'}</div>
       </div>
     </div>
 
@@ -1088,9 +1173,56 @@ function toggleTheme() {
     : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
   localStorage.setItem('adv_theme',next);
 }
-function goToSettings() {
-  window.location.href = 'panel.html';
+// ══════════════════════════════════════════════════════════
+//  SETTINGS MODAL
+// ══════════════════════════════════════════════════════════
+function openSettings() {
+  const c = getADV();
+  document.getElementById('cfg-sheet-id').value    = c.sheetId   || '';
+  document.getElementById('cfg-sheet-name').value  = c.sheetName || '';
+  document.getElementById('cfg-bench-ioc').value   = c.bench_ioc || '';
+  document.getElementById('cfg-bench-upt').value   = c.bench_upt || '';
+  document.getElementById('cfg-bench-atv').value   = c.bench_atv || '';
+  document.getElementById('cfg-bench-aur').value   = c.bench_aur || '';
+  document.getElementById('cfg-current-sheet').textContent = c.sheetName || '(не задан)';
+  document.getElementById('cfg-save-msg').textContent = '';
+  document.getElementById('settingsOverlay').style.display = 'block';
+  document.getElementById('settingsModal').style.display   = 'block';
 }
+
+function closeSettings() {
+  document.getElementById('settingsOverlay').style.display = 'none';
+  document.getElementById('settingsModal').style.display   = 'none';
+}
+
+function saveSettings() {
+  const sheetId   = document.getElementById('cfg-sheet-id').value.trim();
+  const sheetName = document.getElementById('cfg-sheet-name').value.trim();
+  const bench_ioc = parseFloat(document.getElementById('cfg-bench-ioc').value) || ADV_DEFAULT.bench_ioc;
+  const bench_upt = parseFloat(document.getElementById('cfg-bench-upt').value) || ADV_DEFAULT.bench_upt;
+  const bench_atv = parseFloat(document.getElementById('cfg-bench-atv').value) || ADV_DEFAULT.bench_atv;
+  const bench_aur = parseFloat(document.getElementById('cfg-bench-aur').value) || ADV_DEFAULT.bench_aur;
+
+  if (!sheetName) {
+    document.getElementById('cfg-save-msg').style.color = 'var(--red)';
+    document.getElementById('cfg-save-msg').textContent = '⚠️ Укажите название листа';
+    return;
+  }
+
+  saveADV({ sheetId, sheetName, bench_ioc, bench_upt, bench_atv, bench_aur });
+  document.getElementById('cfg-current-sheet').textContent = sheetName;
+  document.getElementById('cfg-save-msg').style.color = 'var(--green)';
+  document.getElementById('cfg-save-msg').textContent = '✅ Сохранено! Загружаем данные...';
+  setTimeout(() => { closeSettings(); loadData(); }, 800);
+}
+
+function resetSettings() {
+  if (!confirm('Сбросить все настройки QREI до стандартных?')) return;
+  localStorage.removeItem(ADV_STORAGE_KEY);
+  openSettings(); // перезаполнит из defaults
+}
+
+function goToSettings() { openSettings(); }
 
 // ══════════════════════════════════════════════════════════
 //  DATA LOADING

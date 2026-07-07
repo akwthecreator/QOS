@@ -101,6 +101,29 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 .metric-val { font-size: 22px; font-weight: 700; }
 .metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
 
+/* ── TARGET CARD (акцент на цифре "с планом", фирменный градиент) ── */
+.target-card {
+  border-radius: 12px;
+  padding: 2px;
+  background: linear-gradient(135deg,
+    #020202 0%, #cbcbcb 14%, #fdf2e5 24%, #f0ddc4 34%,
+    #df877b 46%, #d43731 55%, #b83a3a 68%, #cf545c 78%,
+    #e18795 86%, #ecb8c8 100%);
+  background-size: 220% 220%;
+  animation: targetGradientShift 6s ease infinite;
+}
+.target-card-inner {
+  background: var(--bg3);
+  border-radius: 10px;
+  padding: 12px;
+  height: 100%;
+}
+@keyframes targetGradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 /* ── AI CARD ── */
 .ai-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
 .ai-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
@@ -128,7 +151,7 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 .week-card-label { font-size: 11px; color: var(--text3); text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
 .week-card-val { font-size: 24px; font-weight: 700; }
 .week-card-delta { font-size: 12px; margin-top: 4px; font-weight: 600; }
-.delta-up { color: var(--green); }
+.delta-up { color: var(--text); }
 .delta-down { color: var(--red); }
 .delta-flat { color: var(--text3); }
 
@@ -301,8 +324,8 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 
 .seller-task-priority { padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; }
 .seller-task-priority.high { background: rgba(255,51,51,0.2); color: var(--red); }
-.seller-task-priority.medium { background: rgba(255,170,0,0.2); color: var(--yellow); }
-.seller-task-priority.low { background: rgba(0,204,102,0.2); color: var(--green); }
+.seller-task-priority.medium { background: var(--bg4); color: var(--text2); }
+.seller-task-priority.low { background: var(--bg4); color: var(--text3); }
 
 .seller-tasks-empty { text-align: center; padding: 24px 12px; color: var(--text3); }
 .seller-tasks-empty-icon { font-size: 32px; margin-bottom: 8px; }
@@ -441,7 +464,7 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
         </div>
         <div class="metric-card">
           <div class="metric-label">% плана</div>
-          <div class="metric-val" id="m-plan-pct" style="color:var(--yellow)">—</div>
+          <div class="metric-val" id="m-plan-pct">—</div>
           <div class="metric-sub" id="m-plan-sub">из плана</div>
         </div>
         <div class="metric-card">
@@ -472,13 +495,15 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
           <div style="background:var(--bg3);border-radius:12px;padding:14px">
             <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">С кассой сейчас (3%)</div>
-            <div style="font-size:20px;font-weight:700;color:var(--yellow)" id="sal-actual">—</div>
+            <div style="font-size:20px;font-weight:700;color:var(--text)" id="sal-actual">—</div>
             <div style="font-size:11px;color:var(--text3);margin-top:3px">оклад + касса × 3%</div>
           </div>
-          <div style="background:var(--bg3);border-radius:12px;padding:14px">
-            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">При выполнении плана (5%)</div>
-            <div style="font-size:20px;font-weight:700;color:var(--green)" id="sal-if-plan">—</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:3px">оклад + касса × 5%</div>
+          <div class="target-card">
+            <div class="target-card-inner">
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">При выполнении плана (5%)</div>
+              <div style="font-size:20px;font-weight:700;color:var(--text)" id="sal-if-plan">—</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:3px">оклад + касса × 5%</div>
+            </div>
           </div>
         </div>
 
@@ -707,6 +732,11 @@ async function syncSheets() {
     const activeSheet = window._activeZpSheet || localStorage.getItem('seller_zp_sheet') || SELLERS_SHEET;
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(activeSheet)}?key=${API_KEY}`;
     const res = await fetch(url);
+    if (res.status === 400 || res.status === 404) {
+      // Лист за этот месяц ещё не создан в таблице — это не сбой сети,
+      // отдельное, более понятное сообщение вместо общей "ошибки загрузки".
+      throw new Error('SHEET_NOT_FOUND');
+    }
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     if (!json.values) throw new Error('no values');
@@ -720,7 +750,11 @@ async function syncSheets() {
   } catch(e) {
     console.warn('Sheets sync error:', e.message);
     setSyncState('err');
-    showToast('Ошибка загрузки данных', 'error');
+    if (e.message === 'SHEET_NOT_FOUND') {
+      showToast('Данные за этот месяц ещё не готовы', 'error');
+    } else {
+      showToast('Не удалось загрузить данные. Проверьте интернет', 'error');
+    }
   }
 }
 
@@ -755,6 +789,8 @@ function parseSellersData(rows) {
   const sellers = [];
   let section = null;
   let mode = null;
+  let pendingPlan = null;               // план, найденный в шапке листа (до определения секции)
+  const planFromSheet = { grandpark: null, aport: null };
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i] || [];
@@ -765,8 +801,20 @@ function parseSellersData(rows) {
     if (c2str.includes('Выручка') || c2str.includes('выручка')) { mode = 'revenue'; }
     else if (c2str.includes('Смена') || c2str.includes('смена')) { mode = 'shifts'; }
 
-    if (c1 === 'Grand Park') { section = 'grandpark'; continue; }
-    if (c1 === 'Aport')      { section = 'aport';     continue; }
+    // Ищем ячейку "План на продавца" в этой строке — значение лежит в соседней ячейке справа.
+    // Раньше план всегда брался как захардкоженная константа (6 000 000 / 5 000 000),
+    // из-за чего % плана и "касса за месяц" не совпадали с реальными цифрами листа
+    // (план меняется от месяца к месяцу, напр. Май 6.5М, Июнь 5.3М, Июль 6.0М).
+    for (let k = 0; k < row.length - 1; k++) {
+      const cell = (row[k] || '').toString();
+      if (cell.includes('План на продавца')) {
+        const v = parseNum(row[k + 1]);
+        if (v > 0) pendingPlan = v;
+      }
+    }
+
+    if (c1 === 'Grand Park') { section = 'grandpark'; if (pendingPlan) planFromSheet.grandpark = pendingPlan; continue; }
+    if (c1 === 'Aport')      { section = 'aport';     if (pendingPlan) planFromSheet.aport = pendingPlan;     continue; }
     if (!section) continue;
 
     if (c0 === '№' || c1.toLowerCase() === 'фио') continue;
@@ -776,7 +824,7 @@ function parseSellersData(rows) {
     if (!mode) continue;
 
     const name = c1.trim();
-    const plan = section === 'grandpark' ? (userProfile?.plan || 6000000) : 5000000;
+    const plan = planFromSheet[section] || (section === 'grandpark' ? (userProfile?.plan || MONTHLY_PLAN_DEFAULT) : 5000000);
 
     let seller = sellers.find(s => s.name === name && s.team === section);
     if (!seller) {
@@ -788,14 +836,19 @@ function parseSellersData(rows) {
       const daily = [];
       for (let j = 2; j <= 32 && j < row.length; j++) daily.push(parseNum(row[j]));
       seller.dailyRevenue = daily;
+      // КАССА — фиксированная колонка листа (сразу после ОКЛАД В МЕСЯЦ).
+      // Раньше поиск начинался с j=33 и мог случайно захватить не ту ячейку —
+      // используем реальную позицию колонки "КАССА" листа.
       let kassa = 0;
-      for (let j = 33; j < row.length; j++) {
+      for (let j = 34; j < row.length; j++) {
         const v = parseNum(row[j]);
         if (v > 500000) { kassa = v; break; }
       }
       seller.revenue = kassa > 0 ? kassa : daily.reduce((a,b)=>a+b, 0);
+      // НАЧИСЛЕНО — колонка после БОНУС. Поиск с j=35 иногда захватывал БОНУС
+      // вместо НАЧИСЛЕНО (оба попадают в диапазон 50 000–600 000).
       let nach = 0;
-      for (let j = 35; j < row.length; j++) {
+      for (let j = 37; j < row.length; j++) {
         const v = parseNum(row[j]);
         if (v >= 50000 && v <= 600000) { nach = v; break; }
       }
@@ -850,25 +903,31 @@ function updateUI() {
 
   // --- TODAY ---
   const todayRev = mySeller?.dailyRevenue[todayIdx] || 0;
-  const monthRev = mySeller ? mySeller.dailyRevenue.slice(0, todayIdx + 1).reduce((a,b)=>a+b, 0) : 0;
+  // ВАЖНО: раньше здесь суммировались дневные значения только до сегодняшнего
+  // числа месяца (dailyRevenue.slice(0, todayIdx+1)) — это давало неверную сумму,
+  // особенно при просмотре прошлых/завершённых месяцев (напр. 7 дней июня вместо
+  // всего месяца). Используем реальную "КАССУ" из листа — она уже посчитана в
+  // самой таблице и совпадает с колонкой КАССА.
+  const monthRev = mySeller ? mySeller.revenue : 0;
   const needed = Math.max(0, plan - monthRev);
   const dailyTarget = daysLeft > 0 ? Math.round(needed / daysLeft) : 0;
   const todayPct = dailyTarget > 0 ? Math.min(100, (todayRev / dailyTarget) * 100) : (todayRev > 0 ? 100 : 0);
 
   const monthPct = plan > 0 ? Math.min(100, (monthRev / plan) * 100) : 0;
-  document.getElementById('hero-today-rev').textContent = fmtMoney(monthRev);
+  document.getElementById('hero-today-rev').textContent = fmtMoneyFull(monthRev);
   document.getElementById('hero-today-sub').textContent = mySeller
     ? `${mySeller.name} · ${mySeller.team === 'grandpark' ? 'Grand Park' : 'Aport'} · ${(window._activeZpSheet || localStorage.getItem('seller_zp_sheet') || 'ЗП Июль')}`
     : 'Данные не найдены — проверь имя в профиле Firebase';
   document.getElementById('hero-progress').style.width = monthPct + '%';
-  document.getElementById('hero-pl-left').textContent = fmtMoney(monthRev);
+  document.getElementById('hero-pl-left').textContent = fmtMoneyFull(monthRev);
   document.getElementById('hero-pl-right').textContent = 'план: ' + fmtMoney(plan);
 
   // Metrics
   const shifts = mySeller?.shifts || 0;
   const perShift = shifts > 0 && monthRev > 0 ? Math.round(monthRev / shifts) : 0;
   const planPct = plan > 0 ? (monthRev / plan * 100) : 0;
-  const planColor = planPct >= 80 ? 'var(--green)' : planPct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  // Красным помечаем только критичное отставание от плана, остальное — нейтральным цветом
+  const planColor = planPct < 50 ? 'var(--red)' : 'var(--text)';
 
   document.getElementById('m-shifts').textContent = shifts || '—';
   document.getElementById('m-per-shift').textContent = perShift > 0 ? fmtMoney(perShift) : '—';
@@ -969,7 +1028,7 @@ function renderDailyChart() {
     const bar = document.createElement('div');
     bar.className = 'mini-bar';
     bar.style.height = pct + '%';
-    bar.style.background = idx === todayIdx ? 'var(--green)' : color;
+    bar.style.background = idx === todayIdx ? 'var(--accent)' : color;
     bar.title = `${dayRu[dt.getDay()]} ${idx+1}: ${fmtMoney(val)}`;
     chartEl.appendChild(bar);
 
@@ -1019,7 +1078,7 @@ function renderWeekHistory() {
     const dt = new Date(wkStart);
     const endDt = new Date(wkStart); endDt.setDate(endDt.getDate() + 6);
     const label = `${dt.getDate()} – ${endDt.getDate()} ${dt.toLocaleDateString('ru-RU',{month:'short'})}`;
-    const planColor = +planPct >= 90 ? 'var(--green)' : +planPct >= 60 ? 'var(--yellow)' : 'var(--red)';
+    const planColor = +planPct < 60 ? 'var(--red)' : 'var(--text3)';
     return `<div class="week-hist-item">
       <div class="week-hist-header">
         <span class="week-hist-label">${label} · ${data.shifts} смен</span>
@@ -1096,7 +1155,9 @@ function renderSalaryBlock() {
   const now = new Date();
   const todayIdx = now.getDate() - 1;
   const plan = mySeller?.plan || userProfile?.plan || MONTHLY_PLAN_DEFAULT;
-  const monthRev = mySeller ? mySeller.dailyRevenue.slice(0, todayIdx + 1).reduce((a,b)=>a+b,0) : 0;
+  // Касса за месяц = реальное значение из колонки "КАССА" листа, а не сумма
+  // дневных значений «по сегодняшний день» (см. комментарий в updateUI()).
+  const monthRev = mySeller ? mySeller.revenue : 0;
   const shifts = mySeller?.shifts || 0;
   const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
   const daysLeft = daysInMonth - now.getDate();
@@ -1118,8 +1179,8 @@ function renderSalaryBlock() {
   const planV  = document.getElementById('sal-plan-val');
 
   if (needEl) needEl.textContent = needed > 0 ? fmtMoney(needed) : '✅ План выполнен!';
-  if (needEl) needEl.style.color = needed > 0 ? 'var(--yellow)' : 'var(--green)';
-  if (subEl)  subEl.innerHTML    = 'Касса за месяц: <strong>' + fmtMoney(monthRev) + '</strong>';
+  if (needEl) needEl.style.color = needed > 0 ? 'var(--text)' : 'var(--green)';
+  if (subEl)  subEl.innerHTML    = 'Касса за месяц: <strong>' + fmtMoneyFull(monthRev) + '</strong>';
   if (actEl)  actEl.textContent  = fmtMoney(salActual);
   if (planEl) planEl.textContent = fmtMoney(salIfPlan);
   if (planV)  planV.textContent  = fmtMoney(plan);
@@ -1271,6 +1332,12 @@ function fmtMoney(val) {
   return Math.round(val) + '₸';
 }
 
+// Полное число с разделителями разрядов, напр. 1100000 -> "1 100 000 ₸"
+function fmtMoneyFull(val) {
+  if (!val || isNaN(val)) return '0 ₸';
+  return Math.round(val).toLocaleString('ru-RU').replace(/,/g, ' ') + ' ₸';
+}
+
 function showToast(msg, type = 'info') {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1397,7 +1464,7 @@ function renderSellerTasks(tasks, userId) {
         <div class="seller-task-name">${task.name || 'Безымянная задача'}</div>
         <div class="seller-task-meta">
           <span class="seller-task-priority ${task.priority || 'medium'}">${priorityLabel}</span>
-          <span style="color:${isOverdue?'var(--red)':isToday?'var(--yellow)':'var(--text3)'}">${deadlineText}</span>
+          <span style="color:${isOverdue?'var(--red)':'var(--text3)'}">${deadlineText}</span>
         </div>
         ${task.description ? `<div style="font-size:11px;color:var(--text3);margin-top:4px">${task.description}</div>` : ''}
         <div class="seller-task-done-label">✅ Выполнено ${completedAt}</div>
@@ -1487,7 +1554,7 @@ function handleLogout() {
 
 // Все доступные листы ЗП
 const ZP_SHEETS = [
-  'ЗП Январь','ЗП Февраль','ЗП Март','ЗП Апрель',
+  'ЗП ЯНВАРЬ','ЗП Февраль','ЗП Март','ЗП Апрель',
   'ЗП Май','ЗП Июнь','ЗП Июль','ЗП Август',
   'ЗП Сентябрь','ЗП Октябрь','ЗП Ноябрь','ЗП Декабрь'
 ];

@@ -392,6 +392,9 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
         <span id="syncLabel" style="display:none">обновлено</span>
       </div>
       <button class="icon-btn" onclick="syncSheets()" title="Обновить данные" id="syncBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
+      <button class="icon-btn" onclick="openSellerSettings()" title="Настройки листа" id="settingsBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
       <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Тема"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
       <button class="icon-btn" onclick="handleLogout()" title="Выход"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
     </div>
@@ -410,7 +413,7 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 
       <!-- Hero today — данные из Google Sheets -->
       <div class="today-hero">
-        <div class="today-hero-label">Моя выручка сегодня</div>
+        <div class="today-hero-label">Мои показатели за месяц</div>
         <div class="today-hero-val" id="hero-today-rev">—</div>
         <div class="today-hero-sub" id="hero-today-sub">Загружаем данные из Google Sheets...</div>
         <div class="today-progress-wrap">
@@ -448,21 +451,40 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
         </div>
       </div>
 
-      <!-- AI Quick Insight -->
-      <div class="ai-card">
+      <!-- 💰 МОЯ ЗАРПЛАТА -->
+      <div class="ai-card" id="salary-card">
         <div class="ai-header">
-          <div class="ai-icon">🤖</div>
+          <div class="ai-icon">💰</div>
           <div>
-            <div class="ai-title">ИИ-прогноз на сегодня</div>
-            <div class="ai-subtitle">Обновляется при синхронизации</div>
+            <div class="ai-title">Моя зарплата</div>
+            <div class="ai-subtitle">Расчёт на основе таблицы Google Sheets</div>
           </div>
         </div>
-        <div class="ai-message" id="ai-today-msg">
-          <div class="ai-typing"><span></span><span></span><span></span></div>
-          &nbsp;Анализирую данные...
+
+        <!-- Сколько ещё нужно до плана -->
+        <div style="background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">До выполнения плана осталось</div>
+          <div style="font-size:28px;font-weight:700;color:var(--text)" id="sal-needed">—</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px" id="sal-needed-sub">из плана <span id="sal-plan-val">6 000 000 ₸</span></div>
         </div>
-        <!-- Декомпозиция -->
-        <div class="ai-decomp" id="ai-decomp" style="display:none">
+
+        <!-- 2 колонки: факт vs план -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="background:var(--bg3);border-radius:12px;padding:14px">
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">С кассой сейчас (3%)</div>
+            <div style="font-size:20px;font-weight:700;color:var(--yellow)" id="sal-actual">—</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px">оклад + касса × 3%</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:12px;padding:14px">
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">При выполнении плана (5%)</div>
+            <div style="font-size:20px;font-weight:700;color:var(--green)" id="sal-if-plan">—</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px">оклад + касса × 5%</div>
+          </div>
+        </div>
+
+        <!-- Товары для закрытия плана -->
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Что допродать для закрытия плана</div>
+        <div class="ai-decomp" id="ai-decomp">
           <div class="decomp-item">
             <div class="decomp-icon">👕</div>
             <div class="decomp-count" id="dec-tshirt">—</div>
@@ -564,6 +586,36 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div id="sellerSettingsOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:flex-end;justify-content:center;padding:0">
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:20px 20px 0 0;padding:28px 24px 40px;width:100%;max-width:500px;animation:slideUp 0.3s cubic-bezier(0.34,1.2,0.64,1)">
+
+    <!-- Хэндл -->
+    <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
+
+    <div style="font-size:17px;font-weight:700;margin-bottom:4px">⚙️ Настройки</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:24px">Выберите период для просмотра данных</div>
+
+    <!-- Выбор листа ЗП -->
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Период (лист Google Sheets)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" id="sheet-buttons">
+        <!-- Кнопки генерируются JS -->
+      </div>
+    </div>
+
+    <!-- Текущий выбор -->
+    <div style="padding:12px 14px;background:var(--bg3);border-radius:10px;margin-bottom:20px;font-size:13px;color:var(--text2)">
+      Сейчас загружено: <strong id="s-current-sheet" style="color:var(--accent)">—</strong>
+    </div>
+
+    <button onclick="closeSellerSettings()" style="width:100%;padding:14px;background:var(--bg3);color:var(--text);border:1px solid var(--border2);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">
+      Закрыть
+    </button>
+  </div>
+</div>
+
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
@@ -583,8 +635,8 @@ const FIREBASE_CONFIG = {
 // Google Sheets — те же что в panel.html
 const SHEET_ID         = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
 const API_KEY          = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
-const SELLERS_SHEET    = 'ЗП Июнь';    // лист с данными продавцов
-const KPI_SHEET        = 'ИЮНЬ KPI';  // лист с KPI магазинов
+const SELLERS_SHEET    = localStorage.getItem('seller_zp_sheet') || 'ЗП Июль'; // динамический лист
+const KPI_SHEET        = 'ИЮЛЬ KPI';  // лист с KPI магазинов
 
 const PRICES = { tshirt: 10800, hoodie: 26000, cap: 5000, socks: 1800 };
 const MONTHLY_PLAN_DEFAULT = 6000000;
@@ -614,7 +666,7 @@ auth.onAuthStateChanged(async user => {
   }
   // Синхронизируем Sheets сразу
   await syncSheets();
-  loadAIInsight();
+  renderSalaryBlock();
   // Загружаем задачи продавца (передаём user, без вложенного onAuthStateChanged)
   await loadSellerTasks(user);
   // Автообновление каждые 3 минуты
@@ -652,7 +704,8 @@ async function loadUserProfile() {
 async function syncSheets() {
   setSyncState('loading');
   try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SELLERS_SHEET)}?key=${API_KEY}`;
+    const activeSheet = window._activeZpSheet || localStorage.getItem('seller_zp_sheet') || SELLERS_SHEET;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(activeSheet)}?key=${API_KEY}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
@@ -802,13 +855,14 @@ function updateUI() {
   const dailyTarget = daysLeft > 0 ? Math.round(needed / daysLeft) : 0;
   const todayPct = dailyTarget > 0 ? Math.min(100, (todayRev / dailyTarget) * 100) : (todayRev > 0 ? 100 : 0);
 
-  document.getElementById('hero-today-rev').textContent = fmtMoney(todayRev);
+  const monthPct = plan > 0 ? Math.min(100, (monthRev / plan) * 100) : 0;
+  document.getElementById('hero-today-rev').textContent = fmtMoney(monthRev);
   document.getElementById('hero-today-sub').textContent = mySeller
-    ? `${mySeller.name} · ${mySeller.team === 'grandpark' ? 'Grand Park' : 'Aport'} · обновлено ${new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}`
+    ? `${mySeller.name} · ${mySeller.team === 'grandpark' ? 'Grand Park' : 'Aport'} · ${(window._activeZpSheet || localStorage.getItem('seller_zp_sheet') || 'ЗП Июль')}`
     : 'Данные не найдены — проверь имя в профиле Firebase';
-  document.getElementById('hero-progress').style.width = todayPct + '%';
-  document.getElementById('hero-pl-left').textContent = fmtMoney(todayRev);
-  document.getElementById('hero-pl-right').textContent = 'цель дня: ' + fmtMoney(dailyTarget);
+  document.getElementById('hero-progress').style.width = monthPct + '%';
+  document.getElementById('hero-pl-left').textContent = fmtMoney(monthRev);
+  document.getElementById('hero-pl-right').textContent = 'план: ' + fmtMoney(plan);
 
   // Metrics
   const shifts = mySeller?.shifts || 0;
@@ -835,6 +889,7 @@ function updateUI() {
   renderDailyChart();
   renderWeekHistory();
   renderLeaderboard();
+  renderSalaryBlock();
 }
 
 // ===================== WEEK COMPARE =====================
@@ -1036,11 +1091,53 @@ function renderLeaderboard() {
   }).join('');
 }
 
-// ===================== AI INSIGHT =====================
-async function loadAIInsight() {
-  const el = document.getElementById('ai-today-msg');
-  el.innerHTML = '<div class="ai-typing"><span></span><span></span><span></span></div>&nbsp;Анализирую...';
+// ===================== SALARY BLOCK =====================
+function renderSalaryBlock() {
+  const now = new Date();
+  const todayIdx = now.getDate() - 1;
+  const plan = mySeller?.plan || userProfile?.plan || MONTHLY_PLAN_DEFAULT;
+  const monthRev = mySeller ? mySeller.dailyRevenue.slice(0, todayIdx + 1).reduce((a,b)=>a+b,0) : 0;
+  const shifts = mySeller?.shifts || 0;
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const daysLeft = daysInMonth - now.getDate();
+  const needed = Math.max(0, plan - monthRev);
 
+  // Оклад: берём из данных продавца или дефолт
+  const oklad = mySeller?.okladMonth || 13200;
+
+  // ЗП с текущей кассой по 3%
+  const salActual   = Math.round(oklad + monthRev * 0.03);
+  // ЗП если бы план был выполнен по 5%
+  const salIfPlan   = Math.round(oklad + plan * 0.05);
+
+  // Обновляем UI
+  const needEl = document.getElementById('sal-needed');
+  const subEl  = document.getElementById('sal-needed-sub');
+  const actEl  = document.getElementById('sal-actual');
+  const planEl = document.getElementById('sal-if-plan');
+  const planV  = document.getElementById('sal-plan-val');
+
+  if (needEl) needEl.textContent = needed > 0 ? fmtMoney(needed) : '✅ План выполнен!';
+  if (needEl) needEl.style.color = needed > 0 ? 'var(--yellow)' : 'var(--green)';
+  if (subEl)  subEl.innerHTML    = 'Касса за месяц: <strong>' + fmtMoney(monthRev) + '</strong>';
+  if (actEl)  actEl.textContent  = fmtMoney(salActual);
+  if (planEl) planEl.textContent = fmtMoney(salIfPlan);
+  if (planV)  planV.textContent  = fmtMoney(plan);
+
+  // Декомпозиция товаров для закрытия плана
+  const decomp = document.getElementById('ai-decomp');
+  if (needed > 0 && decomp) {
+    document.getElementById('dec-hoodie').textContent = Math.ceil(needed * 0.6 / PRICES.hoodie);
+    document.getElementById('dec-tshirt').textContent = Math.ceil(needed * 0.3 / PRICES.tshirt);
+    document.getElementById('dec-cap').textContent    = Math.ceil(needed * 0.1 / PRICES.cap);
+    decomp.style.display = 'grid';
+  } else if (decomp) {
+    decomp.style.display = 'none';
+  }
+}
+
+// (stub — оставлен для совместимости)
+async function loadAIInsight() {
   const now = new Date();
   const todayIdx = now.getDate() - 1;
   const plan = mySeller?.plan || userProfile?.plan || MONTHLY_PLAN_DEFAULT;
@@ -1383,6 +1480,78 @@ function handleLogout() {
     auth.signOut().then(() => { window.location.href = 'index.html'; });
   }
 }
+
+// ══════════════════════════════════════════════════════════
+//  SELLER SETTINGS MODAL
+// ══════════════════════════════════════════════════════════
+
+// Все доступные листы ЗП
+const ZP_SHEETS = [
+  'ЗП Январь','ЗП Февраль','ЗП Март','ЗП Апрель',
+  'ЗП Май','ЗП Июнь','ЗП Июль','ЗП Август',
+  'ЗП Сентябрь','ЗП Октябрь','ЗП Ноябрь','ЗП Декабрь'
+];
+
+function openSellerSettings() {
+  const overlay = document.getElementById('sellerSettingsOverlay');
+  const current = localStorage.getItem('seller_zp_sheet') || 'ЗП Июль';
+
+  // Генерируем кнопки выбора листа
+  const btnWrap = document.getElementById('sheet-buttons');
+  btnWrap.innerHTML = ZP_SHEETS.map(name => {
+    const isActive = name === current;
+    return `<button onclick="selectZpSheet('${name}')"
+      style="padding:8px 14px;border-radius:20px;border:1.5px solid ${isActive ? 'var(--accent)' : 'var(--border2)'};
+             background:${isActive ? 'rgba(0,102,255,0.15)' : 'var(--bg3)'};
+             color:${isActive ? 'var(--accent)' : 'var(--text2)'};
+             font-size:13px;font-weight:${isActive ? '700' : '500'};cursor:pointer;
+             transition:all 0.15s"
+      id="zpbtn-${name.replace(' ','-')}">${name}</button>`;
+  }).join('');
+
+  document.getElementById('s-current-sheet').textContent = current;
+  overlay.style.display = 'flex';
+}
+
+function closeSellerSettings() {
+  document.getElementById('sellerSettingsOverlay').style.display = 'none';
+}
+
+function selectZpSheet(sheetName) {
+  // Сохраняем
+  localStorage.setItem('seller_zp_sheet', sheetName);
+
+  // Обновляем текущий лист в константе и перезагружаем данные
+  // (SELLERS_SHEET — const, поэтому используем глобальную переменную)
+  window._activeZpSheet = sheetName;
+  document.getElementById('s-current-sheet').textContent = sheetName;
+
+  // Обновляем стили кнопок
+  ZP_SHEETS.forEach(n => {
+    const btn = document.getElementById('zpbtn-' + n.replace(' ','-'));
+    if (!btn) return;
+    const isActive = n === sheetName;
+    btn.style.borderColor = isActive ? 'var(--accent)' : 'var(--border2)';
+    btn.style.background  = isActive ? 'rgba(0,102,255,0.15)' : 'var(--bg3)';
+    btn.style.color       = isActive ? 'var(--accent)' : 'var(--text2)';
+    btn.style.fontWeight  = isActive ? '700' : '500';
+  });
+
+  closeSellerSettings();
+  syncSheets(); // перезагружаем данные
+}
+
+// Закрытие по тапу на фон
+document.addEventListener('click', function(e) {
+  const overlay = document.getElementById('sellerSettingsOverlay');
+  if (e.target === overlay) closeSellerSettings();
+});
+
+// Закрытие по Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeSellerSettings();
+});
+
 </script>
 </body>
 </html>

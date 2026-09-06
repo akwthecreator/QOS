@@ -350,6 +350,9 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
     <button class="pill-btn" id="btn-today" onclick="setPeriod('today')">Сегодня</button>
     <button class="pill-btn" id="btn-week" onclick="setPeriod('week')">Неделя</button>
     <div class="filter-divider"></div>
+    <!-- QCP: выбор листа + меню -->
+    <span id="qcpSlot" style="display:flex;align-items:center;gap:8px"></span>
+    <div class="filter-divider"></div>
     <!-- Leaderboard toggle -->
     <button class="icon-btn" id="lb-toggle" onclick="toggleSidebar()" title="Скрыть/показать рейтинг">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
@@ -494,6 +497,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script src="qcp-core.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════
 //  CONFIG — читаем из localStorage (сохраняется в panel.html settings)
@@ -543,8 +547,12 @@ function saveADV(patch) {
   return next;
 }
 
-function getSheetId()   { return getADV().sheetId   || ADV_DEFAULT.sheetId; }
-function getSheetName() { return getADV().sheetName || ADV_DEFAULT.sheetName; }
+function getSheetId()   {
+  return (window.QCP && QCP.get('advSheetId')) || getADV().sheetId || ADV_DEFAULT.sheetId;
+}
+function getSheetName() {
+  return (window.QCP && QCP.get('advSheet')) || getADV().sheetName || ADV_DEFAULT.sheetName;
+}
 
 // ══════════════════════════════════════════════════════════
 //  QREI BENCHMARKS (per ТЗ)
@@ -1287,6 +1295,7 @@ function saveSettings() {
   } else { selEl.value = sheetName; }
   document.getElementById('cfg-save-msg').style.color = 'var(--green)';
   document.getElementById('cfg-save-msg').textContent = '✅ Сохранено! Загружаем данные...';
+  if (window.QCP) QCP.set({ advSheet: sheetName, advSheetId: sheetId });
   setTimeout(() => { closeSettings(); loadData(); }, 800);
 }
 
@@ -1399,6 +1408,29 @@ auth.onAuthStateChanged(async user => {
     console.warn('Role fetch error:', e);
     // fallback: panel.html
   }
+
+  // ── QCP: общий лист + меню ──
+  const adv = getADV();
+  await QCP.init({
+    sheetId: MAIN_SHEET_ID,
+    advSheetId: adv.sheetId,
+    defaults: { advSheet: adv.sheetName, advSheetId: adv.sheetId }
+  });
+  QCP.mountPicker('#qcpSlot', {
+    groups: [{ field: 'advSheet', label: 'Лист данных', source: 'adv' }]
+  });
+  QCP.mountNav('#qcpSlot', {
+    title: 'QCP',
+    sheets: [{ field: 'advSheet', label: 'Лист' }],
+    items: [
+      { label: 'Магазин',       href: 'manager.html' },
+      { label: 'Продавцы',      href: 'seller.html' },
+      { label: 'Advanced KPI',  href: 'advanced.html', active: true },
+      { label: 'Сертификаты',   href: 'cert.html' },
+      { label: 'Настройки листа', action: openSettings }
+    ]
+  });
+  QCP.onChange(() => loadData());
 
   loadData();
 });

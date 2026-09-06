@@ -604,9 +604,22 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
 .sw-empty { font-size: 13px; color: var(--text3); padding: 12px 0; }
 
-/* ── QCP: на мобиле нижняя панель заменена на меню-оверлей ── */
+/* ── QCP: на мобиле сайдбар превращается в узкую шапку с одной кнопкой ── */
 @media(max-width:768px){
-  .sidebar { display: none !important; }
+  .sidebar {
+    position: sticky !important; top: 0; left: 0; right: 0; bottom: auto !important;
+    width: 100% !important; height: 52px !important;
+    flex-direction: row !important; align-items: center; justify-content: flex-start;
+    gap: 10px !important; padding: 0 14px !important; overflow: visible !important;
+    border-right: none; border-top: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar .nav-btn { display: none !important; }
+  .sidebar > [style="flex:1"] { display: none !important; }
+  .sidebar .logo {
+    display: flex !important; width: 30px !important; height: 30px !important;
+    margin: 0 !important; font-size: 11px; border-radius: 9px;
+  }
   .main { margin-left: 0 !important; margin-bottom: 0 !important;
           width: 100% !important; padding: 16px 14px 24px !important; }
   .header-right { gap: 8px; }
@@ -618,6 +631,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
 <div class="container">
   <div class="sidebar">
+    <span class="qcp-navslot" style="display:flex;align-items:center"></span>
     <div class="logo">QCP</div>
     <button class="nav-btn active" onclick="showPage('home')" id="nav-home" title="Главная"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></button>
     <button class="nav-btn" onclick="showPage('kpi')" id="nav-kpi" title="KPI"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="12" width="4" height="10" rx="1"/><rect x="9" y="7" width="4" height="15" rx="1"/><rect x="16" y="3" width="4" height="19" rx="1"/></svg></button>
@@ -1279,7 +1293,7 @@ function saveSettings() {
 
   CFG.SHEET_NAME         = kpi;
   CFG.SELLERS_SHEET_NAME = sellers;
-  if (window.QCP) QCP.set({ kpiSheet: kpi, zpSheet: sellers });
+  if (window.QCP) { QCP.setSheet('kpiSheet', kpi); QCP.setSheet('zpSheet', sellers); }
   CFG.PLAN_GRANDPARK     = gp;
   CFG.PLAN_APORT         = ap;
   CFG.SYNC_INTERVAL      = si;
@@ -2777,19 +2791,17 @@ function initializeFirebaseAuth() {
       console.warn('Role check error:', e);
     }
 
-    // ── QCP: общий лист + меню ──
+    // ── QCP: общий месяц + меню ──
     await QCP.init({
       sheetId: SHEET_ID,
-      defaults: { kpiSheet: CFG.SHEET_NAME, zpSheet: CFG.SELLERS_SHEET_NAME }
+      resolvers: {
+        kpiSheet: { source: 'main', match: t => /kpi/i.test(t) },
+        zpSheet:  { source: 'main', match: t => /^\s*ЗП/i.test(t) }
+      },
+      fallback: { kpiSheet: CFG.SHEET_NAME, zpSheet: CFG.SELLERS_SHEET_NAME }
     });
-    QCP.mountPicker('.qcp-slot', {
-      main: 'kpiSheet',
-      groups: [
-        { field: 'kpiSheet', label: 'KPI лист',  source: 'main', filter: /kpi/i },
-        { field: 'zpSheet',  label: 'Лист ЗП',   source: 'main', filter: /^ЗП/i }
-      ]
-    });
-    QCP.mountNav('.qcp-slot', {
+    QCP.mountPicker('.qcp-slot');
+    QCP.mountNav('.qcp-navslot', {
       title: 'QCP · Магазин',
       mobileOnly: true,
       sheets: [
@@ -2806,11 +2818,17 @@ function initializeFirebaseAuth() {
         { label: 'Алерты',         action: () => showPage('alerts') },
         { label: 'Задачи',         action: () => showPage('tasks') },
         { label: 'Сертификаты',    action: () => showPage('certificates') },
-        { label: 'Advanced KPI',   href: 'advanced.html' },
-        { label: 'Сменить тему',   action: toggleTheme }
+        { label: 'Advanced KPI',   href: 'advanced.html' }
+      ],
+      sections: [
+        { label: 'Месяц', kind: 'period' },
+        { label: 'Действия', kind: 'list', items: [
+          { label: 'Синхронизировать', action: () => { syncData(); syncSellers(); } },
+          { label: 'Сменить тему',     action: toggleTheme, keepOpen: true }
+        ] }
       ]
     });
-    QCP.onChange((cfg, changed) => {
+    QCP.onChange((r, changed) => {
       if (changed.indexOf('kpiSheet') > -1) syncData();
       if (changed.indexOf('zpSheet')  > -1) syncSellers();
     });

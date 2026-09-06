@@ -30,21 +30,16 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
 .topbar-logo{font-size:13px;font-weight:700;letter-spacing:0.5px;color:var(--text2);flex-shrink:0}
-.topbar-title{
-  font-size:15px;font-weight:600;
-  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
-.topbar-period{
-  margin-left:auto;flex-shrink:0;
-  font-size:12px;font-weight:600;color:var(--text3);
-  white-space:nowrap;
-}
+.topbar-title{font-size:15px;font-weight:600;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar-meta{margin-left:auto;flex-shrink:0;font-size:12px;font-weight:600;
+  color:var(--text3);white-space:nowrap}
 @media(max-width:768px){
   .topbar{gap:10px;padding:0 14px}
   .topbar-logo{display:none}
   .topbar-logo + span{display:none}
   .topbar-title{font-size:14px}
-  .topbar-period{display:none}
+  .topbar-meta{display:none}
 }
 .topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
 .back-btn{
@@ -355,8 +350,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
   <span id="qcpMenuSlot" style="display:flex;align-items:center"></span>
   <span class="topbar-logo">QCP</span>
   <span style="color:var(--border2)">›</span>
-  <span class="topbar-title" id="topbar-title">Подробная KPI продавцов | QREI</span>
-  <span class="topbar-period" id="topbar-period"></span>
+  <span class="topbar-title">Подробная KPI продавцов | QREI</span>
+  <span class="topbar-meta" id="topbar-meta"></span>
 </div>
 
 <!-- ══ SETTINGS MODAL ══ -->
@@ -534,9 +529,7 @@ function saveADV(patch) {
   return next;
 }
 
-function getSheetId()   {
-  return (window.QCP && QCP.get('advSheetId')) || getADV().sheetId || ADV_DEFAULT.sheetId;
-}
+function getSheetId()   { return getADV().sheetId || ADV_DEFAULT.sheetId; }
 function getSheetName() {
   return (window.QCP && QCP.get('advSheet')) || getADV().sheetName || ADV_DEFAULT.sheetName;
 }
@@ -1163,10 +1156,15 @@ function setTeam(t) {
 const PERIOD_LABEL = { all:'Всё время', today:'Сегодня', week:'Неделя' };
 function setPeriod(p) {
   currentPeriod = p;
-  const lbl = document.getElementById('topbar-period');
-  if (lbl) lbl.textContent = PERIOD_LABEL[p] || '';
-  if (window.QCP && QCP.navSet) QCP.navSet('period', p);
+  if (window.QCP && QCP.navSet) QCP.navSet('range', p);
+  updateTopbarMeta();
   render();
+}
+function updateTopbarMeta() {
+  const el = document.getElementById('topbar-meta');
+  if (!el) return;
+  const m = (window.QCP && QCP.period()) ? QCP.period() + ' · ' : '';
+  el.textContent = m + (PERIOD_LABEL[currentPeriod] || '');
 }
 function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
@@ -1177,8 +1175,8 @@ function toggleTheme() {
   const cur  = html.getAttribute('data-theme');
   const next = cur==='dark'?'light':'dark';
   html.setAttribute('data-theme',next);
-  const tb = document.getElementById('themeBtn');
-  if (tb) tb.innerHTML = next==='dark'
+  const _t1 = document.getElementById('themeBtn');
+  if (_t1) _t1.innerHTML = next==='dark'
     ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
     : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
   localStorage.setItem('adv_theme',next);
@@ -1286,7 +1284,7 @@ function saveSettings() {
   } else { selEl.value = sheetName; }
   document.getElementById('cfg-save-msg').style.color = 'var(--green)';
   document.getElementById('cfg-save-msg').textContent = '✅ Сохранено! Загружаем данные...';
-  if (window.QCP) QCP.set({ advSheet: sheetName, advSheetId: sheetId });
+  if (window.QCP) QCP.setSheet('advSheet', sheetName);
   setTimeout(() => { closeSettings(); loadData(); }, 800);
 }
 
@@ -1378,8 +1376,8 @@ auth.onAuthStateChanged(async user => {
   // Apply saved theme
   const savedTheme = localStorage.getItem('adv_theme') || localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
-  const _tb = document.getElementById('themeBtn');
-  if (_tb) _tb.innerHTML = savedTheme==='dark'
+  const _t2 = document.getElementById('themeBtn');
+  if (_t2) _t2.innerHTML = savedTheme==='dark'
     ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
     : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
 
@@ -1396,25 +1394,26 @@ auth.onAuthStateChanged(async user => {
     }
   } catch(e) {
     console.warn('Role fetch error:', e);
-    // fallback: panel.html
   }
 
-  // ── QCP: всё управление внутри меню ──
+  // ── QCP: общий месяц + всё управление в меню ──
   const adv = getADV();
   await QCP.init({
     sheetId: MAIN_SHEET_ID,
     advSheetId: adv.sheetId,
-    defaults: { advSheet: adv.sheetName, advSheetId: adv.sheetId }
+    resolvers: {
+      advSheet: { source: 'adv', match: () => true }
+    },
+    fallback: { advSheet: adv.sheetName }
   });
 
-  const isAdmin = (QCP.role() || 'admin') === 'admin';
-  const homeHref  = _backTarget;
+  const isAdmin   = (QCP.role() || 'admin') === 'admin';
   const homeLabel = _backTarget === 'manager.html' ? 'Магазин (главная)' : 'Панель (главная)';
 
   const actions = [
-    { label: 'Обновить данные',        action: loadData },
+    { label: 'Обновить данные',            action: loadData },
     { label: 'Рейтинг: показать / скрыть', action: toggleSidebar },
-    { label: 'Сменить тему',           action: toggleTheme, keepOpen: true }
+    { label: 'Сменить тему',               action: toggleTheme, keepOpen: true }
   ];
   if (isAdmin) actions.push({ label: 'Настройки QREI', action: openSettings });
 
@@ -1422,27 +1421,23 @@ auth.onAuthStateChanged(async user => {
     title: 'QCP · Advanced KPI',
     sheets: [{ field: 'advSheet', label: 'Лист' }],
     items: [
-      { label: homeLabel, href: homeHref },
+      { label: homeLabel, href: _backTarget },
       { label: 'Advanced KPI', active: true, keepOpen: true }
     ],
     sections: [
-      {
-        label: 'Период', kind: 'chips', group: 'period',
-        value: currentPeriod, keepOpen: true,
+      { label: 'Месяц', kind: 'period' },
+      { label: 'Период', kind: 'chips', group: 'range', value: currentPeriod, keepOpen: true,
         items: [
           { label: 'Всё время', value: 'all',   action: () => setPeriod('all') },
-          { label: 'Сегодня',       value: 'today', action: () => setPeriod('today') },
-          { label: 'Неделя',              value: 'week',  action: () => setPeriod('week') }
-        ]
-      },
-      { label: 'Лист данных', kind: 'sheets', field: 'advSheet', source: 'adv' },
+          { label: 'Сегодня',   value: 'today', action: () => setPeriod('today') },
+          { label: 'Неделя',    value: 'week',  action: () => setPeriod('week') }
+        ] },
       { label: 'Действия', kind: 'list', items: actions }
     ]
   });
 
-  setPeriod(currentPeriod);
-
-  QCP.onChange(() => loadData());
+  QCP.onChange(() => { updateTopbarMeta(); loadData(); });
+  updateTopbarMeta();
 
   loadData();
 });

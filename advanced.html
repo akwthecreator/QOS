@@ -29,8 +29,23 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
   border-bottom:1px solid var(--border);
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
-.topbar-logo{font-size:13px;font-weight:700;letter-spacing:0.5px;color:var(--text2)}
-.topbar-title{font-size:15px;font-weight:600}
+.topbar-logo{font-size:13px;font-weight:700;letter-spacing:0.5px;color:var(--text2);flex-shrink:0}
+.topbar-title{
+  font-size:15px;font-weight:600;
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.topbar-period{
+  margin-left:auto;flex-shrink:0;
+  font-size:12px;font-weight:600;color:var(--text3);
+  white-space:nowrap;
+}
+@media(max-width:768px){
+  .topbar{gap:10px;padding:0 14px}
+  .topbar-logo{display:none}
+  .topbar-logo + span{display:none}
+  .topbar-title{font-size:14px}
+  .topbar-period{display:none}
+}
 .topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
 .back-btn{
   display:flex;align-items:center;gap:6px;
@@ -337,39 +352,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 
 <!-- ── TOP BAR ── -->
 <div class="topbar">
-  <button class="back-btn" id="back-btn" onclick="goBack()" title="Вернуться назад">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    <span id="back-btn-label">Назад</span>
-  </button>
+  <span id="qcpMenuSlot" style="display:flex;align-items:center"></span>
   <span class="topbar-logo">QCP</span>
   <span style="color:var(--border2)">›</span>
-  <span class="topbar-title">Подробная KPI продавцов | система"QREI"</span>
-  <div class="topbar-right">
-    <!-- Period -->
-    <button class="pill-btn active" id="btn-all-time" onclick="setPeriod('all')">Всё время</button>
-    <button class="pill-btn" id="btn-today" onclick="setPeriod('today')">Сегодня</button>
-    <button class="pill-btn" id="btn-week" onclick="setPeriod('week')">Неделя</button>
-    <div class="filter-divider"></div>
-    <!-- QCP: выбор листа + меню -->
-    <span id="qcpSlot" style="display:flex;align-items:center;gap:8px"></span>
-    <div class="filter-divider"></div>
-    <!-- Leaderboard toggle -->
-    <button class="icon-btn" id="lb-toggle" onclick="toggleSidebar()" title="Скрыть/показать рейтинг">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
-    </button>
-    <!-- Refresh -->
-    <button class="icon-btn" onclick="loadData()" title="Обновить">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-    </button>
-    <!-- Theme -->
-    <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
-    <!-- Settings -->
-    <button class="icon-btn" onclick="openSettings()" title="Настройки">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    </button>
-  </div>
+  <span class="topbar-title" id="topbar-title">Подробная KPI продавцов | QREI</span>
+  <span class="topbar-period" id="topbar-period"></span>
 </div>
 
 <!-- ══ SETTINGS MODAL ══ -->
@@ -1173,9 +1160,12 @@ function setTeam(t) {
   ['all','grandpark','aport'].forEach(k=>document.getElementById('tab-'+k).classList.toggle('active',k===t));
   render();
 }
+const PERIOD_LABEL = { all:'Всё время', today:'Сегодня', week:'Неделя' };
 function setPeriod(p) {
   currentPeriod = p;
-  ['all-time','today','week'].forEach(k=>document.getElementById('btn-'+k).classList.toggle('active',k===p));
+  const lbl = document.getElementById('topbar-period');
+  if (lbl) lbl.textContent = PERIOD_LABEL[p] || '';
+  if (window.QCP && QCP.navSet) QCP.navSet('period', p);
   render();
 }
 function toggleSidebar() {
@@ -1187,7 +1177,8 @@ function toggleTheme() {
   const cur  = html.getAttribute('data-theme');
   const next = cur==='dark'?'light':'dark';
   html.setAttribute('data-theme',next);
-  document.getElementById('themeBtn').innerHTML = next==='dark'
+  const tb = document.getElementById('themeBtn');
+  if (tb) tb.innerHTML = next==='dark'
     ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
     : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
   localStorage.setItem('adv_theme',next);
@@ -1387,7 +1378,8 @@ auth.onAuthStateChanged(async user => {
   // Apply saved theme
   const savedTheme = localStorage.getItem('adv_theme') || localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
-  document.getElementById('themeBtn').innerHTML = savedTheme==='dark'
+  const _tb = document.getElementById('themeBtn');
+  if (_tb) _tb.innerHTML = savedTheme==='dark'
     ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
     : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
 
@@ -1398,10 +1390,8 @@ auth.onAuthStateChanged(async user => {
       const role = (doc.data().role || 'admin').toLowerCase();
       if (role === 'manager') {
         _backTarget = 'manager.html';
-        document.getElementById('back-btn-label').textContent = 'Manager';
       } else {
         _backTarget = 'panel.html';
-        document.getElementById('back-btn-label').textContent = 'Panel';
       }
     }
   } catch(e) {
@@ -1409,27 +1399,49 @@ auth.onAuthStateChanged(async user => {
     // fallback: panel.html
   }
 
-  // ── QCP: общий лист + меню ──
+  // ── QCP: всё управление внутри меню ──
   const adv = getADV();
   await QCP.init({
     sheetId: MAIN_SHEET_ID,
     advSheetId: adv.sheetId,
     defaults: { advSheet: adv.sheetName, advSheetId: adv.sheetId }
   });
-  QCP.mountPicker('#qcpSlot', {
-    groups: [{ field: 'advSheet', label: 'Лист данных', source: 'adv' }]
-  });
-  QCP.mountNav('#qcpSlot', {
-    title: 'QCP',
+
+  const isAdmin = (QCP.role() || 'admin') === 'admin';
+  const homeHref  = _backTarget;
+  const homeLabel = _backTarget === 'manager.html' ? 'Магазин (главная)' : 'Панель (главная)';
+
+  const actions = [
+    { label: 'Обновить данные',        action: loadData },
+    { label: 'Рейтинг: показать / скрыть', action: toggleSidebar },
+    { label: 'Сменить тему',           action: toggleTheme, keepOpen: true }
+  ];
+  if (isAdmin) actions.push({ label: 'Настройки QREI', action: openSettings });
+
+  QCP.mountNav('#qcpMenuSlot', {
+    title: 'QCP · Advanced KPI',
     sheets: [{ field: 'advSheet', label: 'Лист' }],
     items: [
-      { label: 'Магазин',       href: 'manager.html' },
-      { label: 'Продавцы',      href: 'seller.html' },
-      { label: 'Advanced KPI',  href: 'advanced.html', active: true },
-      { label: 'Сертификаты',   href: 'cert.html' },
-      { label: 'Настройки листа', action: openSettings }
+      { label: homeLabel, href: homeHref },
+      { label: 'Advanced KPI', active: true, keepOpen: true }
+    ],
+    sections: [
+      {
+        label: 'Период', kind: 'chips', group: 'period',
+        value: currentPeriod, keepOpen: true,
+        items: [
+          { label: 'Всё время', value: 'all',   action: () => setPeriod('all') },
+          { label: 'Сегодня',       value: 'today', action: () => setPeriod('today') },
+          { label: 'Неделя',              value: 'week',  action: () => setPeriod('week') }
+        ]
+      },
+      { label: 'Лист данных', kind: 'sheets', field: 'advSheet', source: 'adv' },
+      { label: 'Действия', kind: 'list', items: actions }
     ]
   });
+
+  setPeriod(currentPeriod);
+
   QCP.onChange(() => loadData());
 
   loadData();

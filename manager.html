@@ -7,6 +7,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script src="qcp-core.js"></script>
 <style>
 :root[data-theme="dark"] {
   --bg: #0a0a0a;
@@ -603,6 +604,14 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
 .sw-empty { font-size: 13px; color: var(--text3); padding: 12px 0; }
 
+/* ── QCP: на мобиле нижняя панель заменена на меню-оверлей ── */
+@media(max-width:768px){
+  .sidebar { display: none !important; }
+  .main { margin-left: 0 !important; margin-bottom: 0 !important;
+          width: 100% !important; padding: 16px 14px 24px !important; }
+  .header-right { gap: 8px; }
+}
+
 </style>
 </head>
 <body>
@@ -639,6 +648,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
         <div class="header-right">
           <div class="status-pill"><div class="status-dot" id="statusDot"></div><span class="pill-text" id="lastSync">не синхр.</span></div>
           <button class="sync-btn" id="syncBtn" onclick="syncData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg><span class="btn-text">Синхронизировать</span></button>
+          <span class="qcp-slot" style="display:flex;align-items:center;gap:8px"></span>
           <div id="userProfileSection" style="display:none;align-items:center;gap:8px">
             <div class="user-pill" onclick="handleLogout()" title="Выйти">
               <div class="user-avatar" id="userAvatar">?</div>
@@ -1161,8 +1171,12 @@ const SHEET_ID = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
 const API_KEY  = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
 
 // Getters — always read from CFG so they stay live
-function SHEET_NAME()         { return CFG.SHEET_NAME; }
-function SELLERS_SHEET_NAME() { return CFG.SELLERS_SHEET_NAME; }
+function SHEET_NAME()         {
+  return (window.QCP && QCP.get('kpiSheet')) || CFG.SHEET_NAME;
+}
+function SELLERS_SHEET_NAME() {
+  return (window.QCP && QCP.get('zpSheet')) || CFG.SELLERS_SHEET_NAME;
+}
 function PLAN_GRANDPARK()     { return CFG.PLAN_GRANDPARK; }
 function PLAN_APORT()         { return CFG.PLAN_APORT; }
 
@@ -1265,6 +1279,7 @@ function saveSettings() {
 
   CFG.SHEET_NAME         = kpi;
   CFG.SELLERS_SHEET_NAME = sellers;
+  if (window.QCP) QCP.set({ kpiSheet: kpi, zpSheet: sellers });
   CFG.PLAN_GRANDPARK     = gp;
   CFG.PLAN_APORT         = ap;
   CFG.SYNC_INTERVAL      = si;
@@ -2761,6 +2776,44 @@ function initializeFirebaseAuth() {
     } catch(e) {
       console.warn('Role check error:', e);
     }
+
+    // ── QCP: общий лист + меню ──
+    await QCP.init({
+      sheetId: SHEET_ID,
+      defaults: { kpiSheet: CFG.SHEET_NAME, zpSheet: CFG.SELLERS_SHEET_NAME }
+    });
+    QCP.mountPicker('.qcp-slot', {
+      main: 'kpiSheet',
+      groups: [
+        { field: 'kpiSheet', label: 'KPI лист',  source: 'main', filter: /kpi/i },
+        { field: 'zpSheet',  label: 'Лист ЗП',   source: 'main', filter: /^ЗП/i }
+      ]
+    });
+    QCP.mountNav('.qcp-slot', {
+      title: 'QCP · Магазин',
+      mobileOnly: true,
+      sheets: [
+        { field: 'kpiSheet', label: 'KPI лист' },
+        { field: 'zpSheet',  label: 'Лист ЗП' }
+      ],
+      items: [
+        { label: 'Главная',        action: () => showPage('home'), active: true },
+        { label: 'KPI',            action: () => showPage('kpi') },
+        { label: 'Тепловая карта', action: () => showPage('heatmap') },
+        { label: 'А-Анализ',       action: () => showPage('analysis') },
+        { label: 'Продавцы',       action: () => showPage('sellers') },
+        { label: 'Тренды',         action: () => showPage('trends') },
+        { label: 'Алерты',         action: () => showPage('alerts') },
+        { label: 'Задачи',         action: () => showPage('tasks') },
+        { label: 'Сертификаты',    action: () => showPage('certificates') },
+        { label: 'Advanced KPI',   href: 'advanced.html' },
+        { label: 'Сменить тему',   action: toggleTheme }
+      ]
+    });
+    QCP.onChange((cfg, changed) => {
+      if (changed.indexOf('kpiSheet') > -1) syncData();
+      if (changed.indexOf('zpSheet')  > -1) syncSellers();
+    });
 
     // Инициализируем задачи после auth
     currentUser = user;

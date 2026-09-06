@@ -662,7 +662,9 @@ const FIREBASE_CONFIG = {
 // Google Sheets — те же что в panel.html
 const SHEET_ID         = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
 const API_KEY          = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
-const SELLERS_SHEET    = 'ЗП Июль';   // только фолбэк; месяц приходит из общего конфига
+const QOIMA_SHEET_ID   = '1awUVp3geOvI7KGF4fXAHmCV03JkslS8VPYxPIXaudc4'; // таблица "QOIMA Sellers"
+const QOIMA_SHEET      = 'Июль';      // фолбэк листа продаж
+const SELLERS_SHEET    = 'ЗП Июль';   // фолбэк листа ЗП (план и начисления)
 const KPI_SHEET        = 'ИЮЛЬ KPI';  // лист с KPI магазинов
 
 const PRICES = { tshirt: 10800, hoodie: 26000, cap: 5000, socks: 1800 };
@@ -695,16 +697,20 @@ auth.onAuthStateChanged(async user => {
   localStorage.removeItem('seller_zp_sheet');   // чистим старый личный выбор
   await QCP.init({
     sheetId: SHEET_ID,
+    advSheetId: QOIMA_SHEET_ID,
     resolvers: {
-      zpSheet:  { source: 'main', match: t => /^\s*ЗП/i.test(t) },
-      kpiSheet: { source: 'main', match: t => /kpi/i.test(t) }
+      advSheet: { source: 'adv',  match: () => true },                 // лист продаж
+      zpSheet:  { source: 'main', match: t => /^\s*ЗП/i.test(t) }      // лист ЗП
     },
-    fallback: { zpSheet: SELLERS_SHEET, kpiSheet: KPI_SHEET }
+    fallback: { advSheet: QOIMA_SHEET, zpSheet: SELLERS_SHEET }
   });
   QCP.mountPicker('#qcpPeriodSlot');
   QCP.mountNav('#qcpMenuSlot', {
     title: 'QCP · Мой кабинет',
-    sheets: [{ field: 'zpSheet', label: 'Лист ЗП' }],
+    sheets: [
+      { field: 'advSheet', label: 'Лист продаж' },
+      { field: 'zpSheet',  label: 'Лист ЗП' }
+    ],
     items: [
       { label: 'Мой кабинет', active: true, keepOpen: true },
       { label: 'Сертификаты', href: 'cert.html' }
@@ -718,7 +724,7 @@ auth.onAuthStateChanged(async user => {
       ] }
     ]
   });
-  QCP.onChange((r, changed) => { if (changed.indexOf('zpSheet') > -1) syncSheets(); });
+  QCP.onChange(() => syncSheets());
 
   // Синхронизируем Sheets сразу
   await syncSheets();
@@ -760,21 +766,34 @@ async function loadUserProfile() {
 async function syncSheets() {
   setSyncState('loading');
   try {
-    const activeSheet = (window.QCP && QCP.get('zpSheet')) || SELLERS_SHEET;
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(activeSheet)}?key=${API_KEY}`;
+    const salesTab = (window.QCP && QCP.get('advSheet')) || QOIMA_SHEET;
+    const zpTab    = (window.QCP && QCP.get('zpSheet'))  || SELLERS_SHEET;
+
+    // ── Продажи: таблица "QOIMA Sellers" ──
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${QOIMA_SHEET_ID}/values/${encodeURIComponent(salesTab)}?key=${API_KEY}`;
     const res = await fetch(url);
-    if (res.status === 400 || res.status === 404) {
-      // Лист за этот месяц ещё не создан в таблице — это не сбой сети,
-      // отдельное, более понятное сообщение вместо общей "ошибки загрузки".
-      throw new Error('SHEET_NOT_FOUND');
-    }
+    if (res.status === 400 || res.status === 404) throw new Error('SHEET_NOT_FOUND');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     if (!json.values) throw new Error('no values');
 
-    sellersData = parseSellersData(json.values);
+    sellersData = parseQoimaSellers(json.values);
 
-    // Найти мои данные по имени из профиля
+    // ── План и начисления: лист ЗП в основной таблице ──
+    // Не критично: если листа нет, продажи всё равно показываем.
+    try {
+      const zpUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(zpTab)}?key=${API_KEY}`;
+      const zpRes = await fetch(zpUrl);
+      if (zpRes.ok) {
+        const zpJson = await zpRes.json();
+        if (zpJson.values) mergeSalary(sellersData, parseSellersData(zpJson.values));
+      } else {
+        console.warn('Лист ЗП недоступен:', zpTab, zpRes.status);
+      }
+    } catch (e) {
+      console.warn('Лист ЗП не загружен:', e.message);
+    }
+
     findMySeller();
     updateUI();
     setSyncState('ok');
@@ -789,31 +808,129 @@ async function syncSheets() {
   }
 }
 
-function setSyncState(state) {
-  const dot = document.getElementById('syncDot');
-  const lbl = document.getElementById('syncLabel');
-  const btn = document.getElementById('syncBtn');
-  if (state === 'loading') {
-    dot.className = 'sync-dot';
-    if (lbl) lbl.style.display = 'none';
-    btn.style.animation = 'spin 1s linear infinite';
-  } else if (state === 'ok') {
-    dot.className = 'sync-dot ok';
-    if (lbl) { lbl.style.display = ''; lbl.textContent = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'}); }
-    btn.style.animation = '';
-  } else {
-    dot.className = 'sync-dot err';
-    if (lbl) lbl.style.display = 'none';
-    btn.style.animation = '';
+
+// ═══════════════════════════════════════════════════════════════
+//  ПАРСЕР ЛИСТА ПРОДАЖ (таблица "QOIMA Sellers", листы "Сентябрь")
+//  Структура: строка продавца, в колонках 1..31 — даты месяца,
+//  ниже строки-метки: Выручка / Кол-во чеков / Кол-во товаров /
+//  Смена / Магазин / Трафик. Секции "Grand Park" и "Aport".
+// ═══════════════════════════════════════════════════════════════
+function parseQoimaSellers(rows) {
+  const SECTION = {
+    'grand park':'grandpark','grandpark':'grandpark',
+    'aport':'aport','aport west':'aport','aport city':'aport'
+  };
+  const DATE_RX = /мая|апр|март|июн|июл|авг|сент|окт|нояб|дек|янв|фев/i;
+
+  function isDateVal(v) {
+    const t = String(v || '').trim();
+    if (!t || t === 'nan') return false;
+    const n = parseFloat(t.replace(/\s/g, ''));
+    if (!isNaN(n) && n >= 40000 && n <= 55000) return true;
+    return DATE_RX.test(t);
   }
+  function dayOf(v) {
+    const n = parseFloat(String(v || '').trim());
+    if (!isNaN(n) && n >= 40000) {
+      const d = new Date(Math.round((n - 25569) * 86400 * 1000));
+      return d.getDate() - 1;
+    }
+    return -1;
+  }
+
+  const LABEL = {
+    rev:   l => l.startsWith('выручка'),
+    chk:   l => l.startsWith('кол-во чеков'),
+    unt:   l => l.startsWith('кол-во товар'),
+    shift: l => l.startsWith('смена'),
+    store: l => l === 'магазин',
+    traf:  l => l === 'трафик',
+    upt:   l => l.startsWith('upt'),
+    atv:   l => l.startsWith('atv'),
+    aur:   l => l.startsWith('aur'),
+  };
+  const isLabel = l => Object.keys(LABEL).some(k => LABEL[k](l));
+
+  const out = [];
+  let section = 'grandpark';
+  let i = 0;
+
+  while (i < rows.length) {
+    const row = rows[i] || [];
+    const a0  = String(row[0] || '').trim();
+    const a0l = a0.toLowerCase();
+
+    if (SECTION[a0l] !== undefined) { section = SECTION[a0l]; i++; continue; }
+    if (!a0 || a0 === 'nan')        { i++; continue; }
+    if (isLabel(a0l))               { i++; continue; }
+    if (!isDateVal(String(row[1] || '').trim())) { i++; continue; }
+
+    // строка продавца: в колонках 1..N лежат даты
+    const name = a0;
+    const cols = row.slice(1).map(dayOf);
+
+    const dailyRevenue = Array(31).fill(0);
+    const dailyShifts  = Array(31).fill(0);
+    let checks = 0, units = 0;
+
+    let j = i + 1, empty = 0;
+    while (j < rows.length) {
+      const br  = rows[j] || [];
+      const lbl = String(br[0] || '').trim();
+      const l   = lbl.toLowerCase();
+
+      if (lbl && lbl !== 'nan' && SECTION[l] !== undefined) break;
+      if (lbl && lbl !== 'nan' && !isLabel(l) && isDateVal(String(br[1] || '').trim())) break;
+      if (!lbl || lbl === 'nan') { if (++empty > 3) { j++; break; } j++; continue; }
+      empty = 0;
+
+      const vals = br.slice(1).map(v => parseNum(v));
+      const put = (arr, mode) => vals.forEach((v, c) => {
+        const d = cols[c] >= 0 ? cols[c] : c;
+        if (d < 0 || d > 30) return;
+        arr[d] = mode === 'flag' ? (v > 0 ? 1 : 0) : (arr[d] + v);
+      });
+
+      if      (LABEL.rev(l))   put(dailyRevenue, 'sum');
+      else if (LABEL.shift(l)) put(dailyShifts,  'flag');
+      else if (LABEL.chk(l))   checks += vals.reduce((a, b) => a + b, 0);
+      else if (LABEL.unt(l))   units  += vals.reduce((a, b) => a + b, 0);
+      j++;
+    }
+
+    const revenue = dailyRevenue.reduce((a, b) => a + b, 0);
+    const shifts  = dailyShifts.reduce((a, b) => a + b, 0);
+
+    if (revenue > 0 || shifts > 0) {
+      out.push({
+        name, team: section,
+        revenue, shifts, checks, units,
+        plan: 0, totalPay: 0, plannedShifts: 21,
+        dailyRevenue, dailyShifts
+      });
+    }
+    i = j;
+  }
+  return out;
 }
 
-// ===================== PARSE SELLERS (same as panel.html) =====================
-function parseNum(val) {
-  if (val === null || val === undefined || val === '') return 0;
-  let s = String(val).replace(/\u00a0/g,'').replace(/\s/g,'').replace(/[\u20b8\u20B8₸]/g,'').replace(/[%]/g,'').replace(/,/g,'.');
-  const num = parseFloat(s);
-  return isNaN(num) ? 0 : num;
+// Подмешиваем план и начисления из листа ЗП (основная таблица)
+function mergeSalary(sales, zp) {
+  const key = s => (s.name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const map = {};
+  zp.forEach(z => { map[key(z) + '|' + z.team] = z; });
+
+  sales.forEach(s => {
+    let z = map[key(s) + '|' + s.team];
+    if (!z) {
+      const first = key(s).split(' ')[0];
+      z = zp.find(x => x.team === s.team && key(x).split(' ')[0] === first);
+    }
+    if (!z) return;
+    s.plan          = z.plan || 0;
+    s.totalPay      = z.totalPay || 0;
+    s.plannedShifts = z.plannedShifts || 21;
+  });
 }
 
 function parseSellersData(rows) {
@@ -947,7 +1064,7 @@ function updateUI() {
   const monthPct = plan > 0 ? Math.min(100, (monthRev / plan) * 100) : 0;
   document.getElementById('hero-today-rev').textContent = fmtMoneyFull(monthRev);
   document.getElementById('hero-today-sub').textContent = mySeller
-    ? `${mySeller.name} · ${mySeller.team === 'grandpark' ? 'Grand Park' : 'Aport'} · ${((window.QCP && QCP.get('zpSheet')) || SELLERS_SHEET)}`
+    ? `${mySeller.name} · ${mySeller.team === 'grandpark' ? 'Grand Park' : 'Aport'} · ${((window.QCP && QCP.period()) || QOIMA_SHEET)}`
     : 'Данные не найдены — проверь имя в профиле Firebase';
   document.getElementById('hero-progress').style.width = monthPct + '%';
   document.getElementById('hero-pl-left').textContent = fmtMoneyFull(monthRev);

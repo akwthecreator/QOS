@@ -706,7 +706,7 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-<script src="qcp-core.js"></script>
+<script src="qcp-core.js?v=20260923a"></script>
 
 <script>
 // ===================== CONFIG =====================
@@ -1380,13 +1380,31 @@ function computeQreiAll(list) {
     s.atv = s.checks > 0 ? s.revenue / s.checks : 0;
     s.aur = s.units  > 0 ? s.revenue / s.units  : 0;
 
-    if (window.QCP && QCP.calcQrei) {
+    if (window.QCP && typeof QCP.calcQrei === 'function') {
       const r = QCP.calcQrei(s);
       s.qrei = r.score;
       s.qreiParts = r.parts;
       s.qreiBench = r.bench;
+    } else {
+      // Раньше это молчало — и карточка показывала «Нет данных» без единой ошибки.
+      s.qreiError = 'core';
     }
   });
+
+  // Диагностика: видно, что реально пришло из листа
+  const bad = list.filter(x => x.qreiError === 'core').length;
+  if (bad) {
+    console.error('[QREI] qcp-core.js устарел: нет QCP.calcQrei. ' +
+      'Залей свежий qcp-core.js и обнови страницу с Cmd+Shift+R.',
+      '| версия ядра:', (window.QCP && QCP.VERSION) || 'неизвестна');
+  }
+  const noStore = list.filter(x => !x.dailyStore.some(Boolean)).map(x => x.name);
+  const noTraf  = list.filter(x => !x.dailyTraffic.some(v => v > 0)).map(x => x.name);
+  if (noStore.length) console.warn('[QREI] нет строки «Магазин» у:', noStore.join(', '), '— IOC будет 0');
+  if (noTraf.length)  console.warn('[QREI] нет строки «Трафик» у:',  noTraf.join(', '),  '— IOC будет 0');
+  console.log('[QREI] расчёт:', list.map(x =>
+    `${x.name}: IOC ${x.ioc.toFixed(1)}% UPT ${x.upt.toFixed(2)} ATV ${Math.round(x.atv)} AUR ${Math.round(x.aur)} → QREI ${x.qrei}`));
+
   return list;
 }
 
@@ -1404,10 +1422,23 @@ function renderQreiBlock() {
   const partsEl = document.getElementById('qrei-parts');
 
   if (!mySeller || !mySeller.qreiParts) {
-    if (scoreEl) { scoreEl.textContent = '—'; scoreEl.className = 'qrei-score'; }
-    if (tierEl)  { tierEl.textContent = 'Нет данных'; tierEl.className = 'qrei-tier'; }
-    if (barEl)   barEl.style.width = '0%';
-    if (hintEl)  hintEl.textContent = 'Показатели появятся после синхронизации';
+    // Говорим ПОЧЕМУ пусто, а не просто «нет данных»
+    let why = 'Показатели появятся после синхронизации';
+    let chip = 'Нет данных';
+    if (!mySeller) {
+      chip = 'Профиль не найден';
+      why  = 'Твоё имя из профиля не совпало ни с одной строкой в листе продаж. Скажи руководителю — поправим написание.';
+    } else if (mySeller.qreiError === 'core') {
+      chip = 'Нужно обновить';
+      why  = 'Файл <strong>qcp-core.js</strong> устарел — в нём нет формулы QREI. Обнови страницу (Cmd+Shift+R).';
+    } else if (!mySeller.dailyTraffic.some(v => v > 0)) {
+      chip = 'Нет трафика';
+      why  = 'В листе за этот месяц нет строки <strong>«Трафик»</strong> — без неё конверсию (IOC) посчитать нельзя.';
+    }
+    if (scoreEl) { scoreEl.textContent = '—'; scoreEl.className = 'qrei-score'; scoreEl.style.color = 'var(--text3)'; }
+    if (tierEl)  { tierEl.textContent = chip; tierEl.className = 'qrei-tier'; tierEl.style.color = 'var(--text3)'; tierEl.style.background = 'transparent'; }
+    if (barEl)   { barEl.style.width = '0%'; barEl.className = 'qrei-bar-fill'; }
+    if (hintEl)  hintEl.innerHTML = why;
     if (partsEl) partsEl.innerHTML = '';
     return;
   }

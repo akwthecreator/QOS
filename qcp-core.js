@@ -158,8 +158,24 @@ body.qcp-lock{overflow:hidden}
   color:#fff;
 }
 @keyframes qreiFlow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+
+/* Карточка при QREI 90+: живая градиентная рамка и синее свечение.
+   Рамка — техника padding-box/border-box: анимируется только
+   background-position, без blur-фильтров и без лишних слоёв. */
+.qrei-elite-card{
+  border:1.5px solid transparent !important;
+  background:
+    linear-gradient(var(--bg2,#141414),var(--bg2,#141414)) padding-box,
+    linear-gradient(110deg,#2f6bff 0%,#00b4ff 22%,#6ea8ff 42%,#00d4ff 62%,#3d7bff 82%,#2f6bff 100%) border-box !important;
+  background-size:auto,300% 100% !important;
+  animation:qreiFlow 5s linear infinite;
+  box-shadow:0 0 0 1px rgba(47,107,255,.16), 0 8px 26px rgba(0,150,255,.26);
+}
+.qrei-elite-card:hover{
+  box-shadow:0 0 0 1px rgba(47,107,255,.28), 0 12px 34px rgba(0,150,255,.38) !important;
+}
 @media(prefers-reduced-motion:reduce){
-  .qrei-elite,.qrei-chip-elite{animation:none;background-position:0 50%}
+  .qrei-elite,.qrei-chip-elite,.qrei-elite-card{animation:none;background-position:0 50%}
 }
 @media(min-width:769px){ .qcp-mobile{display:none !important} }
 `;
@@ -281,6 +297,11 @@ function qreiTier(score) {
   if (n >= 80) return { key:'green',  label:'Отлично', color:'var(--green)',  cls:'',           rate:null };
   if (n >= 50) return { key:'yellow', label:'Норма',   color:'var(--yellow)', cls:'',           rate:null };
   return         { key:'red',    label:'Зона риска', color:'var(--red)', cls:'',           rate:null };
+}
+
+// Класс для карточки целиком (рамка + свечение), пусто если не элита
+function qreiCardClass(score) {
+  return qreiTier(score).key === 'elite' ? 'qrei-elite-card' : '';
 }
 
 // Готовый inline-стиль для цифры score
@@ -639,7 +660,7 @@ global.QCP = {
   canSwitch,
   tabs(src)    { return (_tabs[src || 'main'] || []).slice(); },
   onChange(fn) { _changeCbs.push(fn); },
-  calcQrei, qreiTier, qreiStyle, qreiBench, setRaw,
+  calcQrei, qreiTier, qreiStyle, qreiCardClass, qreiBench, setRaw,
   raw(f)       { return f ? _raw[f] : Object.assign({}, _raw); },
   mountPicker, mountNav, navSet,
   openMenu()   { _drawer && _drawer.open(); },

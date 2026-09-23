@@ -480,6 +480,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 <script src="qcp-core.js?v=20260923a"></script>
+<script src="qcp-lab.js?v=20260923a"></script>
 <script>
 // ══════════════════════════════════════════════════════════
 //  CONFIG — читаем из localStorage (сохраняется в panel.html settings)
@@ -983,9 +984,12 @@ function renderCard(s, rank, origIdx) {
 // ══════════════════════════════════════════════════════════
 //  SLIDE PANEL
 // ══════════════════════════════════════════════════════════
+let _panelIdx = null;   // кто сейчас открыт — нужно песочнице
+
 function openPanel(origIdx) {
   const raw = allSellers[origIdx];
   if (!raw) return;
+  _panelIdx = origIdx;
 
   // Recalc QREI for this seller in context of current filter
   let ctx = allSellers;
@@ -1040,6 +1044,11 @@ function openPanel(origIdx) {
     </tr>`;
   }).filter(Boolean).join('');
 
+  // Песочница показывает выручку, структуру и показатели сама —
+  // чтобы не двоилось, в её режиме прячем эти три блока.
+  const labOn = window.QCPLab && QCPLab.isSandboxOn();
+  const labBlock = labOn ? QCPLab.sandboxHTML() : '';
+
   document.getElementById('panelBody').innerHTML = `
     <!-- Header: avatar + name + QREI side by side -->
     <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:20px">
@@ -1059,6 +1068,19 @@ function openPanel(origIdx) {
       </div>
     </div>
 
+    ${labOn ? labBlock : `
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="lab-btn primary" onclick="openSandbox()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:4px"><path d="M9 3h6M10 3v6l-6 10a2 2 0 0 0 1.7 3h12.6a2 2 0 0 0 1.7-3l-6-10V3"/><path d="M7 15h10"/></svg>
+        Песочница
+      </button>
+      <button class="lab-btn" onclick="openCompareFor('${s.name.replace(/'/g, "\\'")}')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:4px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Сравнить
+      </button>
+    </div>`}
+
+    ${labOn ? '' : `
     <!-- Prominent revenue block -->
     <div style="background:linear-gradient(135deg,var(--bg2) 0%,rgba(0,102,255,0.06) 100%);border:1px solid rgba(0,102,255,0.2);border-radius:16px;padding:18px 22px;margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
@@ -1119,7 +1141,7 @@ function openPanel(origIdx) {
         <div class="kpi-tile-val">${(s.trafficShareAvg || 0) > 0 ? '~'+(s.trafficShareAvg)+' чел.' : (s.trafficShare > 0 && s.shifts > 0 ? '~'+Math.round(s.trafficShare/s.shifts)+' чел.' : '—')}</div>
         <div class="kpi-tile-sub">трафик бутика ÷ продавцов в смену · всего ${s.trafficShare > 0 ? s.trafficShare+' чел.' : '—'}</div>
       </div>
-    </div>
+    </div>`}
 
     <!-- Day table -->
     <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">По дням</div>
@@ -1143,7 +1165,55 @@ function openPanel(origIdx) {
   document.body.style.overflow = 'hidden';
 }
 
+// ══════════════════════════════════════════════════════════
+//  ПЕСОЧНИЦА И СРАВНЕНИЕ
+// ══════════════════════════════════════════════════════════
+function labHost() {
+  return {
+    // Для сравнения берём продавцов текущей команды, но ВСЕГДА за весь
+    // месяц: периоды сравнения выбираются внутри самого окна.
+    sellers: () => {
+      let list = allSellers;
+      if (currentTeam !== 'all') list = list.filter(x => x.team === currentTeam);
+      return list.slice().sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+    },
+    bench: () => getBENCH(),
+    fmt: n => fmt(n),
+    fmtShort: n => fmtKT(n),
+  };
+}
+
+function openSandbox() {
+  if (_panelIdx == null || !window.QCPLab) return;
+  QCPLab.configure(labHost());
+
+  // Берём продавца в том же разрезе, в каком он показан в панели
+  let ctx = allSellers;
+  if (currentTeam !== 'all') ctx = ctx.filter(x => x.team === allSellers[_panelIdx].team);
+  ctx = filterByPeriod(ctx);
+  const raw = allSellers[_panelIdx];
+  const s = calcQREI(ctx).find(x => x.name === raw.name && x.team === raw.team);
+  if (!s) return;
+
+  if (!s.checks || !s.trafficShare) {
+    alert('У этого продавца за выбранный период нет чеков или доли трафика — пересчитывать нечего.');
+    return;
+  }
+
+  QCPLab.startSandbox(s, () => {});
+  openPanel(_panelIdx);
+  QCPLab.bindSandbox(document.getElementById('panelBody'));
+  document.getElementById('slidePanel').scrollTop = 0;
+}
+
+function openCompareFor(name) {
+  if (!window.QCPLab) return;
+  QCPLab.configure(labHost());
+  QCPLab.openCompare(name || null);
+}
+
 function closePanel() {
+  if (window.QCPLab && QCPLab.isSandboxOn()) QCPLab.stopSandbox();
   document.getElementById('slidePanel').classList.remove('open');
   document.getElementById('panelOverlay').classList.remove('open');
   document.body.style.overflow = '';
@@ -1420,6 +1490,7 @@ auth.onAuthStateChanged(async user => {
   const homeLabel = _backTarget === 'manager.html' ? 'Магазин (главная)' : 'Панель (главная)';
 
   const actions = [
+    { label: 'Сравнение продавцов',        action: () => openCompareFor(null) },
     { label: 'Обновить данные',            action: loadData },
     { label: 'Рейтинг: показать / скрыть', action: toggleSidebar },
     { label: 'Сменить тему',               action: toggleTheme, keepOpen: true }

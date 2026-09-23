@@ -939,7 +939,11 @@ function renderCard(s, rank, origIdx) {
   const share    = s.trafficShare    || 0;
   const shareAvg = s.trafficShareAvg || (share > 0 && s.shifts > 0 ? Math.round(share / s.shifts) : 0);
 
-  return `<div class="seller-card${s.isDanger?' danger':''}" onclick="openPanel(${origIdx})">
+  // При 90+ карточка получает градиентную рамку и свечение.
+  // Элита важнее флага риска: если вдруг совпали — показываем элиту.
+  const cardCls = QCP.qreiCardClass(s.qrei) || (s.isDanger ? 'danger' : '');
+
+  return `<div class="seller-card${cardCls ? ' ' + cardCls : ''}" onclick="openPanel(${origIdx})">
     <div class="card-header">
       <div class="card-rank">${rankStr}</div>
       <div class="card-avatar" style="background:${avBg};color:${avTx}">${s.name.charAt(0)}</div>

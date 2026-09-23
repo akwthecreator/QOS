@@ -628,6 +628,7 @@ async function init(o) {
 
 // ── ПУБЛИЧНЫЙ API ────────────────────────────────────────────
 global.QCP = {
+  VERSION: '20260923a',
   init,
   get(f)       { return _resolved[f] || _fallback[f] || null; },
   period()     { return _period; },
@@ -643,5 +644,7 @@ global.QCP = {
   mountPicker, mountNav, navSet,
   openMenu()   { _drawer && _drawer.open(); },
 };
+
+  console.log('[QCP] core v20260923a загружен');
 
 })(window);

@@ -388,6 +388,49 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 /* ── TODAY HERO ── */
 .today-hero { border-radius: 20px; }
 /* ── METRIC CARDS ── */
+
+/* ── QREI CARD ── */
+.qrei-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:16px;padding:18px;margin-bottom:16px;
+}
+.qrei-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.qrei-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.qrei-tier{
+  display:inline-block;padding:4px 10px;border-radius:20px;
+  font-size:12px;font-weight:700;border:1px solid var(--border2);
+}
+.qrei-tier.qrei-chip-elite{border-color:transparent}
+.qrei-score-wrap{display:flex;align-items:baseline;gap:3px;flex-shrink:0}
+.qrei-score{font-size:42px;font-weight:900;line-height:1;letter-spacing:-1.5px}
+.qrei-max{font-size:13px;color:var(--text3);font-weight:600}
+.qrei-bar-track{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-bottom:10px}
+.qrei-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.qrei-hint{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:16px}
+.qrei-hint strong{color:var(--text)}
+.qrei-parts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.qrei-part{background:var(--bg3);border-radius:12px;padding:12px}
+.qrei-part-head{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-bottom:8px}
+.qrei-part-name{font-size:11px;color:var(--text3);line-height:1.3}
+.qrei-part-val{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap}
+.qrei-part-track{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.qrei-part-fill{height:100%;border-radius:2px;background:var(--text2);transition:width .5s ease}
+.qrei-part-foot{display:flex;justify-content:space-between;font-size:10px;color:var(--text3)}
+@media(max-width:400px){ .qrei-parts{grid-template-columns:1fr} }
+
+/* ── СТАВКА ОТ КАССЫ ── */
+.rate-strip{border-radius:13px;padding:0;margin-bottom:12px;background:var(--bg3)}
+.rate-strip-inner{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
+  background:var(--bg3);border-radius:13px;padding:12px 14px;
+}
+/* QREI 90+: градиентная рамка 1px, внутри обычный фон */
+.rate-strip.on{padding:1px}
+.rate-strip.on .rate-strip-inner{background:var(--bg2);border-radius:12px;padding:11px 13px}
+.rate-strip-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.rate-strip-val{font-size:20px;font-weight:800;line-height:1}
+.rate-strip-note{font-size:11px;color:var(--text3);text-align:right;line-height:1.4;max-width:60%}
+
 .metric-card { border-radius: 16px; transition: box-shadow 0.18s; }
 .metric-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
 
@@ -469,10 +512,27 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
           <div class="metric-sub" id="m-plan-sub">из плана</div>
         </div>
         <div class="metric-card">
-          <div class="metric-label">Рейтинг команды</div>
-          <div class="metric-val" id="m-rank">—</div>
-          <div class="metric-sub" id="m-rank-sub">место</div>
+          <div class="metric-label">Средний чек</div>
+          <div class="metric-val" id="m-atv">—</div>
+          <div class="metric-sub" id="m-atv-sub">ATV за месяц</div>
         </div>
+      </div>
+
+      <!-- ⚡ МОЙ QREI -->
+      <div class="qrei-card" id="qrei-card">
+        <div class="qrei-top">
+          <div>
+            <div class="qrei-label">Мой QREI Score</div>
+            <div class="qrei-tier" id="qrei-tier">—</div>
+          </div>
+          <div class="qrei-score-wrap">
+            <div class="qrei-score" id="qrei-score">—</div>
+            <div class="qrei-max">/100</div>
+          </div>
+        </div>
+        <div class="qrei-bar-track"><div class="qrei-bar-fill" id="qrei-bar" style="width:0%"></div></div>
+        <div class="qrei-hint" id="qrei-hint">Считаем показатели...</div>
+        <div class="qrei-parts" id="qrei-parts"></div>
       </div>
 
       <!-- 💰 МОЯ ЗАРПЛАТА -->
@@ -492,18 +552,29 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
           <div style="font-size:12px;color:var(--text3);margin-top:4px" id="sal-needed-sub">из плана <span id="sal-plan-val">6 000 000 ₸</span></div>
         </div>
 
+        <!-- Ставка от кассы — зависит от QREI -->
+        <div class="rate-strip" id="rate-strip">
+          <div class="rate-strip-inner">
+            <div>
+              <div class="rate-strip-label">Моя ставка от кассы</div>
+              <div class="rate-strip-val" id="rate-val">—</div>
+            </div>
+            <div class="rate-strip-note" id="rate-note">Считаем...</div>
+          </div>
+        </div>
+
         <!-- 2 колонки: факт vs план -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
           <div style="background:var(--bg3);border-radius:12px;padding:14px">
-            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">С кассой сейчас (3%)</div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px" id="sal-actual-lbl">С кассой сейчас</div>
             <div style="font-size:20px;font-weight:700;color:var(--text)" id="sal-actual">—</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:3px">оклад + касса × 3%</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px" id="sal-actual-sub">оклад + касса × 3%</div>
           </div>
           <div class="target-card">
             <div class="target-card-inner">
-              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">При выполнении плана (5%)</div>
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px" id="sal-plan-lbl">При выполнении плана</div>
               <div style="font-size:20px;font-weight:700;color:var(--text)" id="sal-if-plan">—</div>
-              <div style="font-size:11px;color:var(--text3);margin-top:3px">оклад + касса × 5%</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:3px" id="sal-plan-sub">оклад + план × 5%</div>
             </div>
           </div>
         </div>
@@ -590,17 +661,6 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
       <div class="form-card">
         <div class="form-title">📊 История по неделям</div>
         <div id="week-history-list"><div class="empty"><div class="empty-icon">📈</div>Синхронизируем данные...</div></div>
-      </div>
-
-      <!-- Межнедельный рейтинг команды -->
-      <div class="form-card">
-        <div class="form-title">🏆 Рейтинг команды — эта неделя</div>
-        <div class="stabs" id="week-team-tabs">
-          <button class="stab active" onclick="setRatingTeam('grandpark', this)">Grand Park</button>
-          <button class="stab" onclick="setRatingTeam('aport', this)">Aport</button>
-          <button class="stab" onclick="setRatingTeam('all', this)">Все</button>
-        </div>
-        <div id="sellers-leaderboard"><div class="empty"><div class="empty-icon">⏳</div>Загрузка...</div></div>
       </div>
 
     </div><!-- /tab-score -->
@@ -712,8 +772,7 @@ auth.onAuthStateChanged(async user => {
       { field: 'zpSheet',  label: 'Лист ЗП' }
     ],
     items: [
-      { label: 'Мой кабинет', active: true, keepOpen: true },
-      { label: 'Сертификаты', href: 'cert.html' }
+      { label: 'Мой кабинет', active: true, keepOpen: true }
     ],
     sections: [
       { label: 'Месяц', kind: 'period' },
@@ -777,7 +836,7 @@ async function syncSheets() {
     const json = await res.json();
     if (!json.values) throw new Error('no values');
 
-    sellersData = parseQoimaSellers(json.values);
+    sellersData = computeQreiAll(parseQoimaSellers(json.values));
 
     // ── План и начисления: лист ЗП в основной таблице ──
     // Не критично: если листа нет, продажи всё равно показываем.
@@ -899,7 +958,10 @@ function parseQoimaSellers(rows) {
 
     const dailyRevenue = Array(31).fill(0);
     const dailyShifts  = Array(31).fill(0);
-    let checks = 0, units = 0;
+    const dailyChecks  = Array(31).fill(0);
+    const dailyUnits   = Array(31).fill(0);
+    const dailyTraffic = Array(31).fill(0);
+    const dailyStore   = Array(31).fill('');
 
     let j = i + 1, empty = 0;
     while (j < rows.length) {
@@ -913,28 +975,41 @@ function parseQoimaSellers(rows) {
       empty = 0;
 
       const vals = br.slice(1).map(v => parseNum(v));
+      const strs = br.slice(1).map(v => String(v || '').trim());
+      const dayAt = c => (cols[c] >= 0 ? cols[c] : c);
+
       const put = (arr, mode) => vals.forEach((v, c) => {
-        const d = cols[c] >= 0 ? cols[c] : c;
+        const d = dayAt(c);
         if (d < 0 || d > 30) return;
         arr[d] = mode === 'flag' ? (v > 0 ? 1 : 0) : (arr[d] + v);
+      });
+      const putStr = arr => strs.forEach((v, c) => {
+        const d = dayAt(c);
+        if (d < 0 || d > 30 || !v || v === 'nan') return;
+        arr[d] = v;
       });
 
       if      (LABEL.rev(l))   put(dailyRevenue, 'sum');
       else if (LABEL.shift(l)) put(dailyShifts,  'flag');
-      else if (LABEL.chk(l))   checks += vals.reduce((a, b) => a + b, 0);
-      else if (LABEL.unt(l))   units  += vals.reduce((a, b) => a + b, 0);
+      else if (LABEL.chk(l))   put(dailyChecks,  'sum');
+      else if (LABEL.unt(l))   put(dailyUnits,   'sum');
+      else if (LABEL.traf(l))  put(dailyTraffic, 'sum');
+      else if (LABEL.store(l)) putStr(dailyStore);
       j++;
     }
 
     const revenue = dailyRevenue.reduce((a, b) => a + b, 0);
     const shifts  = dailyShifts.reduce((a, b) => a + b, 0);
+    const checks  = dailyChecks.reduce((a, b) => a + b, 0);
+    const units   = dailyUnits.reduce((a, b) => a + b, 0);
 
     if (revenue > 0 || shifts > 0) {
       out.push({
         name, team: section,
         revenue, shifts, checks, units,
         plan: 0, totalPay: 0, plannedShifts: 21,
-        dailyRevenue, dailyShifts
+        ioc: 0, upt: 0, atv: 0, aur: 0, qrei: 0, qreiParts: null, trafficShare: 0,
+        dailyRevenue, dailyShifts, dailyChecks, dailyUnits, dailyTraffic, dailyStore
       });
     }
     i = j;
@@ -1111,19 +1186,15 @@ function updateUI() {
   document.getElementById('m-plan-pct').style.color = planColor;
   document.getElementById('m-plan-sub').textContent = 'из ' + fmtMoney(plan);
 
-  // Rank in team
-  if (mySeller) {
-    const teamList = sellersData.filter(s => s.team === mySeller.team).sort((a,b) => b.revenue - a.revenue);
-    const myRank = teamList.findIndex(s => s.name === mySeller.name) + 1;
-    document.getElementById('m-rank').textContent = myRank > 0 ? '#' + myRank : '—';
-    document.getElementById('m-rank-sub').textContent = `из ${teamList.length} · ${mySeller.team === 'grandpark' ? 'Grand Park' : 'Aport'}`;
-  }
+  // Средний чек (ATV)
+  const atvEl = document.getElementById('m-atv');
+  if (atvEl) atvEl.textContent = (mySeller && mySeller.atv > 0) ? fmtMoney(mySeller.atv) : '—';
 
   // Results tab
   renderWeekCompare();
   renderDailyChart();
   renderWeekHistory();
-  renderLeaderboard();
+  renderQreiBlock();
   renderSalaryBlock();
 }
 
@@ -1267,63 +1338,134 @@ function renderWeekHistory() {
   }).join('');
 }
 
-// ===================== LEADERBOARD (межнедельный) =====================
-function setRatingTeam(team, el) {
-  ratingTeam = team;
-  document.querySelectorAll('#week-team-tabs .stab').forEach(b => b.classList.remove('active'));
-  if (el) el.classList.add('active');
-  renderLeaderboard();
-}
-
-function renderLeaderboard() {
-  const el = document.getElementById('sellers-leaderboard');
-  if (!sellersData.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div>Загрузка...</div>';
-    return;
-  }
-
-  const now = new Date();
-  const todayIdx = now.getDate() - 1;
-  const dow = now.getDay();
-  const daysFromMon = dow === 0 ? 6 : dow - 1;
-  const thisWeekStart = todayIdx - daysFromMon;
-
-  // Считаем выручку за текущую неделю для каждого продавца
-  let list = sellersData.map(s => {
-    let weekRev = 0;
-    for (let d = Math.max(0, thisWeekStart); d <= todayIdx; d++) weekRev += s.dailyRevenue[d] || 0;
-    return { ...s, weekRev };
+// ═══════════════════════════════════════════════════════════════
+//  QREI ДЛЯ ПРОДАВЦА
+//  Считается ровно как на странице Advanced KPI:
+//  IOC = чеки ÷ (трафик бутика ÷ кол-во продавцов в нём в этот день)
+//  Формула и бенчмарки — общие, лежат в qcp-core.js
+// ═══════════════════════════════════════════════════════════════
+function computeQreiAll(list) {
+  // Шаг 1: сколько продавцов и какой трафик был в бутике в каждый день
+  const bd = {};
+  list.forEach(s => {
+    for (let d = 0; d < 31; d++) {
+      if (!s.dailyShifts[d]) continue;
+      const b = (s.dailyStore[d] || '').trim();
+      if (!b) continue;
+      const k = b + '__' + d;
+      if (!bd[k]) bd[k] = { names: {}, traffic: 0 };
+      bd[k].names[s.name] = 1;
+      if (s.dailyTraffic[d] > bd[k].traffic) bd[k].traffic = s.dailyTraffic[d];
+    }
   });
 
-  if (ratingTeam !== 'all') list = list.filter(s => s.team === ratingTeam);
-  list.sort((a,b) => b.weekRev - a.weekRev);
+  // Шаг 2: IOC по дням → среднее за месяц, плюс UPT/ATV/AUR
+  list.forEach(s => {
+    const iocs = [];
+    let share = 0;
+    for (let d = 0; d < 31; d++) {
+      if (!s.dailyShifts[d]) continue;
+      const b = (s.dailyStore[d] || '').trim();
+      const info = b ? bd[b + '__' + d] : null;
+      if (!info) continue;
+      const cnt = Object.keys(info.names).length;
+      const ts  = cnt > 0 ? Math.round(info.traffic / cnt) : 0;
+      if (ts <= 0) continue;
+      share += ts;
+      iocs.push((s.dailyChecks[d] / ts) * 100);
+    }
+    s.trafficShare = share;
+    s.ioc = iocs.length ? iocs.reduce((a, b) => a + b, 0) / iocs.length : 0;
+    s.upt = s.checks > 0 ? s.units   / s.checks : 0;
+    s.atv = s.checks > 0 ? s.revenue / s.checks : 0;
+    s.aur = s.units  > 0 ? s.revenue / s.units  : 0;
 
-  if (!list.length) {
-    el.innerHTML = '<div class="empty">Нет данных для команды</div>';
+    if (window.QCP && QCP.calcQrei) {
+      const r = QCP.calcQrei(s);
+      s.qrei = r.score;
+      s.qreiParts = r.parts;
+      s.qreiBench = r.bench;
+    }
+  });
+  return list;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  БЛОК «МОЙ QREI»
+// ═══════════════════════════════════════════════════════════════
+function renderQreiBlock() {
+  const card = document.getElementById('qrei-card');
+  if (!card) return;
+
+  const scoreEl = document.getElementById('qrei-score');
+  const tierEl  = document.getElementById('qrei-tier');
+  const barEl   = document.getElementById('qrei-bar');
+  const hintEl  = document.getElementById('qrei-hint');
+  const partsEl = document.getElementById('qrei-parts');
+
+  if (!mySeller || !mySeller.qreiParts) {
+    if (scoreEl) { scoreEl.textContent = '—'; scoreEl.className = 'qrei-score'; }
+    if (tierEl)  { tierEl.textContent = 'Нет данных'; tierEl.className = 'qrei-tier'; }
+    if (barEl)   barEl.style.width = '0%';
+    if (hintEl)  hintEl.textContent = 'Показатели появятся после синхронизации';
+    if (partsEl) partsEl.innerHTML = '';
     return;
   }
 
-  const maxVal = Math.max(...list.map(s=>s.weekRev), 1);
-  const rankEmojis = ['🥇','🥈','🥉'];
+  const q    = mySeller.qrei || 0;
+  const tier = QCP.qreiTier(q);
 
-  el.innerHTML = list.map((s, i) => {
-    const isMe = mySeller && s.name === mySeller.name && s.team === mySeller.team;
-    const pct = Math.min(100, (s.weekRev / maxVal) * 100);
-    const barClr = i === 0 ? '#ffd700' : i === 1 ? '#c0c0c0' : i === 2 ? '#cd7f32' : (s.team === 'grandpark' ? '#6ba3d4' : '#d4a56b');
-    const teamBadge = ratingTeam === 'all' ? `<span style="font-size:10px;color:${s.team==='grandpark'?'#6ba3d4':'#d4a56b'};font-weight:600">${s.team==='grandpark'?'GP':'Aport'}</span>` : '';
-    const perShift = s.shifts > 0 ? fmtMoney(Math.round(s.revenue / s.shifts)) : '—';
-    return `<div class="seller-row ${isMe?'me':''}">
-      <div class="seller-rank">${rankEmojis[i] || (i+1)+'.'}</div>
-      <div class="seller-info">
-        <div class="seller-name-lb">${s.name} ${isMe?'<span style="font-size:10px;color:var(--accent)">(я)</span>':''}</div>
-        <div class="seller-meta-lb">${perShift}/смену · ${s.shifts} смен ${teamBadge}</div>
-      </div>
-      <div class="seller-bar-wrap">
-        <div class="seller-bar-bg"><div class="seller-bar-fill" style="width:${pct}%;background:${barClr}"></div></div>
-      </div>
-      <div class="seller-val-lb">${fmtMoney(s.weekRev)}</div>
-    </div>`;
-  }).join('');
+  if (scoreEl) {
+    scoreEl.textContent = q;
+    scoreEl.className   = 'qrei-score ' + (tier.cls || '');
+    scoreEl.style.color = tier.cls ? '' : tier.color;
+  }
+  if (tierEl) {
+    tierEl.textContent = tier.label;
+    tierEl.className   = 'qrei-tier ' + (tier.cls ? 'qrei-chip-elite' : '');
+    tierEl.style.color      = tier.cls ? '' : tier.color;
+    tierEl.style.background = tier.cls ? '' : 'transparent';
+  }
+  if (barEl) {
+    barEl.style.width = Math.max(0, Math.min(100, q)) + '%';
+    barEl.className   = 'qrei-bar-fill ' + (tier.cls ? 'qrei-chip-elite' : '');
+    barEl.style.background = tier.cls ? '' : tier.color;
+  }
+  if (hintEl) {
+    hintEl.innerHTML = q >= 90
+      ? 'Максимальная ставка <strong>6%</strong> от кассы — она уже учтена в блоке «Моя зарплата».'
+      : 'До ставки <strong>6%</strong> осталось <strong>' + (90 - q) + '</strong> ' + plural(90 - q, 'балл', 'балла', 'баллов') + ' QREI (нужно 90).';
+  }
+
+  // Разбивка: из чего собран балл
+  if (partsEl) {
+    const B = mySeller.qreiBench || QCP.qreiBench();
+    const rows = [
+      ['Конверсия (IOC)',    'ioc', 30, mySeller.ioc.toFixed(1) + '%',      B.ioc + '%'],
+      ['Товаров в чеке (UPT)','upt', 30, mySeller.upt.toFixed(2),           String(B.upt)],
+      ['Средний чек (ATV)',  'atv', 20, fmtMoney(mySeller.atv),             fmtMoney(B.atv)],
+      ['Цена вещи (AUR)',    'aur', 20, fmtMoney(mySeller.aur),             fmtMoney(B.aur)],
+    ];
+    partsEl.innerHTML = rows.map(([label, key, weight, val, bench]) => {
+      const pct = Math.max(0, Math.min(100, mySeller.qreiParts[key] || 0));
+      return '<div class="qrei-part">' +
+        '<div class="qrei-part-head">' +
+          '<span class="qrei-part-name">' + label + '</span>' +
+          '<span class="qrei-part-val">' + val + '</span>' +
+        '</div>' +
+        '<div class="qrei-part-track"><div class="qrei-part-fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="qrei-part-foot"><span>вес ' + weight + '%</span><span>план ' + bench + '</span></div>' +
+      '</div>';
+    }).join('');
+  }
+}
+
+function plural(n, one, few, many) {
+  const a = Math.abs(n) % 100, b = a % 10;
+  if (a > 10 && a < 20) return many;
+  if (b > 1 && b < 5)   return few;
+  if (b === 1)          return one;
+  return many;
 }
 
 // ===================== SALARY BLOCK =====================
@@ -1342,10 +1484,15 @@ function renderSalaryBlock() {
   // Оклад: берём из данных продавца или дефолт
   const oklad = mySeller?.okladMonth || 13200;
 
-  // ЗП с текущей кассой по 3%
-  const salActual   = Math.round(oklad + monthRev * 0.03);
-  // ЗП если бы план был выполнен по 5%
-  const salIfPlan   = Math.round(oklad + plan * 0.05);
+  // ── Ставка зависит от QREI ──
+  // QREI 90+ → 6% от кассы. Иначе обычная лестница: 3% сейчас / 5% при плане.
+  const qrei     = (mySeller && mySeller.qrei) || 0;
+  const isElite  = qrei >= 90;
+  const rateNow  = isElite ? 0.06 : 0.03;
+  const ratePlan = isElite ? 0.06 : 0.05;
+
+  const salActual = Math.round(oklad + monthRev * rateNow);
+  const salIfPlan = Math.round(oklad + plan * ratePlan);
 
   // Обновляем UI
   const needEl = document.getElementById('sal-needed');
@@ -1360,6 +1507,34 @@ function renderSalaryBlock() {
   if (actEl)  actEl.textContent  = fmtMoney(salActual);
   if (planEl) planEl.textContent = fmtMoney(salIfPlan);
   if (planV)  planV.textContent  = fmtMoney(plan);
+
+  // Подписи ставок
+  const pct = r => Math.round(r * 100) + '%';
+  const aSub = document.getElementById('sal-actual-sub');
+  const pSub = document.getElementById('sal-plan-sub');
+  const aLbl = document.getElementById('sal-actual-lbl');
+  const pLbl = document.getElementById('sal-plan-lbl');
+  if (aSub) aSub.textContent = 'оклад + касса × ' + pct(rateNow);
+  if (pSub) pSub.textContent = 'оклад + план × '  + pct(ratePlan);
+  if (aLbl) aLbl.textContent = 'С кассой сейчас (' + pct(rateNow) + ')';
+  if (pLbl) pLbl.textContent = 'При выполнении плана (' + pct(ratePlan) + ')';
+
+  // Полоса ставки
+  const strip = document.getElementById('rate-strip');
+  const rVal  = document.getElementById('rate-val');
+  const rNote = document.getElementById('rate-note');
+  if (strip && rVal && rNote) {
+    strip.className = 'rate-strip' + (isElite ? ' on qrei-chip-elite' : '');
+    rVal.textContent = pct(rateNow);
+    rVal.style.color = isElite ? 'var(--text)' : 'var(--text)';
+    if (!mySeller || !mySeller.qreiParts) {
+      rNote.innerHTML = 'QREI появится после синхронизации';
+    } else if (isElite) {
+      rNote.innerHTML = 'QREI <strong>' + qrei + '</strong> — повышенная ставка 6% активна';
+    } else {
+      rNote.innerHTML = 'QREI <strong>' + qrei + '</strong> · для ставки 6% нужно <strong>90+</strong>';
+    }
+  }
 
   // Декомпозиция товаров для закрытия плана
   const decomp = document.getElementById('ai-decomp');

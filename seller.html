@@ -1435,6 +1435,7 @@ function renderQreiBlock() {
       chip = 'Нет трафика';
       why  = 'В листе за этот месяц нет строки <strong>«Трафик»</strong> — без неё конверсию (IOC) посчитать нельзя.';
     }
+    card.className = 'qrei-card';
     if (scoreEl) { scoreEl.textContent = '—'; scoreEl.className = 'qrei-score'; scoreEl.style.color = 'var(--text3)'; }
     if (tierEl)  { tierEl.textContent = chip; tierEl.className = 'qrei-tier'; tierEl.style.color = 'var(--text3)'; tierEl.style.background = 'transparent'; }
     if (barEl)   { barEl.style.width = '0%'; barEl.className = 'qrei-bar-fill'; }
@@ -1457,6 +1458,9 @@ function renderQreiBlock() {
     tierEl.style.color      = tier.cls ? '' : tier.color;
     tierEl.style.background = tier.cls ? '' : 'transparent';
   }
+  // Вся карточка светится при 90+
+  card.className = 'qrei-card ' + (QCP.qreiCardClass ? QCP.qreiCardClass(q) : '');
+
   if (barEl) {
     barEl.style.width = Math.max(0, Math.min(100, q)) + '%';
     barEl.className   = 'qrei-bar-fill ' + (tier.cls ? 'qrei-chip-elite' : '');

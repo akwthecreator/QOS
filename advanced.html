@@ -929,7 +929,9 @@ function renderCard(s, rank, origIdx) {
   const avTx  = s.team==='grandpark'?'var(--accent)':'#c86400';
   const teamLbl = s.team==='grandpark'?'Grand Park':'Aport';
   const rankStr = rank===0?'#1':rank===1?'#2':rank===2?'#3':`#${rank+1}`;
-  const scoreClr = s.isDanger?'var(--red)':s.qrei>=80?'var(--green)':s.qrei>=60?'var(--yellow)':'var(--text)';
+  const scoreTier = QCP.qreiTier(s.qrei);            // 0-50 красный · 50-80 жёлтый · 80-90 зелёный · 90+ синий
+  const scoreCls  = scoreTier.cls;
+  const scoreSty  = scoreTier.cls ? '' : 'color:' + scoreTier.color;
   const iocPct   = Math.min(100, s.ioc / 30 * 100);
   const storeSet = [...new Set(s.days.filter(d=>d.shift&&d.magasin).map(d=>d.magasin))];
   const storeLabel = storeSet.length ? storeSet.join(', ') : teamLbl;
@@ -947,7 +949,7 @@ function renderCard(s, rank, origIdx) {
         ${s.isDanger?`<div class="danger-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Зона риска</div>`:''}
       </div>
       <div class="card-score-block">
-        <div class="card-score-num" style="color:${scoreClr}">${s.qrei}</div>
+        <div class="card-score-num ${scoreCls}" style="${scoreSty}">${s.qrei}</div>
         <div class="card-score-label">QREI SCORE</div>
       </div>
     </div>
@@ -996,7 +998,9 @@ function openPanel(origIdx) {
   const avBg  = s.team==='grandpark'?'#0d1a2e':'#2e1a0d';
   const avTx  = s.team==='grandpark'?'#6ba3d4':'#d4a56b';
   const teamLbl = s.team==='grandpark'?'Grand Park':'Aport';
-  const scoreClr= s.isDanger?'var(--red)':s.qrei>=80?'var(--green)':s.qrei>=60?'var(--yellow)':'var(--text)';
+  const scoreTier = QCP.qreiTier(s.qrei);
+  const scoreCls  = scoreTier.cls;
+  const scoreSty  = scoreTier.cls ? '' : 'color:' + scoreTier.color;
 
   // Score breakdown cells
   const breakdown = [
@@ -1050,7 +1054,7 @@ function openPanel(origIdx) {
       </div>
       <div style="text-align:right;flex-shrink:0">
         <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:2px">QREI Score</div>
-        <div style="font-size:44px;font-weight:900;color:${scoreClr};line-height:1;letter-spacing:-2px">${s.qrei}</div>
+        <div class="${scoreCls}" style="font-size:44px;font-weight:900;${scoreSty};line-height:1;letter-spacing:-2px">${s.qrei}</div>
         <div style="font-size:12px;color:var(--text3)">/100</div>
       </div>
     </div>
@@ -1284,7 +1288,12 @@ function saveSettings() {
   } else { selEl.value = sheetName; }
   document.getElementById('cfg-save-msg').style.color = 'var(--green)';
   document.getElementById('cfg-save-msg').textContent = '✅ Сохранено! Загружаем данные...';
-  if (window.QCP) QCP.setSheet('advSheet', sheetName);
+  if (window.QCP) {
+    QCP.setSheet('advSheet', sheetName);
+    // бенчмарки — в общий конфиг: иначе у продавцов QREI считался бы по старым
+    const _b = getADV();
+    QCP.setRaw({ qreiBench: { ioc:_b.bench_ioc, upt:_b.bench_upt, atv:_b.bench_atv, aur:_b.bench_aur } });
+  }
   setTimeout(() => { closeSettings(); loadData(); }, 800);
 }
 

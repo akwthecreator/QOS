@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Карточка при QREI 90+</title><style>
+
+:root[data-theme="dark"] {
+  --bg:#0a0a0a; --bg2:#141414; --bg3:#1e1e1e; --bg4:#252525;
+  --border:#2a2a2a; --border2:#333;
+  --text:#fff; --text2:#aaa; --text3:#555;
+  --accent:#0066ff; --green:#00cc66; --yellow:#ffaa00; --red:#ff3333; --purple:#a78bfa;
+}
+:root[data-theme="light"] {
+  --bg:#f5f5f7; --bg2:#fff; --bg3:#f0f0f2; --bg4:#e8e8ec;
+  --border:#e0e0e0; --border2:#d0d0d0;
+  --text:#1a1a1a; --text2:#666; --text3:#aaa;
+  --accent:#0066ff; --green:#00aa55; --yellow:#cc8800; --red:#dd2222; --purple:#7c3aed;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+
+/* ── TOP BAR ── */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:16px;
+  padding:0 24px;height:56px;
+  background:rgba(10,10,10,0.85);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.topbar-logo{font-size:13px;font-weight:700;letter-spacing:0.5px;color:var(--text2);flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar-meta{margin-left:auto;flex-shrink:0;font-size:12px;font-weight:600;
+  color:var(--text3);white-space:nowrap}
+@media(max-width:768px){
+  .topbar{gap:10px;padding:0 14px}
+  .topbar-logo{display:none}
+  .topbar-logo + span{display:none}
+  .topbar-title{font-size:14px}
+  .topbar-meta{display:none}
+}
+.topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.back-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 12px 6px 8px;border-radius:20px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;
+  transition:all 0.15s;font-family:inherit;
+  text-decoration:none;flex-shrink:0;
+}
+.back-btn:hover{background:var(--bg2);color:var(--text);border-color:var(--text3);}
+.back-btn svg{flex-shrink:0;}
+.pill-btn{
+  padding:6px 14px;border-radius:20px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;
+  transition:all 0.15s;font-family:inherit;
+}
+.pill-btn:hover{border-color:var(--accent);color:var(--accent)}
+.pill-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.icon-btn{
+  width:32px;height:32px;border-radius:8px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all 0.15s;
+}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── LAYOUT ── */
+.layout{display:flex;height:calc(100vh - 56px);overflow:hidden}
+
+/* ── SIDEBAR LEADERBOARD ── */
+.lb-sidebar{
+  width:260px;flex-shrink:0;
+  border-right:1px solid var(--border);
+  overflow-y:auto;
+  transition:width 0.3s cubic-bezier(0.16,1,0.3,1);
+  background:var(--bg2);
+}
+.lb-sidebar.collapsed{width:0;border-right:none;overflow:hidden}
+.lb-header{
+  padding:14px 16px 10px;
+  border-bottom:1px solid var(--border);
+  font-size:10px;font-weight:700;
+  color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;
+  position:sticky;top:0;background:var(--bg2);z-index:2;
+}
+.lb-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;cursor:pointer;
+  border-bottom:1px solid var(--border);
+  transition:background 0.12s;
+}
+.lb-row:hover{background:var(--bg3)}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{font-size:11px;font-weight:700;color:var(--text3);width:18px;text-align:center;flex-shrink:0}
+.lb-avatar{
+  width:28px;height:28px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;
+}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-store{font-size:10px;color:var(--text3);margin-top:1px}
+.lb-score{font-size:14px;font-weight:800;flex-shrink:0}
+.lb-bar{height:2px;background:var(--bg4);border-radius:1px;margin-top:4px;margin-left:56px;margin-right:14px}
+.lb-bar-fill{height:100%;border-radius:1px;transition:width 0.6s}
+
+/* ── MAIN CONTENT ── */
+.main{flex:1;overflow-y:auto;padding:20px 24px}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-divider{width:1px;height:20px;background:var(--border2);margin:0 4px}
+
+/* ── SUMMARY STRIP ── */
+.summary-strip{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;
+  margin-bottom:20px;
+}
+.summary-cell{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:10px 12px;
+}
+.summary-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.summary-val{font-size:17px;font-weight:700}
+
+/* ── CARDS GRID ── */
+.cards-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:12px;
+}
+
+/* ── SELLER CARD ── */
+.seller-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+  cursor:pointer;
+  transition:border-color 0.2s,transform 0.15s,box-shadow 0.2s;
+  position:relative;
+  overflow:hidden;
+}
+.seller-card::before{
+  content:'';position:absolute;inset:0;border-radius:16px;
+  background:linear-gradient(135deg,rgba(255,255,255,0.02),transparent);
+  pointer-events:none;
+}
+.seller-card:hover{
+  border-color:rgba(255,255,255,0.12);
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+.seller-card.danger{
+  border-color:rgba(255,51,51,0.3);
+  background:linear-gradient(135deg,rgba(255,51,51,0.04),var(--bg2));
+}
+.seller-card.danger:hover{border-color:rgba(255,51,51,0.5)}
+
+.card-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.card-rank{font-size:12px;font-weight:700;color:var(--text3);line-height:1;margin-top:2px;width:24px;flex-shrink:0}
+.card-avatar{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:700;flex-shrink:0;
+}
+.card-meta{flex:1;min-width:0}
+.card-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-store{font-size:11px;color:var(--text3);margin-top:2px}
+.card-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  margin-top:5px;padding:2px 8px;border-radius:20px;
+  font-size:9px;font-weight:700;letter-spacing:0.3px;
+}
+.card-score-block{text-align:right;flex-shrink:0}
+.card-score-num{font-size:28px;font-weight:900;line-height:1;letter-spacing:-0.5px}
+.card-score-label{font-size:9px;color:var(--text3);margin-top:1px;letter-spacing:0.3px}
+
+/* ── METRICS GRID ── */
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.metric-cell{
+  background:var(--bg3);border-radius:10px;
+  padding:8px 10px;
+}
+.metric-lbl{font-size:9px;color:var(--text3);margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.metric-val{font-size:15px;font-weight:700}
+
+/* ── IOC BAR ── */
+.ioc-row{display:flex;align-items:center;gap:8px}
+.ioc-label{font-size:9px;color:var(--text3);white-space:nowrap}
+.ioc-track{flex:1;height:3px;background:var(--bg4);border-radius:2px}
+.ioc-fill{height:100%;border-radius:2px;background:var(--text3)}
+.ioc-right{font-size:9px;color:var(--text3);white-space:nowrap}
+
+/* ── DANGER BADGE ── */
+.danger-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;border-radius:20px;
+  font-size:9px;font-weight:700;
+  background:rgba(255,51,51,0.12);color:var(--red);
+  margin-top:5px;
+}
+
+/* ── SLIDE PANEL ── */
+.panel-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.6);z-index:500;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.panel-overlay.open{display:block}
+.slide-panel{
+  position:fixed;top:0;right:-680px;
+  width:640px;max-width:96vw;height:100vh;
+  background:var(--bg);
+  border-left:1px solid var(--border);
+  z-index:600;overflow-y:auto;
+  padding:0;
+  box-shadow:-12px 0 60px rgba(0,0,0,0.5);
+  transition:right 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.slide-panel.open{right:0}
+.panel-top{
+  padding:20px 28px 0;
+  position:sticky;top:0;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  padding-bottom:16px;
+  z-index:2;
+}
+.panel-close{
+  width:28px;height:28px;border-radius:8px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  margin-left:auto;margin-bottom:16px;
+  transition:all 0.15s;
+}
+.panel-close:hover{border-color:var(--red);color:var(--red)}
+.panel-body{padding:24px 28px}
+
+/* Panel avatar */
+.panel-avatar-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:20px}
+.panel-avatar{
+  width:64px;height:64px;border-radius:20px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:700;margin-bottom:10px;
+}
+.panel-name{font-size:20px;font-weight:700;margin-bottom:3px}
+.panel-store{font-size:13px;color:var(--text3)}
+
+/* Score ring */
+.qrei-display{
+  text-align:center;margin-bottom:20px;
+  padding:16px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:14px;
+}
+.qrei-num{font-size:48px;font-weight:900;letter-spacing:-2px;line-height:1}
+.qrei-sub{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+
+/* Score breakdown */
+.score-breakdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.breakdown-cell{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:8px 4px;text-align:center;
+}
+.breakdown-lbl{font-size:9px;color:var(--text3);margin-bottom:4px}
+.breakdown-weight{font-size:8px;color:var(--text3);margin-bottom:2px}
+.breakdown-val{font-size:16px;font-weight:800}
+.breakdown-bar{height:2px;background:var(--border2);border-radius:1px;margin:4px 4px 0}
+.breakdown-bar-fill{height:100%;border-radius:1px}
+
+/* 4 KPI tiles */
+.kpi-tiles{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.kpi-tile{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;padding:12px;
+}
+.kpi-tile-lbl{font-size:10px;color:var(--text3);margin-bottom:6px}
+.kpi-tile-val{font-size:22px;font-weight:800;line-height:1}
+.kpi-tile-sub{font-size:10px;color:var(--text3);margin-top:4px}
+
+/* Day table */
+.day-table-wrap{margin-bottom:16px;overflow-x:auto}
+.day-table{width:100%;border-collapse:collapse;font-size:12px}
+.day-table th{
+  padding:5px 8px;text-align:left;
+  color:var(--text3);font-weight:500;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+.day-table td{
+  padding:5px 8px;
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+.day-table tr:last-child td{border-bottom:none}
+.day-table tr.day-off{opacity:0.3}
+
+/* Loader */
+.loader{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px 20px;color:var(--text3);gap:12px;font-size:13px;
+}
+.spinner{
+  width:24px;height:24px;
+  border:2px solid var(--border2);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Empty state */
+.empty-state{
+  text-align:center;padding:80px 20px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.empty-icon{font-size:40px}
+.empty-title{font-size:16px;font-weight:600;color:var(--text2)}
+.empty-sub{font-size:13px;color:var(--text3);max-width:260px;line-height:1.5}
+
+/* Tooltip config */
+.config-bar{
+  background:rgba(255,170,0,0.06);
+  border:1px solid rgba(255,170,0,0.2);
+  border-radius:10px;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:20px;font-size:12px;color:var(--yellow);
+  cursor:pointer;transition:background 0.15s;
+}
+.config-bar:hover{background:rgba(255,170,0,0.1)}
+
+/* Mobile */
+@media(max-width:768px){
+  .lb-sidebar{display:none}
+  .main{padding:12px}
+  .slide-panel{width:100%;max-width:100%}
+  .cards-grid{grid-template-columns:1fr}
+  .score-breakdown{grid-template-columns:repeat(2,1fr)}
+}
+
+.qcp-picker{position:relative;display:inline-flex}
+.qcp-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  height:36px;padding:0 12px;border-radius:10px;
+  border:1px solid var(--border2,#333);background:var(--bg3,#1e1e1e);
+  color:var(--text,#fff);font-family:inherit;font-size:12px;font-weight:600;
+  line-height:1;cursor:pointer;white-space:nowrap;
+  transition:border-color .15s,color .15s;
+}
+.qcp-btn:hover{border-color:var(--accent,#0066ff)}
+.qcp-btn svg{flex-shrink:0;opacity:.65}
+.qcp-btn.locked{cursor:default}
+.qcp-btn.locked:hover{border-color:var(--border2,#333)}
+.qcp-cur{max-width:130px;overflow:hidden;text-overflow:ellipsis}
+.qcp-menu{
+  display:none;position:absolute;top:42px;right:0;z-index:1200;
+  min-width:200px;max-height:min(60vh,420px);overflow-y:auto;
+  background:var(--bg2,#141414);border:1px solid var(--border2,#333);
+  border-radius:14px;padding:6px;
+}
+.qcp-picker.open .qcp-menu{display:block}
+.qcp-note{padding:8px 10px 10px;font-size:10px;line-height:1.45;color:var(--text3,#555);
+  border-top:1px solid var(--border,#2a2a2a);margin-top:6px}
+.qcp-opt{
+  display:flex;align-items:center;gap:8px;width:100%;
+  padding:9px 10px;border:none;border-radius:9px;background:transparent;
+  color:var(--text2,#aaa);font-family:inherit;font-size:13px;font-weight:500;
+  text-align:left;cursor:pointer;transition:background .12s,color .12s;
+}
+.qcp-opt:hover{background:var(--bg3,#1e1e1e);color:var(--text,#fff)}
+.qcp-opt.on{color:var(--accent,#0066ff);font-weight:700}
+.qcp-tick{width:14px;flex-shrink:0;display:flex;align-items:center}
+
+.qcp-navbtn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;flex-shrink:0;
+  border-radius:10px;border:1px solid var(--border2,#333);
+  background:var(--bg3,#1e1e1e);color:var(--text2,#aaa);cursor:pointer;
+  transition:border-color .15s,color .15s;
+}
+.qcp-navbtn:hover{border-color:var(--accent,#0066ff);color:var(--accent,#0066ff)}
+
+.qcp-ov{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.55);
+  opacity:0;pointer-events:none;transition:opacity .22s ease}
+.qcp-ov.open{opacity:1;pointer-events:auto}
+.qcp-drawer{
+  position:fixed;top:0;left:0;bottom:0;z-index:2001;
+  width:272px;max-width:82vw;
+  background:var(--bg2,#141414);border-right:1px solid var(--border,#2a2a2a);
+  transform:translateX(-100%);transition:transform .26s cubic-bezier(.16,1,.3,1);
+  display:flex;flex-direction:column;
+  padding:calc(env(safe-area-inset-top,0px) + 16px) 0 calc(env(safe-area-inset-bottom,0px) + 14px);
+}
+.qcp-drawer.open{transform:translateX(0)}
+.qcp-dhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  padding:0 16px 14px;border-bottom:1px solid var(--border,#2a2a2a)}
+.qcp-dtitle{font-size:13px;font-weight:800;letter-spacing:.5px;color:var(--text,#fff)}
+.qcp-duser{font-size:11px;color:var(--text3,#555);margin-top:3px;max-width:175px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qcp-dclose{width:28px;height:28px;flex-shrink:0;border-radius:8px;
+  border:1px solid var(--border2,#333);background:var(--bg3,#1e1e1e);
+  color:var(--text2,#aaa);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qcp-dnav{flex:1;overflow-y:auto;padding:10px}
+.qcp-dlink{
+  display:flex;align-items:center;gap:10px;width:100%;
+  padding:12px;margin-bottom:2px;border-radius:11px;border:none;background:transparent;
+  color:var(--text2,#aaa);text-decoration:none;text-align:left;
+  font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;
+  transition:background .12s,color .12s;
+}
+.qcp-dlink:hover{background:var(--bg3,#1e1e1e);color:var(--text,#fff)}
+.qcp-dlink.on{background:var(--bg3,#1e1e1e);color:var(--accent,#0066ff)}
+.qcp-sec{padding:12px 12px 2px}
+.qcp-sect{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+  color:var(--text3,#555);padding:0 4px 8px}
+.qcp-chips{display:flex;flex-wrap:wrap;gap:6px}
+.qcp-chip{
+  padding:8px 12px;border-radius:20px;
+  border:1px solid var(--border2,#333);background:var(--bg3,#1e1e1e);
+  color:var(--text2,#aaa);font-family:inherit;font-size:12px;font-weight:600;
+  line-height:1;cursor:pointer;transition:border-color .12s,color .12s;
+}
+.qcp-chip:hover{color:var(--text,#fff)}
+.qcp-chip.on{border-color:var(--accent,#0066ff);color:var(--accent,#0066ff)}
+.qcp-chip[disabled]{opacity:.5;cursor:default}
+.qcp-dsep{height:1px;background:var(--border,#2a2a2a);margin:12px 12px 2px}
+.qcp-dfoot{padding:12px 16px 0;border-top:1px solid var(--border,#2a2a2a)}
+.qcp-dsheet{font-size:11px;color:var(--text3,#555);line-height:1.6}
+.qcp-dsheet b{color:var(--text2,#aaa);font-weight:600}
+.qcp-out{width:100%;margin-top:10px;padding:10px;border-radius:10px;
+  border:1px solid var(--border2,#333);background:transparent;
+  color:var(--red,#ff3333);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.qcp-out:hover{border-color:var(--red,#ff3333)}
+body.qcp-lock{overflow:hidden}
+
+/* QREI 90-100: анимированный синий градиент. Без glow/box-shadow. */
+.qrei-elite{
+  background:linear-gradient(110deg,#2f6bff 0%,#00b4ff 22%,#6ea8ff 42%,#00d4ff 62%,#3d7bff 82%,#2f6bff 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  animation:qreiFlow 5s linear infinite;
+}
+.qrei-chip-elite{
+  background:linear-gradient(110deg,#2f6bff 0%,#00b4ff 22%,#6ea8ff 42%,#00d4ff 62%,#3d7bff 82%,#2f6bff 100%);
+  background-size:300% 100%;
+  animation:qreiFlow 5s linear infinite;
+  color:#fff;
+}
+@keyframes qreiFlow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+
+/* Карточка при QREI 90+: живая градиентная рамка и синее свечение.
+   Рамка — техника padding-box/border-box: анимируется только
+   background-position, без blur-фильтров и без лишних слоёв. */
+.qrei-elite-card{
+  border:1.5px solid transparent !important;
+  background:
+    linear-gradient(var(--bg2,#141414),var(--bg2,#141414)) padding-box,
+    linear-gradient(110deg,#2f6bff 0%,#00b4ff 22%,#6ea8ff 42%,#00d4ff 62%,#3d7bff 82%,#2f6bff 100%) border-box !important;
+  background-size:auto,300% 100% !important;
+  animation:qreiFlow 5s linear infinite;
+  box-shadow:0 0 0 1px rgba(47,107,255,.16), 0 8px 26px rgba(0,150,255,.26);
+}
+.qrei-elite-card:hover{
+  box-shadow:0 0 0 1px rgba(47,107,255,.28), 0 12px 34px rgba(0,150,255,.38) !important;
+}
+@media(prefers-reduced-motion:reduce){
+  .qrei-elite,.qrei-chip-elite,.qrei-elite-card{animation:none;background-position:0 50%}
+}
+@media(min-width:769px){ .qcp-mobile{display:none !important} }
+
+body{padding:22px 16px 40px}
+.wrap{max-width:720px;margin:0 auto}
+h1{font-size:19px;font-weight:800;margin-bottom:5px}
+.sub{font-size:13px;color:var(--text3);line-height:1.55;margin-bottom:16px}
+.tgl{padding:8px 14px;border-radius:20px;border:1px solid var(--border2);
+ background:var(--bg3);color:var(--text2);font:600 12px/1 inherit;cursor:pointer;margin-bottom:20px}
+.tgl:hover{border-color:var(--accent);color:var(--accent)}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+</style></head><body><div class="wrap">
+<h1>Карточка при QREI 90+</h1>
+<div class="sub">Рамка переливается, вокруг синее свечение. Остальные карточки без изменений.</div>
+<button class="tgl" onclick="var r=document.documentElement;r.setAttribute('data-theme',r.getAttribute('data-theme')==='dark'?'light':'dark')">Сменить тему</button>
+<div class="cards-grid">
+
+  <div class="seller-card qrei-elite-card">
+    <div class="card-header">
+      <div class="card-rank">#1</div>
+      <div class="card-avatar" style="background:rgba(0,80,200,0.1);color:var(--accent)">Н</div>
+      <div class="card-meta">
+        <div class="card-name">Нұрдана</div>
+        <div class="card-store">Qoima, Abo, Look</div>
+      </div>
+      <div class="card-score-block">
+        <div class="card-score-num qrei-elite" style="">91</div>
+        <div class="card-score-label">QREI SCORE</div>
+      </div>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 6v6l4 2"/></svg> Выручка</div><div class="metric-val">6.1М₸</div></div>
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> UPT</div><div class="metric-val">2.1</div></div>
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> ATV</div><div class="metric-val">26К₸</div></div>
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Доля трафика</div><div class="metric-val">~113</div>
+        <div class="metric-sub" style="font-size:9px;color:var(--text3)">чел/смену · σ 1804 всего</div></div>
+    </div>
+    <div class="ioc-row">
+      <span class="ioc-label">IOC 12.7%</span>
+      <div class="ioc-track"><div class="ioc-fill" style="width:42%"></div></div>
+      <span class="ioc-right">16 смен · 231 чек.</span>
+    </div>
+  </div>
+
+  <div class="seller-card ">
+    <div class="card-header">
+      <div class="card-rank">#2</div>
+      <div class="card-avatar" style="background:rgba(0,80,200,0.1);color:var(--accent)">А</div>
+      <div class="card-meta">
+        <div class="card-name">Арайлым</div>
+        <div class="card-store">Abo, Qoima, Look</div>
+      </div>
+      <div class="card-score-block">
+        <div class="card-score-num " style="color:var(--green)">85</div>
+        <div class="card-score-label">QREI SCORE</div>
+      </div>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 6v6l4 2"/></svg> Выручка</div><div class="metric-val">2.0М₸</div></div>
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> UPT</div><div class="metric-val">2.5</div></div>
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> ATV</div><div class="metric-val">27К₸</div></div>
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Доля трафика</div><div class="metric-val">~143</div>
+        <div class="metric-sub" style="font-size:9px;color:var(--text3)">чел/смену · σ 715 всего</div></div>
+    </div>
+    <div class="ioc-row">
+      <span class="ioc-label">IOC 10.6%</span>
+      <div class="ioc-track"><div class="ioc-fill" style="width:35%"></div></div>
+      <span class="ioc-right">5 смен · 72 чек.</span>
+    </div>
+  </div>
+
+  <div class="seller-card ">
+    <div class="card-header">
+      <div class="card-rank">#3</div>
+      <div class="card-avatar" style="background:rgba(0,80,200,0.1);color:var(--accent)">М</div>
+      <div class="card-meta">
+        <div class="card-name">Муслим</div>
+        <div class="card-store">Qoima, Abo, Look</div>
+      </div>
+      <div class="card-score-block">
+        <div class="card-score-num " style="color:var(--green)">84</div>
+        <div class="card-score-label">QREI SCORE</div>
+      </div>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 6v6l4 2"/></svg> Выручка</div><div class="metric-val">5.8М₸</div></div>
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> UPT</div><div class="metric-val">2.1</div></div>
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> ATV</div><div class="metric-val">27К₸</div></div>
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Доля трафика</div><div class="metric-val">~132</div>
+        <div class="metric-sub" style="font-size:9px;color:var(--text3)">чел/смену · σ 2111 всего</div></div>
+    </div>
+    <div class="ioc-row">
+      <span class="ioc-label">IOC 9.9%</span>
+      <div class="ioc-track"><div class="ioc-fill" style="width:33%"></div></div>
+      <span class="ioc-right">16 смен · 217 чек.</span>
+    </div>
+  </div>
+
+  <div class="seller-card ">
+    <div class="card-header">
+      <div class="card-rank">#4</div>
+      <div class="card-avatar" style="background:rgba(0,80,200,0.1);color:var(--accent)">А</div>
+      <div class="card-meta">
+        <div class="card-name">Азхар</div>
+        <div class="card-store">Abo, Qoima</div>
+      </div>
+      <div class="card-score-block">
+        <div class="card-score-num " style="color:var(--red)">46</div>
+        <div class="card-score-label">QREI SCORE</div>
+      </div>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 6v6l4 2"/></svg> Выручка</div><div class="metric-val">854К₸</div></div>
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> UPT</div><div class="metric-val">1.1</div></div>
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> ATV</div><div class="metric-val">32К₸</div></div>
+      <div class="metric-cell"><div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Доля трафика</div><div class="metric-val">~75</div>
+        <div class="metric-sub" style="font-size:9px;color:var(--text3)">чел/смену · σ 750 всего</div></div>
+    </div>
+    <div class="ioc-row">
+      <span class="ioc-label">IOC 4.2%</span>
+      <div class="ioc-track"><div class="ioc-fill" style="width:14%"></div></div>
+      <span class="ioc-right">3 смен · 27 чек.</span>
+    </div>
+  </div>
+</div></div></body></html>

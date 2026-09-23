@@ -1,0 +1,748 @@
+/* ══════════════════════════════════════════════════════════════
+   QCP LAB v20260923a — «Песочница» и «Сравнение» для Advanced KPI
+
+   ПЕСОЧНИЦА
+     Теневой пересчёт: меняешь IOC / UPT / ATV / AUR — видишь, каким
+     стал бы QREI, выручка, чеки и товары. Данные из таблицы не
+     трогаются вообще: всё живёт в памяти вкладки и стирается при
+     закрытии.
+
+     Почему не «просто подставить цифру»: показатели связаны между
+     собой жёстким тождеством  ATV = UPT × AUR,  а IOC = чеки ÷ доля
+     трафика. Свободно задать можно только часть — остальное обязано
+     пересчитаться, иначе цифры в отчёте противоречат друг другу.
+     Поэтому у каждой ручки есть правило, и оно показано в интерфейсе.
+
+   СРАВНЕНИЕ
+     Один продавец  → его вчера / неделя / месяц рядом.
+     Двое           → они друг против друга за выбранный период.
+
+   Подключение: тегом script с src="qcp-lab.js?v=..." — после qcp-core.js
+   ══════════════════════════════════════════════════════════════ */
+(function (global) {
+'use strict';
+
+const VERSION = '20260923a';
+
+// ── ВНЕШНИЕ ЗАВИСИМОСТИ (передаются из страницы) ─────────────
+let HOST = {
+  sellers:  () => [],          // () => массив продавцов с .days
+  bench:    () => ({ ioc:15, upt:2.2, atv:25000, aur:20000 }),
+  fmt:      n => String(Math.round(n)),
+  fmtShort: n => String(Math.round(n)),
+};
+
+// ── СОСТОЯНИЕ ────────────────────────────────────────────────
+let sandboxOn   = false;
+let sandboxRef  = null;   // реальные показатели (эталон)
+let sandboxCur  = null;   // драйверы теневого расчёта
+let sandboxName = '';
+let onSandboxChange = null;
+
+// ══════════════════════════════════════════════════════════════
+//  СТИЛИ
+// ══════════════════════════════════════════════════════════════
+const CSS = `
+.lab-wrap{margin-bottom:16px}
+.lab-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px 14px;border:1px solid var(--border2,#333);border-radius:14px 14px 0 0;
+  border-bottom:none;background:var(--bg2,#141414);
+}
+.lab-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;
+  letter-spacing:.4px;text-transform:uppercase;color:var(--text,#fff)}
+.lab-title svg{opacity:.7}
+.lab-actions{display:flex;gap:6px}
+.lab-btn{
+  padding:6px 11px;border-radius:8px;border:1px solid var(--border2,#333);
+  background:var(--bg3,#1e1e1e);color:var(--text2,#aaa);
+  font:600 11px/1 inherit;font-family:inherit;cursor:pointer;
+  transition:border-color .15s,color .15s;
+}
+.lab-btn:hover{border-color:var(--accent,#0066ff);color:var(--accent,#0066ff)}
+.lab-btn.primary{background:var(--accent,#0066ff);border-color:var(--accent,#0066ff);color:#fff}
+.lab-btn.primary:hover{opacity:.9;color:#fff}
+.lab-body{
+  border:1px solid var(--border2,#333);border-radius:0 0 14px 14px;
+  background:var(--bg2,#141414);padding:14px;
+}
+.lab-note{
+  display:flex;gap:8px;align-items:flex-start;
+  font-size:11px;line-height:1.5;color:var(--text3,#555);
+  padding:9px 11px;background:var(--bg3,#1e1e1e);border-radius:10px;margin-bottom:14px;
+}
+.lab-note svg{flex-shrink:0;margin-top:1px;opacity:.7}
+
+/* ── Итог QREI ── */
+.lab-score{
+  display:flex;align-items:center;gap:14px;
+  padding:14px;background:var(--bg3,#1e1e1e);border-radius:12px;margin-bottom:14px;
+}
+.lab-score-main{display:flex;align-items:baseline;gap:9px;flex-shrink:0}
+.lab-score-old{font-size:20px;font-weight:700;color:var(--text3,#555);
+  text-decoration:line-through;text-decoration-thickness:1.5px}
+.lab-score-arrow{color:var(--text3,#555);font-size:13px}
+.lab-score-new{font-size:38px;font-weight:900;line-height:1;letter-spacing:-1.5px}
+.lab-score-side{flex:1;min-width:0}
+.lab-score-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--text3,#555);margin-bottom:5px}
+.lab-track{height:7px;background:var(--bg4,#2a2a2a);border-radius:4px;position:relative;overflow:hidden}
+.lab-track-fill{height:100%;border-radius:4px;transition:width .25s ease}
+.lab-track-mark{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--text2,#aaa);opacity:.8}
+.lab-delta{
+  display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;
+  font-size:11px;font-weight:800;flex-shrink:0;
+}
+.lab-delta.up  {background:rgba(0,204,102,.14);color:var(--green,#00cc66)}
+.lab-delta.down{background:rgba(255,51,51,.14);color:var(--red,#ff3333)}
+.lab-delta.flat{background:var(--bg4,#2a2a2a);color:var(--text3,#555)}
+
+/* ── Ручки ── */
+.lab-knob{padding:12px 0;border-top:1px solid var(--border,#2a2a2a)}
+.lab-knob:first-of-type{border-top:none;padding-top:2px}
+.lab-knob-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.lab-knob-name{font-size:12px;font-weight:600;color:var(--text,#fff)}
+.lab-knob-rule{font-size:10px;color:var(--text3,#555);margin-top:2px}
+.lab-knob-io{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.lab-knob-was{font-size:11px;color:var(--text3,#555);font-variant-numeric:tabular-nums}
+.lab-input{
+  width:88px;padding:6px 8px;border-radius:8px;
+  border:1px solid var(--border2,#333);background:var(--bg,#0a0a0a);
+  color:var(--text,#fff);font:700 13px/1 inherit;font-family:inherit;
+  text-align:right;font-variant-numeric:tabular-nums;
+}
+.lab-input:focus{outline:none;border-color:var(--accent,#0066ff)}
+.lab-input.changed{border-color:var(--accent,#0066ff);color:var(--accent,#0066ff)}
+.lab-unit{font-size:11px;color:var(--text3,#555);width:14px}
+.lab-range{
+  -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;
+  background:var(--bg4,#2a2a2a);outline:none;cursor:pointer;margin:0;
+}
+.lab-range::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent,#0066ff);cursor:pointer;border:2px solid var(--bg2,#141414);
+}
+.lab-range::-moz-range-thumb{
+  width:16px;height:16px;border-radius:50%;background:var(--accent,#0066ff);
+  cursor:pointer;border:2px solid var(--bg2,#141414);
+}
+.lab-knob-foot{display:flex;justify-content:space-between;gap:8px;margin-top:7px;
+  font-size:10px;color:var(--text3,#555)}
+.lab-contrib{font-variant-numeric:tabular-nums}
+
+/* ── Что поменяется ── */
+.lab-out-title{font-size:10px;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--text3,#555);margin:16px 0 8px}
+.lab-out{display:grid;gap:7px}
+.lab-out-row{
+  display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;
+  padding:9px 11px;background:var(--bg3,#1e1e1e);border-radius:10px;
+}
+.lab-out-name{font-size:11px;color:var(--text2,#aaa)}
+.lab-out-val{font-size:13px;font-weight:700;color:var(--text,#fff);
+  font-variant-numeric:tabular-nums;text-align:right}
+.lab-out-was{font-size:10px;color:var(--text3,#555);font-variant-numeric:tabular-nums}
+
+/* ══ СРАВНЕНИЕ ══ */
+.cmp-ov{position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.6);
+  opacity:0;pointer-events:none;transition:opacity .2s;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.cmp-ov.open{opacity:1;pointer-events:auto}
+.cmp-modal{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-48%) scale(.98);
+  z-index:701;width:min(860px,calc(100vw - 32px));max-height:calc(100vh - 64px);
+  display:flex;flex-direction:column;
+  background:var(--bg,#0a0a0a);border:1px solid var(--border2,#333);border-radius:20px;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+}
+.cmp-modal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.cmp-head{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:16px 20px;border-bottom:1px solid var(--border,#2a2a2a);flex-shrink:0}
+.cmp-title{font-size:14px;font-weight:800;letter-spacing:.3px}
+.cmp-sub{font-size:11px;color:var(--text3,#555);margin-top:2px}
+.cmp-close{width:30px;height:30px;border-radius:9px;flex-shrink:0;
+  border:1px solid var(--border2,#333);background:var(--bg3,#1e1e1e);
+  color:var(--text2,#aaa);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cmp-close:hover{border-color:var(--red,#ff3333);color:var(--red,#ff3333)}
+.cmp-ctrl{display:flex;flex-wrap:wrap;gap:10px;padding:14px 20px;
+  border-bottom:1px solid var(--border,#2a2a2a);flex-shrink:0}
+.cmp-field{flex:1;min-width:150px}
+.cmp-field-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--text3,#555);margin-bottom:5px}
+.cmp-select{
+  width:100%;padding:8px 10px;border-radius:9px;
+  border:1px solid var(--border2,#333);background:var(--bg3,#1e1e1e);
+  color:var(--text,#fff);font:600 12px/1.2 inherit;font-family:inherit;cursor:pointer;
+}
+.cmp-select:focus{outline:none;border-color:var(--accent,#0066ff)}
+.cmp-tabs{display:flex;gap:5px}
+.cmp-tab{
+  padding:8px 13px;border-radius:9px;border:1px solid var(--border2,#333);
+  background:var(--bg3,#1e1e1e);color:var(--text2,#aaa);
+  font:600 12px/1 inherit;font-family:inherit;cursor:pointer;white-space:nowrap;
+}
+.cmp-tab:hover{color:var(--text,#fff)}
+.cmp-tab.on{background:var(--accent,#0066ff);border-color:var(--accent,#0066ff);color:#fff}
+.cmp-body{padding:18px 20px 22px;overflow-y:auto;flex:1}
+.cmp-grid{width:100%;border-collapse:separate;border-spacing:0}
+.cmp-grid th{
+  padding:0 10px 12px;font-size:11px;font-weight:700;color:var(--text2,#aaa);
+  text-align:right;vertical-align:bottom;
+}
+.cmp-grid th:first-child{text-align:left;font-size:9px;color:var(--text3,#555);
+  text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.cmp-grid td{padding:11px 10px;border-top:1px solid var(--border,#2a2a2a);
+  font-size:14px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;
+  color:var(--text,#fff);white-space:nowrap}
+.cmp-grid td:first-child{text-align:left;font-size:12px;font-weight:500;
+  color:var(--text2,#aaa);white-space:normal}
+.cmp-grid tr.head-row td{border-top:none}
+.cmp-sub-td{font-size:10px;color:var(--text3,#555);font-weight:500;margin-top:2px}
+.cmp-winner{position:relative}
+.cmp-empty{padding:50px 20px;text-align:center;color:var(--text3,#555);font-size:13px;line-height:1.6}
+@media(max-width:640px){
+  .cmp-modal{width:calc(100vw - 16px);max-height:calc(100vh - 24px);border-radius:16px}
+  .cmp-grid td{font-size:13px;padding:10px 6px}
+  .cmp-grid td:first-child{font-size:11px}
+  .lab-out-row{grid-template-columns:1fr auto}
+  .lab-out-was{display:none}
+}
+`;
+
+function injectCSS() {
+  if (document.getElementById('qcp-lab-css')) return;
+  const el = document.createElement('style');
+  el.id = 'qcp-lab-css';
+  el.textContent = CSS;
+  document.head.appendChild(el);
+}
+
+function esc(x) {
+  return String(x == null ? '' : x).replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+// ══════════════════════════════════════════════════════════════
+//  МАТЕМАТИКА ПЕСОЧНИЦЫ
+// ══════════════════════════════════════════════════════════════
+// Драйверы: чеки, товары, выручка, доля трафика.
+// Показатели выводятся из них, поэтому расчёт всегда согласован.
+function derive(d) {
+  return {
+    ioc: d.share  > 0 ? (d.checks / d.share) * 100 : 0,
+    upt: d.checks > 0 ? d.units   / d.checks       : 0,
+    atv: d.checks > 0 ? d.revenue / d.checks       : 0,
+    aur: d.units  > 0 ? d.revenue / d.units        : 0,
+  };
+}
+
+// Каждая ручка меняет драйверы по своему правилу.
+// Правила подобраны так, чтобы тождество ATV = UPT × AUR не ломалось.
+const RULES = {
+  ioc: {
+    name:'Конверсия (IOC)', unit:'%', step:0.1, dec:1, weight:30,
+    rule:'меняются чеки · средний чек и наполняемость те же',
+    apply(d, v) {
+      const m = derive(d);
+      d.checks  = (v / 100) * d.share;
+      d.revenue = d.checks * m.atv;   // держим ATV
+      d.units   = d.checks * m.upt;   // держим UPT
+    },
+  },
+  upt: {
+    name:'Товаров в чеке (UPT)', unit:'', step:0.01, dec:2, weight:30,
+    rule:'меняются товары и выручка · цена вещи та же',
+    apply(d, v) {
+      const m = derive(d);
+      d.units   = v * d.checks;
+      d.revenue = d.units * m.aur;    // держим AUR
+    },
+  },
+  atv: {
+    name:'Средний чек (ATV)', unit:'₸', step:100, dec:0, weight:20,
+    rule:'меняется выручка · наполняемость та же, дорожает вещь',
+    apply(d, v) {
+      d.revenue = v * d.checks;       // держим UPT (товары не трогаем)
+    },
+  },
+  aur: {
+    name:'Цена вещи (AUR)', unit:'₸', step:100, dec:0, weight:20,
+    rule:'меняется выручка · чеки и товары те же',
+    apply(d, v) {
+      d.revenue = v * d.units;        // держим UPT
+    },
+  },
+};
+
+function qrei(metrics) {
+  if (global.QCP && typeof QCP.calcQrei === 'function') return QCP.calcQrei(metrics);
+  // запасной расчёт, если ядро старое
+  const B = HOST.bench(), W = { ioc:.3, upt:.3, atv:.2, aur:.2 };
+  const n = k => Math.min(100, metrics[k] > 0 ? metrics[k] / B[k] * 100 : 0);
+  const parts = { ioc:n('ioc'), upt:n('upt'), atv:n('atv'), aur:n('aur') };
+  return { score: Math.round(parts.ioc*W.ioc + parts.upt*W.upt + parts.atv*W.atv + parts.aur*W.aur), parts };
+}
+
+function tierOf(score) {
+  if (global.QCP && typeof QCP.qreiTier === 'function') return QCP.qreiTier(score);
+  return { color: 'var(--accent)', cls: '' };
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ПЕСОЧНИЦА — API
+// ══════════════════════════════════════════════════════════════
+function startSandbox(seller, onChange) {
+  injectCSS();
+  sandboxOn   = true;
+  sandboxName = seller.name;
+  onSandboxChange = onChange || null;
+
+  const share = seller.trafficShare || 0;
+  sandboxRef = {
+    checks:  seller.checks  || 0,
+    units:   seller.units   || 0,
+    revenue: seller.revenue || 0,
+    share:   share,
+    // IOC в отчёте — среднее по сменам, а не чеки÷доля за месяц.
+    // Берём отчётное значение как точку отсчёта, чтобы цифры совпадали
+    // с карточкой, а долю подгоняем под него.
+    iocReported: seller.ioc || 0,
+  };
+  // Подгоняем долю так, чтобы чеки÷доля дали отчётный IOC
+  if (sandboxRef.iocReported > 0 && sandboxRef.checks > 0) {
+    sandboxRef.share = sandboxRef.checks / (sandboxRef.iocReported / 100);
+  }
+  sandboxCur = Object.assign({}, sandboxRef);
+  return sandboxCur;
+}
+
+function stopSandbox() {
+  sandboxOn = false;
+  sandboxRef = sandboxCur = null;
+  onSandboxChange = null;
+}
+
+function resetSandbox() {
+  if (!sandboxRef || !sandboxCur) return;
+  // Меняем объект на месте, а не подменяем: снаружи могли сохранить ссылку
+  Object.assign(sandboxCur, sandboxRef);
+  refreshSandbox();
+}
+
+function setMetric(key, value, srcEl) {
+  if (!sandboxCur || !RULES[key]) return;
+  const v = parseFloat(value);
+  if (isNaN(v) || v < 0) return;      // пустое поле или минус — игнорируем
+  RULES[key].apply(sandboxCur, v);
+  refreshSandbox(srcEl);
+  if (onSandboxChange) onSandboxChange();
+}
+
+function isSandboxOn() { return sandboxOn; }
+
+// ── Разметка песочницы ───────────────────────────────────────
+const ICON = {
+  flask:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v6l-6 10a2 2 0 0 0 1.7 3h12.6a2 2 0 0 0 1.7-3l-6-10V3"/><path d="M7 15h10"/></svg>',
+  info: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+  close:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  swap: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
+};
+
+function deltaChip(diff, dec, suffix) {
+  const d = +(diff || 0).toFixed(dec == null ? 0 : dec);
+  if (Math.abs(d) < Math.pow(10, -(dec || 0)) / 2) return '<span class="lab-delta flat">без изменений</span>';
+  const cls = d > 0 ? 'up' : 'down';
+  const sign = d > 0 ? '+' : '−';
+  const txt = Math.abs(d).toLocaleString('ru-RU', { maximumFractionDigits: dec == null ? 0 : dec });
+  return `<span class="lab-delta ${cls}">${sign}${txt}${suffix || ''}</span>`;
+}
+
+function metricsNow() {
+  const m = derive(sandboxCur);
+  return m;
+}
+function metricsRef() {
+  const m = derive(sandboxRef);
+  m.ioc = sandboxRef.iocReported || m.ioc;
+  return m;
+}
+
+const OUT_ROWS = [
+  ['revenue', 'Выручка', v => HOST.fmt(v)],
+  ['checks',  'Чеки',    v => Math.round(v).toLocaleString('ru-RU')],
+  ['units',   'Товары',  v => Math.round(v).toLocaleString('ru-RU')],
+];
+
+// Разметка строится один раз. Дальше значения обновляются точечно —
+// иначе при перетаскивании ползунка слетал бы фокус.
+function sandboxHTML() {
+  if (!sandboxCur) return '';
+  const mRef = metricsRef();
+  const B = HOST.bench();
+
+  const knobs = ['ioc','upt','atv','aur'].map(k => {
+    const R = RULES[k];
+    const was = mRef[k];
+    const max = Math.max(B[k] * 2, was * 1.5);
+    return `
+      <div class="lab-knob">
+        <div class="lab-knob-top">
+          <div>
+            <div class="lab-knob-name">${R.name}</div>
+            <div class="lab-knob-rule">${R.rule}</div>
+          </div>
+          <div class="lab-knob-io">
+            <span class="lab-knob-was">${was.toFixed(R.dec)}${R.unit} →</span>
+            <input class="lab-input" id="lab-n-${k}" type="number"
+                   inputmode="decimal" step="${R.step}" min="0"
+                   value="${was.toFixed(R.dec)}" data-lab-key="${k}">
+            <span class="lab-unit">${R.unit}</span>
+          </div>
+        </div>
+        <input class="lab-range" id="lab-r-${k}" type="range" min="0"
+               max="${max.toFixed(R.dec)}" step="${R.step}"
+               value="${was.toFixed(R.dec)}" data-lab-key="${k}">
+        <div class="lab-knob-foot">
+          <span>вес в QREI ${R.weight}% · план ${R.dec ? B[k] + R.unit : HOST.fmt(B[k])}</span>
+          <span class="lab-contrib" id="lab-c-${k}">—</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  const outs = OUT_ROWS.map(([key, name]) => `
+    <div class="lab-out-row">
+      <span class="lab-out-name">${name}</span>
+      <span class="lab-out-was" id="lab-ow-${key}">—</span>
+      <span class="lab-out-val" id="lab-ov-${key}">—</span>
+    </div>
+    <div style="margin-top:-3px;text-align:right" id="lab-od-${key}"></div>`).join('');
+
+  return `
+  <div class="lab-wrap" id="labWrap">
+    <div class="lab-head">
+      <div class="lab-title">${ICON.flask} Песочница · ${esc(sandboxName)}</div>
+      <div class="lab-actions">
+        <button class="lab-btn" data-lab-act="reset">Сбросить</button>
+        <button class="lab-btn" data-lab-act="exit">Выйти</button>
+      </div>
+    </div>
+    <div class="lab-body">
+      <div class="lab-note">${ICON.info}
+        <span>Теневой расчёт — таблица не меняется, цифры живут только в этой вкладке.
+        Показатели связаны формулой <strong>ATV = UPT × AUR</strong>, поэтому одна ручка тянет за собой остальные: правило подписано под каждой.</span>
+      </div>
+
+      <div class="lab-score">
+        <div class="lab-score-main">
+          <span class="lab-score-old" id="lab-sold">—</span>
+          <span class="lab-score-arrow">→</span>
+          <span class="lab-score-new" id="lab-snew">—</span>
+        </div>
+        <div class="lab-score-side">
+          <div class="lab-score-lbl">QREI Score</div>
+          <div class="lab-track">
+            <div class="lab-track-fill" id="lab-sfill" style="width:0%"></div>
+            <div class="lab-track-mark" id="lab-smark" style="left:0%"></div>
+          </div>
+        </div>
+        <span id="lab-sdelta"></span>
+      </div>
+
+      ${knobs}
+
+      <div class="lab-out-title">Что поменяется</div>
+      <div class="lab-out">${outs}</div>
+    </div>
+  </div>`;
+}
+
+// Точечное обновление значений. skipKey — элемент, который сейчас трогает
+// пользователь: его не перезаписываем, чтобы не сбить ввод.
+function refreshSandbox(skipEl) {
+  if (!sandboxCur || !document.getElementById('labWrap')) return;
+  const mRef = metricsRef(), mCur = metricsNow();
+  const qRef = qrei(mRef), qCur = qrei(mCur);
+  const tier = tierOf(qCur.score);
+  const set = (id, fn) => { const el = document.getElementById(id); if (el) fn(el); };
+
+  set('lab-sold', el => el.textContent = qRef.score);
+  set('lab-snew', el => {
+    el.textContent = qCur.score;
+    el.className = 'lab-score-new ' + (tier.cls || '');
+    el.style.color = tier.cls ? '' : tier.color;
+  });
+  set('lab-sfill', el => {
+    el.style.width = Math.max(0, Math.min(100, qCur.score)) + '%';
+    el.className = 'lab-track-fill ' + (tier.cls || '');
+    el.style.background = tier.cls ? '' : tier.color;
+  });
+  set('lab-smark', el => {
+    el.style.left = Math.max(0, Math.min(100, qRef.score)) + '%';
+    el.title = 'было ' + qRef.score;
+  });
+  set('lab-sdelta', el => el.innerHTML = deltaChip(qCur.score - qRef.score, 0));
+
+  ['ioc','upt','atv','aur'].forEach(k => {
+    const R = RULES[k];
+    const now = mCur[k], was = mRef[k];
+    const changed = Math.abs(was - now) > Math.pow(10, -R.dec) / 2;
+    const txt = now.toFixed(R.dec);
+    ['lab-n-' + k, 'lab-r-' + k].forEach(id => set(id, el => {
+      if (el !== skipEl && el.value !== txt) el.value = txt;
+      if (id.startsWith('lab-n')) el.classList.toggle('changed', changed);
+      // ползунок мог упереться в потолок — расширяем
+      if (el.type === 'range' && now > parseFloat(el.max)) el.max = (now * 1.2).toFixed(R.dec);
+    }));
+    const cw = qRef.parts[k] * R.weight / 100;
+    const cn = qCur.parts[k] * R.weight / 100;
+    const cd = cn - cw;
+    set('lab-c-' + k, el => el.innerHTML =
+      `вклад ${cw.toFixed(1)} → <strong style="color:var(--text)">${cn.toFixed(1)}</strong>` +
+      (Math.abs(cd) >= 0.05
+        ? ` <span style="color:${cd > 0 ? 'var(--green)' : 'var(--red)'}">(${cd > 0 ? '+' : '−'}${Math.abs(cd).toFixed(1)})</span>`
+        : ''));
+  });
+
+  OUT_ROWS.forEach(([key, , f]) => {
+    set('lab-ow-' + key, el => el.textContent = f(sandboxRef[key]) + ' →');
+    set('lab-ov-' + key, el => el.textContent = f(sandboxCur[key]));
+    set('lab-od-' + key, el => el.innerHTML = deltaChip(sandboxCur[key] - sandboxRef[key], 0));
+  });
+}
+
+// Навешиваем обработчики после вставки разметки
+function bindSandbox(root) {
+  const host = root || document;
+  host.querySelectorAll('[data-lab-key]').forEach(el => {
+    const key = el.dataset.labKey;
+    const handler = e => {
+      setMetric(key, e.target.value, e.target);
+      if (el.type === 'range') el.setAttribute('aria-valuenow', e.target.value);
+    };
+    el.addEventListener('input', handler);
+    el.addEventListener('change', handler);
+    // пустое поле не должно ронять расчёт
+    el.addEventListener('blur', () => { if (el.value === '') refreshSandbox(); });
+  });
+  host.querySelectorAll('[data-lab-act]').forEach(el => {
+    el.addEventListener('click', () => {
+      const a = el.dataset.labAct;
+      if (a === 'reset') resetSandbox();
+      if (a === 'exit' && onSandboxChange) { const cb = onSandboxChange; stopSandbox(); cb(); }
+    });
+  });
+  refreshSandbox();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  СРАВНЕНИЕ
+// ══════════════════════════════════════════════════════════════
+const PERIODS = {
+  yesterday: { label:'Вчера',  range: () => { const i = new Date().getDate() - 2; return [i, i]; } },
+  today:     { label:'Сегодня',range: () => { const i = new Date().getDate() - 1; return [i, i]; } },
+  week:      { label:'Неделя', range: () => { const i = new Date().getDate() - 1; return [Math.max(0, i - 6), i]; } },
+  month:     { label:'Месяц',  range: () => [0, 30] },
+};
+
+// Сводим дни в диапазоне в один набор показателей
+function aggregate(seller, from, to) {
+  const days = (seller.days || []).filter(d => d.dayIdx >= from && d.dayIdx <= to);
+  const revenue = days.reduce((a, d) => a + (d.revenue || 0), 0);
+  const checks  = days.reduce((a, d) => a + (d.checks  || 0), 0);
+  const units   = days.reduce((a, d) => a + (d.units   || 0), 0);
+  const shifts  = days.filter(d => d.shift).length;
+  const share   = days.reduce((a, d) => a + (d.trafficShare || 0), 0);
+  const iocs    = days.filter(d => d.shift && d.trafficShare > 0).map(d => d.ioc);
+  const ioc     = iocs.length ? iocs.reduce((a, b) => a + b, 0) / iocs.length : 0;
+  const m = {
+    revenue, checks, units, shifts, share, ioc,
+    upt: checks > 0 ? units / checks : 0,
+    atv: checks > 0 ? revenue / checks : 0,
+    aur: units  > 0 ? revenue / units  : 0,
+  };
+  m.qrei = qrei(m).score;
+  m.perShift = shifts > 0 ? revenue / shifts : 0;
+  m.hasData = revenue > 0 || checks > 0 || shifts > 0;
+  return m;
+}
+
+let cmpState = { a: null, b: '', period: 'week' };
+
+function openCompare(preselectName) {
+  injectCSS();
+  ensureCompareDOM();
+  const list = HOST.sellers();
+  if (preselectName) cmpState.a = preselectName;
+  if (!cmpState.a && list.length) cmpState.a = list[0].name;
+  renderCompare();
+  document.getElementById('cmpOv').classList.add('open');
+  document.getElementById('cmpModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCompare() {
+  const ov = document.getElementById('cmpOv'), md = document.getElementById('cmpModal');
+  if (ov) ov.classList.remove('open');
+  if (md) md.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function ensureCompareDOM() {
+  if (document.getElementById('cmpModal')) return;
+  const ov = document.createElement('div');
+  ov.className = 'cmp-ov'; ov.id = 'cmpOv';
+  ov.addEventListener('click', closeCompare);
+
+  const md = document.createElement('div');
+  md.className = 'cmp-modal'; md.id = 'cmpModal';
+  md.innerHTML = `
+    <div class="cmp-head">
+      <div>
+        <div class="cmp-title">Сравнение</div>
+        <div class="cmp-sub" id="cmpSub">—</div>
+      </div>
+      <button class="cmp-close" id="cmpClose">${ICON.close}</button>
+    </div>
+    <div class="cmp-ctrl">
+      <div class="cmp-field">
+        <div class="cmp-field-lbl">Продавец</div>
+        <select class="cmp-select" id="cmpA"></select>
+      </div>
+      <div class="cmp-field">
+        <div class="cmp-field-lbl">Сравнить с (необязательно)</div>
+        <select class="cmp-select" id="cmpB"></select>
+      </div>
+      <div class="cmp-field" style="flex:0 0 auto">
+        <div class="cmp-field-lbl">Период</div>
+        <div class="cmp-tabs" id="cmpTabs"></div>
+      </div>
+    </div>
+    <div class="cmp-body" id="cmpBody"></div>`;
+
+  document.body.appendChild(ov);
+  document.body.appendChild(md);
+  md.querySelector('#cmpClose').addEventListener('click', closeCompare);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCompare(); });
+}
+
+function renderCompare() {
+  const list = HOST.sellers();
+  const selA = document.getElementById('cmpA');
+  const selB = document.getElementById('cmpB');
+  const tabs = document.getElementById('cmpTabs');
+  const body = document.getElementById('cmpBody');
+  const sub  = document.getElementById('cmpSub');
+  if (!selA) return;
+
+  if (!list.length) {
+    body.innerHTML = '<div class="cmp-empty">Нет данных за выбранный лист</div>';
+    return;
+  }
+
+  const opts = n => list.map(s =>
+    `<option value="${esc(s.name)}"${s.name === n ? ' selected' : ''}>${esc(s.name)} · ${s.team === 'grandpark' ? 'Grand Park' : 'Aport'}</option>`).join('');
+  selA.innerHTML = opts(cmpState.a);
+  selB.innerHTML = `<option value="">— только один —</option>` + opts(cmpState.b);
+  selA.onchange = e => { cmpState.a = e.target.value; renderCompare(); };
+  selB.onchange = e => { cmpState.b = e.target.value; renderCompare(); };
+
+  // Двое сравниваются за период; одного смотрим сразу по трём периодам
+  const two = !!cmpState.b && cmpState.b !== cmpState.a;
+  tabs.innerHTML = Object.keys(PERIODS).map(k =>
+    `<button class="cmp-tab${cmpState.period === k ? ' on' : ''}" data-cmp-p="${k}">${PERIODS[k].label}</button>`).join('');
+  tabs.style.opacity = two ? '1' : '.4';
+  tabs.style.pointerEvents = two ? 'auto' : 'none';
+  tabs.querySelectorAll('[data-cmp-p]').forEach(b =>
+    b.onclick = () => { cmpState.period = b.dataset.cmpP; renderCompare(); });
+
+  const A = list.find(s => s.name === cmpState.a);
+  if (!A) { body.innerHTML = '<div class="cmp-empty">Продавец не найден</div>'; return; }
+
+  if (two) {
+    const B = list.find(s => s.name === cmpState.b);
+    const [f, t] = PERIODS[cmpState.period].range();
+    sub.textContent = `${A.name} против ${B.name} · ${PERIODS[cmpState.period].label.toLowerCase()}`;
+    body.innerHTML = tableHTML(
+      [A.name, B.name],
+      [aggregate(A, f, t), aggregate(B, f, t)],
+      true);
+  } else {
+    sub.textContent = `${A.name} · вчера, неделя и месяц рядом`;
+    const cols = ['yesterday','week','month'];
+    body.innerHTML = tableHTML(
+      cols.map(k => PERIODS[k].label),
+      cols.map(k => { const [f, t] = PERIODS[k].range(); return aggregate(A, f, t); }),
+      false);
+  }
+}
+
+function tableHTML(names, sets, showDelta) {
+  const fmt = HOST.fmt;
+  const num = (v, d) => v.toLocaleString('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+  const ROWS = [
+    ['QREI Score',     s => s.qrei,     v => String(v),        0, 'score'],
+    ['Выручка',        s => s.revenue,  v => fmt(v),           0],
+    ['Выручка / смену',s => s.perShift, v => fmt(v),           0],
+    ['Смен',           s => s.shifts,   v => String(v),        0],
+    ['Чеков',          s => s.checks,   v => String(v),        0],
+    ['Конверсия (IOC)',s => s.ioc,      v => num(v,1) + '%',   1],
+    ['Товаров в чеке', s => s.upt,      v => num(v,2),         2],
+    ['Средний чек',    s => s.atv,      v => fmt(v),           0],
+    ['Цена вещи',      s => s.aur,      v => fmt(v),           0],
+  ];
+
+  const empty = sets.map(s => !s.hasData);
+  if (empty.every(Boolean)) {
+    return '<div class="cmp-empty">За этот период данных нет.<br>Попробуй другой период — например, месяц.</div>';
+  }
+
+  const head = `<tr class="head-row"><th>Показатель</th>${
+    names.map((n, i) => `<th>${esc(n)}${empty[i] ? '<div class="cmp-sub-td">нет данных</div>' : ''}</th>`).join('')
+  }${showDelta ? '<th>Разница</th>' : ''}</tr>`;
+
+  const rows = ROWS.map(([label, get, f, dec, kind]) => {
+    const vals = sets.map(get);
+    const cells = vals.map((v, i) => {
+      if (empty[i]) return '<td style="color:var(--text3)">—</td>';
+      if (kind === 'score') {
+        const t = tierOf(v);
+        return `<td class="${t.cls || ''}" style="${t.cls ? '' : 'color:' + t.color}">${f(v)}</td>`;
+      }
+      return `<td>${f(v)}</td>`;
+    }).join('');
+    let d = '';
+    if (showDelta) {
+      if (empty[0] || empty[1]) d = '<td style="color:var(--text3)">—</td>';
+      else {
+        const diff = vals[0] - vals[1];
+        const ok = Math.abs(diff) >= Math.pow(10, -dec) / 2;
+        const clr = !ok ? 'var(--text3)' : diff > 0 ? 'var(--green)' : 'var(--red)';
+        const sign = !ok ? '' : diff > 0 ? '+' : '−';
+        d = `<td style="color:${clr};font-size:13px">${ok ? sign + f(Math.abs(diff)) : '='}</td>`;
+      }
+    }
+    return `<tr><td>${label}</td>${cells}${d}</tr>`;
+  }).join('');
+
+  return `<table class="cmp-grid">${head}${rows}</table>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ПУБЛИЧНЫЙ API
+// ══════════════════════════════════════════════════════════════
+global.QCPLab = {
+  VERSION,
+  configure(h) { HOST = Object.assign(HOST, h || {}); injectCSS(); },
+  // песочница
+  startSandbox, stopSandbox, resetSandbox, setMetric, isSandboxOn,
+  sandboxHTML, bindSandbox, refreshSandbox,
+  // сравнение
+  openCompare, closeCompare,
+  // для тестов
+  _derive: derive, _aggregate: aggregate, _rules: RULES,
+};
+
+console.log('[QCP-Lab] v' + VERSION + ' загружен');
+
+})(window);

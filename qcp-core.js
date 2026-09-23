@@ -32,6 +32,7 @@ const STEMS  = ['янв','февр','март','апрел','май','июн',
 let _db = null, _auth = null;
 let _role = null;
 let _period = null;              // "Сентябрь"
+let _raw = {};                   // сырой документ конфига (бенчмарки QREI и пр.)
 let _over = {};                  // ручные переопределения листов
 let _resolvers = {};             // { kpiSheet: {source, match}, ... }
 let _fallback = {};              // на случай если лист не найден
@@ -141,6 +142,25 @@ const CSS = `
   color:var(--red,#ff3333);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
 .qcp-out:hover{border-color:var(--red,#ff3333)}
 body.qcp-lock{overflow:hidden}
+
+/* QREI 90-100: анимированный синий градиент. Без glow/box-shadow. */
+.qrei-elite{
+  background:linear-gradient(110deg,#2f6bff 0%,#00b4ff 22%,#6ea8ff 42%,#00d4ff 62%,#3d7bff 82%,#2f6bff 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  animation:qreiFlow 5s linear infinite;
+}
+.qrei-chip-elite{
+  background:linear-gradient(110deg,#2f6bff 0%,#00b4ff 22%,#6ea8ff 42%,#00d4ff 62%,#3d7bff 82%,#2f6bff 100%);
+  background-size:300% 100%;
+  animation:qreiFlow 5s linear infinite;
+  color:#fff;
+}
+@keyframes qreiFlow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+@media(prefers-reduced-motion:reduce){
+  .qrei-elite,.qrei-chip-elite{animation:none;background-position:0 50%}
+}
 @media(min-width:769px){ .qcp-mobile{display:none !important} }
 `;
 
@@ -218,6 +238,57 @@ function recompute() {
   return changed;
 }
 
+
+// ══════════════════════════════════════════════════════════════
+//  QREI — единая формула и шкала цветов для ВСЕХ страниц.
+//  Меняешь здесь — меняется и у менеджера, и у продавца.
+// ══════════════════════════════════════════════════════════════
+const QREI_BENCH_DEFAULT = { ioc: 15, upt: 2.2, atv: 25000, aur: 20000 };
+const QREI_WEIGHTS       = { ioc: 0.30, upt: 0.30, atv: 0.20, aur: 0.20 };
+
+// Бенчмарки: из общего конфига, иначе стандартные
+function qreiBench() {
+  const b = _raw && _raw.qreiBench;
+  if (!b || typeof b !== 'object') return Object.assign({}, QREI_BENCH_DEFAULT);
+  const out = Object.assign({}, QREI_BENCH_DEFAULT);
+  ['ioc','upt','atv','aur'].forEach(k => {
+    const v = parseFloat(b[k]);
+    if (!isNaN(v) && v > 0) out[k] = v;
+  });
+  return out;
+}
+
+// m: { ioc, upt, atv, aur } → { score, parts }
+function calcQrei(m) {
+  const B = qreiBench();
+  const norm = k => {
+    const v = parseFloat(m && m[k]);
+    if (!v || isNaN(v) || v <= 0) return 0;
+    return Math.min(100, v / B[k] * 100);
+  };
+  const parts = { ioc: norm('ioc'), upt: norm('upt'), atv: norm('atv'), aur: norm('aur') };
+  const score = Math.round(
+    parts.ioc * QREI_WEIGHTS.ioc + parts.upt * QREI_WEIGHTS.upt +
+    parts.atv * QREI_WEIGHTS.atv + parts.aur * QREI_WEIGHTS.aur
+  );
+  return { score, parts, bench: B, weights: QREI_WEIGHTS };
+}
+
+// Шкала: 0-50 красный · 50-80 жёлтый · 80-90 зелёный · 90-100 синий (анимация)
+function qreiTier(score) {
+  const n = Math.round(parseFloat(score) || 0);
+  if (n >= 90) return { key:'elite',  label:'Элита',   color:'#2f6bff',       cls:'qrei-elite', rate:0.06 };
+  if (n >= 80) return { key:'green',  label:'Отлично', color:'var(--green)',  cls:'',           rate:null };
+  if (n >= 50) return { key:'yellow', label:'Норма',   color:'var(--yellow)', cls:'',           rate:null };
+  return         { key:'red',    label:'Зона риска', color:'var(--red)', cls:'',           rate:null };
+}
+
+// Готовый inline-стиль для цифры score
+function qreiStyle(score) {
+  const t = qreiTier(score);
+  return t.cls ? '' : 'color:' + t.color;
+}
+
 // ── РОЛЬ ─────────────────────────────────────────────────────
 async function fetchRole() {
   const u = auth().currentUser;
@@ -249,6 +320,7 @@ function watch(seedMonth) {
   if (_unsub) _unsub();
   _unsub = db().collection(CFG_COLL).doc(CFG_DOC).onSnapshot(snap => {
     const d = snap.exists ? (snap.data() || {}) : {};
+    _raw = d;
 
     const prevPeriod = _period;
     _period = (typeof d.period === 'string' && d.period.trim()) ? d.period.trim() : null;
@@ -309,6 +381,20 @@ async function setSheet(field, value) {
     await db().collection(CFG_COLL).doc(CFG_DOC).set(patch, { merge: true });
   } catch (e) {
     console.error('[QCP] запись листа:', e);
+  }
+}
+
+// Записать произвольные поля в общий конфиг (напр. бенчмарки QREI)
+async function setRaw(patch) {
+  if (!patch || !canSwitch()) return;
+  const body = Object.assign({}, patch, {
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedBy: (auth().currentUser || {}).email || 'unknown'
+  });
+  try {
+    await db().collection(CFG_COLL).doc(CFG_DOC).set(body, { merge: true });
+  } catch (e) {
+    console.error('[QCP] setRaw:', e);
   }
 }
 
@@ -552,6 +638,8 @@ global.QCP = {
   canSwitch,
   tabs(src)    { return (_tabs[src || 'main'] || []).slice(); },
   onChange(fn) { _changeCbs.push(fn); },
+  calcQrei, qreiTier, qreiStyle, qreiBench, setRaw,
+  raw(f)       { return f ? _raw[f] : Object.assign({}, _raw); },
   mountPicker, mountNav, navSet,
   openMenu()   { _drawer && _drawer.open(); },
 };

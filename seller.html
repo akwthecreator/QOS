@@ -435,6 +435,7 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 .metric-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
 
 </style>
+<script src="qcp-icons.js?v=20260928a"></script>
 </head>
 <body>
 
@@ -538,7 +539,7 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
       <!-- 💰 МОЯ ЗАРПЛАТА -->
       <div class="ai-card" id="salary-card">
         <div class="ai-header">
-          <div class="ai-icon">💰</div>
+          <div class="ai-icon"><i class="qi-slot" data-qi="wallet" data-qs="20" style="color:#fff"></i></div>
           <div>
             <div class="ai-title">Моя зарплата</div>
             <div class="ai-subtitle">Расчёт на основе таблицы Google Sheets</div>
@@ -583,19 +584,16 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
         <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Что допродать для закрытия плана</div>
         <div class="ai-decomp" id="ai-decomp">
           <div class="decomp-item">
-            <div class="decomp-icon">👕</div>
             <div class="decomp-count" id="dec-tshirt">—</div>
             <div class="decomp-label">Футболок</div>
             <div class="decomp-price">~10 800₸</div>
           </div>
           <div class="decomp-item">
-            <div class="decomp-icon">🧥</div>
             <div class="decomp-count" id="dec-hoodie">—</div>
             <div class="decomp-label">Худи</div>
             <div class="decomp-price">~26 000₸</div>
           </div>
           <div class="decomp-item">
-            <div class="decomp-icon">🧢</div>
             <div class="decomp-count" id="dec-cap">—</div>
             <div class="decomp-label">Кепок</div>
             <div class="decomp-price">5 000₸</div>
@@ -606,12 +604,12 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
       <!-- 📋 МОИ ЗАДАЧИ -->
       <div class="seller-tasks-card">
         <div class="seller-tasks-header">
-          <div class="seller-tasks-title">📋 Мои задачи</div>
+          <div class="seller-tasks-title"><i class="qi-slot" data-qi="notebook" data-qs="16" style="vertical-align:-3px;margin-right:6px"></i>Мои задачи</div>
           <div class="seller-tasks-badge" id="tasksBadge" style="display:none">0</div>
         </div>
         <div class="seller-tasks-list" id="sellerTasksList">
           <div class="seller-tasks-empty">
-            <div class="seller-tasks-empty-icon">✅</div>
+            <div class="seller-tasks-empty-icon"><i class="qi-slot" data-qi="check-ring" data-qs="28" style="color:var(--green)"></i></div>
             <div class="seller-tasks-empty-text">Нет новых задач</div>
           </div>
         </div>
@@ -652,15 +650,15 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 
       <!-- Мини-график по дням месяца -->
       <div class="form-card">
-        <div class="form-title">📈 Динамика выручки в этом месяце</div>
+        <div class="form-title"><i class="qi-slot" data-qi="chart-alt" data-qs="16"></i> Динамика выручки в этом месяце</div>
         <div class="mini-chart" id="my-daily-chart"></div>
         <div class="mini-chart-labels" id="my-daily-labels"></div>
       </div>
 
       <!-- История недель -->
       <div class="form-card">
-        <div class="form-title">📊 История по неделям</div>
-        <div id="week-history-list"><div class="empty"><div class="empty-icon">📈</div>Синхронизируем данные...</div></div>
+        <div class="form-title"><i class="qi-slot" data-qi="chart" data-qs="16"></i> История по неделям</div>
+        <div id="week-history-list"><div class="empty"><div class="empty-icon"><i class="qi-slot" data-qi="refresh-2" data-qs="32" style="color:var(--text3)"></i></div>Синхронизируем данные...</div></div>
       </div>
 
     </div><!-- /tab-score -->
@@ -680,7 +678,7 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
     <!-- Хэндл -->
     <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px"></div>
 
-    <div style="font-size:17px;font-weight:700;margin-bottom:4px">⚙️ Настройки</div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:4px"><i class="qi-slot" data-qi="setting-alt-line" data-qs="18" style="vertical-align:-3px;margin-right:6px"></i>Настройки</div>
     <div style="font-size:13px;color:var(--text3);margin-bottom:24px">Выберите период для просмотра данных</div>
 
     <!-- Выбор листа ЗП -->
@@ -706,7 +704,7 @@ body { background: var(--bg); color: var(--text); transition: background 0.3s, c
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-<script src="qcp-core.js?v=20260923a"></script>
+<script src="qcp-core.js?v=20260928b"></script>
 
 <script>
 // ===================== CONFIG =====================
@@ -722,7 +720,8 @@ const FIREBASE_CONFIG = {
 // Google Sheets — те же что в panel.html
 const SHEET_ID         = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
 const API_KEY          = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
-const QOIMA_SHEET_ID   = '1awUVp3geOvI7KGF4fXAHmCV03JkslS8VPYxPIXaudc4'; // таблица "QOIMA Sellers"
+const QOIMA_SHEET_ID   = '1awUVp3geOvI7KGF4fXAHmCV03JkslS8VPYxPIXaudc4'; // "QOIMA Sellers" по умолчанию;
+                                                                            // если админ сменит таблицу в Advanced → Настройки, возьмётся общая
 const QOIMA_SHEET      = 'Июль';      // фолбэк листа продаж
 const SELLERS_SHEET    = 'ЗП Июль';   // фолбэк листа ЗП (план и начисления)
 const KPI_SHEET        = 'ИЮЛЬ KPI';  // лист с KPI магазинов
@@ -784,6 +783,10 @@ auth.onAuthStateChanged(async user => {
     ]
   });
   QCP.onChange(() => syncSheets());
+  // Админ поменял планы KPI или таблицу продаж — пересчитываем сразу, без перезагрузки
+  QCP.onSettings((raw, keys) => {
+    if (keys.includes('qreiBench') || keys.includes('advSheetId')) syncSheets();
+  });
 
   // Синхронизируем Sheets сразу
   await syncSheets();
@@ -829,7 +832,8 @@ async function syncSheets() {
     const zpTab    = (window.QCP && QCP.get('zpSheet'))  || SELLERS_SHEET;
 
     // ── Продажи: таблица "QOIMA Sellers" ──
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${QOIMA_SHEET_ID}/values/${encodeURIComponent(salesTab)}?key=${API_KEY}`;
+    const salesId  = (window.QCP && QCP.advSheetId && QCP.advSheetId()) || QOIMA_SHEET_ID;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${salesId}/values/${encodeURIComponent(salesTab)}?key=${API_KEY}`;
     const res = await fetch(url);
     if (res.status === 400 || res.status === 404) throw new Error('SHEET_NOT_FOUND');
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1290,7 +1294,7 @@ function renderDailyChart() {
 function renderWeekHistory() {
   const histEl = document.getElementById('week-history-list');
   if (!mySeller) {
-    histEl.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div>Нет данных</div>';
+    histEl.innerHTML = '<div class="empty"><div class="empty-icon"><i class="qi-slot" data-qi="hourglass" data-qs="32" style="color:var(--text3)"></i></div>Нет данных</div>';
     return;
   }
 
@@ -1312,7 +1316,7 @@ function renderWeekHistory() {
 
   const weeks = Object.entries(weekMap).sort((a,b) => b[0].localeCompare(a[0]));
   if (!weeks.length) {
-    histEl.innerHTML = '<div class="empty"><div class="empty-icon">📈</div>Нет данных</div>';
+    histEl.innerHTML = '<div class="empty"><div class="empty-icon"><i class="qi-slot" data-qi="chart-alt" data-qs="32" style="color:var(--text3)"></i></div>Нет данных</div>';
     return;
   }
 
@@ -1536,7 +1540,7 @@ function renderSalaryBlock() {
   const planEl = document.getElementById('sal-if-plan');
   const planV  = document.getElementById('sal-plan-val');
 
-  if (needEl) needEl.textContent = needed > 0 ? fmtMoney(needed) : '✅ План выполнен!';
+  if (needEl) needEl.innerHTML = needed > 0 ? fmtMoney(needed) : QCPIcons.slot('done', 24, 'vertical-align:-4px;margin-right:4px') + 'План выполнен!';
   if (needEl) needEl.style.color = needed > 0 ? 'var(--text)' : 'var(--green)';
   if (subEl)  subEl.innerHTML    = 'Касса за месяц: <strong>' + fmtMoneyFull(monthRev) + '</strong>';
   if (actEl)  actEl.textContent  = fmtMoney(salActual);
@@ -1748,12 +1752,12 @@ function toggleTheme() {
   const next = cur === 'dark' ? 'light' : 'dark';
   html.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
-  if (document.getElementById('themeBtn')) document.getElementById('themeBtn').innerHTML = next === 'dark' ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+  if (document.getElementById('themeBtn')) document.getElementById('themeBtn').innerHTML = next === 'dark' ? `<i class="qi-slot" data-qi="moon-alt" data-qs="20"></i>` : `<i class="qi-slot" data-qi="sun-1" data-qs="20"></i>`;
 }
 window.addEventListener('load', () => {
   const saved = localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
-  if (document.getElementById('themeBtn')) document.getElementById('themeBtn').innerHTML = saved === 'dark' ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+  if (document.getElementById('themeBtn')) document.getElementById('themeBtn').innerHTML = saved === 'dark' ? `<i class="qi-slot" data-qi="moon-alt" data-qs="20"></i>` : `<i class="qi-slot" data-qi="sun-1" data-qs="20"></i>`;
   // loadSellerTasks вызывается из onAuthStateChanged после auth
 });
 
@@ -1804,7 +1808,7 @@ async function loadSellerTasks(user) {
     // Показываем ошибку пользователю в блоке задач
     const tasksList = document.getElementById('sellerTasksList');
     if (tasksList) {
-      tasksList.innerHTML = '<div class="seller-tasks-empty"><div class="seller-tasks-empty-icon">⚠️</div><div class="seller-tasks-empty-text">Ошибка загрузки задач</div></div>';
+      tasksList.innerHTML = '<div class="seller-tasks-empty"><div class="seller-tasks-empty-icon"><i class="qi-slot" data-qi="warning" data-qs="28" style="color:var(--yellow)"></i></div><div class="seller-tasks-empty-text">Ошибка загрузки задач</div></div>';
     }
   }
 }
@@ -1815,7 +1819,7 @@ function renderSellerTasks(tasks, userId) {
   if (tasks.length === 0) {
     tasksList.innerHTML = `
       <div class="seller-tasks-empty">
-        <div class="seller-tasks-empty-icon">✅</div>
+        <div class="seller-tasks-empty-icon"><i class="qi-slot" data-qi="check-ring" data-qs="28" style="color:var(--green)"></i></div>
         <div class="seller-tasks-empty-text">Нет новых задач</div>
       </div>`;
     return;
@@ -1832,9 +1836,9 @@ function renderSellerTasks(tasks, userId) {
     const completedAt = task.completedAt ? new Date(task.completedAt).toLocaleDateString('ru-RU') : '';
     
     const deadlineText = !task.deadline ? '' :
-      isToday ? '📌 Сегодня' :
-      isOverdue ? '⚠️ Просрочено' :
-      `📅 ${new Date(task.deadline).toLocaleDateString('ru-RU')}`;
+      isToday ? QCPIcons.slot('pin-1', 12, 'vertical-align:-2px') + ' Сегодня' :
+      isOverdue ? QCPIcons.slot('warning', 12, 'vertical-align:-2px') + ' Просрочено' :
+      QCPIcons.slot('calendar', 12, 'vertical-align:-2px') + ` ${new Date(task.deadline).toLocaleDateString('ru-RU')}`;
     
     const priorityLabel = task.priority === 'high' ? 'Высокий' : task.priority === 'low' ? 'Низкий' : 'Средний';
     
@@ -1853,7 +1857,7 @@ function renderSellerTasks(tasks, userId) {
           <span style="color:${isOverdue?'var(--red)':'var(--text3)'}">${deadlineText}</span>
         </div>
         ${task.description ? `<div style="font-size:11px;color:var(--text3);margin-top:4px">${task.description}</div>` : ''}
-        <div class="seller-task-done-label">✅ Выполнено ${completedAt}</div>
+        <div class="seller-task-done-label"><i class="qi-slot" data-qi="done" data-qs="12" style="vertical-align:-2px"></i> Выполнено ${completedAt}</div>
       </div>
     `;
     tasksList.appendChild(taskEl);
@@ -1869,7 +1873,7 @@ async function toggleSellerTaskComplete(taskId, completed) {
       completedAt: completed ? new Date().toISOString() : null,
       completedBy: completed ? currentUser.uid : null
     });
-    showToast(completed ? '✅ Задача выполнена!' : '↩️ Отметка снята', completed ? 'success' : 'info');
+    showToast(completed ? 'Задача выполнена' : 'Отметка снята', completed ? 'success' : 'info');
     // Перезагружаем задачи чтобы обновить состояние
     await loadSellerTasks(currentUser);
   } catch(e) {

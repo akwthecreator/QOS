@@ -650,6 +650,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           </div>
           <div class="status-pill"><div class="status-dot" id="statusDot"></div><span class="pill-text" id="lastSync">не синхр.</span></div>
           <button class="sync-btn" id="syncBtn" onclick="syncData()"><i class="qi-slot" data-qi="refresh-2" data-qs="13"></i><span class="btn-text">Синхронизировать</span></button>
+          <span class="qcp-slot" style="display:flex;align-items:center;gap:8px"></span>
           <div id="userProfileSection" style="display:none;align-items:center;gap:8px">
             <div class="user-pill" onclick="handleLogout()" title="Выйти">
               <div class="user-avatar" id="userAvatar">?</div>
@@ -2861,6 +2862,7 @@ async function wireSharedConfig() {
     },
     fallback: { kpiSheet: CFG.SHEET_NAME, zpSheet: CFG.SELLERS_SHEET_NAME }
   });
+  QCP.mountPicker('.qcp-slot');   // выбор месяца в шапке — общий для всех страниц
   const settingsOpen = () => document.getElementById('page-settings').classList.contains('active');
 
   // Сменили месяц/лист (здесь, у менеджера или на другом устройстве)

@@ -342,6 +342,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
   .score-breakdown{grid-template-columns:repeat(2,1fr)}
 }
 </style>
+<script src="qcp-icons.js?v=20260928a"></script>
 </head>
 <body>
 
@@ -359,15 +360,15 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 <div id="settingsModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:501;width:min(520px,calc(100vw - 32px));background:var(--bg2);border:1px solid var(--border2);border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.5)">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)">
     <div>
-      <div style="font-size:16px;font-weight:700">⚙️ Настройки QREI</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:2px">Независимо от panel.html</div>
+      <div style="font-size:16px;font-weight:700"><i class="qi-slot" data-qi="setting-alt-line" data-qs="18" style="vertical-align:-3px;margin-right:6px"></i>Настройки QREI</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">Общие для всех устройств и продавцов</div>
     </div>
-    <button onclick="closeSettings()" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center">✕</button>
+    <button onclick="closeSettings()" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center"><i class="qi-slot" data-qi="close-round" data-qs="16"></i></button>
   </div>
   <div style="padding:20px 22px;max-height:70vh;overflow-y:auto">
 
     <!-- Sheet settings -->
-    <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">📋 Google Sheets</div>
+    <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px"><i class="qi-slot" data-qi="table" data-qs="12" style="vertical-align:-2px;margin-right:5px"></i>Google Sheets</div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
       <div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Sheet ID <span style="color:var(--text3)">(ID таблицы из URL)</span></div>
@@ -384,7 +385,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
           </select>
           <button onclick="fetchSheetsList()" title="Загрузить список листов из таблицы"
             style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;font-family:inherit">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            <i class="qi-slot" data-qi="refresh-2" data-qs="14"></i>
             Листы
           </button>
         </div>
@@ -395,7 +396,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
     </div>
 
     <!-- Benchmarks -->
-    <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">🎯 Бенчмарки (планы)</div>
+    <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px"><i class="qi-slot" data-qi="gps-fixed" data-qs="12" style="vertical-align:-2px;margin-right:5px"></i>Бенчмарки (планы)</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
       <div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:5px">IOC цель (%)</div>
@@ -421,10 +422,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 
     <!-- Save/Reset -->
     <div style="display:flex;gap:8px">
-      <button onclick="saveSettings()" style="flex:1;padding:11px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer">💾 Сохранить и загрузить</button>
+      <button id="cfg-save-btn" onclick="saveSettings()" style="flex:1;padding:11px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer"><i class="qi-slot" data-qi="save" data-qs="16" style="vertical-align:-3px;margin-right:6px"></i>Сохранить и загрузить</button>
       <button onclick="resetSettings()" style="padding:11px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:13px;cursor:pointer">Сброс</button>
     </div>
     <div id="cfg-save-msg" style="margin-top:8px;font-size:12px;min-height:16px;text-align:center"></div>
+    <div id="cfg-stamp" style="margin-top:2px;font-size:10px;color:var(--text3);text-align:center"></div>
   </div>
 </div>
 
@@ -442,7 +444,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 
     <!-- Config warning (if sheet not set) -->
     <div class="config-bar" id="configBar" style="display:none" onclick="openSettings()">
-      ⚙ <span>Таблица не настроена — нажмите чтобы открыть настройки</span>
+      <i class="qi-slot" data-qi="setting-alt-line" data-qs="14"></i> <span>Таблица не настроена — нажмите чтобы открыть настройки</span>
       <span style="margin-left:auto;opacity:0.6">→</span>
     </div>
 
@@ -479,11 +481,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-<script src="qcp-core.js?v=20260923a"></script>
-<script src="qcp-lab.js?v=20260923a"></script>
+<script src="qcp-core.js?v=20260928b"></script>
+<script src="qcp-lab.js?v=20260928a"></script>
 <script>
 // ══════════════════════════════════════════════════════════
-//  CONFIG — читаем из localStorage (сохраняется в panel.html settings)
+//  FIREBASE + Google Sheets
 // ══════════════════════════════════════════════════════════
 const FIREBASE_CFG = {
   apiKey:"AIzaSyDJYs_65EzH2WT99YT25reJcczjUZy41Do",
@@ -502,8 +504,10 @@ const MAIN_SHEET_ID = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
 const API_KEY = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
 
 // ══════════════════════════════════════════════════════════
-//  CONFIG — НЕЗАВИСИМЫЙ от panel.html
-//  Хранится в localStorage под ключом 'adv_cfg'
+//  CONFIG — ОБЩИЙ для всех устройств, ролей и страниц
+//  Хранится в Firestore (config/active_sheet): qreiBench, advSheetId, advSheet.
+//  Поменял на ноутбуке — сразу то же самое на телефоне, у менеджера и у продавцов.
+//  Старое хранилище браузера 'adv_cfg' читается только один раз — для переноса.
 // ══════════════════════════════════════════════════════════
 const ADV_STORAGE_KEY = 'adv_cfg';
 
@@ -516,33 +520,73 @@ const ADV_DEFAULT = {
   bench_aur: 20000,
 };
 
-function getADV() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(ADV_STORAGE_KEY) || '{}');
-    return Object.assign({}, ADV_DEFAULT, saved);
-  } catch(e) { return Object.assign({}, ADV_DEFAULT); }
+// ID таблицы продаж: общий из конфига, иначе стандартный
+function getSheetId() {
+  return (window.QCP && QCP.advSheetId && QCP.advSheetId()) || ADV_DEFAULT.sheetId;
 }
-
-function saveADV(patch) {
-  const cur = getADV();
-  const next = Object.assign(cur, patch);
-  localStorage.setItem(ADV_STORAGE_KEY, JSON.stringify(next));
-  return next;
-}
-
-function getSheetId()   { return getADV().sheetId || ADV_DEFAULT.sheetId; }
 function getSheetName() {
-  return (window.QCP && QCP.get('advSheet')) || getADV().sheetName || ADV_DEFAULT.sheetName;
+  return (window.QCP && QCP.get('advSheet')) || ADV_DEFAULT.sheetName;
+}
+
+// Бенчмарки (планы KPI) — ровно те же, по которым считается QREI у продавцов
+function getBENCH() {
+  if (window.QCP && QCP.qreiBench) return QCP.qreiBench();
+  return { ioc: ADV_DEFAULT.bench_ioc, upt: ADV_DEFAULT.bench_upt,
+           atv: ADV_DEFAULT.bench_atv, aur: ADV_DEFAULT.bench_aur };
+}
+
+// Всё вместе — для окна настроек
+function getADV() {
+  const b = getBENCH();
+  return { sheetId: getSheetId(), sheetName: getSheetName(),
+           bench_ioc: b.ioc, bench_upt: b.upt, bench_atv: b.atv, bench_aur: b.aur };
+}
+
+// Разовый перенос: если на этом устройстве раньше сохраняли свои планы,
+// а в общем конфиге их ещё нет — отправляем их в общий. Потом ключ удаляем.
+async function migrateLocalSettings() {
+  let local = null;
+  try { local = JSON.parse(localStorage.getItem(ADV_STORAGE_KEY) || 'null'); } catch (e) {}
+  if (!local || !window.QCP) return;
+  const patch = {};
+  if (!QCP.setting('qreiBench')) {
+    const b = {
+      ioc: parseFloat(local.bench_ioc) || ADV_DEFAULT.bench_ioc,
+      upt: parseFloat(local.bench_upt) || ADV_DEFAULT.bench_upt,
+      atv: parseFloat(local.bench_atv) || ADV_DEFAULT.bench_atv,
+      aur: parseFloat(local.bench_aur) || ADV_DEFAULT.bench_aur,
+    };
+    if (['ioc','upt','atv','aur'].some(k => b[k] !== ADV_DEFAULT['bench_' + k])) patch.qreiBench = b;
+  }
+  if (!QCP.setting('advSheetId') && local.sheetId && local.sheetId.trim() !== ADV_DEFAULT.sheetId) {
+    patch.advSheetId = local.sheetId.trim();
+  }
+  if (Object.keys(patch).length) {
+    const r = await QCP.setRaw(patch);
+    if (!r.ok) { console.warn('[QREI] перенос настроек не удался:', r.error); return; }
+    console.log('[QREI] настройки этого устройства перенесены в общие:', patch);
+  }
+  try { localStorage.removeItem(ADV_STORAGE_KEY); } catch (e) {}
+}
+
+// Кто и когда последний раз менял настройки — видно в окне настроек
+function settingsStamp() {
+  if (!window.QCP) return '';
+  const by = QCP.setting('settingsBy');
+  if (!by) return '';
+  const at = QCP.setting('settingsAt');
+  let when = '';
+  try {
+    const d = at && typeof at.toDate === 'function' ? at.toDate() : null;
+    if (d) when = ' · ' + d.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit' }) + ' '
+                        + d.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' });
+  } catch (e) {}
+  return 'Последнее изменение: ' + by + when;
 }
 
 // ══════════════════════════════════════════════════════════
 //  QREI BENCHMARKS (per ТЗ)
 // ══════════════════════════════════════════════════════════
-// BENCH — динамически из настроек
-function getBENCH() {
-  const c = getADV();
-  return { ioc: c.bench_ioc, upt: c.bench_upt, atv: c.bench_atv, aur: c.bench_aur };
-}
 const WEIGHTS = { ioc:0.30, upt:0.30, atv:0.20, aur:0.20 };
 
 // ══════════════════════════════════════════════════════════
@@ -832,9 +876,9 @@ function calcQREI(sellers) {
 
     // Dynamic badge (among whole filtered list)
     let badge = null;
-    if (s.upt === maxUpt && maxUpt > 0)       badge = {label:'The Look Maker', color:'var(--yellow)', icon:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'};
-    else if (s.ioc === maxIoc && maxIoc > 0)  badge = {label:'The Closer',     color:'var(--green)',  icon:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg>'};
-    else if (s.aur === maxAur && maxAur > 0)  badge = {label:'Premium Stylist', color:'var(--accent)', icon:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'};
+    if (s.upt === maxUpt && maxUpt > 0)       badge = {label:'The Look Maker', color:'var(--yellow)', icon:'<i class="qi-slot" data-qi="lightning" data-qs="12"></i>'};
+    else if (s.ioc === maxIoc && maxIoc > 0)  badge = {label:'The Closer',     color:'var(--green)',  icon:'<i class="qi-slot" data-qi="gps-fixed" data-qs="12"></i>'};
+    else if (s.aur === maxAur && maxAur > 0)  badge = {label:'Premium Stylist', color:'var(--accent)', icon:'<i class="qi-slot" data-qi="star" data-qs="12"></i>'};
 
     return { ...s, qrei, isDanger, badge, n_ioc, n_upt, n_atv, n_aur };
   }).sort((a,b)=>b.qrei-a.qrei);
@@ -897,7 +941,7 @@ function render() {
 
   // Leaderboard sidebar
   document.getElementById('lbList').innerHTML = list.map((s,i)=>{
-    const rankStr = i===0?'<svg width="14" height="14" viewBox="0 0 24 24" fill="#ffd700" stroke="none"><circle cx="12" cy="8" r="6"/><path d="M6 8l-4 10h4l2-4 2 4h4l2-4 2 4h4L22 8" fill="#ffd700" opacity="0.3"/></svg>':i===1?'<svg width="14" height="14" viewBox="0 0 24 24" fill="#c0c0c0" stroke="none"><circle cx="12" cy="8" r="6"/></svg>':i===2?'<svg width="14" height="14" viewBox="0 0 24 24" fill="#cd7f32" stroke="none"><circle cx="12" cy="8" r="6"/></svg>':`#${i+1}`;
+    const rankStr = i===0?'<i class="qi-slot" data-qi="trophy" data-qs="14" style="color:#ffd700"></i>':i===1?'<i class="qi-slot" data-qi="trophy" data-qs="14" style="color:#c0c0c0"></i>':i===2?'<i class="qi-slot" data-qi="trophy" data-qs="14" style="color:#cd7f32"></i>':`#${i+1}`;
     const clr = s.isDanger?'var(--red)':i===0?'#ffd700':i<3?'var(--accent)':'var(--text2)';
     const avBg = s.team==='grandpark'?'#0d1a2e':'#2e1a0d';
     const avTx = s.team==='grandpark'?'#6ba3d4':'#d4a56b';
@@ -917,7 +961,7 @@ function render() {
   // Cards grid
   const mc = document.getElementById('mainContent');
   if (!list.length) {
-    mc.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div><div class="empty-title">Нет данных</div><div class="empty-sub">Попробуйте изменить фильтры или обновить данные</div></div>`;
+    mc.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="qi-slot" data-qi="table" data-qs="32"></i></div><div class="empty-title">Нет данных</div><div class="empty-sub">Попробуйте изменить фильтры или обновить данные</div></div>`;
     return;
   }
 
@@ -951,7 +995,7 @@ function renderCard(s, rank, origIdx) {
         <div class="card-name">${s.name}</div>
         <div class="card-store">${storeLabel}</div>
         ${s.badge?`<div class="card-badge" style="background:${s.badge.color}18;color:${s.badge.color}">${s.badge.icon} ${s.badge.label}</div>`:''}
-        ${s.isDanger?`<div class="danger-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Зона риска</div>`:''}
+        ${s.isDanger?`<div class="danger-badge"><i class="qi-slot" data-qi="warning" data-qs="12"></i> Зона риска</div>`:''}
       </div>
       <div class="card-score-block">
         <div class="card-score-num ${scoreCls}" style="${scoreSty}">${s.qrei}</div>
@@ -960,19 +1004,19 @@ function renderCard(s, rank, origIdx) {
     </div>
     <div class="metrics-grid">
       <div class="metric-cell">
-        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 6v6l4 2"/><path d="M9 2h6M12 2v4"/></svg> Выручка</div>
+        <div class="metric-lbl"><i class="qi-slot" data-qi="money" data-qs="12"></i> Выручка</div>
         <div class="metric-val">${fmtKT(s.revenue)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> UPT</div>
+        <div class="metric-lbl"><i class="qi-slot" data-qi="lightning" data-qs="12"></i> UPT</div>
         <div class="metric-val">${s.upt.toFixed(1)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> ATV</div>
+        <div class="metric-lbl"><i class="qi-slot" data-qi="ticket-alt" data-qs="12"></i> ATV</div>
         <div class="metric-val">${fmtKT(s.atv)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Доля трафика</div>
+        <div class="metric-lbl"><i class="qi-slot" data-qi="group" data-qs="12"></i> Доля трафика</div>
         <div class="metric-val">${shareAvg > 0 ? '~'+shareAvg : '—'}</div>
         <div class="metric-sub" style="font-size:9px;color:var(--text3)">чел/смену · σ ${share > 0 ? share : '—'} всего</div>
       </div>
@@ -1062,7 +1106,7 @@ function openPanel(origIdx) {
         <div class="panel-store">${teamLbl} · ${s.shifts} смен</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
           ${s.badge?`<div class="card-badge" style="background:${s.badge.color}18;color:${s.badge.color}">${s.badge.icon} ${s.badge.label}</div>`:''}
-          ${s.isDanger?`<div class="danger-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Зона риска</div>`:''}
+          ${s.isDanger?`<div class="danger-badge"><i class="qi-slot" data-qi="warning" data-qs="12"></i> Зона риска</div>`:''}
         </div>
       </div>
       <div style="text-align:right;flex-shrink:0">
@@ -1075,11 +1119,11 @@ function openPanel(origIdx) {
     ${labOn ? labBlock : `
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
       <button class="lab-btn primary" onclick="openSandbox()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:4px"><path d="M9 3h6M10 3v6l-6 10a2 2 0 0 0 1.7 3h12.6a2 2 0 0 0 1.7-3l-6-10V3"/><path d="M7 15h10"/></svg>
+        <i class="qi-slot" data-qi="flask-alt" data-qs="14" style="vertical-align:-1px;margin-right:4px"></i>
         Песочница
       </button>
       <button class="lab-btn" onclick="openCompareFor('${s.name.replace(/'/g, "\\'")}')">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:4px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <i class="qi-slot" data-qi="chart" data-qs="14" style="vertical-align:-1px;margin-right:4px"></i>
         Сравнить
       </button>
     </div>`}
@@ -1255,8 +1299,8 @@ function toggleTheme() {
   html.setAttribute('data-theme',next);
   const _t1 = document.getElementById('themeBtn');
   if (_t1) _t1.innerHTML = next==='dark'
-    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
-    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+    ? '<i class="qi-slot" data-qi="moon-alt" data-qs="16"></i>'
+    : '<i class="qi-slot" data-qi="sun-1" data-qs="16"></i>';
   localStorage.setItem('adv_theme',next);
 }
 // ══════════════════════════════════════════════════════════
@@ -1272,7 +1316,7 @@ async function fetchSheetsList() {
   }
   const btn = event.currentTarget;
   const origHTML = btn.innerHTML;
-  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 0.7s linear infinite"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>';
+  btn.innerHTML = '<i class="qi-slot" data-qi="refresh-2" data-qs="14" style="animation:spin 0.7s linear infinite"></i>';
   btn.disabled = true;
   try {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?fields=sheets.properties.title&key=${API_KEY}`;
@@ -1296,7 +1340,7 @@ async function fetchSheetsList() {
   } catch(e) {
     console.error('[QREI] fetchSheetsList:', e);
     const sel = document.getElementById('cfg-sheet-select');
-    sel.innerHTML = `<option value="">⚠ Ошибка: ${e.message}</option>`;
+    sel.innerHTML = `<option value="">Ошибка: ${e.message}</option>`;
     sel.style.borderColor = 'var(--bad)';
     setTimeout(() => sel.style.borderColor = '', 2000);
   } finally {
@@ -1305,28 +1349,29 @@ async function fetchSheetsList() {
   }
 }
 
-function openSettings() {
-  const c = getADV();
+function fillSettingsForm(c) {
   document.getElementById('cfg-sheet-id').value    = c.sheetId   || '';
   document.getElementById('cfg-sheet-name').value  = c.sheetName || '';
   // Pre-select in dropdown if option exists
   const sel = document.getElementById('cfg-sheet-select');
   const opt = Array.from(sel.options).find(o => o.value === (c.sheetName || ''));
   if (opt) { sel.value = c.sheetName; }
-  else {
-    // Add current as option if not in list
-    if (c.sheetName && !Array.from(sel.options).some(o => o.value === c.sheetName)) {
-      const o = document.createElement('option');
-      o.value = c.sheetName; o.textContent = c.sheetName; o.selected = true;
-      sel.insertBefore(o, sel.firstChild);
-    }
+  else if (c.sheetName) {
+    const o = document.createElement('option');
+    o.value = c.sheetName; o.textContent = c.sheetName; o.selected = true;
+    sel.insertBefore(o, sel.firstChild);
   }
   document.getElementById('cfg-bench-ioc').value   = c.bench_ioc || '';
   document.getElementById('cfg-bench-upt').value   = c.bench_upt || '';
   document.getElementById('cfg-bench-atv').value   = c.bench_atv || '';
   document.getElementById('cfg-bench-aur').value   = c.bench_aur || '';
-  document.getElementById('cfg-current-sheet').textContent = c.sheetName || '(не задан)';
+}
+
+function openSettings() {
+  fillSettingsForm(getADV());
+  document.getElementById('cfg-current-sheet').textContent = getSheetName() || '(не задан)';
   document.getElementById('cfg-save-msg').textContent = '';
+  document.getElementById('cfg-stamp').textContent = settingsStamp();
   document.getElementById('settingsOverlay').style.display = 'block';
   document.getElementById('settingsModal').style.display   = 'block';
 }
@@ -1335,46 +1380,75 @@ function closeSettings() {
   document.getElementById('settingsOverlay').style.display = 'none';
   document.getElementById('settingsModal').style.display   = 'none';
 }
-
-function saveSettings() {
-  const sheetId   = document.getElementById('cfg-sheet-id').value.trim();
-  const sheetName = document.getElementById('cfg-sheet-name').value.trim();
-  const bench_ioc = parseFloat(document.getElementById('cfg-bench-ioc').value) || ADV_DEFAULT.bench_ioc;
-  const bench_upt = parseFloat(document.getElementById('cfg-bench-upt').value) || ADV_DEFAULT.bench_upt;
-  const bench_atv = parseFloat(document.getElementById('cfg-bench-atv').value) || ADV_DEFAULT.bench_atv;
-  const bench_aur = parseFloat(document.getElementById('cfg-bench-aur').value) || ADV_DEFAULT.bench_aur;
-
-  if (!sheetName) {
-    document.getElementById('cfg-save-msg').style.color = 'var(--red)';
-    document.getElementById('cfg-save-msg').textContent = '⚠️ Укажите название листа';
-    return;
-  }
-
-  saveADV({ sheetId, sheetName, bench_ioc, bench_upt, bench_atv, bench_aur });
-  document.getElementById('cfg-current-sheet').textContent = sheetName;
-  // Sync select value
-  const selEl = document.getElementById('cfg-sheet-select');
-  const existing = Array.from(selEl.options).find(o => o.value === sheetName);
-  if (!existing) {
-    const o = document.createElement('option');
-    o.value = sheetName; o.textContent = sheetName; o.selected = true;
-    selEl.insertBefore(o, selEl.firstChild);
-  } else { selEl.value = sheetName; }
-  document.getElementById('cfg-save-msg').style.color = 'var(--green)';
-  document.getElementById('cfg-save-msg').textContent = '✅ Сохранено! Загружаем данные...';
-  if (window.QCP) {
-    QCP.setSheet('advSheet', sheetName);
-    // бенчмарки — в общий конфиг: иначе у продавцов QREI считался бы по старым
-    const _b = getADV();
-    QCP.setRaw({ qreiBench: { ioc:_b.bench_ioc, upt:_b.bench_upt, atv:_b.bench_atv, aur:_b.bench_aur } });
-  }
-  setTimeout(() => { closeSettings(); loadData(); }, 800);
+function settingsOpen() {
+  return document.getElementById('settingsModal').style.display === 'block';
 }
 
+async function saveSettings() {
+  const msg = document.getElementById('cfg-save-msg');
+  const btn = document.getElementById('cfg-save-btn');
+  const say = (text, color) => { msg.style.color = color; msg.textContent = text; };
+
+  const sheetId   = document.getElementById('cfg-sheet-id').value.trim() || ADV_DEFAULT.sheetId;
+  const sheetName = document.getElementById('cfg-sheet-name').value.trim();
+  const bench = {
+    ioc: parseFloat(document.getElementById('cfg-bench-ioc').value) || ADV_DEFAULT.bench_ioc,
+    upt: parseFloat(document.getElementById('cfg-bench-upt').value) || ADV_DEFAULT.bench_upt,
+    atv: parseFloat(document.getElementById('cfg-bench-atv').value) || ADV_DEFAULT.bench_atv,
+    aur: parseFloat(document.getElementById('cfg-bench-aur').value) || ADV_DEFAULT.bench_aur,
+  };
+
+  if (!sheetName) { say('Укажите название листа', 'var(--red)'); return; }
+  if (!window.QCP) { say('Нет связи с общими настройками — обновите страницу', 'var(--red)'); return; }
+
+  // Что именно поменялось
+  const cur = getADV();
+  const benchChanged = ['ioc','upt','atv','aur'].some(k => bench[k] !== cur['bench_' + k]);
+  const idChanged    = sheetId !== cur.sheetId;
+  const sheetChanged = sheetName !== cur.sheetName;
+
+  const patch = {
+    qreiBench:  bench,
+    advSheetId: sheetId,
+    settingsBy: (auth.currentUser || {}).email || 'unknown',
+    settingsAt: firebase.firestore.FieldValue.serverTimestamp(),
+  };
+  if (sheetChanged) {
+    // Ручной выбор листа — как в меню: месяц подстраивается под лист
+    patch.advSheet = sheetName;
+    const m = QCP.monthOf(sheetName);
+    if (m) patch.period = m;
+  }
+
+  btn.disabled = true; btn.style.opacity = '.6';
+  say('Сохраняем…', 'var(--text2)');
+  const r = await QCP.setRaw(patch);
+  btn.disabled = false; btn.style.opacity = '';
+
+  if (!r.ok) { say('Не сохранилось: ' + r.error, 'var(--red)'); return; }
+
+  try { localStorage.removeItem(ADV_STORAGE_KEY); } catch (e) {}
+  say('Сохранено для всех устройств', 'var(--green)');
+  document.getElementById('cfg-current-sheet').textContent = sheetName;
+  document.getElementById('cfg-stamp').textContent = settingsStamp();
+
+  // Если ничего не поменялось — просто перезагружаем данные (кнопка так и называется).
+  // Иначе страница обновится сама, как только придёт ответ от общего конфига.
+  if (!benchChanged && !idChanged && !sheetChanged) loadData();
+  setTimeout(closeSettings, 700);
+}
+
+// Сброс: подставляем стандартные значения в форму. В общий конфиг они
+// попадут только после «Сохранить» — чтобы случайно не сбросить всем.
 function resetSettings() {
-  if (!confirm('Сбросить все настройки QREI до стандартных?')) return;
-  localStorage.removeItem(ADV_STORAGE_KEY);
-  openSettings(); // перезаполнит из defaults
+  fillSettingsForm({
+    sheetId: ADV_DEFAULT.sheetId, sheetName: getSheetName(),
+    bench_ioc: ADV_DEFAULT.bench_ioc, bench_upt: ADV_DEFAULT.bench_upt,
+    bench_atv: ADV_DEFAULT.bench_atv, bench_aur: ADV_DEFAULT.bench_aur,
+  });
+  const msg = document.getElementById('cfg-save-msg');
+  msg.style.color = 'var(--text2)';
+  msg.textContent = 'Стандартные значения подставлены — нажмите «Сохранить», чтобы применить для всех';
 }
 
 function goToSettings() { openSettings(); }
@@ -1391,7 +1465,7 @@ async function loadData() {
   if (!sheetName) {
     document.getElementById('mainContent').innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div>
+        <div class="empty-icon"><i class="qi-slot" data-qi="setting-alt-line" data-qs="32"></i></div>
         <div class="empty-title">Таблица не настроена</div>
         <div class="empty-sub">Перейдите в панель → Настройки → укажите «Advanced KPI лист»</div>
       </div>`;
@@ -1433,7 +1507,7 @@ async function loadData() {
     console.error('[QREI]', e);
     document.getElementById('mainContent').innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="empty-icon"><i class="qi-slot" data-qi="warning" data-qs="32"></i></div>
         <div class="empty-title">Ошибка загрузки</div>
         <div class="empty-sub" style="white-space:pre-wrap;text-align:left;max-width:480px">${e.message}</div>
         <div class="empty-sub" style="margin-top:12px;font-size:11px;opacity:0.5">Лист: «${sheetName}» · ID: ${sheetId.slice(0,20)}...</div>
@@ -1461,8 +1535,8 @@ auth.onAuthStateChanged(async user => {
   document.documentElement.setAttribute('data-theme', savedTheme);
   const _t2 = document.getElementById('themeBtn');
   if (_t2) _t2.innerHTML = savedTheme==='dark'
-    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
-    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+    ? '<i class="qi-slot" data-qi="moon-alt" data-qs="16"></i>'
+    : '<i class="qi-slot" data-qi="sun-1" data-qs="16"></i>';
 
   // Determine back target by role
   try {
@@ -1480,14 +1554,13 @@ auth.onAuthStateChanged(async user => {
   }
 
   // ── QCP: общий месяц + всё управление в меню ──
-  const adv = getADV();
   await QCP.init({
     sheetId: MAIN_SHEET_ID,
-    advSheetId: adv.sheetId,
+    advSheetId: ADV_DEFAULT.sheetId,       // если в общем конфиге таблица не задана
     resolvers: {
       advSheet: { source: 'adv', match: () => true }
     },
-    fallback: { advSheet: adv.sheetName }
+    fallback: { advSheet: ADV_DEFAULT.sheetName }
   });
 
   const isAdmin   = (QCP.role() || 'admin') === 'admin';
@@ -1521,9 +1594,25 @@ auth.onAuthStateChanged(async user => {
   });
 
   QCP.onChange(() => { updateTopbarMeta(); loadData(); });
+
+  // Кто-то поменял общие настройки (на этом или другом устройстве)
+  QCP.onSettings((raw, keys) => {
+    if (keys.includes('advSheetId')) { loadData(); }
+    else if (keys.includes('qreiBench') && allSellers.length) {
+      render();
+      const panelOpen = document.getElementById('slidePanel').classList.contains('open');
+      const sandbox   = window.QCPLab && QCPLab.isSandboxOn();
+      if (panelOpen && !sandbox && _panelIdx != null) openPanel(_panelIdx);
+    }
+    // Окно настроек открыто на другом устройстве — показываем свежие значения
+    if (settingsOpen() && !document.getElementById('cfg-save-btn').disabled) {
+      document.getElementById('cfg-stamp').textContent = settingsStamp();
+    }
+  });
   updateTopbarMeta();
 
   loadData();
+  if (isAdmin) migrateLocalSettings();
 });
 </script>
 </body>

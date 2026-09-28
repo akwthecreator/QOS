@@ -42,6 +42,21 @@ let _resolved = {};
 let _changeCbs = [];
 let _unsub = null;
 let _inited = false;
+let _settingsCbs = [];           // подписчики на изменение общих настроек
+let _rawSig = {};                // отпечатки полей — чтобы понять, что именно поменялось
+let _firstSnap = null;           // резолвер первого ответа Firestore
+let _advIdDefault = '';
+let _ready = false;               // init() полностью завершён          // ID таблицы продаж из кода страницы (если в конфиге пусто)
+
+// Эти поля — не настройки: месяц и служебные отметки
+const NOT_SETTINGS = { period: 1, updatedAt: 1, updatedBy: 1 };
+
+function stableSig(v) {
+  if (v === null || typeof v !== 'object') return JSON.stringify(v);
+  if (typeof v.toMillis === 'function') return 'ts';          // Firestore Timestamp
+  if (Array.isArray(v)) return '[' + v.map(stableSig).join(',') + ']';
+  return '{' + Object.keys(v).sort().map(k => k + ':' + stableSig(v[k])).join(',') + '}';
+}
 
 function db()   { return _db   || (_db   = firebase.firestore()); }
 function auth() { return _auth || (_auth = firebase.auth()); }
@@ -343,6 +358,33 @@ function watch(seedMonth) {
     const d = snap.exists ? (snap.data() || {}) : {};
     _raw = d;
 
+    // Какие общие настройки изменились с прошлого снимка
+    const settingsChanged = [];
+    const keys = new Set(Object.keys(d).concat(Object.keys(_rawSig)));
+    keys.forEach(k => {
+      if (NOT_SETTINGS[k] || _resolvers[k]) return;
+      const sig = k in d ? stableSig(d[k]) : undefined;
+      if (sig !== _rawSig[k]) settingsChanged.push(k);
+      if (sig === undefined) delete _rawSig[k]; else _rawSig[k] = sig;
+    });
+    if (_firstSnap) { const r = _firstSnap; _firstSnap = null; r(); }
+
+    const fireSettings = () => {
+      if (!_ready || !settingsChanged.length) return;
+      _settingsCbs.forEach(fn => { try { fn(_raw, settingsChanged); } catch (e) { console.error('[QCP]', e); } });
+    };
+
+    // Поменяли таблицу продаж — перечитываем в ней список месяцев
+    const advId = sharedAdvId() || _advIdDefault;
+    if (_ready && advId && advId !== _ids.adv) {
+      _ids.adv = advId;
+      fetchTabs(advId).then(t => {
+        _tabs.adv = t;
+        const ch = recompute(); paintAll();
+        if (ch.length) _changeCbs.forEach(fn => { try { fn(_resolved, ch, _period); } catch (e) { console.error('[QCP]', e); } });
+      });
+    }
+
     const prevPeriod = _period;
     _period = (typeof d.period === 'string' && d.period.trim()) ? d.period.trim() : null;
 
@@ -354,6 +396,7 @@ function watch(seedMonth) {
     // Документа ещё нет — сеем текущий месяц, чтобы все встали на одно
     if (!_period && seedMonth && canSwitch()) {
       setPeriod(seedMonth);
+      fireSettings();
       return;
     }
     if (!_period) _period = seedMonth || null;
@@ -365,7 +408,16 @@ function watch(seedMonth) {
         try { fn(_resolved, changed, _period); } catch (e) { console.error('[QCP]', e); }
       });
     }
-  }, err => console.error('[QCP] config:', err));
+    fireSettings();
+  }, err => {
+    console.error('[QCP] config:', err);
+    if (_firstSnap) { const r = _firstSnap; _firstSnap = null; r(); }   // не зависаем без сети
+  });
+}
+
+function sharedAdvId() {
+  const v = _raw && _raw.advSheetId;
+  return (typeof v === 'string' && v.trim()) ? v.trim() : '';
 }
 
 // Смена месяца: чистим ручные переопределения, иначе они «залипают»
@@ -406,16 +458,23 @@ async function setSheet(field, value) {
 }
 
 // Записать произвольные поля в общий конфиг (напр. бенчмарки QREI)
+// Возвращает { ok: true } или { ok: false, error: 'текст' } — чтобы экран
+// настроек не писал «Сохранено», когда запись на самом деле не прошла.
 async function setRaw(patch) {
-  if (!patch || !canSwitch()) return;
+  if (!patch) return { ok: false, error: 'нечего сохранять' };
+  if (!canSwitch()) return { ok: false, error: 'нет прав: менять общие настройки может админ или менеджер' };
   const body = Object.assign({}, patch, {
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     updatedBy: (auth().currentUser || {}).email || 'unknown'
   });
   try {
     await db().collection(CFG_COLL).doc(CFG_DOC).set(body, { merge: true });
+    return { ok: true };
   } catch (e) {
     console.error('[QCP] setRaw:', e);
+    return { ok: false, error: e && e.code === 'permission-denied'
+      ? 'Firestore запретил запись — проверь правила для config/'
+      : (e && e.message) || 'ошибка записи' };
   }
 }
 
@@ -629,27 +688,39 @@ async function init(o) {
   _resolvers = o.resolvers || {};
   _fallback  = o.fallback  || {};
   _ids.main  = o.sheetId    || '';
-  _ids.adv   = o.advSheetId || '';
+  _advIdDefault = o.advSheetId || '';
 
   _role = await fetchRole();
-  const [m, a] = await Promise.all([
-    _ids.main ? fetchTabs(_ids.main) : Promise.resolve([]),
-    _ids.adv  ? fetchTabs(_ids.adv)  : Promise.resolve([]),
-  ]);
-  _tabs.main = m; _tabs.adv = a;
 
   // если конфига ещё нет — на что вставать по умолчанию
   const seed = o.seedMonth
     || monthOf(_fallback[Object.keys(_fallback)[0]] || '')
     || MONTHS[new Date().getMonth()];
 
-  watch(seed);
+  // Ждём первый ответ Firestore: страница должна стартовать уже с общими
+  // настройками, а не со стандартными, которые потом «перепрыгнут».
+  await new Promise(resolve => {
+    _firstSnap = resolve;
+    setTimeout(() => { if (_firstSnap) { _firstSnap = null; resolve(); } }, 4000);
+    watch(seed);
+  });
+
+  // Таблица продаж: общая из конфига, иначе та, что зашита в страницу
+  _ids.adv = sharedAdvId() || _advIdDefault;
+  const [m, a] = await Promise.all([
+    _ids.main ? fetchTabs(_ids.main) : Promise.resolve([]),
+    _ids.adv  ? fetchTabs(_ids.adv)  : Promise.resolve([]),
+  ]);
+  _tabs.main = m; _tabs.adv = a;
+  recompute();
+  paintAll();
+  _ready = true;
   return _resolved;
 }
 
 // ── ПУБЛИЧНЫЙ API ────────────────────────────────────────────
 global.QCP = {
-  VERSION: '20260928a',
+  VERSION: '20260928b',
   init,
   get(f)       { return _resolved[f] || _fallback[f] || null; },
   period()     { return _period; },
@@ -660,12 +731,16 @@ global.QCP = {
   canSwitch,
   tabs(src)    { return (_tabs[src || 'main'] || []).slice(); },
   onChange(fn) { _changeCbs.push(fn); },
+  // Общие настройки (одни на всю компанию и все устройства)
+  setting(key)   { return _raw ? _raw[key] : undefined; },
+  onSettings(fn) { _settingsCbs.push(fn); },
+  advSheetId()   { return _ids.adv || _advIdDefault; },
   calcQrei, qreiTier, qreiStyle, qreiCardClass, qreiBench, setRaw,
   raw(f)       { return f ? _raw[f] : Object.assign({}, _raw); },
   mountPicker, mountNav, navSet,
   openMenu()   { _drawer && _drawer.open(); },
 };
 
-  console.log('[QCP] core v20260928a загружен');
+  console.log('[QCP] core v20260928b загружен');
 
 })(window);

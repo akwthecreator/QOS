@@ -7,7 +7,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-<script src="qcp-core.js?v=20260923a"></script>
+<script src="qcp-core.js?v=20260928b"></script>
 <style>
 :root[data-theme="dark"] {
   --bg: #0a0a0a;
@@ -411,7 +411,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .nav-btn svg { width: 20px; height: 20px; transition: stroke var(--transition); }
 .nav-btn:hover { background: var(--bg3); color: var(--text); }
 .nav-btn.active { background: rgba(0,102,255,0.12); color: var(--accent); }
-.nav-btn.active svg { stroke: var(--accent) !important; }
+.nav-btn.active svg { stroke: var(--accent) !important; color: var(--accent) !important; }
 .nav-btn .badge {
   position: absolute; top: 7px; right: 7px;
   width: 7px; height: 7px; border-radius: 50%;
@@ -450,7 +450,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
   cursor: pointer; transition: all var(--transition);
   box-shadow: 0 2px 8px rgba(0,102,255,0.25);
 }
-.sync-btn svg { width: 13px; height: 13px; stroke: white; flex-shrink: 0; }
+.sync-btn svg { width: 13px; height: 13px; stroke: white; color: white; flex-shrink: 0; }
 .sync-btn:hover { background: #0055dd; box-shadow: 0 4px 16px rgba(0,102,255,0.35); transform: translateY(-1px); }
 .sync-btn.loading { opacity: 0.6; pointer-events: none; }
 .status-pill {
@@ -481,7 +481,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .table tbody tr:hover { background: var(--bg3); }
 /* Person counter (like pedestrian sign icon) */
 .person-counter { display: inline-flex; align-items: center; gap: 5px; }
-.person-counter svg { width: 16px; height: 16px; stroke: var(--text3); }
+.person-counter svg { width: 16px; height: 16px; stroke: var(--text3); color: var(--text3); }
 .person-counter span { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 /* ── MOBILE ── */
@@ -626,6 +626,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 }
 
 </style>
+<script src="qcp-icons.js?v=20260928a"></script>
 </head>
 <body>
 
@@ -633,23 +634,23 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
   <div class="sidebar">
     <span class="qcp-navslot" style="display:flex;align-items:center"></span>
     <div class="logo">QCP</div>
-    <button class="nav-btn active" onclick="showPage('home')" id="nav-home" title="Главная"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></button>
-    <button class="nav-btn" onclick="showPage('kpi')" id="nav-kpi" title="KPI"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="12" width="4" height="10" rx="1"/><rect x="9" y="7" width="4" height="15" rx="1"/><rect x="16" y="3" width="4" height="19" rx="1"/></svg></button>
-    <button class="nav-btn" onclick="showPage('heatmap')" id="nav-heatmap" title="Тепловая карта"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></button>
-    <button class="nav-btn" onclick="showPage('analysis')" id="nav-analysis" title="А-Анализ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></button>
-    <button class="nav-btn" onclick="showPage('sellers')" id="nav-sellers" title="Продавцы"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></button>
-    <button class="nav-btn" onclick="showPage('trends')" id="nav-trends" title="Тренды"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></button>
-    <button class="nav-btn" id="nav-alerts" onclick="showPage('alerts')" title="Алерты" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span id="alert-badge" class="badge" style="display:none"></span></button>
+    <button class="nav-btn active" onclick="showPage('home')" id="nav-home" title="Главная"><i class="qi-slot" data-qi="home" data-qs="20"></i></button>
+    <button class="nav-btn" onclick="showPage('kpi')" id="nav-kpi" title="KPI"><i class="qi-slot" data-qi="stat" data-qs="20"></i></button>
+    <button class="nav-btn" onclick="showPage('heatmap')" id="nav-heatmap" title="Тепловая карта"><i class="qi-slot" data-qi="boxes" data-qs="20"></i></button>
+    <button class="nav-btn" onclick="showPage('analysis')" id="nav-analysis" title="А-Анализ"><i class="qi-slot" data-qi="chart-xy" data-qs="20"></i></button>
+    <button class="nav-btn" onclick="showPage('sellers')" id="nav-sellers" title="Продавцы"><i class="qi-slot" data-qi="group" data-qs="20"></i></button>
+    <button class="nav-btn" onclick="showPage('trends')" id="nav-trends" title="Тренды"><i class="qi-slot" data-qi="line-up" data-qs="20"></i></button>
+    <button class="nav-btn" id="nav-alerts" onclick="showPage('alerts')" title="Алерты" style="position:relative"><i class="qi-slot" data-qi="bell" data-qs="20"></i><span id="alert-badge" class="badge" style="display:none"></span></button>
     <button class="nav-btn" onclick="showPage('tasks')" id="nav-tasks" title="Задачи">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+      <i class="qi-slot" data-qi="check-ring" data-qs="20"></i>
       <span id="tasks-badge" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--red);"></span>
     </button>
     <button class="nav-btn" onclick="showPage('certificates')" id="nav-certificates" title="Сертификаты">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/><path d="M8 15h4"/><circle cx="17" cy="15" r="2"/><path d="M15.5 16.5L14 20l3-1 3 1-1.5-3.5"/></svg>
+      <i class="qi-slot" data-qi="ticket" data-qs="20"></i>
     </button>
-    <button class="nav-btn" onclick="openSettings()" id="nav-settings" title="Настройки" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+    <button class="nav-btn" onclick="openSettings()" id="nav-settings" title="Настройки" style="display:none"><i class="qi-slot" data-qi="setting-alt-line" data-qs="20"></i></button>
     <div style="flex:1"></div>
-    <button class="nav-btn" onclick="toggleTheme()" id="themeBtn" title="Тема">🌙</button>
+    <button class="nav-btn" onclick="toggleTheme()" id="themeBtn" title="Тема"><i class="qi-slot" data-qi="moon-alt" data-qs="20"></i></button>
   </div>
 
   <div class="main">
@@ -661,16 +662,16 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
         </div>
         <div class="header-right">
           <div class="status-pill"><div class="status-dot" id="statusDot"></div><span class="pill-text" id="lastSync">не синхр.</span></div>
-          <button class="sync-btn" id="syncBtn" onclick="syncData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg><span class="btn-text">Синхронизировать</span></button>
+          <button class="sync-btn" id="syncBtn" onclick="syncData()"><i class="qi-slot" data-qi="refresh-2" data-qs="13"></i><span class="btn-text">Синхронизировать</span></button>
           <span class="qcp-slot" style="display:flex;align-items:center;gap:8px"></span>
           <div id="userProfileSection" style="display:none;align-items:center;gap:8px">
             <div class="user-pill" onclick="handleLogout()" title="Выйти">
               <div class="user-avatar" id="userAvatar">?</div>
               <span class="user-email" id="userEmail">—</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <i class="qi-slot" data-qi="sign-out-squre" data-qs="16"></i>
             </div>
           </div>
-          <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+          <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle"><i class="qi-slot" data-qi="moon-alt" data-qs="20"></i></button>
         </div>
       </div>
 
@@ -679,27 +680,27 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div id="dashboardContent" style="display:none">
         <div class="kpi-grid">
           <div class="kpi-card">
-            <div class="kpi-icon" style="background:rgba(0,102,255,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#0066ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="kpi-label">Выручка месяца</div>
+            <div class="kpi-icon" style="background:rgba(0,102,255,0.1)"><i class="qi-slot" data-qi="money" data-qs="20" style="color:#0066ff"></i></div><div class="kpi-label">Выручка месяца</div>
             <div class="kpi-value" id="kpi-revenue">—</div>
             <div id="kpi-revenue-full" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
           </div>
           <div class="kpi-card" style="border-color:rgba(0,204,102,0.3);background:rgba(0,204,102,0.04)">
-            <div class="kpi-icon" style="background:rgba(0,204,102,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#00cc66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="kpi-label">Выручка сегодня</div>
+            <div class="kpi-icon" style="background:rgba(0,204,102,0.1)"><i class="qi-slot" data-qi="lightning" data-qs="20" style="color:#00cc66"></i></div><div class="kpi-label">Выручка сегодня</div>
             <div class="kpi-value" id="kpi-today" style="color:var(--green)">—</div>
             <div id="kpi-today-proj" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
             <div class="kpi-progress" style="margin-top:12px"><div class="kpi-progress-fill" id="today-progress-fill" style="width:0%;background:var(--green)"></div></div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon" style="background:rgba(255,170,0,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#ffaa00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="kpi-label">Средний чек</div>
+            <div class="kpi-icon" style="background:rgba(255,170,0,0.1)"><i class="qi-slot" data-qi="ticket-alt" data-qs="20" style="color:#ffaa00"></i></div><div class="kpi-label">Средний чек</div>
             <div class="kpi-value" id="kpi-avg">—</div>
             <div id="kpi-avg-trend" style="font-size:12px;margin-top:6px"></div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon" style="background:rgba(102,0,255,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#6600ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div class="kpi-label">Конверсия</div>
+            <div class="kpi-icon" style="background:rgba(102,0,255,0.1)"><i class="qi-slot" data-qi="group" data-qs="20" style="color:#6600ff"></i></div><div class="kpi-label">Конверсия</div>
             <div class="kpi-value" id="kpi-conv">—</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon" style="background:rgba(255,102,0,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div class="kpi-label">Выполнение плана</div>
+            <div class="kpi-icon" style="background:rgba(255,102,0,0.1)"><i class="qi-slot" data-qi="check-ring" data-qs="20" style="color:#ff6600"></i></div><div class="kpi-label">Выполнение плана</div>
             <div class="kpi-value" id="kpi-plan">—</div>
             <div id="plan-status" style="margin-top:16px"></div>
             <div class="kpi-progress" style="margin-top:12px">
@@ -707,7 +708,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
             </div>
           </div>
           <div class="kpi-card" id="kpi-chance-card" style="border-color:var(--border)">
-            <div class="kpi-icon" style="background:rgba(0,102,255,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#0066ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="kpi-label">Шанс выполнения плана</div>
+            <div class="kpi-icon" style="background:rgba(0,102,255,0.1)"><i class="qi-slot" data-qi="info" data-qs="20" style="color:#0066ff"></i></div><div class="kpi-label">Шанс выполнения плана</div>
             <div class="kpi-value" id="kpi-chance">—</div>
             <div id="kpi-chance-label" style="font-size:13px;margin-top:6px;color:var(--text3)"></div>
             <div class="kpi-progress" style="margin-top:16px">
@@ -719,12 +720,12 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           <!-- ── Топ продавцов ── -->
           <div class="sellers-kpi-card" id="home-sellers-widget" style="display:none">
             <div class="kpi-icon" style="background:rgba(102,0,255,0.1)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#6600ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              <i class="qi-slot" data-qi="group" data-qs="20" style="color:#6600ff"></i>
             </div>
             <div class="kpi-label">Рейтинг продавцов <span id="sw-month-label" style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;font-weight:400"></span></div>
             <div id="sw-top3"><div class="sw-empty">Загрузка...</div></div>
             <button class="sw-expand-btn" onclick="window.location.href='advanced.html'" title="Расширенная аналитика продавцов">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+              <i class="qi-slot" data-qi="arrow-right-long" data-qs="16"></i>
             </button>
           </div>
         </div>
@@ -752,7 +753,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
                 <div class="stat-value" id="stat-days">—</div>
               </div>
               <div class="stat-box">
-                <div class="stat-label"><span class="person-counter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-2 5h4l-2-5z"/><path d="M10 13l-1.5 5"/><path d="M14 13l1.5 5"/><path d="M9 10.5L7 14"/><path d="M15 10.5L17 14"/></svg><span>Посещений</span></span></div>
+                <div class="stat-label"><span class="person-counter"><i class="qi-slot" data-qi="user" data-qs="16"></i><span>Посещений</span></span></div>
                 <div class="stat-value" id="stat-visitors">—</div>
               </div>
             </div>
@@ -788,14 +789,14 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div class="card kpi-daily-card">
         <div class="kpi-daily-header" onclick="toggleKpiDaily()" title="Анализ по дням">
           <div style="display:flex;align-items:center;gap:10px">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <i class="qi-slot" data-qi="calendar" data-qs="16" style="color:var(--accent);flex-shrink:0"></i>
             <strong style="font-size:14px">Анализ по дням</strong>
             <span class="kpi-daily-hint">Подробная статистика за каждый день месяца</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
             <span id="kpi-daily-toggle-label" style="font-size:12px;color:var(--text3)">Развернуть</span>
             <div class="kpi-daily-chevron" id="kpi-daily-chevron">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              <i class="qi-slot" data-qi="expand-down" data-qs="14"></i>
             </div>
           </div>
         </div>
@@ -1003,7 +1004,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div class="header">
         <div>
           <h1>⚙️ Настройки</h1>
-          <p style="color:var(--text2);margin-top:4px;font-size:14px">Конфигурация дашборда</p>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Общие для всех устройств</p>
         </div>
         <div class="header-right">
           <button class="settings-btn" onclick="saveSettings()">💾 Сохранить</button>
@@ -1191,8 +1192,17 @@ function SHEET_NAME()         {
 function SELLERS_SHEET_NAME() {
   return (window.QCP && QCP.get('zpSheet')) || CFG.SELLERS_SHEET_NAME;
 }
-function PLAN_GRANDPARK()     { return CFG.PLAN_GRANDPARK; }
-function PLAN_APORT()         { return CFG.PLAN_APORT; }
+// Планы и интервал — из ОБЩЕГО конфига (Firestore), одни на все устройства.
+// Локальные значения — только запасной вариант, если общих ещё нет.
+function sharedNum(key, sub) {
+  if (!window.QCP || !QCP.setting) return NaN;
+  let v = QCP.setting(key);
+  if (sub) v = (v && typeof v === 'object') ? v[sub] : undefined;
+  return parseFloat(v);
+}
+function PLAN_GRANDPARK() { const v = sharedNum('plans', 'grandpark'); return v > 0 ? v : CFG.PLAN_GRANDPARK; }
+function PLAN_APORT()     { const v = sharedNum('plans', 'aport');     return v > 0 ? v : CFG.PLAN_APORT; }
+function SYNC_INTERVAL()  { const v = sharedNum('syncInterval');       return v >= 30 ? v : CFG.SYNC_INTERVAL; }
 
 // ===================== PIN SYSTEM =====================
 const PIN_CODE     = '57725';
@@ -1263,13 +1273,12 @@ function checkPin() {
 
 function showSettingsPage() {
   // Populate fields from current config
-  document.getElementById('cfg-sheet-kpi').value    = CFG.SHEET_NAME;
-  document.getElementById('cfg-sheet-sellers').value = CFG.SELLERS_SHEET_NAME;
-  document.getElementById('cfg-plan-gp').value       = CFG.PLAN_GRANDPARK;
-  document.getElementById('cfg-plan-aport').value    = CFG.PLAN_APORT;
-  document.getElementById('cfg-kpi-current').textContent     = CFG.SHEET_NAME;
-  document.getElementById('cfg-sellers-current').textContent = CFG.SELLERS_SHEET_NAME;
-  document.getElementById('cfg-sync-interval').value = CFG.SYNC_INTERVAL;
+  fillSettingsForm({
+    kpi: SHEET_NAME(), sellers: SELLERS_SHEET_NAME(),
+    gp: PLAN_GRANDPARK(), ap: PLAN_APORT(), si: SYNC_INTERVAL()
+  });
+  document.getElementById('cfg-kpi-current').textContent     = SHEET_NAME();
+  document.getElementById('cfg-sellers-current').textContent = SELLERS_SHEET_NAME();
   document.getElementById('info-sheet-id').textContent = SHEET_ID;
   const ls = localStorage.getItem('qgi_last_session');
   document.getElementById('info-last-session').textContent = ls || 'Первый запуск';
@@ -1280,7 +1289,15 @@ function showSettingsPage() {
   document.getElementById('nav-settings').classList.add('active');
 }
 
-function saveSettings() {
+function fillSettingsForm(c) {
+  document.getElementById('cfg-sheet-kpi').value     = c.kpi;
+  document.getElementById('cfg-sheet-sellers').value = c.sellers;
+  document.getElementById('cfg-plan-gp').value       = c.gp;
+  document.getElementById('cfg-plan-aport').value    = c.ap;
+  document.getElementById('cfg-sync-interval').value = String(c.si);
+}
+
+async function saveSettings() {
   const kpi     = document.getElementById('cfg-sheet-kpi').value.trim();
   const sellers = document.getElementById('cfg-sheet-sellers').value.trim();
   const gp      = parseInt(document.getElementById('cfg-plan-gp').value) || DEFAULT_CONFIG.PLAN_GRANDPARK;
@@ -1288,34 +1305,44 @@ function saveSettings() {
   const si      = parseInt(document.getElementById('cfg-sync-interval').value) || 120;
 
   if (!kpi || !sellers) {
-    showSettingsMsg('⚠️ Названия листов не могут быть пустыми', 'error'); return;
+    showSettingsMsg('Названия листов не могут быть пустыми', 'error'); return;
   }
+  if (!window.QCP) { showSettingsMsg('Нет связи с общими настройками — обновите страницу', 'error'); return; }
 
-  CFG.SHEET_NAME         = kpi;
-  CFG.SELLERS_SHEET_NAME = sellers;
-  if (window.QCP) { QCP.setSheet('kpiSheet', kpi); QCP.setSheet('zpSheet', sellers); }
-  CFG.PLAN_GRANDPARK     = gp;
-  CFG.PLAN_APORT         = ap;
-  CFG.SYNC_INTERVAL      = si;
+  // Планы и интервал — в общий конфиг: так их видят все устройства
+  showSettingsMsg('Сохраняем…', 'success');
+  const r = await QCP.setRaw({
+    plans: { grandpark: gp, aport: ap },
+    syncInterval: si,
+    settingsBy: (_fbAuth.currentUser || {}).email || 'unknown',
+    settingsAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  if (!r.ok) { showSettingsMsg('Не сохранилось: ' + r.error, 'error'); return; }
+
+  // Листы — тоже общие (меняем только если их правда поменяли)
+  if (kpi !== SHEET_NAME())             await QCP.setSheet('kpiSheet', kpi);
+  if (sellers !== SELLERS_SHEET_NAME()) await QCP.setSheet('zpSheet', sellers);
+
+  // Локальная копия — на случай, если нет связи с Firestore
+  Object.assign(CFG, { SHEET_NAME: kpi, SELLERS_SHEET_NAME: sellers,
+                       PLAN_GRANDPARK: gp, PLAN_APORT: ap, SYNC_INTERVAL: si });
   saveConfig(CFG);
 
-  // Update displayed labels
   document.getElementById('cfg-kpi-current').textContent     = kpi;
   document.getElementById('cfg-sellers-current').textContent = sellers;
-
-  // Restart sync intervals
   startSyncIntervals();
-
-  showSettingsMsg('✅ Настройки сохранены! Выполняем синхронизацию...', 'success');
+  showSettingsMsg('Сохранено для всех устройств. Синхронизируем…', 'success');
   setTimeout(() => { syncData(); syncSellers(); }, 600);
 }
 
+// Сброс: подставляем стандартные значения в форму. В общий конфиг они
+// попадут только после «Сохранить» — чтобы случайно не сбросить всем.
 function resetSettings() {
-  if (!confirm('Сбросить все настройки до стандартных?')) return;
-  CFG = Object.assign({}, DEFAULT_CONFIG);
-  saveConfig(CFG);
-  showSettingsPage();
-  showSettingsMsg('↩️ Настройки сброшены', 'success');
+  fillSettingsForm({
+    kpi: SHEET_NAME(), sellers: SELLERS_SHEET_NAME(),
+    gp: DEFAULT_CONFIG.PLAN_GRANDPARK, ap: DEFAULT_CONFIG.PLAN_APORT, si: DEFAULT_CONFIG.SYNC_INTERVAL
+  });
+  showSettingsMsg('Стандартные значения подставлены — нажмите «Сохранить», чтобы применить для всех', 'success');
 }
 
 function showSettingsMsg(text, type) {
@@ -1329,8 +1356,8 @@ let syncIntervals = [];
 function startSyncIntervals() {
   syncIntervals.forEach(id => clearInterval(id));
   syncIntervals = [
-    setInterval(syncData,    CFG.SYNC_INTERVAL * 1000),
-    setInterval(syncSellers, CFG.SYNC_INTERVAL * 2000)
+    setInterval(syncData,    SYNC_INTERVAL() * 1000),
+    setInterval(syncSellers, SYNC_INTERVAL() * 2000)
   ];
 }
 
@@ -2653,7 +2680,7 @@ function computeAlerts() {
   }
 
   // ── Info ──
-  alerts.push({ level:'info', icon:'ℹ️', title:'Данные обновляются автоматически', body:`Интервал: каждые ${CFG.SYNC_INTERVAL} сек. KPI лист: "${SHEET_NAME()}" · ЗП лист: "${SELLERS_SHEET_NAME()}"`, ts });
+  alerts.push({ level:'info', icon:'ℹ️', title:'Данные обновляются автоматически', body:`Интервал: каждые ${SYNC_INTERVAL()} сек. KPI лист: "${SHEET_NAME()}" · ЗП лист: "${SELLERS_SHEET_NAME()}"`, ts });
 
   alertsData = alerts;
   renderAlerts(alerts);
@@ -2832,6 +2859,13 @@ function initializeFirebaseAuth() {
       if (changed.indexOf('kpiSheet') > -1) syncData();
       if (changed.indexOf('zpSheet')  > -1) syncSellers();
     });
+    // Админ поменял планы или интервал (на любом устройстве) — применяем сразу
+    QCP.onSettings((raw, keys) => {
+      if (keys.includes('plans'))        { syncData(); syncSellers(); }
+      if (keys.includes('syncInterval')) startSyncIntervals();
+    });
+    // Первая загрузка шла по локальным значениям — перезагружаем по общим
+    syncData(); syncSellers(); startSyncIntervals();
 
     // Инициализируем задачи после auth
     currentUser = user;
@@ -3465,7 +3499,7 @@ function shareCertificate() {
     btn.textContent = '✓ Ссылка скопирована!';
     btn.style.background = 'var(--green)';
     setTimeout(() => {
-      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Отправить клиенту`;
+      btn.innerHTML = `<i class="qi-slot" data-qi="send-hor" data-qs="15"></i> Отправить клиенту`;
       btn.style.background = 'var(--accent)';
     }, 2500);
   }).catch(() => {
@@ -3487,7 +3521,7 @@ function copyCertificateLink() {
     const originalColor = btn.style.borderColor;
     const originalBg = btn.style.backgroundColor;
     
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg> Скопировано!';
+    btn.innerHTML = '<i class="qi-slot" data-qi="done" data-qs="15"></i> Скопировано!';
     btn.style.borderColor = '#00cc66';
     btn.style.backgroundColor = 'rgba(0,204,102,0.15)';
     btn.style.color = '#00cc66';
@@ -3707,11 +3741,11 @@ document.addEventListener('DOMContentLoaded', () => {
     <div style="padding:16px 24px 24px;display:flex;gap:10px;flex-wrap:wrap">
       <button onclick="closeCertViewModal()" style="flex:1;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;cursor:pointer">Закрыть</button>
       <button onclick="shareCertificate()" id="cert-share-btn" style="padding:12px 20px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <i class="qi-slot" data-qi="send-hor" data-qs="15"></i>
         Отправить клиенту
       </button>
       <button onclick="copyCertificateLink()" id="cert-copy-btn" style="padding:12px 20px;background:rgba(0,102,255,0.15);border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+        <i class="qi-slot" data-qi="copy" data-qs="15"></i>
         Копировать ссылку
       </button>
       <button id="cert-revoke-btn" style="padding:12px 20px;background:rgba(255,51,51,0.1);border:1px solid var(--red);border-radius:10px;color:var(--red);font-size:14px;cursor:pointer">Аннулировать</button>

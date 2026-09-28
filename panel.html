@@ -221,7 +221,13 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .alert-card.warning  { background: rgba(255,170,0,0.08); border-color: rgba(255,170,0,0.35); }
 .alert-card.good     { background: rgba(0,204,102,0.08); border-color: rgba(0,204,102,0.35); }
 .alert-card.info     { background: rgba(0,102,255,0.06); border-color: rgba(0,102,255,0.25); }
-.alert-icon  { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.alert-icon  { font-size: 22px; flex-shrink: 0; margin-top: 1px; line-height: 0; }
+.alert-card.critical .alert-icon { color: var(--red); }
+.alert-card.warning  .alert-icon { color: var(--yellow); }
+.alert-card.good     .alert-icon { color: var(--green); }
+.alert-card.info     .alert-icon { color: var(--accent); }
+/* цветная точка вместо эмодзи-кружков — берёт цвет текста вокруг */
+.qdot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-right: 5px; vertical-align: 1px; }
 .alert-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
 .alert-body  { font-size: 13px; color: var(--text2); line-height: 1.5; }
 .alert-time  { font-size: 11px; color: var(--text3); margin-top: 4px; }
@@ -268,6 +274,9 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
 /* ====== TASKS SYSTEM ====== */
 .tasks-container { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 40px; }
+/* на телефоне проекты и задачи — друг под другом, иначе список задач обрезается справа */
+.tasks-container > * { min-width: 0; }
+@media (max-width: 768px) { .tasks-container { grid-template-columns: 1fr; } }
 .tasks-sidebar { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
 .tasks-main { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
 
@@ -407,7 +416,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .nav-btn svg { width: 20px; height: 20px; transition: stroke var(--transition); }
 .nav-btn:hover { background: var(--bg3); color: var(--text); }
 .nav-btn.active { background: rgba(0,102,255,0.12); color: var(--accent); }
-.nav-btn.active svg { stroke: var(--accent) !important; }
+.nav-btn.active svg { stroke: var(--accent) !important; color: var(--accent) !important; }
 .nav-btn .badge {
   position: absolute; top: 7px; right: 7px;
   width: 7px; height: 7px; border-radius: 50%;
@@ -446,7 +455,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
   cursor: pointer; transition: all var(--transition);
   box-shadow: 0 2px 8px rgba(0,102,255,0.25);
 }
-.sync-btn svg { width: 13px; height: 13px; stroke: white; flex-shrink: 0; }
+.sync-btn svg { width: 13px; height: 13px; stroke: white; color: white; flex-shrink: 0; }
 .sync-btn:hover { background: #0055dd; box-shadow: 0 4px 16px rgba(0,102,255,0.35); transform: translateY(-1px); }
 .sync-btn.loading { opacity: 0.6; pointer-events: none; }
 .status-pill {
@@ -477,7 +486,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .table tbody tr:hover { background: var(--bg3); }
 /* Person counter (like pedestrian sign icon) */
 .person-counter { display: inline-flex; align-items: center; gap: 5px; }
-.person-counter svg { width: 16px; height: 16px; stroke: var(--text3); }
+.person-counter svg { width: 16px; height: 16px; stroke: var(--text3); color: var(--text3); }
 .person-counter span { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 /* ── MOBILE ── */
@@ -601,29 +610,30 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 .sw-empty { font-size: 13px; color: var(--text3); padding: 12px 0; }
 
 </style>
+<script src="qcp-icons.js?v=20260928b"></script>
 </head>
 <body>
 
 <div class="container">
   <div class="sidebar">
     <div class="logo">QCP</div>
-    <button class="nav-btn active" onclick="showPage('home')" id="nav-home" title="Главная"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></button>
-    <button class="nav-btn" onclick="showPage('kpi')" id="nav-kpi" title="KPI"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="12" width="4" height="10" rx="1"/><rect x="9" y="7" width="4" height="15" rx="1"/><rect x="16" y="3" width="4" height="19" rx="1"/></svg></button>
-    <button class="nav-btn" onclick="showPage('heatmap')" id="nav-heatmap" title="Тепловая карта"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></button>
-    <button class="nav-btn" onclick="showPage('analysis')" id="nav-analysis" title="А-Анализ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></button>
-    <button class="nav-btn" onclick="showPage('sellers')" id="nav-sellers" title="Продавцы"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></button>
-    <button class="nav-btn" onclick="showPage('trends')" id="nav-trends" title="Тренды"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></button>
-    <button class="nav-btn" id="nav-alerts" onclick="showPage('alerts')" title="Алерты" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span id="alert-badge" class="badge" style="display:none"></span></button>
+    <button class="nav-btn active" onclick="showPage('home')" id="nav-home" title="Главная"><i class="qi-slot" data-qi="home" data-qs="20"></i></button>
+    <button class="nav-btn" onclick="showPage('kpi')" id="nav-kpi" title="KPI"><i class="qi-slot" data-qi="stat" data-qs="20"></i></button>
+    <button class="nav-btn" onclick="showPage('heatmap')" id="nav-heatmap" title="Тепловая карта"><i class="qi-slot" data-qi="boxes" data-qs="20"></i></button>
+    <button class="nav-btn" onclick="showPage('analysis')" id="nav-analysis" title="А-Анализ"><i class="qi-slot" data-qi="chart-xy" data-qs="20"></i></button>
+    <button class="nav-btn" onclick="showPage('sellers')" id="nav-sellers" title="Продавцы"><i class="qi-slot" data-qi="group" data-qs="20"></i></button>
+    <button class="nav-btn" onclick="showPage('trends')" id="nav-trends" title="Тренды"><i class="qi-slot" data-qi="line-up" data-qs="20"></i></button>
+    <button class="nav-btn" id="nav-alerts" onclick="showPage('alerts')" title="Алерты" style="position:relative"><i class="qi-slot" data-qi="bell" data-qs="20"></i><span id="alert-badge" class="badge" style="display:none"></span></button>
     <button class="nav-btn" onclick="showPage('tasks')" id="nav-tasks" title="Задачи">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+      <i class="qi-slot" data-qi="check-ring" data-qs="20"></i>
       <span id="tasks-badge" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--red);"></span>
     </button>
     <button class="nav-btn" onclick="showPage('certificates')" id="nav-certificates" title="Сертификаты">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/><path d="M8 15h4"/><circle cx="17" cy="15" r="2"/><path d="M15.5 16.5L14 20l3-1 3 1-1.5-3.5"/></svg>
+      <i class="qi-slot" data-qi="ticket" data-qs="20"></i>
     </button>
-    <button class="nav-btn" onclick="openSettings()" id="nav-settings" title="Настройки" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+    <button class="nav-btn" onclick="openSettings()" id="nav-settings" title="Настройки" style="display:none"><i class="qi-slot" data-qi="setting-alt-line" data-qs="20"></i></button>
     <div style="flex:1"></div>
-    <button class="nav-btn" onclick="toggleTheme()" id="themeBtn" title="Тема">🌙</button>
+    <button class="nav-btn" onclick="toggleTheme()" id="themeBtn" title="Тема"><i class="qi-slot" data-qi="moon-alt" data-qs="20"></i></button>
   </div>
 
   <div class="main">
@@ -639,15 +649,15 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
             <span id="lastSync" style="font-size:11px">не синхронизирован</span>
           </div>
           <div class="status-pill"><div class="status-dot" id="statusDot"></div><span class="pill-text" id="lastSync">не синхр.</span></div>
-          <button class="sync-btn" id="syncBtn" onclick="syncData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg><span class="btn-text">Синхронизировать</span></button>
+          <button class="sync-btn" id="syncBtn" onclick="syncData()"><i class="qi-slot" data-qi="refresh-2" data-qs="13"></i><span class="btn-text">Синхронизировать</span></button>
           <div id="userProfileSection" style="display:none;align-items:center;gap:8px">
             <div class="user-pill" onclick="handleLogout()" title="Выйти">
               <div class="user-avatar" id="userAvatar">?</div>
               <span class="user-email" id="userEmail">—</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <i class="qi-slot" data-qi="sign-out-squre" data-qs="16"></i>
             </div>
           </div>
-          <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+          <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle"><i class="qi-slot" data-qi="moon-alt" data-qs="20"></i></button>
         </div>
       </div>
 
@@ -656,27 +666,27 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div id="dashboardContent" style="display:none">
         <div class="kpi-grid">
           <div class="kpi-card">
-            <div class="kpi-icon" style="background:rgba(0,102,255,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#0066ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="kpi-label">Выручка месяца</div>
+            <div class="kpi-icon" style="background:rgba(0,102,255,0.1)"><i class="qi-slot" data-qi="money" data-qs="20" style="color:#0066ff"></i></div><div class="kpi-label">Выручка месяца</div>
             <div class="kpi-value" id="kpi-revenue">—</div>
             <div id="kpi-revenue-full" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
           </div>
           <div class="kpi-card" style="border-color:rgba(0,204,102,0.3);background:rgba(0,204,102,0.04)">
-            <div class="kpi-icon" style="background:rgba(0,204,102,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#00cc66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="kpi-label">Выручка сегодня</div>
+            <div class="kpi-icon" style="background:rgba(0,204,102,0.1)"><i class="qi-slot" data-qi="lightning" data-qs="20" style="color:#00cc66"></i></div><div class="kpi-label">Выручка сегодня</div>
             <div class="kpi-value" id="kpi-today" style="color:var(--green)">—</div>
             <div id="kpi-today-proj" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
             <div class="kpi-progress" style="margin-top:12px"><div class="kpi-progress-fill" id="today-progress-fill" style="width:0%;background:var(--green)"></div></div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon" style="background:rgba(255,170,0,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#ffaa00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="kpi-label">Средний чек</div>
+            <div class="kpi-icon" style="background:rgba(255,170,0,0.1)"><i class="qi-slot" data-qi="ticket-alt" data-qs="20" style="color:#ffaa00"></i></div><div class="kpi-label">Средний чек</div>
             <div class="kpi-value" id="kpi-avg">—</div>
             <div id="kpi-avg-trend" style="font-size:12px;margin-top:6px"></div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon" style="background:rgba(102,0,255,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#6600ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div class="kpi-label">Конверсия</div>
+            <div class="kpi-icon" style="background:rgba(102,0,255,0.1)"><i class="qi-slot" data-qi="group" data-qs="20" style="color:#6600ff"></i></div><div class="kpi-label">Конверсия</div>
             <div class="kpi-value" id="kpi-conv">—</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon" style="background:rgba(255,102,0,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div class="kpi-label">Выполнение плана</div>
+            <div class="kpi-icon" style="background:rgba(255,102,0,0.1)"><i class="qi-slot" data-qi="check-ring" data-qs="20" style="color:#ff6600"></i></div><div class="kpi-label">Выполнение плана</div>
             <div class="kpi-value" id="kpi-plan">—</div>
             <div id="plan-status" style="margin-top:16px"></div>
             <div class="kpi-progress" style="margin-top:12px">
@@ -684,7 +694,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
             </div>
           </div>
           <div class="kpi-card" id="kpi-chance-card" style="border-color:var(--border)">
-            <div class="kpi-icon" style="background:rgba(0,102,255,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#0066ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="kpi-label">Шанс выполнения плана</div>
+            <div class="kpi-icon" style="background:rgba(0,102,255,0.1)"><i class="qi-slot" data-qi="info" data-qs="20" style="color:#0066ff"></i></div><div class="kpi-label">Шанс выполнения плана</div>
             <div class="kpi-value" id="kpi-chance">—</div>
             <div id="kpi-chance-label" style="font-size:13px;margin-top:6px;color:var(--text3)"></div>
             <div class="kpi-progress" style="margin-top:16px">
@@ -696,12 +706,12 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           <!-- ── Топ продавцов ── -->
           <div class="sellers-kpi-card" id="home-sellers-widget" style="display:none">
             <div class="kpi-icon" style="background:rgba(102,0,255,0.1)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#6600ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              <i class="qi-slot" data-qi="group" data-qs="20" style="color:#6600ff"></i>
             </div>
             <div class="kpi-label">Рейтинг продавцов <span id="sw-month-label" style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;font-weight:400"></span></div>
             <div id="sw-top3"><div class="sw-empty">Загрузка...</div></div>
             <button class="sw-expand-btn" onclick="window.location.href='advanced.html'" title="Расширенная аналитика продавцов">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+              <i class="qi-slot" data-qi="arrow-right-long" data-qs="16"></i>
             </button>
           </div>
         </div>
@@ -729,7 +739,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
                 <div class="stat-value" id="stat-days">—</div>
               </div>
               <div class="stat-box">
-                <div class="stat-label"><span class="person-counter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8l-2 5h4l-2-5z"/><path d="M10 13l-1.5 5"/><path d="M14 13l1.5 5"/><path d="M9 10.5L7 14"/><path d="M15 10.5L17 14"/></svg><span>Посещений</span></span></div>
+                <div class="stat-label"><span class="person-counter"><i class="qi-slot" data-qi="user" data-qs="16"></i><span>Посещений</span></span></div>
                 <div class="stat-value" id="stat-visitors">—</div>
               </div>
             </div>
@@ -765,14 +775,14 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div class="card kpi-daily-card">
         <div class="kpi-daily-header" onclick="toggleKpiDaily()" title="Анализ по дням">
           <div style="display:flex;align-items:center;gap:10px">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <i class="qi-slot" data-qi="calendar" data-qs="16" style="color:var(--accent);flex-shrink:0"></i>
             <strong style="font-size:14px">Анализ по дням</strong>
             <span class="kpi-daily-hint">Подробная статистика за каждый день месяца</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
             <span id="kpi-daily-toggle-label" style="font-size:12px;color:var(--text3)">Развернуть</span>
             <div class="kpi-daily-chevron" id="kpi-daily-chevron">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              <i class="qi-slot" data-qi="expand-down" data-qs="14"></i>
             </div>
           </div>
         </div>
@@ -846,15 +856,15 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-        <button onclick="setSellersView('all')" id="stab-all" class="stab stab-active">🏆 Общий рейтинг</button>
+        <button onclick="setSellersView('all')" id="stab-all" class="stab stab-active">Общий рейтинг</button>
         <button onclick="setSellersView('grandpark')" id="stab-grandpark" class="stab">Grand Park</button>
         <button onclick="setSellersView('aport')" id="stab-aport" class="stab">Aport</button>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
-        <button onclick="setSellersMetric('revenue')" id="smet-revenue" class="stab stab-active">💰 Выручка</button>
-        <button onclick="setSellersMetric('perShift')" id="smet-perShift" class="stab">⚡ Выр./смену</button>
-        <button onclick="setSellersMetric('plan')" id="smet-plan" class="stab">🎯 % плана</button>
-        <button onclick="setSellersMetric('shifts')" id="smet-shifts" class="stab">📅 Посещаемость</button>
+        <button onclick="setSellersMetric('revenue')" id="smet-revenue" class="stab stab-active"><i class="qi-slot" data-qi="money" data-qs="14" style="vertical-align:-2px;margin-right:5px"></i>Выручка</button>
+        <button onclick="setSellersMetric('perShift')" id="smet-perShift" class="stab"><i class="qi-slot" data-qi="lightning" data-qs="14" style="vertical-align:-2px;margin-right:5px"></i>Выр./смену</button>
+        <button onclick="setSellersMetric('plan')" id="smet-plan" class="stab"><i class="qi-slot" data-qi="gps-fixed" data-qs="14" style="vertical-align:-2px;margin-right:5px"></i>% плана</button>
+        <button onclick="setSellersMetric('shifts')" id="smet-shifts" class="stab"><i class="qi-slot" data-qi="calendar" data-qs="14" style="vertical-align:-2px;margin-right:5px"></i>Посещаемость</button>
       </div>
       <div id="sellers-leaderboard"></div>
       <div id="sellers-summary" style="margin-top:20px"></div>
@@ -865,7 +875,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     <div class="page" id="page-trends">
       <div class="header">
         <div>
-          <h1>📈 Тренды</h1>
+          <h1>Тренды</h1>
           <p style="color:var(--text2);margin-top:4px;font-size:14px">Прогнозы и динамика по магазинам</p>
         </div>
       </div>
@@ -873,12 +883,12 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px" id="trends-week-grid"></div>
       <!-- Store forecast cards -->
       <div class="card" style="margin-bottom:20px">
-        <div class="card-title" style="margin-bottom:16px"><strong>📅 Прогноз выполнения плана к концу месяца</strong></div>
+        <div class="card-title" style="margin-bottom:16px"><strong>Прогноз выполнения плана к концу месяца</strong></div>
         <div id="trends-forecast-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px"></div>
       </div>
       <!-- Daily average by day of week -->
       <div class="card">
-        <div class="card-title" style="margin-bottom:16px"><strong>📆 Средняя выручка по дням недели</strong></div>
+        <div class="card-title" style="margin-bottom:16px"><strong>Средняя выручка по дням недели</strong></div>
         <div id="trends-weekday-chart"></div>
       </div>
     </div>
@@ -887,11 +897,11 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     <div class="page" id="page-alerts">
       <div class="header">
         <div>
-          <h1>🚨 Алерты</h1>
+          <h1>Алерты</h1>
           <p style="color:var(--text2);margin-top:4px;font-size:14px">Важные события и отклонения</p>
         </div>
         <div class="header-right">
-          <button class="sync-btn" onclick="computeAlerts()">🔄 Обновить</button>
+          <button class="sync-btn" onclick="computeAlerts()"><i class="qi-slot" data-qi="refresh-2" data-qs="14"></i>Обновить</button>
         </div>
       </div>
       <div id="alerts-critical" style="margin-bottom:20px"></div>
@@ -904,19 +914,19 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     <div class="page" id="page-tasks">
       <div class="header">
         <div>
-          <h1>📋 Задачи</h1>
+          <h1>Задачи</h1>
           <p style="color:var(--text2);margin-top:4px;font-size:14px">Управление проектами и задачами</p>
         </div>
         <div class="header-right">
           <button class="btn-create-task" onclick="openTaskModal()">+ Создать задачу</button>
-          <button class="sync-btn" onclick="loadTasks()">🔄 Обновить</button>
+          <button class="sync-btn" onclick="loadTasks()"><i class="qi-slot" data-qi="refresh-2" data-qs="14"></i>Обновить</button>
         </div>
       </div>
 
       <!-- Tasks Widget on Main -->
       <div id="tasks-widget" style="display:none">
         <div class="task-widget">
-          <div class="task-widget-title">📊 Статистика задач</div>
+          <div class="task-widget-title">Статистика задач</div>
           <div class="task-widget-items">
             <div class="task-widget-item">
               <div class="task-widget-value" id="stat-total">0</div>
@@ -979,11 +989,11 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     <div class="page" id="page-settings">
       <div class="header">
         <div>
-          <h1>⚙️ Настройки</h1>
+          <h1>Настройки</h1>
           <p style="color:var(--text2);margin-top:4px;font-size:14px">Общие для всех устройств и для менеджера</p>
         </div>
         <div class="header-right">
-          <button class="settings-btn" onclick="saveSettings()">💾 Сохранить</button>
+          <button class="settings-btn" onclick="saveSettings()"><i class="qi-slot" data-qi="save" data-qs="14" style="vertical-align:-2px;margin-right:6px"></i>Сохранить</button>
         </div>
       </div>
 
@@ -991,7 +1001,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div id="cfg-shared-hint" class="message info" style="display:none;margin-bottom:16px">Планы магазинов ещё не сохранены в общие настройки — сейчас менеджер и другие устройства видят свои старые цифры. Проверьте значения ниже и нажмите «Сохранить» один раз.</div>
 
       <div class="settings-section">
-        <div class="settings-title">📋 Названия листов Google Sheets</div>
+        <div class="settings-title"><i class="qi-slot" data-qi="table" data-qs="14" style="vertical-align:-2px;margin-right:6px"></i>Названия листов Google Sheets</div>
         <div style="font-size:13px;color:var(--text3);margin-bottom:16px">Когда начинается новый месяц — просто измените названия листов здесь. Не нужно лезть в код.</div>
         <div class="settings-row">
           <div class="settings-label">Лист KPI (магазины)</div>
@@ -1006,7 +1016,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       </div>
 
       <div class="settings-section">
-        <div class="settings-title">🏢 Планы команд (₸)</div>
+        <div class="settings-title"><i class="qi-slot" data-qi="shop" data-qs="14" style="vertical-align:-2px;margin-right:6px"></i>Планы команд (₸)</div>
         <div class="settings-row">
           <div class="settings-label">Grand Park — план</div>
           <input type="number" class="settings-input" id="cfg-plan-gp" placeholder="6000000">
@@ -1018,7 +1028,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       </div>
 
       <div class="settings-section">
-        <div class="settings-title">🔄 Синхронизация</div>
+        <div class="settings-title"><i class="qi-slot" data-qi="refresh-2" data-qs="14" style="vertical-align:-2px;margin-right:6px"></i>Синхронизация</div>
         <div class="settings-row">
           <div class="settings-label">Интервал обновления</div>
           <select class="settings-input" id="cfg-sync-interval">
@@ -1029,12 +1039,12 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           </select>
         </div>
         <div class="settings-row">
-          <button class="settings-btn" onclick="syncData();syncSellers()">🔄 Синхронизировать сейчас</button>
+          <button class="settings-btn" onclick="syncData();syncSellers()"><i class="qi-slot" data-qi="refresh-2" data-qs="14" style="vertical-align:-2px;margin-right:6px"></i>Синхронизировать сейчас</button>
         </div>
       </div>
 
       <div class="settings-section">
-        <div class="settings-title">ℹ️ Информация</div>
+        <div class="settings-title"><i class="qi-slot" data-qi="info" data-qs="14" style="vertical-align:-2px;margin-right:6px"></i>Информация</div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
           <div class="stat-box"><div class="stat-label">Версия</div><div style="font-size:16px;font-weight:600;color:var(--text)">v2.0</div></div>
           <div class="stat-box"><div class="stat-label">Sheet ID</div><div style="font-size:11px;color:var(--text2);word-break:break-all;margin-top:4px" id="info-sheet-id"></div></div>
@@ -1044,7 +1054,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       </div>
 
       <div class="settings-section" style="border-color:rgba(255,51,51,0.3)">
-        <div class="settings-title" style="color:var(--red)">⚠️ Сброс</div>
+        <div class="settings-title" style="color:var(--red)"><i class="qi-slot" data-qi="warning" data-qs="14" style="vertical-align:-2px;margin-right:6px"></i>Сброс</div>
         <div style="font-size:13px;color:var(--text3);margin-bottom:12px">Сбросить все настройки до стандартных значений.</div>
         <button class="settings-btn danger" onclick="resetSettings()">Сбросить настройки</button>
       </div>
@@ -1053,12 +1063,12 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
     <div class="page" id="page-certificates">
       <div class="header">
         <div>
-          <h1>🎫 Сертификаты</h1>
+          <h1>Сертификаты</h1>
           <p style="color:var(--text2);margin-top:4px;font-size:14px">Создание и управление подарочными сертификатами</p>
         </div>
         <div class="header-right">
           <button class="btn-primary" onclick="openCertModal()">+ Новый сертификат</button>
-          <button class="sync-btn" onclick="loadCertificates()">🔄 Обновить</button>
+          <button class="sync-btn" onclick="loadCertificates()"><i class="qi-slot" data-qi="refresh-2" data-qs="14"></i>Обновить</button>
         </div>
       </div>
     
@@ -1097,7 +1107,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <!-- Certificates list -->
       <div id="cert-list" style="display:flex;flex-direction:column;gap:12px">
         <div style="text-align:center;padding:60px;color:var(--text3)">
-          <div style="font-size:48px;margin-bottom:12px">🎫</div>
+          <div style="margin-bottom:12px"><i class="qi-slot" data-qi="ticket" data-qs="44"></i></div>
           <div style="font-size:16px">Загрузка сертификатов...</div>
         </div>
       </div>
@@ -1108,7 +1118,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
 
 <!-- ===== PIN OVERLAY ===== -->
 <div class="pin-overlay hidden" id="pinOverlay">
-  <div style="font-size:40px">🔐</div>
+  <div><i class="qi-slot" data-qi="lock" data-qs="36"></i></div>
   <div class="pin-title">Настройки защищены</div>
   <div class="pin-sub">Введите PIN-код для доступа</div>
   <div class="pin-dots" id="pinDots">
@@ -1232,7 +1242,7 @@ function checkPin() {
     renderPinDots();
     showSettingsPage();
   } else {
-    document.getElementById('pinError').textContent = '❌ Неверный PIN';
+    document.getElementById('pinError').textContent = 'Неверный PIN';
     // Shake dots
     const dots = document.getElementById('pinDots');
     dots.classList.remove('shake');
@@ -1371,7 +1381,7 @@ function toggleTheme() {
   const html = document.documentElement;
   const current = html.getAttribute('data-theme') || 'dark';
   html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-  document.getElementById('themeBtn').textContent = current === 'dark' ? '☀️' : '🌙';
+  document.getElementById('themeBtn').innerHTML = current === 'dark' ? QCPIcons.slot('sun-1', 20) : QCPIcons.slot('moon-alt', 20);
 }
 
 // ── KPI Daily analysis collapsible ──
@@ -1723,20 +1733,20 @@ function updateUI(data) {
     // Color & label
     let chanceColor, chanceLabel, cardBorder;
     if (chanceRaw >= 95) {
-      chanceColor = '#00cc66'; chanceLabel = '✅ Высокий — план реализуем'; cardBorder = 'rgba(0,204,102,0.4)';
+      chanceColor = '#00cc66'; chanceLabel = QCPIcons.slot('check-ring', 14, 'vertical-align:-2px;margin-right:4px') + 'Высокий — план реализуем'; cardBorder = 'rgba(0,204,102,0.4)';
     } else if (chanceRaw >= 75) {
-      chanceColor = '#ffaa00'; chanceLabel = '⚡ Средний — нужно ускориться'; cardBorder = 'rgba(255,170,0,0.4)';
+      chanceColor = '#ffaa00'; chanceLabel = QCPIcons.slot('lightning', 14, 'vertical-align:-2px;margin-right:4px') + 'Средний — нужно ускориться'; cardBorder = 'rgba(255,170,0,0.4)';
     } else if (chanceRaw >= 50) {
-      chanceColor = '#ff6600'; chanceLabel = '⚠️ Низкий — критичное отставание'; cardBorder = 'rgba(255,102,0,0.4)';
+      chanceColor = '#ff6600'; chanceLabel = QCPIcons.slot('warning', 14, 'vertical-align:-2px;margin-right:4px') + 'Низкий — критичное отставание'; cardBorder = 'rgba(255,102,0,0.4)';
     } else {
-      chanceColor = '#ff3333'; chanceLabel = '🔴 Критично — план недостижим'; cardBorder = 'rgba(255,51,51,0.4)';
+      chanceColor = '#ff3333'; chanceLabel = QCPIcons.slot('close-ring', 14, 'vertical-align:-2px;margin-right:4px') + 'Критично — план недостижим'; cardBorder = 'rgba(255,51,51,0.4)';
     }
 
     const card = document.getElementById('kpi-chance-card');
     card.style.borderColor = cardBorder;
     document.getElementById('kpi-chance').style.color = chanceColor;
     document.getElementById('kpi-chance').textContent = chanceDisplay.toFixed(0) + '%';
-    document.getElementById('kpi-chance-label').textContent = chanceLabel;
+    document.getElementById('kpi-chance-label').innerHTML = chanceLabel;
     document.getElementById('chance-progress-fill').style.width = chanceDisplay + '%';
     document.getElementById('chance-progress-fill').style.background = chanceColor;
     const coveragePct = neededPerDay > 0 ? Math.round((avgDailyRevenue / neededPerDay) * 100) : 100;
@@ -2156,7 +2166,10 @@ function fmtMetricVal(val, s) {
   if (sellersMetric === 'plan')   return val.toFixed(1) + '%';
   if (sellersMetric === 'shifts') return s.shifts + '/' + s.plannedShifts + ' смен';
 }
-function rankEmoji(i) { return ['🥇','🥈','🥉'][i] || (i+1)+'.'; }
+function rankEmoji(i) {
+  const c = ['#ffd700','#c0c0c0','#cd7f32'][i];
+  return c ? QCPIcons.slot('trophy', 20, 'color:' + c) : (i+1) + '.';
+}
 function teamClr(t)   { return t === 'grandpark' ? '#6ba3d4' : '#d4a56b'; }
 
 // ── Home: top-3 sellers KPI widget ──
@@ -2174,7 +2187,7 @@ function renderHomeSellerWidget() {
   const top3 = [...sellersData].sort((a, b) => b.revenue - a.revenue).slice(0, 3);
   const maxRev = top3[0]?.revenue || 1;
   const barColors = ['#ffd700', '#c0c0c0', '#cd7f32'];
-  const medals = ['🥇', '🥈', '🥉'];
+  const medals = ['#ffd700','#c0c0c0','#cd7f32'].map(c => QCPIcons.slot('trophy', 16, 'color:' + c));
 
   // Month label
   const now = new Date();
@@ -2257,7 +2270,7 @@ function renderSellers() {
       <div class="stat-box"><div class="stat-label">Выручка команды</div><div class="stat-value" style="font-size:20px">${fmtMoney(totalRev)}</div></div>
       <div class="stat-box"><div class="stat-label">Среднее выр./смену</div><div class="stat-value" style="font-size:20px">${fmtMoney(Math.round(avgPerShift))}</div></div>
       <div class="stat-box"><div class="stat-label">Средний % плана</div><div class="stat-value" style="font-size:20px;color:${avgPlan>=80?'var(--green)':avgPlan>=50?'var(--yellow)':'var(--red)'}">${avgPlan.toFixed(1)}%</div></div>
-      ${top?`<div class="stat-box"><div class="stat-label">Лидер месяца</div><div class="stat-value" style="font-size:17px">🥇 ${top.name}</div><div style="font-size:12px;color:var(--text3);margin-top:4px">${fmtMoney(top.revenue)}</div></div>`:''}
+      ${top?`<div class="stat-box"><div class="stat-label">Лидер месяца</div><div class="stat-value" style="font-size:17px"><i class="qi-slot" data-qi="trophy" data-qs="16" style="color:#ffd700;vertical-align:-2px;margin-right:6px"></i>${top.name}</div><div style="font-size:12px;color:var(--text3);margin-top:4px">${fmtMoney(top.revenue)}</div></div>`:''}
     </div>`;
 
   // Attendance calendar
@@ -2293,7 +2306,7 @@ function renderAttendance(list) {
   document.getElementById('sellers-calendar').innerHTML = `
     <div class="card" style="overflow-x:auto">
       <div class="card-title" style="margin-bottom:12px"><strong>Календарь смен</strong>
-        <span style="font-size:11px;color:var(--text3);font-weight:400;margin-left:8px">🟢 >400К · 🔵 >200К · ⚫ вышел · пусто выходной</span></div>
+        <span style="font-size:11px;color:var(--text3);font-weight:400;margin-left:8px"><span class="qdot" style="color:#00cc66"></span>&gt;400К · <span class="qdot" style="color:#4488ff"></span>&gt;200К · <span class="qdot" style="color:#555"></span>вышел · пусто выходной</span></div>
       <table style="border-collapse:collapse">
         <thead><tr><th style="text-align:left;padding:3px 10px 3px 0;font-size:11px;color:var(--text3)">Продавец</th>${heads}</tr></thead>
         <tbody>${rows}</tbody>
@@ -2370,7 +2383,7 @@ async function syncSellers() {
     console.warn('Sellers sync error:', e.message);
     document.getElementById('sellers-leaderboard').innerHTML =
       `<div style="color:var(--text3);padding:16px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)">
-        ⚠️ Не удалось загрузить лист продавцов.<br>
+        <i class="qi-slot" data-qi="warning" data-qs="14" style="vertical-align:-2px;margin-right:6px;color:var(--yellow)"></i>Не удалось загрузить лист продавцов.<br>
         <span style="font-size:12px">Проверь название листа: <code style="color:var(--accent)">${SELLERS_SHEET_NAME()}</code></span>
       </div>`;
   }
@@ -2442,11 +2455,11 @@ function renderInsights(data) {
     const r = s.dailyRevenue[todayIdx] || 0;
     if (r > bestRev) { bestRev = r; bestStore = s.name; }
   });
-  if (bestStore && bestRev > 0) insights.push({ icon:'🏆', text:`${bestStore} лидирует сегодня`, cls:'blue' });
+  if (bestStore && bestRev > 0) insights.push({ icon:QCPIcons.slot('trophy', 14), text:`${bestStore} лидирует сегодня`, cls:'blue' });
 
   // Any store above 100% plan
   Object.values(coreStores).forEach(s => {
-    if (s.plan > 0 && s.revenue >= s.plan) insights.push({ icon:'✅', text:`${s.name} выполнил план!`, cls:'green' });
+    if (s.plan > 0 && s.revenue >= s.plan) insights.push({ icon:QCPIcons.slot('check-ring', 14), text:`${s.name} выполнил план!`, cls:'green' });
   });
 
   // Store falling behind (< 50% plan by midmonth)
@@ -2455,21 +2468,21 @@ function renderInsights(data) {
   Object.values(coreStores).forEach(s => {
     if (s.plan > 0) {
       const pct = s.revenue / s.plan;
-      if (monthPct > 0.5 && pct < 0.4) insights.push({ icon:'⚠️', text:`${s.name} сильно отстаёт`, cls:'red' });
-      else if (monthPct > 0.3 && pct < monthPct - 0.15) insights.push({ icon:'📉', text:`${s.name} ниже темпа`, cls:'yellow' });
+      if (monthPct > 0.5 && pct < 0.4) insights.push({ icon:QCPIcons.slot('warning', 14), text:`${s.name} сильно отстаёт`, cls:'red' });
+      else if (monthPct > 0.3 && pct < monthPct - 0.15) insights.push({ icon:QCPIcons.slot('line-up', 14, 'transform:scaleY(-1)'), text:`${s.name} ниже темпа`, cls:'yellow' });
     }
   });
 
   // Weekend effect
   const dow = now.getDay();
-  if (dow === 6 || dow === 0) insights.push({ icon:'🎉', text:'Выходной день — трафик выше', cls:'green' });
+  if (dow === 6 || dow === 0) insights.push({ icon:QCPIcons.slot('group', 14), text:'Выходной день — трафик выше', cls:'green' });
 
   // Days left
   const daysLeft = daysInMonth - now.getDate();
-  if (daysLeft <= 3) insights.push({ icon:'⏰', text:`Остаётся ${daysLeft} дн. до конца месяца`, cls:'yellow' });
+  if (daysLeft <= 3) insights.push({ icon:QCPIcons.slot('alarmclock', 14), text:`Остаётся ${daysLeft} дн. до конца месяца`, cls:'yellow' });
 
   el.innerHTML = insights.slice(0, 5).map(i =>
-    `<div class="insight-pill ${i.cls}">${i.icon} ${i.text}</div>`
+    `<div class="insight-pill ${i.cls}">${i.icon}${i.text}</div>`
   ).join('');
 }
 
@@ -2519,22 +2532,22 @@ function renderTrends(data) {
   const weekGrid = document.getElementById('trends-week-grid');
   if (weekGrid) weekGrid.innerHTML = `
     <div class="week-card">
-      <div class="week-title">📅 Эта неделя (${thisWeekDays.length} дн.)</div>
+      <div class="week-title"><i class="qi-slot" data-qi="calendar" data-qs="13" style="vertical-align:-2px;margin-right:5px"></i>Эта неделя (${thisWeekDays.length} дн.)</div>
       <div class="week-val">${fmtMoney(thisWeekTotal)}</div>
       <div class="week-delta ${weekDeltaCls}">${weekDeltaIcon} ${Math.abs(weekDelta).toFixed(1)}% к прошлой неделе</div>
     </div>
     <div class="week-card">
-      <div class="week-title">⚡ Среднее/день (7 дн.)</div>
+      <div class="week-title"><i class="qi-slot" data-qi="lightning" data-qs="13" style="vertical-align:-2px;margin-right:5px"></i>Среднее/день (7 дн.)</div>
       <div class="week-val">${fmtMoney(Math.round(thisAvg))}</div>
       <div class="week-delta ${avgDeltaCls}">${avgDelta>0?'↑':'↓'} ${Math.abs(avgDelta).toFixed(1)}% vs предыдущая</div>
     </div>
     <div class="week-card">
-      <div class="week-title">🏆 Рекорд месяца</div>
+      <div class="week-title"><i class="qi-slot" data-qi="trophy" data-qs="13" style="vertical-align:-2px;margin-right:5px"></i>Рекорд месяца</div>
       <div class="week-val">${fmtMoney(bestDayVal)}</div>
-      <div class="week-delta flat">📆 ${bestDayLabel}</div>
+      <div class="week-delta flat"><i class="qi-slot" data-qi="calendar" data-qs="12" style="vertical-align:-2px;margin-right:4px"></i>${bestDayLabel}</div>
     </div>
     <div class="week-card">
-      <div class="week-title">📊 Дней в анализе</div>
+      <div class="week-title"><i class="qi-slot" data-qi="chart" data-qs="13" style="vertical-align:-2px;margin-right:5px"></i>Дней в анализе</div>
       <div class="week-val">${todayIdx+1}</div>
       <div class="week-delta flat" style="color:var(--text3)">из ${new Date(now.getFullYear(),now.getMonth()+1,0).getDate()} дней</div>
     </div>`;
@@ -2569,7 +2582,7 @@ function renderTrends(data) {
           <span>Прогноз: <b style="color:${projColor}">${fmtMoney(projected)}</b></span>
         </div>
         <div style="margin-top:10px;font-size:12px;color:${willMeet?'var(--green)':'var(--red)'}">
-          ${willMeet ? `✅ Выполнит план` : `❌ Не хватит ${fmtMoney(gap)}`}
+          ${willMeet ? `<i class="qi-slot" data-qi="done" data-qs="13" style="vertical-align:-2px;margin-right:4px"></i>Выполнит план` : `<i class="qi-slot" data-qi="close-ring" data-qs="13" style="vertical-align:-2px;margin-right:4px"></i>Не хватит ${fmtMoney(gap)}`}
         </div>
         <div style="margin-top:4px;font-size:11px;color:var(--text3)">Нужно/день: ${fmtMoney((plan-curr)/Math.max(1,daysLeft))} · Факт/день: ${fmtMoney(storeDailyAvg)}</div>
       </div>`;
@@ -2630,11 +2643,11 @@ function computeAlerts() {
     const projected = s.revenue + storeDailyAvg * daysLeft;
 
     if (monthPct > 0.6 && pct < 0.35) {
-      alerts.push({ level:'critical', icon:'🔴', title:`${s.name} — Критическое отставание`, body:`Выполнено ${(pct*100).toFixed(0)}% плана при ${(monthPct*100).toFixed(0)}% месяца. Прогноз: ${(projected/s.plan*100).toFixed(0)}%`, ts });
+      alerts.push({ level:'critical', icon:QCPIcons.slot('warning', 22), title:`${s.name} — Критическое отставание`, body:`Выполнено ${(pct*100).toFixed(0)}% плана при ${(monthPct*100).toFixed(0)}% месяца. Прогноз: ${(projected/s.plan*100).toFixed(0)}%`, ts });
     }
     if (daysLeft <= 5 && projected < s.plan * 0.85) {
       const gap = s.plan - s.revenue;
-      alerts.push({ level:'critical', icon:'⏰', title:`${s.name} — ${daysLeft} дн. до конца месяца`, body:`Не хватает ${fmtMoney(gap)}. Нужно ${fmtMoney(gap/Math.max(1,daysLeft))}/день — это в ${(gap/Math.max(1,daysLeft)/Math.max(1,storeDailyAvg)).toFixed(1)}x больше текущего темпа.`, ts });
+      alerts.push({ level:'critical', icon:QCPIcons.slot('alarmclock', 22), title:`${s.name} — ${daysLeft} дн. до конца месяца`, body:`Не хватает ${fmtMoney(gap)}. Нужно ${fmtMoney(gap/Math.max(1,daysLeft))}/день — это в ${(gap/Math.max(1,daysLeft)/Math.max(1,storeDailyAvg)).toFixed(1)}x больше текущего темпа.`, ts });
     }
   });
 
@@ -2643,35 +2656,35 @@ function computeAlerts() {
     if (s.plan === 0) return;
     const pct = s.revenue / s.plan;
     if (monthPct > 0.4 && pct < monthPct - 0.2) {
-      alerts.push({ level:'warning', icon:'⚠️', title:`${s.name} — Отстаёт от графика`, body:`Факт ${(pct*100).toFixed(0)}% vs ожидаемые ${(monthPct*100).toFixed(0)}% на этот период. Дефицит темпа: ${((monthPct - pct)*100).toFixed(0)} п.п.`, ts });
+      alerts.push({ level:'warning', icon:QCPIcons.slot('warning', 22), title:`${s.name} — Отстаёт от графика`, body:`Факт ${(pct*100).toFixed(0)}% vs ожидаемые ${(monthPct*100).toFixed(0)}% на этот период. Дефицит темпа: ${((monthPct - pct)*100).toFixed(0)} п.п.`, ts });
     }
     if (s.conversion > 0 && s.conversion < 10) {
-      alerts.push({ level:'warning', icon:'📉', title:`${s.name} — Низкая конверсия`, body:`Конверсия ${s.conversion.toFixed(1)}% ниже нормы. Нужно проверить работу консультантов.`, ts });
+      alerts.push({ level:'warning', icon:QCPIcons.slot('line-up', 22, 'transform:scaleY(-1)'), title:`${s.name} — Низкая конверсия`, body:`Конверсия ${s.conversion.toFixed(1)}% ниже нормы. Нужно проверить работу консультантов.`, ts });
     }
   });
 
   // ── Good news ──
   Object.values(coreStores).forEach(s => {
     if (s.plan > 0 && s.revenue >= s.plan) {
-      alerts.push({ level:'good', icon:'✅', title:`${s.name} — ПЛАН ВЫПОЛНЕН!`, body:`Выручка ${fmtMoney(s.revenue)} при плане ${fmtMoney(s.plan)} (${(s.revenue/s.plan*100).toFixed(1)}%). Отличная работа!`, ts });
+      alerts.push({ level:'good', icon:QCPIcons.slot('check-ring', 22), title:`${s.name} — ПЛАН ВЫПОЛНЕН!`, body:`Выручка ${fmtMoney(s.revenue)} при плане ${fmtMoney(s.plan)} (${(s.revenue/s.plan*100).toFixed(1)}%). Отличная работа!`, ts });
     }
     const pct = s.plan > 0 ? s.revenue/s.plan : 0;
     if (pct >= 0.85 && pct < 1.0) {
-      alerts.push({ level:'good', icon:'🎯', title:`${s.name} — Почти у цели`, body:`${(pct*100).toFixed(0)}% плана. Осталось ${fmtMoney(s.plan - s.revenue)}`, ts });
+      alerts.push({ level:'good', icon:QCPIcons.slot('gps-fixed', 22), title:`${s.name} — Почти у цели`, body:`${(pct*100).toFixed(0)}% плана. Осталось ${fmtMoney(s.plan - s.revenue)}`, ts });
     }
   });
 
   // Sellers alerts
   if (sellersData && sellersData.length > 0) {
     const topSeller = [...sellersData].sort((a,b) => b.revenue - a.revenue)[0];
-    if (topSeller) alerts.push({ level:'good', icon:'🥇', title:`Лидер месяца: ${topSeller.name}`, body:`Выручка ${fmtMoney(topSeller.revenue)} · ${topSeller.shifts} смен · ${(topSeller.revenue/Math.max(1,topSeller.plan)*100).toFixed(0)}% плана`, ts });
+    if (topSeller) alerts.push({ level:'good', icon:QCPIcons.slot('trophy', 22), title:`Лидер месяца: ${topSeller.name}`, body:`Выручка ${fmtMoney(topSeller.revenue)} · ${topSeller.shifts} смен · ${(topSeller.revenue/Math.max(1,topSeller.plan)*100).toFixed(0)}% плана`, ts });
 
     const lowSellers = sellersData.filter(s => s.plan > 0 && s.revenue/s.plan < 0.3 && monthPct > 0.4);
-    if (lowSellers.length > 0) alerts.push({ level:'warning', icon:'👤', title:`${lowSellers.length} продавцов отстают от плана`, body:lowSellers.map(s=>`${s.name}: ${(s.revenue/s.plan*100).toFixed(0)}%`).join(', '), ts });
+    if (lowSellers.length > 0) alerts.push({ level:'warning', icon:QCPIcons.slot('user', 22), title:`${lowSellers.length} продавцов отстают от плана`, body:lowSellers.map(s=>`${s.name}: ${(s.revenue/s.plan*100).toFixed(0)}%`).join(', '), ts });
   }
 
   // ── Info ──
-  alerts.push({ level:'info', icon:'ℹ️', title:'Данные обновляются автоматически', body:`Интервал: каждые ${SYNC_INTERVAL()} сек. KPI лист: "${SHEET_NAME()}" · ЗП лист: "${SELLERS_SHEET_NAME()}"`, ts });
+  alerts.push({ level:'info', icon:QCPIcons.slot('info', 22), title:'Данные обновляются автоматически', body:`Интервал: каждые ${SYNC_INTERVAL()} сек. KPI лист: "${SHEET_NAME()}" · ЗП лист: "${SELLERS_SHEET_NAME()}"`, ts });
 
   alertsData = alerts;
   renderAlerts(alerts);
@@ -2701,10 +2714,10 @@ function renderAlerts(alerts) {
       </div>`).join('');
   };
 
-  renderGroup('alerts-critical', groups.critical, '🔴 Критично');
-  renderGroup('alerts-warning',  groups.warning,  '⚠️ Внимание');
-  renderGroup('alerts-good',     groups.good,     '✅ Хорошие новости');
-  renderGroup('alerts-info',     groups.info,     'ℹ️ Информация');
+  renderGroup('alerts-critical', groups.critical, 'Критично');
+  renderGroup('alerts-warning',  groups.warning,  'Внимание');
+  renderGroup('alerts-good',     groups.good,     'Хорошие новости');
+  renderGroup('alerts-info',     groups.info,     'Информация');
 }
 
 // ===================== KPI TABLE SPARKLINES =====================
@@ -2954,17 +2967,17 @@ function updateTasksUI() {
               <div class="task-title">${task.name || 'Без названия'}</div>
               <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
                 <span class="task-priority ${priorityClass}">${
-                  task.priority === 'high' ? '🔴 Высокий' : task.priority === 'low' ? '🟢 Низкий' : '🟡 Средний'
+                  '<span class="qdot"></span>' + (task.priority === 'high' ? 'Высокий' : task.priority === 'low' ? 'Низкий' : 'Средний')
                 }</span>
-                <button class="btn-delete-task" onclick="event.stopPropagation(); deleteTask('${task.id}')" title="Удалить задачу">🗑</button>
+                <button class="btn-delete-task" onclick="event.stopPropagation(); deleteTask('${task.id}')" title="Удалить задачу"><i class="qi-slot" data-qi="trash" data-qs="14"></i></button>
               </div>
             </div>
             ${task.description ? `<p style="font-size:12px;color:var(--text2);margin:8px 0">${task.description}</p>` : ''}
             <div class="task-meta">
-              <div class="task-deadline">📅 ${new Date(task.deadline).toLocaleDateString('ru-RU')} ${daysLeft > 0 ? `(${daysLeft} дн.)` : daysLeft === 0 ? '(сегодня)' : '<span style="color:var(--red)">(просрочено)</span>'}</div>
-              <div class="task-assignee">👤 ${task.assignee || 'Не назначена'}</div>
+              <div class="task-deadline"><i class="qi-slot" data-qi="calendar" data-qs="12"></i>${new Date(task.deadline).toLocaleDateString('ru-RU')} ${daysLeft > 0 ? `(${daysLeft} дн.)` : daysLeft === 0 ? '(сегодня)' : '<span style="color:var(--red)">(просрочено)</span>'}</div>
+              <div class="task-assignee"><i class="qi-slot" data-qi="user" data-qs="12"></i>${task.assignee || 'Не назначена'}</div>
             </div>
-            <div class="task-complete-label">✅ Выполнено ${completedAt}</div>
+            <div class="task-complete-label"><i class="qi-slot" data-qi="done" data-qs="12" style="vertical-align:-2px;margin-right:4px"></i>Выполнено ${completedAt}</div>
           </div>
         </div>
       `;
@@ -3082,7 +3095,7 @@ async function toggleTaskComplete(taskId, completed) {
     if (task) Object.assign(task, updateData);
     updateTasksUI();
     updateTaskStats();
-    showTaskToast(completed ? '✅ Задача выполнена!' : '↩️ Задача возвращена', completed ? 'success' : 'info');
+    showTaskToast(completed ? 'Задача выполнена' : 'Задача возвращена', completed ? 'success' : 'info');
   } catch(e) {
     console.error('Toggle complete error:', e);
     showTaskToast('Ошибка обновления задачи', 'error');
@@ -3097,7 +3110,7 @@ async function deleteTask(taskId) {
     allTasks = allTasks.filter(t => t.id !== taskId);
     updateTasksUI();
     updateTaskStats();
-    showTaskToast('🗑 Задача удалена', 'info');
+    showTaskToast('Задача удалена', 'info');
   } catch(e) {
     console.error('Delete task error:', e);
     showTaskToast('Ошибка удаления задачи', 'error');
@@ -3431,7 +3444,7 @@ function renderCertificates(list) {
   const el = document.getElementById('cert-list');
   const today = new Date().toISOString().split('T')[0];
   if (!list.length) {
-    el.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text3)"><div style="font-size:48px;margin-bottom:12px">🎫</div><div>Сертификатов нет</div></div>';
+    el.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text3)"><div style="margin-bottom:12px"><i class="qi-slot" data-qi="ticket" data-qs="44"></i></div><div>Сертификатов нет</div></div>';
     return;
   }
   el.innerHTML = list.map(c => {
@@ -3443,7 +3456,7 @@ function renderCertificates(list) {
       ? `<span style="padding:3px 10px;background:var(--bg3);color:var(--text3);border-radius:20px;font-size:11px;font-weight:600">Истёк</span>`
       : `<span style="padding:3px 10px;background:rgba(0,204,102,0.12);color:var(--green);border-radius:20px;font-size:11px;font-weight:600">Активен</span>`;
     return `<div onclick="viewCertificate('${c.id}')" style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 22px;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;gap:16px" onmouseover="this.style.borderColor='rgba(0,102,255,0.3)'" onmouseout="this.style.borderColor='var(--border)'">
-      <div style="width:48px;height:48px;background:${isRevoked||isExpired?'var(--bg3)':'rgba(192,57,43,0.1)'};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${isRevoked?'🚫':isExpired?'⏰':'🎫'}</div>
+      <div style="width:48px;height:48px;background:${isRevoked||isExpired?'var(--bg3)':'rgba(192,57,43,0.1)'};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${QCPIcons.slot(isRevoked?'cancel':isExpired?'alarmclock':'ticket', 22)}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:15px;font-weight:700;margin-bottom:4px">${c.buyerName || '—'}</div>
         <div style="font-size:12px;color:var(--text3)">${c.store || '—'} · ${fmtDateShort(c.dateFrom)} – ${fmtDateShort(c.dateTo)} · Выдал: ${c.issuedBy || '—'}</div>
@@ -3538,7 +3551,7 @@ function shareCertificate() {
     btn.textContent = '✓ Ссылка скопирована!';
     btn.style.background = 'var(--green)';
     setTimeout(() => {
-      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Отправить клиенту`;
+      btn.innerHTML = `<i class="qi-slot" data-qi="send-hor" data-qs="15"></i> Отправить клиенту`;
       btn.style.background = 'var(--accent)';
     }, 2500);
   }).catch(() => {
@@ -3560,7 +3573,7 @@ function copyCertificateLink() {
     const originalColor = btn.style.borderColor;
     const originalBg = btn.style.backgroundColor;
     
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg> Скопировано!';
+    btn.innerHTML = '<i class="qi-slot" data-qi="done" data-qs="15"></i> Скопировано!';
     btn.style.borderColor = '#00cc66';
     btn.style.backgroundColor = 'rgba(0,204,102,0.15)';
     btn.style.color = '#00cc66';
@@ -3780,11 +3793,11 @@ document.addEventListener('DOMContentLoaded', () => {
     <div style="padding:16px 24px 24px;display:flex;gap:10px;flex-wrap:wrap">
       <button onclick="closeCertViewModal()" style="flex:1;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;cursor:pointer">Закрыть</button>
       <button onclick="shareCertificate()" id="cert-share-btn" style="padding:12px 20px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <i class="qi-slot" data-qi="send-hor" data-qs="15"></i>
         Отправить клиенту
       </button>
       <button onclick="copyCertificateLink()" id="cert-copy-btn" style="padding:12px 20px;background:rgba(0,102,255,0.15);border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+        <i class="qi-slot" data-qi="copy" data-qs="15"></i>
         Копировать ссылку
       </button>
       <button id="cert-revoke-btn" style="padding:12px 20px;background:rgba(255,51,51,0.1);border:1px solid var(--red);border-radius:10px;color:var(--red);font-size:14px;cursor:pointer">Аннулировать</button>

@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════
-   QCP LAB v20260923a — «Песочница» и «Сравнение» для Advanced KPI
+   QCP LAB v20260928a — «Песочница» и «Сравнение» для Advanced KPI
 
    ПЕСОЧНИЦА
      Теневой пересчёт: меняешь IOC / UPT / ATV / AUR — видишь, каким
@@ -22,7 +22,7 @@
 (function (global) {
 'use strict';
 
-const VERSION = '20260923a';
+const VERSION = '20260928a';
 
 // ── ВНЕШНИЕ ЗАВИСИМОСТИ (передаются из страницы) ─────────────
 let HOST = {
@@ -342,10 +342,10 @@ function isSandboxOn() { return sandboxOn; }
 
 // ── Разметка песочницы ───────────────────────────────────────
 const ICON = {
-  flask:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v6l-6 10a2 2 0 0 0 1.7 3h12.6a2 2 0 0 0 1.7-3l-6-10V3"/><path d="M7 15h10"/></svg>',
-  info: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
-  close:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-  swap: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
+  flask:'<i class="qi-slot" data-qi="flask-alt" data-qs="14"></i>',
+  info: '<i class="qi-slot" data-qi="info" data-qs="14"></i>',
+  close:'<i class="qi-slot" data-qi="close-round" data-qs="14"></i>',
+  swap: '<i class="qi-slot" data-qi="transfer-long-right" data-qs="14"></i>',
 };
 
 function deltaChip(diff, dec, suffix) {
@@ -742,6 +742,13 @@ global.QCPLab = {
   // для тестов
   _derive: derive, _aggregate: aggregate, _rules: RULES,
 };
+
+// Стили нужны сразу: кнопки «Песочница» и «Сравнить» видны в карточке
+// ещё до того, как песочницу откроют.
+if (typeof document !== 'undefined') {
+  if (document.head) injectCSS();
+  else document.addEventListener('DOMContentLoaded', injectCSS);
+}
 
 console.log('[QCP-Lab] v' + VERSION + ' загружен');
 

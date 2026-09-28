@@ -980,7 +980,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       <div class="header">
         <div>
           <h1>⚙️ Настройки</h1>
-          <p style="color:var(--text2);margin-top:4px;font-size:14px">Конфигурация дашборда</p>
+          <p style="color:var(--text2);margin-top:4px;font-size:14px">Общие для всех устройств и для менеджера</p>
         </div>
         <div class="header-right">
           <button class="settings-btn" onclick="saveSettings()">💾 Сохранить</button>
@@ -988,6 +988,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
       </div>
 
       <div id="settings-save-msg"></div>
+      <div id="cfg-shared-hint" class="message info" style="display:none;margin-bottom:16px">Планы магазинов ещё не сохранены в общие настройки — сейчас менеджер и другие устройства видят свои старые цифры. Проверьте значения ниже и нажмите «Сохранить» один раз.</div>
 
       <div class="settings-section">
         <div class="settings-title">📋 Названия листов Google Sheets</div>
@@ -1038,6 +1039,7 @@ body { background: var(--bg); color: var(--text); font-family: -apple-system, Bl
           <div class="stat-box"><div class="stat-label">Версия</div><div style="font-size:16px;font-weight:600;color:var(--text)">v2.0</div></div>
           <div class="stat-box"><div class="stat-label">Sheet ID</div><div style="font-size:11px;color:var(--text2);word-break:break-all;margin-top:4px" id="info-sheet-id"></div></div>
           <div class="stat-box"><div class="stat-label">Последний сеанс</div><div style="font-size:13px;color:var(--text2);margin-top:4px" id="info-last-session"></div></div>
+          <div class="stat-box"><div class="stat-label">Настройки изменены</div><div style="font-size:13px;color:var(--text2);margin-top:4px;word-break:break-all" id="info-settings-by">—</div></div>
         </div>
       </div>
 
@@ -1161,11 +1163,19 @@ let CFG = loadConfig();
 const SHEET_ID = '1mlIejiqrLwvjUPef1ObVfAaNexiMHYzlmom2BPPIlLQ';
 const API_KEY  = 'AIzaSyAQ-RAQTV4S7hA1xWmvbITudc9l_wjC8nw';
 
-// Getters — always read from CFG so they stay live
-function SHEET_NAME()         { return CFG.SHEET_NAME; }
-function SELLERS_SHEET_NAME() { return CFG.SELLERS_SHEET_NAME; }
-function PLAN_GRANDPARK()     { return CFG.PLAN_GRANDPARK; }
-function PLAN_APORT()         { return CFG.PLAN_APORT; }
+// Листы, планы и интервал — из ОБЩЕГО конфига (Firestore), одни на все устройства
+// и совпадают с тем, что видит менеджер. Локальные CFG — только запасной вариант.
+function SHEET_NAME()         { return (window.QCP && QCP.get('kpiSheet')) || CFG.SHEET_NAME; }
+function SELLERS_SHEET_NAME() { return (window.QCP && QCP.get('zpSheet'))  || CFG.SELLERS_SHEET_NAME; }
+function sharedNum(key, sub) {
+  if (!window.QCP || !QCP.setting) return NaN;
+  let v = QCP.setting(key);
+  if (sub) v = (v && typeof v === 'object') ? v[sub] : undefined;
+  return parseFloat(v);
+}
+function PLAN_GRANDPARK() { const v = sharedNum('plans', 'grandpark'); return v > 0 ? v : CFG.PLAN_GRANDPARK; }
+function PLAN_APORT()     { const v = sharedNum('plans', 'aport');     return v > 0 ? v : CFG.PLAN_APORT; }
+function SYNC_INTERVAL()  { const v = sharedNum('syncInterval');       return v >= 30 ? v : CFG.SYNC_INTERVAL; }
 
 // ===================== PIN SYSTEM =====================
 const PIN_CODE     = '57725';
@@ -1236,13 +1246,11 @@ function checkPin() {
 
 function showSettingsPage() {
   // Populate fields from current config
-  document.getElementById('cfg-sheet-kpi').value    = CFG.SHEET_NAME;
-  document.getElementById('cfg-sheet-sellers').value = CFG.SELLERS_SHEET_NAME;
-  document.getElementById('cfg-plan-gp').value       = CFG.PLAN_GRANDPARK;
-  document.getElementById('cfg-plan-aport').value    = CFG.PLAN_APORT;
-  document.getElementById('cfg-kpi-current').textContent     = CFG.SHEET_NAME;
-  document.getElementById('cfg-sellers-current').textContent = CFG.SELLERS_SHEET_NAME;
-  document.getElementById('cfg-sync-interval').value = CFG.SYNC_INTERVAL;
+  fillSettingsForm({
+    kpi: SHEET_NAME(), sellers: SELLERS_SHEET_NAME(),
+    gp: PLAN_GRANDPARK(), ap: PLAN_APORT(), si: SYNC_INTERVAL()
+  });
+  refreshSettingsInfo();
   document.getElementById('info-sheet-id').textContent = SHEET_ID;
   const ls = localStorage.getItem('qgi_last_session');
   document.getElementById('info-last-session').textContent = ls || 'Первый запуск';
@@ -1253,7 +1261,36 @@ function showSettingsPage() {
   document.getElementById('nav-settings').classList.add('active');
 }
 
-function saveSettings() {
+function fillSettingsForm(c) {
+  document.getElementById('cfg-sheet-kpi').value     = c.kpi;
+  document.getElementById('cfg-sheet-sellers').value = c.sellers;
+  document.getElementById('cfg-plan-gp').value       = c.gp;
+  document.getElementById('cfg-plan-aport').value    = c.ap;
+  document.getElementById('cfg-sync-interval').value = String(c.si);
+}
+
+// Подписи «Текущий», «Изменено» и подсказка — обновляются и при изменениях с других устройств
+function refreshSettingsInfo() {
+  document.getElementById('cfg-kpi-current').textContent     = SHEET_NAME();
+  document.getElementById('cfg-sellers-current').textContent = SELLERS_SHEET_NAME();
+
+  const by = window.QCP ? QCP.setting('settingsBy') : null;
+  const at = window.QCP ? QCP.setting('settingsAt') : null;
+  let when = '';
+  try {
+    const d = at && typeof at.toDate === 'function' ? at.toDate() : null;
+    if (d) when = d.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit' }) + ' '
+                + d.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' });
+  } catch (e) {}
+  document.getElementById('info-settings-by').textContent = by ? (when ? when + ' · ' : '') + by : '—';
+
+  // Планы ещё ни разу не сохранялись в общие — подсказываем один раз нажать «Сохранить»
+  const hint = document.getElementById('cfg-shared-hint');
+  const noShared = window.QCP && !QCP.setting('plans');
+  hint.style.display = noShared ? 'block' : 'none';
+}
+
+async function saveSettings() {
   const kpi     = document.getElementById('cfg-sheet-kpi').value.trim();
   const sellers = document.getElementById('cfg-sheet-sellers').value.trim();
   const gp      = parseInt(document.getElementById('cfg-plan-gp').value) || DEFAULT_CONFIG.PLAN_GRANDPARK;
@@ -1261,33 +1298,43 @@ function saveSettings() {
   const si      = parseInt(document.getElementById('cfg-sync-interval').value) || 120;
 
   if (!kpi || !sellers) {
-    showSettingsMsg('⚠️ Названия листов не могут быть пустыми', 'error'); return;
+    showSettingsMsg('Названия листов не могут быть пустыми', 'error'); return;
   }
+  if (!window.QCP) { showSettingsMsg('Нет связи с общими настройками — обновите страницу', 'error'); return; }
 
-  CFG.SHEET_NAME         = kpi;
-  CFG.SELLERS_SHEET_NAME = sellers;
-  CFG.PLAN_GRANDPARK     = gp;
-  CFG.PLAN_APORT         = ap;
-  CFG.SYNC_INTERVAL      = si;
+  // Планы и интервал — в общий конфиг: так их видят все устройства и менеджер
+  showSettingsMsg('Сохраняем…', 'success');
+  const r = await QCP.setRaw({
+    plans: { grandpark: gp, aport: ap },
+    syncInterval: si,
+    settingsBy: ((firebase.auth().currentUser) || {}).email || 'unknown',
+    settingsAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  if (!r.ok) { showSettingsMsg('Не сохранилось: ' + r.error, 'error'); return; }
+
+  // Листы — тоже общие (меняем только если их правда поменяли; месяц подстроится)
+  if (kpi !== SHEET_NAME())             await QCP.setSheet('kpiSheet', kpi);
+  if (sellers !== SELLERS_SHEET_NAME()) await QCP.setSheet('zpSheet', sellers);
+
+  // Локальная копия — на случай, если нет связи с Firestore
+  Object.assign(CFG, { SHEET_NAME: kpi, SELLERS_SHEET_NAME: sellers,
+                       PLAN_GRANDPARK: gp, PLAN_APORT: ap, SYNC_INTERVAL: si });
   saveConfig(CFG);
 
-  // Update displayed labels
-  document.getElementById('cfg-kpi-current').textContent     = kpi;
-  document.getElementById('cfg-sellers-current').textContent = sellers;
-
-  // Restart sync intervals
+  refreshSettingsInfo();
   startSyncIntervals();
-
-  showSettingsMsg('✅ Настройки сохранены! Выполняем синхронизацию...', 'success');
+  showSettingsMsg('Сохранено для всех устройств. Синхронизируем…', 'success');
   setTimeout(() => { syncData(); syncSellers(); }, 600);
 }
 
+// Сброс: подставляем стандартные значения в форму. В общий конфиг они
+// попадут только после «Сохранить» — чтобы случайно не сбросить всем.
 function resetSettings() {
-  if (!confirm('Сбросить все настройки до стандартных?')) return;
-  CFG = Object.assign({}, DEFAULT_CONFIG);
-  saveConfig(CFG);
-  showSettingsPage();
-  showSettingsMsg('↩️ Настройки сброшены', 'success');
+  fillSettingsForm({
+    kpi: SHEET_NAME(), sellers: SELLERS_SHEET_NAME(),
+    gp: DEFAULT_CONFIG.PLAN_GRANDPARK, ap: DEFAULT_CONFIG.PLAN_APORT, si: DEFAULT_CONFIG.SYNC_INTERVAL
+  });
+  showSettingsMsg('Стандартные значения подставлены — нажмите «Сохранить», чтобы применить для всех', 'success');
 }
 
 function showSettingsMsg(text, type) {
@@ -1301,8 +1348,8 @@ let syncIntervals = [];
 function startSyncIntervals() {
   syncIntervals.forEach(id => clearInterval(id));
   syncIntervals = [
-    setInterval(syncData,    CFG.SYNC_INTERVAL * 1000),
-    setInterval(syncSellers, CFG.SYNC_INTERVAL * 2000)
+    setInterval(syncData,    SYNC_INTERVAL() * 1000),
+    setInterval(syncSellers, SYNC_INTERVAL() * 2000)
   ];
 }
 
@@ -2624,7 +2671,7 @@ function computeAlerts() {
   }
 
   // ── Info ──
-  alerts.push({ level:'info', icon:'ℹ️', title:'Данные обновляются автоматически', body:`Интервал: каждые ${CFG.SYNC_INTERVAL} сек. KPI лист: "${SHEET_NAME()}" · ЗП лист: "${SELLERS_SHEET_NAME()}"`, ts });
+  alerts.push({ level:'info', icon:'ℹ️', title:'Данные обновляются автоматически', body:`Интервал: каждые ${SYNC_INTERVAL()} сек. KPI лист: "${SHEET_NAME()}" · ЗП лист: "${SELLERS_SHEET_NAME()}"`, ts });
 
   alertsData = alerts;
   renderAlerts(alerts);
@@ -2783,7 +2830,41 @@ function initializeFirebaseAuth() {
       const settingsBtn = document.getElementById('nav-settings');
       if (settingsBtn) settingsBtn.style.display = 'flex';
     }
+
+    await wireSharedConfig();
   });
+}
+
+// ===== ОБЩИЙ КОНФИГ (одни настройки на все устройства) =====
+let _sharedWired = false;
+async function wireSharedConfig() {
+  if (_sharedWired || !window.QCP) return;
+  _sharedWired = true;
+  await QCP.init({
+    sheetId: SHEET_ID,
+    resolvers: {
+      kpiSheet: { source: 'main', match: t => /kpi/i.test(t) },
+      zpSheet:  { source: 'main', match: t => /^\s*ЗП/i.test(t) }
+    },
+    fallback: { kpiSheet: CFG.SHEET_NAME, zpSheet: CFG.SELLERS_SHEET_NAME }
+  });
+  const settingsOpen = () => document.getElementById('page-settings').classList.contains('active');
+
+  // Сменили месяц/лист (здесь, у менеджера или на другом устройстве)
+  QCP.onChange((r, changed) => {
+    if (changed.indexOf('kpiSheet') > -1) syncData();
+    if (changed.indexOf('zpSheet')  > -1) syncSellers();
+    if (settingsOpen()) refreshSettingsInfo();
+  });
+  // Поменяли планы или интервал (на любом устройстве) — применяем сразу
+  QCP.onSettings((raw, keys) => {
+    if (keys.includes('plans'))        { syncData(); syncSellers(); }
+    if (keys.includes('syncInterval')) startSyncIntervals();
+    if (settingsOpen()) refreshSettingsInfo();
+  });
+  // Первая загрузка шла по локальным значениям — перезагружаем по общим
+  syncData(); syncSellers(); startSyncIntervals();
+  if (settingsOpen()) showSettingsPage();
 }
 
 // ===== TASKS SYSTEM =====
@@ -3150,6 +3231,7 @@ function handleLogout() {
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script src="qcp-core.js?v=20260928b"></script>
 
 <script>
 // ===================== CERTIFICATES SYSTEM =====================

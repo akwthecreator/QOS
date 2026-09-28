@@ -342,7 +342,6 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
   .score-breakdown{grid-template-columns:repeat(2,1fr)}
 }
 </style>
-<script src="qcp-icons.js?v=20260928a"></script>
 </head>
 <body>
 
@@ -360,15 +359,15 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 <div id="settingsModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:501;width:min(520px,calc(100vw - 32px));background:var(--bg2);border:1px solid var(--border2);border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.5)">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)">
     <div>
-      <div style="font-size:16px;font-weight:700"><i class="qi-slot" data-qi="setting-alt-line" data-qs="18" style="vertical-align:-3px;margin-right:6px"></i>Настройки QREI</div>
+      <div style="font-size:16px;font-weight:700">⚙️ Настройки QREI</div>
       <div style="font-size:11px;color:var(--text3);margin-top:2px">Независимо от panel.html</div>
     </div>
-    <button onclick="closeSettings()" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center"><i class="qi-slot" data-qi="close-round" data-qs="16"></i></button>
+    <button onclick="closeSettings()" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center">✕</button>
   </div>
   <div style="padding:20px 22px;max-height:70vh;overflow-y:auto">
 
     <!-- Sheet settings -->
-    <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px"><i class="qi-slot" data-qi="table" data-qs="12" style="vertical-align:-2px;margin-right:5px"></i>Google Sheets</div>
+    <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">📋 Google Sheets</div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
       <div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Sheet ID <span style="color:var(--text3)">(ID таблицы из URL)</span></div>
@@ -385,7 +384,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
           </select>
           <button onclick="fetchSheetsList()" title="Загрузить список листов из таблицы"
             style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;font-family:inherit">
-            <i class="qi-slot" data-qi="refresh-2" data-qs="14"></i>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
             Листы
           </button>
         </div>
@@ -396,7 +395,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
     </div>
 
     <!-- Benchmarks -->
-    <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px"><i class="qi-slot" data-qi="gps-fixed" data-qs="12" style="vertical-align:-2px;margin-right:5px"></i>Бенчмарки (планы)</div>
+    <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">🎯 Бенчмарки (планы)</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
       <div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:5px">IOC цель (%)</div>
@@ -422,7 +421,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 
     <!-- Save/Reset -->
     <div style="display:flex;gap:8px">
-      <button onclick="saveSettings()" style="flex:1;padding:11px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer"><i class="qi-slot" data-qi="save" data-qs="16" style="vertical-align:-3px;margin-right:6px"></i>Сохранить и загрузить</button>
+      <button onclick="saveSettings()" style="flex:1;padding:11px;background:var(--accent);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer">💾 Сохранить и загрузить</button>
       <button onclick="resetSettings()" style="padding:11px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:13px;cursor:pointer">Сброс</button>
     </div>
     <div id="cfg-save-msg" style="margin-top:8px;font-size:12px;min-height:16px;text-align:center"></div>
@@ -443,7 +442,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 
     <!-- Config warning (if sheet not set) -->
     <div class="config-bar" id="configBar" style="display:none" onclick="openSettings()">
-      <i class="qi-slot" data-qi="setting-alt-line" data-qs="14"></i> <span>Таблица не настроена — нажмите чтобы открыть настройки</span>
+      ⚙ <span>Таблица не настроена — нажмите чтобы открыть настройки</span>
       <span style="margin-left:auto;opacity:0.6">→</span>
     </div>
 
@@ -480,8 +479,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Displ
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-<script src="qcp-core.js?v=20260928a"></script>
-<script src="qcp-lab.js?v=20260928a"></script>
+<script src="qcp-core.js?v=20260923a"></script>
+<script src="qcp-lab.js?v=20260923a"></script>
 <script>
 // ══════════════════════════════════════════════════════════
 //  CONFIG — читаем из localStorage (сохраняется в panel.html settings)
@@ -833,9 +832,9 @@ function calcQREI(sellers) {
 
     // Dynamic badge (among whole filtered list)
     let badge = null;
-    if (s.upt === maxUpt && maxUpt > 0)       badge = {label:'The Look Maker', color:'var(--yellow)', icon:'<i class="qi-slot" data-qi="lightning" data-qs="12"></i>'};
-    else if (s.ioc === maxIoc && maxIoc > 0)  badge = {label:'The Closer',     color:'var(--green)',  icon:'<i class="qi-slot" data-qi="gps-fixed" data-qs="12"></i>'};
-    else if (s.aur === maxAur && maxAur > 0)  badge = {label:'Premium Stylist', color:'var(--accent)', icon:'<i class="qi-slot" data-qi="star" data-qs="12"></i>'};
+    if (s.upt === maxUpt && maxUpt > 0)       badge = {label:'The Look Maker', color:'var(--yellow)', icon:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'};
+    else if (s.ioc === maxIoc && maxIoc > 0)  badge = {label:'The Closer',     color:'var(--green)',  icon:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg>'};
+    else if (s.aur === maxAur && maxAur > 0)  badge = {label:'Premium Stylist', color:'var(--accent)', icon:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'};
 
     return { ...s, qrei, isDanger, badge, n_ioc, n_upt, n_atv, n_aur };
   }).sort((a,b)=>b.qrei-a.qrei);
@@ -898,7 +897,7 @@ function render() {
 
   // Leaderboard sidebar
   document.getElementById('lbList').innerHTML = list.map((s,i)=>{
-    const rankStr = i===0?'<i class="qi-slot" data-qi="trophy" data-qs="14" style="color:#ffd700"></i>':i===1?'<i class="qi-slot" data-qi="trophy" data-qs="14" style="color:#c0c0c0"></i>':i===2?'<i class="qi-slot" data-qi="trophy" data-qs="14" style="color:#cd7f32"></i>':`#${i+1}`;
+    const rankStr = i===0?'<svg width="14" height="14" viewBox="0 0 24 24" fill="#ffd700" stroke="none"><circle cx="12" cy="8" r="6"/><path d="M6 8l-4 10h4l2-4 2 4h4l2-4 2 4h4L22 8" fill="#ffd700" opacity="0.3"/></svg>':i===1?'<svg width="14" height="14" viewBox="0 0 24 24" fill="#c0c0c0" stroke="none"><circle cx="12" cy="8" r="6"/></svg>':i===2?'<svg width="14" height="14" viewBox="0 0 24 24" fill="#cd7f32" stroke="none"><circle cx="12" cy="8" r="6"/></svg>':`#${i+1}`;
     const clr = s.isDanger?'var(--red)':i===0?'#ffd700':i<3?'var(--accent)':'var(--text2)';
     const avBg = s.team==='grandpark'?'#0d1a2e':'#2e1a0d';
     const avTx = s.team==='grandpark'?'#6ba3d4':'#d4a56b';
@@ -918,7 +917,7 @@ function render() {
   // Cards grid
   const mc = document.getElementById('mainContent');
   if (!list.length) {
-    mc.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="qi-slot" data-qi="table" data-qs="32"></i></div><div class="empty-title">Нет данных</div><div class="empty-sub">Попробуйте изменить фильтры или обновить данные</div></div>`;
+    mc.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div><div class="empty-title">Нет данных</div><div class="empty-sub">Попробуйте изменить фильтры или обновить данные</div></div>`;
     return;
   }
 
@@ -952,7 +951,7 @@ function renderCard(s, rank, origIdx) {
         <div class="card-name">${s.name}</div>
         <div class="card-store">${storeLabel}</div>
         ${s.badge?`<div class="card-badge" style="background:${s.badge.color}18;color:${s.badge.color}">${s.badge.icon} ${s.badge.label}</div>`:''}
-        ${s.isDanger?`<div class="danger-badge"><i class="qi-slot" data-qi="warning" data-qs="12"></i> Зона риска</div>`:''}
+        ${s.isDanger?`<div class="danger-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Зона риска</div>`:''}
       </div>
       <div class="card-score-block">
         <div class="card-score-num ${scoreCls}" style="${scoreSty}">${s.qrei}</div>
@@ -961,19 +960,19 @@ function renderCard(s, rank, origIdx) {
     </div>
     <div class="metrics-grid">
       <div class="metric-cell">
-        <div class="metric-lbl"><i class="qi-slot" data-qi="money" data-qs="12"></i> Выручка</div>
+        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 6v6l4 2"/><path d="M9 2h6M12 2v4"/></svg> Выручка</div>
         <div class="metric-val">${fmtKT(s.revenue)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl"><i class="qi-slot" data-qi="lightning" data-qs="12"></i> UPT</div>
+        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> UPT</div>
         <div class="metric-val">${s.upt.toFixed(1)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl"><i class="qi-slot" data-qi="ticket-alt" data-qs="12"></i> ATV</div>
+        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> ATV</div>
         <div class="metric-val">${fmtKT(s.atv)}</div>
       </div>
       <div class="metric-cell">
-        <div class="metric-lbl"><i class="qi-slot" data-qi="group" data-qs="12"></i> Доля трафика</div>
+        <div class="metric-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Доля трафика</div>
         <div class="metric-val">${shareAvg > 0 ? '~'+shareAvg : '—'}</div>
         <div class="metric-sub" style="font-size:9px;color:var(--text3)">чел/смену · σ ${share > 0 ? share : '—'} всего</div>
       </div>
@@ -1063,7 +1062,7 @@ function openPanel(origIdx) {
         <div class="panel-store">${teamLbl} · ${s.shifts} смен</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
           ${s.badge?`<div class="card-badge" style="background:${s.badge.color}18;color:${s.badge.color}">${s.badge.icon} ${s.badge.label}</div>`:''}
-          ${s.isDanger?`<div class="danger-badge"><i class="qi-slot" data-qi="warning" data-qs="12"></i> Зона риска</div>`:''}
+          ${s.isDanger?`<div class="danger-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Зона риска</div>`:''}
         </div>
       </div>
       <div style="text-align:right;flex-shrink:0">
@@ -1076,11 +1075,11 @@ function openPanel(origIdx) {
     ${labOn ? labBlock : `
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
       <button class="lab-btn primary" onclick="openSandbox()">
-        <i class="qi-slot" data-qi="flask-alt" data-qs="14" style="vertical-align:-1px;margin-right:4px"></i>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:4px"><path d="M9 3h6M10 3v6l-6 10a2 2 0 0 0 1.7 3h12.6a2 2 0 0 0 1.7-3l-6-10V3"/><path d="M7 15h10"/></svg>
         Песочница
       </button>
       <button class="lab-btn" onclick="openCompareFor('${s.name.replace(/'/g, "\\'")}')">
-        <i class="qi-slot" data-qi="chart" data-qs="14" style="vertical-align:-1px;margin-right:4px"></i>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:4px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         Сравнить
       </button>
     </div>`}
@@ -1256,8 +1255,8 @@ function toggleTheme() {
   html.setAttribute('data-theme',next);
   const _t1 = document.getElementById('themeBtn');
   if (_t1) _t1.innerHTML = next==='dark'
-    ? '<i class="qi-slot" data-qi="moon-alt" data-qs="16"></i>'
-    : '<i class="qi-slot" data-qi="sun-1" data-qs="16"></i>';
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
   localStorage.setItem('adv_theme',next);
 }
 // ══════════════════════════════════════════════════════════
@@ -1273,7 +1272,7 @@ async function fetchSheetsList() {
   }
   const btn = event.currentTarget;
   const origHTML = btn.innerHTML;
-  btn.innerHTML = '<i class="qi-slot" data-qi="refresh-2" data-qs="14" style="animation:spin 0.7s linear infinite"></i>';
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 0.7s linear infinite"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>';
   btn.disabled = true;
   try {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?fields=sheets.properties.title&key=${API_KEY}`;
@@ -1297,7 +1296,7 @@ async function fetchSheetsList() {
   } catch(e) {
     console.error('[QREI] fetchSheetsList:', e);
     const sel = document.getElementById('cfg-sheet-select');
-    sel.innerHTML = `<option value="">Ошибка: ${e.message}</option>`;
+    sel.innerHTML = `<option value="">⚠ Ошибка: ${e.message}</option>`;
     sel.style.borderColor = 'var(--bad)';
     setTimeout(() => sel.style.borderColor = '', 2000);
   } finally {
@@ -1347,7 +1346,7 @@ function saveSettings() {
 
   if (!sheetName) {
     document.getElementById('cfg-save-msg').style.color = 'var(--red)';
-    document.getElementById('cfg-save-msg').textContent = 'Укажите название листа';
+    document.getElementById('cfg-save-msg').textContent = '⚠️ Укажите название листа';
     return;
   }
 
@@ -1362,7 +1361,7 @@ function saveSettings() {
     selEl.insertBefore(o, selEl.firstChild);
   } else { selEl.value = sheetName; }
   document.getElementById('cfg-save-msg').style.color = 'var(--green)';
-  document.getElementById('cfg-save-msg').textContent = 'Сохранено, загружаем данные…';
+  document.getElementById('cfg-save-msg').textContent = '✅ Сохранено! Загружаем данные...';
   if (window.QCP) {
     QCP.setSheet('advSheet', sheetName);
     // бенчмарки — в общий конфиг: иначе у продавцов QREI считался бы по старым
@@ -1392,7 +1391,7 @@ async function loadData() {
   if (!sheetName) {
     document.getElementById('mainContent').innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon"><i class="qi-slot" data-qi="setting-alt-line" data-qs="32"></i></div>
+        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div>
         <div class="empty-title">Таблица не настроена</div>
         <div class="empty-sub">Перейдите в панель → Настройки → укажите «Advanced KPI лист»</div>
       </div>`;
@@ -1434,7 +1433,7 @@ async function loadData() {
     console.error('[QREI]', e);
     document.getElementById('mainContent').innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon"><i class="qi-slot" data-qi="warning" data-qs="32"></i></div>
+        <div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
         <div class="empty-title">Ошибка загрузки</div>
         <div class="empty-sub" style="white-space:pre-wrap;text-align:left;max-width:480px">${e.message}</div>
         <div class="empty-sub" style="margin-top:12px;font-size:11px;opacity:0.5">Лист: «${sheetName}» · ID: ${sheetId.slice(0,20)}...</div>
@@ -1462,8 +1461,8 @@ auth.onAuthStateChanged(async user => {
   document.documentElement.setAttribute('data-theme', savedTheme);
   const _t2 = document.getElementById('themeBtn');
   if (_t2) _t2.innerHTML = savedTheme==='dark'
-    ? '<i class="qi-slot" data-qi="moon-alt" data-qs="16"></i>'
-    : '<i class="qi-slot" data-qi="sun-1" data-qs="16"></i>';
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
 
   // Determine back target by role
   try {
